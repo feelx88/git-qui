@@ -1,8 +1,10 @@
 #include "gitfilemodel.h"
 
-struct GitFileModelPrivate
+#include <QDir>
+
+struct GitFileModel::GitFileModelPrivate
 {
-  QString gitPath;
+  ~GitFileModelPrivate() = default;
 };
 
 GitFileModel::GitFileModel(QObject *parent)

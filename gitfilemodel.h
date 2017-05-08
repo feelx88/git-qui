@@ -4,13 +4,13 @@
 #include <QAbstractItemModel>
 #include <memory>
 
-struct GitFileModelPrivate;
 
 class GitFileModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
   explicit GitFileModel(QObject *parent = 0);
+  virtual ~GitFileModel() = default;
 
 signals:
 
@@ -25,7 +25,8 @@ public:
   virtual QVariant data(const QModelIndex &index, int role) const override;
 
 private:
-  std::unique_ptr<GitFileModelPrivate> _impl;
+  struct GitFileModelPrivate;
+  std::shared_ptr<GitFileModelPrivate> _impl;
 };
 
 #endif // GITFILEMODEL_H

@@ -3,7 +3,8 @@ QT += qml quick
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    gitfilemodel.cpp
+    gitfilemodel.cpp \
+    gitmanager.cpp
 
 RESOURCES += qml.qrc
 
@@ -35,4 +36,5 @@ FORMS += \
     treeform.ui
 
 HEADERS += \
-    gitfilemodel.h
+    gitfilemodel.h \
+    gitmanager.h
