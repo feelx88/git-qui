@@ -6,6 +6,8 @@ import QtQuick.Layouts 1.0
 SplitView {
   width: 800
   height: 600
+  property alias stagedArea: stagedArea
+  property alias unstagedArea: unstagedArea
   property alias textEdit: textEdit
   SplitView {
     id: splitView
@@ -13,19 +15,17 @@ SplitView {
     height: 480
     orientation: Qt.Vertical
 
-    ItemDelegate {
-      id: itemDelegate
+    ListView {
+      id: unstagedArea
       width: 320
       height: 240
-      text: qsTr("Item Delegate")
     }
 
-    ItemDelegate {
-      id: itemDelegate1
+    ListView {
+      id: stagedArea
       y: 240
       width: 320
       height: 240
-      text: qsTr("Item Delegate")
     }
   }
 
