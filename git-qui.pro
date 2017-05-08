@@ -2,7 +2,8 @@ QT += qml quick
 
 CONFIG += c++11
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    gitfilemodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,3 +33,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 FORMS += \
     treeform.ui
+
+HEADERS += \
+    gitfilemodel.h
