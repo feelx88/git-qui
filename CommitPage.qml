@@ -22,14 +22,11 @@ CommitForm {
   }
 
   Component.onCompleted: {
-  var status = gitManager.statusVariant();
-  for(var x = 0; x < status.length; ++x) {
-    var file = status[x],
-        model = file.staged ? stagedModel : unstagedModel;
-    model.append({
-                           value: status[x].path,
-                           modified: status[x].modified
-                         });
-     }
-   }
+    var status = gitManager.statusVariant();
+    for(var x = 0; x < status.length; ++x) {
+      var file = status[x],
+          model = file.staged ? stagedModel : unstagedModel;
+      model.append(file);
+    }
+  }
 }
