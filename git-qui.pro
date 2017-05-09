@@ -4,7 +4,8 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     gitfilemodel.cpp \
-    gitmanager.cpp
+    gitmanager.cpp \
+    gitfile.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,4 +38,5 @@ FORMS += \
 
 HEADERS += \
     gitfilemodel.h \
-    gitmanager.h
+    gitmanager.h \
+    gitfile.h

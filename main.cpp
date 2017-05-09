@@ -3,6 +3,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QDir>
+#include <QQmlContext>
 
 #include <gitmanager.h>
 
@@ -18,7 +19,10 @@ int main(int argc, char *argv[])
   manager.init();
   manager.openRepository(QDir::currentPath());
 
+  qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
+
   QQmlApplicationEngine engine;
+  engine.rootContext()->setContextProperty("gitManager", &manager);
   engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
   return app.exec();

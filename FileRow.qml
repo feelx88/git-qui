@@ -10,5 +10,6 @@ Row {
   Text {
     text: value
     anchors.verticalCenter: parent.verticalCenter
+    color: modified ? '#0000ff' : '#000000';
   }
 }

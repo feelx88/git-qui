@@ -2,8 +2,11 @@
 #define GITMANAGER_H
 
 #include <memory>
-
 #include <QObject>
+#include <QVariant>
+#include <QVariantList>
+
+#include <gitfile.h>
 
 class GitManager : public QObject
 {
@@ -12,6 +15,11 @@ public:
   GitManager(QObject *parent);
   void init();
   void openRepository(const QString &path);
+
+  QList<GitFile*> status();
+
+  Q_INVOKABLE QVariantList statusVariant();
+  Q_INVOKABLE QString headName();
 
 signals:
   void gitError(const QString &message);
