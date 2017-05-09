@@ -17,7 +17,6 @@ CommitForm {
      id: unstagedModel
      Component.onCompleted: {
        var status = gitManager.statusVariant();
-       console.log(status);
        for(var x = 0; x < status.length; ++x) {
          unstagedModel.append({
                         value: status[x].path,

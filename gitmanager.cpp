@@ -1,5 +1,6 @@
 #include "gitmanager.h"
 
+#include <utility>
 #include <QList>
 
 #include <git2.h>
@@ -41,14 +42,19 @@ QList<GitFile*> GitManager::status()
   git_status_options options = GIT_STATUS_OPTIONS_INIT;
   git_status_list_new(&status, _impl->repo, &options);
 
-  git_status_foreach(_impl->repo, [](const char* path, unsigned int status, void* _list) -> int {
-    QList<GitFile*> *list = static_cast<QList<GitFile*>*>(_list);
-    GitFile *file = new GitFile(nullptr);
+  std::pair<QList<GitFile*>*, GitManager*> data = std::make_pair(&list, this);
+  git_status_foreach(_impl->repo, [](const char* path, unsigned int status, void* _data) -> int {
+
+    auto *data = static_cast<std::pair<QList<GitFile*>*, GitManager*>*>(_data);
+    QList<GitFile*> *list = data->first;
+    GitManager *manager = data->second;
+
+    GitFile *file = new GitFile(manager);
     file->setPath(path);
     file->setModified(status & GIT_STATUS_INDEX_MODIFIED);
     list->append(file);
     return 0;
-  }, &list);
+  }, &data);
 
   git_status_list_free(status);
 
