@@ -50,8 +50,18 @@ QList<GitFile*> GitManager::status()
     GitManager *manager = data->second;
 
     GitFile *file = new GitFile(manager);
-    file->setPath(path);
-    file->setModified(status & GIT_STATUS_INDEX_MODIFIED);
+    file->path = path;
+    file->modified = status & (
+          GIT_STATUS_INDEX_MODIFIED |
+          GIT_STATUS_WT_MODIFIED
+          );
+    file->staged = status & (
+          GIT_STATUS_INDEX_MODIFIED |
+          GIT_STATUS_INDEX_NEW |
+          GIT_STATUS_INDEX_DELETED |
+          GIT_STATUS_INDEX_RENAMED |
+          GIT_STATUS_INDEX_TYPECHANGE
+          );
     list->append(file);
     return 0;
   }, &data);

@@ -4,29 +4,23 @@
 #include <QObject>
 #include <memory>
 
-class GitFile : public QObject
+struct GitFile : public QObject
 {
   Q_OBJECT
 public:
   explicit GitFile(QObject *parent = 0);
-  Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
-  Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
+  Q_PROPERTY(QString path MEMBER path NOTIFY pathChanged)
+  Q_PROPERTY(bool modified MEMBER modified NOTIFY modifiedChanged)
+  Q_PROPERTY(bool staged MEMBER staged NOTIFY modifiedStaged)
 
-  void setPath(QString path);
-  QString path();
-
-  void setModified(bool modified);
-  bool modified();
+  QString path;
+  bool modified;
+  bool staged;
 
 signals:
   void pathChanged();
   void modifiedChanged();
-
-public slots:
-
-private:
-  struct GitFilePrivate;
-  std::shared_ptr<GitFilePrivate> _impl;
+  void modifiedStaged();
 };
 
 #endif // GITFILE_H

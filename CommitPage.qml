@@ -15,18 +15,21 @@ CommitForm {
 
    ListModel {
      id: unstagedModel
-     Component.onCompleted: {
-       var status = gitManager.statusVariant();
-       for(var x = 0; x < status.length; ++x) {
-         unstagedModel.append({
-                        value: status[x].path,
-                        modified: status[x].modified
-                      });
-       }
-     }
   }
 
    ListModel {
      id: stagedModel
   }
+
+  Component.onCompleted: {
+  var status = gitManager.statusVariant();
+  for(var x = 0; x < status.length; ++x) {
+    var file = status[x],
+        model = file.staged ? stagedModel : unstagedModel;
+    model.append({
+                           value: status[x].path,
+                           modified: status[x].modified
+                         });
+     }
+   }
 }
