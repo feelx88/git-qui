@@ -11,6 +11,12 @@ Row {
   ToolButton {
     anchors.verticalCenter: parent.verticalCenter
     text: staged ? '-' : '+'
+    onClicked: {
+      if (!staged) {
+        gitManager.addPath(path);
+      } else {
+      }
+    }
   }
 
   Text {

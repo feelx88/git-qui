@@ -96,3 +96,10 @@ QString GitManager::headName()
 
   return QString(name);
 }
+
+void GitManager::addPath(const QString &path)
+{
+  git_index *index = nullptr;
+  git_repository_index(&index, _impl->repo);
+  git_index_add_bypath(index, path.toStdString().c_str());
+}
