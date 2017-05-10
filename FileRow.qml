@@ -23,5 +23,6 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     text: path
     color: modified ? '#0000ff' : '#000000';
+    font.strikeout: deleted;
   }
 }

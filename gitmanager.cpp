@@ -62,6 +62,10 @@ QList<GitFile*> GitManager::status()
           GIT_STATUS_INDEX_RENAMED |
           GIT_STATUS_INDEX_TYPECHANGE
           );
+    file->deleted = status &(
+          GIT_STATUS_INDEX_DELETED |
+          GIT_STATUS_WT_DELETED
+          );
     list->append(file);
     return 0;
   }, &data);
