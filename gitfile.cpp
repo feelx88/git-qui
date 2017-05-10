@@ -2,5 +2,6 @@
 
 
 GitFile::GitFile(QObject *parent)
+  : QObject (parent)
 {
 }
