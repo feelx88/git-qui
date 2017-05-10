@@ -10,6 +10,7 @@ CommitForm {
   Component {
     id: row
     FileRow {
+      onUpdated: init();
     }
   }
 
@@ -21,7 +22,11 @@ CommitForm {
      id: stagedModel
   }
 
-  Component.onCompleted: {
+  Component.onCompleted: init();
+
+  function init() {
+    stagedModel.clear();
+    unstagedModel.clear();
     var status = gitManager.statusVariant();
     for(var x = 0; x < status.length; ++x) {
       var file = status[x],

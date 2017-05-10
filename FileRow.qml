@@ -3,6 +3,7 @@ import QtQuick.Controls 2.1
 
 Row {
   id: row
+  signal updated();
   CheckBox {
     id: checkbox
     anchors.verticalCenter: parent.verticalCenter
@@ -17,6 +18,7 @@ Row {
       } else {
         gitManager.stagePath(path);
       }
+      row.updated();
     }
   }
 
