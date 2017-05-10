@@ -101,9 +101,30 @@ QString GitManager::headName()
   return QString(name);
 }
 
-void GitManager::addPath(const QString &path)
+void GitManager::stagePath(const QString &path)
 {
   git_index *index = nullptr;
   git_repository_index(&index, _impl->repo);
   git_index_add_bypath(index, path.toStdString().c_str());
+  git_index_write(index);
+  git_index_free(index);
+}
+
+void GitManager::unstagePath(const QString &path)
+{
+  git_reference *ref = nullptr;
+  git_repository_head(&ref, _impl->repo);
+
+  git_object *head = nullptr;
+  git_reference_peel(&head, ref, GIT_OBJ_COMMIT);
+
+  char *p = const_cast<char*>(path.toStdString().c_str());
+  git_strarray pathspec;
+  pathspec.strings = {&p};
+  pathspec.count = 1;
+
+  git_reset_default(_impl->repo, head, &pathspec);
+
+  git_object_free(head);
+  git_reference_free(ref);
 }

@@ -12,9 +12,10 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     text: staged ? '-' : '+'
     onClicked: {
-      if (!staged) {
-        gitManager.addPath(path);
+      if (staged) {
+        gitManager.unstagePath(path);
       } else {
+        gitManager.stagePath(path);
       }
     }
   }

@@ -20,7 +20,8 @@ public:
 
   Q_INVOKABLE QVariantList statusVariant();
   Q_INVOKABLE QString headName();
-  Q_INVOKABLE void addPath(const QString &path);
+  Q_INVOKABLE void stagePath(const QString &path);
+  Q_INVOKABLE void unstagePath(const QString &path);
 
 signals:
   void gitError(const QString &message);
