@@ -12,6 +12,8 @@ struct GitManager::GitManagerPrivate
     git_repository_free(repo);
   }
 
+  git_strarray strarrayFromQString(const QString &string);
+
   git_repository *repo;
 };
 
@@ -131,4 +133,35 @@ void GitManager::unstagePath(const QString &path)
 
   git_object_free(head);
   git_reference_free(ref);
+}
+
+QStringList GitManager::diffPath(const QString &path)
+{
+  QStringList output;
+
+  git_diff *diff = nullptr;
+  git_diff_options options = GIT_DIFF_OPTIONS_INIT;
+
+  options.pathspec = _impl->strarrayFromQString(path);
+  git_diff_index_to_workdir(&diff, _impl->repo, nullptr, &options);
+
+  git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, [](const git_diff_delta *delta,
+                 const git_diff_hunk *hunk,
+                 const git_diff_line *line,
+                 void *payload){
+    static_cast<QStringList*>(payload)->append(line->content);
+    return 0;
+  }, &output);
+
+  return output;
+}
+
+git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
+{
+  char *p = const_cast<char*>(string.toStdString().c_str());
+  git_strarray strarray;
+  strarray.strings = {&p};
+  strarray.count = 1;
+
+  return strarray;
 }

@@ -22,6 +22,7 @@ public:
   Q_INVOKABLE QString headName();
   Q_INVOKABLE void stagePath(const QString &path);
   Q_INVOKABLE void unstagePath(const QString &path);
+  Q_INVOKABLE QStringList diffPath(const QString &path);
 
 signals:
   void gitError(const QString &message);

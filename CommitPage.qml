@@ -25,7 +25,14 @@ CommitForm {
     id: row
     FileRow {
       onUpdated: init();
-      onClicked: selected = listView;
+      onClicked: {
+        selected = listView;
+        textEdit.text = '';
+        var diff = gitManager.diffPath(path);
+        for(var x = 0; x < diff.length; ++x) {
+          textEdit.text += diff[x];
+        }
+      }
     }
   }
 
