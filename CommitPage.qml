@@ -9,8 +9,10 @@ CommitForm {
   unstagedArea.model: unstagedModel
   stagedArea.model: stagedModel
 
-  unstagedArea.highlight: unstagedArea.focus ? highlight : null
-  stagedArea.highlight: stagedArea.focus ? highlight : null
+  unstagedArea.highlight: selected == unstagedArea ? highlight : null
+  stagedArea.highlight: selected == stagedArea ? highlight : null
+
+  property ListView selected: unstagedArea
 
   Component {
     id: highlight
@@ -23,6 +25,7 @@ CommitForm {
     id: row
     FileRow {
       onUpdated: init();
+      onClicked: selected = listView;
     }
   }
 

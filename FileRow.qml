@@ -4,6 +4,7 @@ import QtQuick.Controls 2.1
 Row {
   id: row
   signal updated();
+  signal clicked(ListView listView);
   width: parent.width
 
   CheckBox {
@@ -24,7 +25,6 @@ Row {
     }
   }
 
-
   Text {
     height: parent.height
     width: parent.width
@@ -36,7 +36,7 @@ Row {
     MouseArea {
       anchors.fill: parent
       onClicked: {
-        row.ListView.view.focus = true
+        row.clicked(row.ListView.view);
         row.ListView.view.currentIndex = index
       }
     }
