@@ -4,6 +4,8 @@ import QtQuick.Controls 2.1
 Row {
   id: row
   signal updated();
+  width: parent.width
+
   CheckBox {
     id: checkbox
     anchors.verticalCenter: parent.verticalCenter
@@ -22,10 +24,21 @@ Row {
     }
   }
 
+
   Text {
-    anchors.verticalCenter: parent.verticalCenter
+    height: parent.height
+    width: parent.width
+    verticalAlignment: Text.AlignVCenter
     text: path
     color: modified ? '#0000ff' : '#000000';
     font.strikeout: deleted;
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: {
+        row.ListView.view.focus = true
+        row.ListView.view.currentIndex = index
+      }
+    }
   }
 }
