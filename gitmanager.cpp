@@ -45,6 +45,10 @@ QList<GitFile*> GitManager::status()
   std::pair<QList<GitFile*>*, GitManager*> data = std::make_pair(&list, this);
   git_status_foreach(_impl->repo, [](const char* path, unsigned int status, void* _data) -> int {
 
+    if (status & GIT_STATUS_IGNORED) {
+      return 0;
+    }
+
     auto *data = static_cast<std::pair<QList<GitFile*>*, GitManager*>*>(_data);
     QList<GitFile*> *list = data->first;
     GitManager *manager = data->second;
