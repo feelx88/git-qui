@@ -1,12 +1,18 @@
 #include "gitmanager.h"
 
 #include <utility>
+#include <cstring>
 #include <QList>
 
 #include <git2.h>
 
 struct GitManager::GitManagerPrivate
 {
+  GitManagerPrivate(GitManager* main)
+    : _main(main)
+  {
+  }
+
   ~GitManagerPrivate()
   {
     git_repository_free(repo);
@@ -14,12 +20,13 @@ struct GitManager::GitManagerPrivate
 
   git_strarray strarrayFromQString(const QString &string);
 
+  GitManager *_main;
   git_repository *repo;
 };
 
 GitManager::GitManager(QObject *parent)
   : QObject(parent),
-    _impl(new GitManagerPrivate)
+    _impl(new GitManagerPrivate(this))
 {
 }
 
@@ -124,11 +131,7 @@ void GitManager::unstagePath(const QString &path)
   git_object *head = nullptr;
   git_reference_peel(&head, ref, GIT_OBJ_COMMIT);
 
-  char *p = const_cast<char*>(path.toStdString().c_str());
-  git_strarray pathspec;
-  pathspec.strings = {&p};
-  pathspec.count = 1;
-
+  git_strarray pathspec = _impl->strarrayFromQString(path);
   git_reset_default(_impl->repo, head, &pathspec);
 
   git_object_free(head);
@@ -141,27 +144,50 @@ QStringList GitManager::diffPath(const QString &path)
 
   git_diff *diff = nullptr;
   git_diff_options options = GIT_DIFF_OPTIONS_INIT;
-
   options.pathspec = _impl->strarrayFromQString(path);
-  git_diff_index_to_workdir(&diff, _impl->repo, nullptr, &options);
+
+  git_index *index = nullptr;
+  git_repository_index(&index, _impl->repo);
+
+  if(git_index_find(nullptr, index, path.toStdString().c_str()) != GIT_ENOTFOUND)
+  {
+    git_reference *head = nullptr;
+    git_repository_head(&head, _impl->repo);
+
+    git_object *headTree = nullptr;
+    git_object_peel(&headTree, reinterpret_cast<git_object*>(head), GIT_OBJ_TREE);
+
+    git_diff_tree_to_index(&diff, _impl->repo, reinterpret_cast<git_tree*>(headTree), nullptr, &options);
+
+    git_reference_free(head);
+    git_object_free(headTree);
+  }
+  else
+  {
+    git_diff_index_to_workdir(&diff, _impl->repo, index, &options);
+  }
 
   git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, [](const git_diff_delta *delta,
                  const git_diff_hunk *hunk,
                  const git_diff_line *line,
                  void *payload){
-    static_cast<QStringList*>(payload)->append(line->content);
+    std::string content(line->content, line->content_len);
+    static_cast<QStringList*>(payload)->append(QString::fromStdString(content));
     return 0;
   }, &output);
 
+  git_diff_free(diff);
+  git_index_free(index);
   return output;
 }
 
 git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
 {
-  char *p = const_cast<char*>(string.toStdString().c_str());
-  git_strarray strarray;
-  strarray.strings = {&p};
-  strarray.count = 1;
+  std::string str = string.toStdString();
+  char *ch = new char[string.size()];
+  std::memcpy(ch, str.data(), str.size());
+  char **array = new char*[1];
+  array[0] = ch;
 
-  return strarray;
+  return {array, 1};
 }

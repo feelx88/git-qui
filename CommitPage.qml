@@ -27,11 +27,7 @@ CommitForm {
       onUpdated: init();
       onClicked: {
         selected = listView;
-        textEdit.text = '';
-        var diff = gitManager.diffPath(path);
-        for(var x = 0; x < diff.length; ++x) {
-          textEdit.text += diff[x];
-        }
+        loadDiff(path);
       }
     }
   }
@@ -56,5 +52,22 @@ CommitForm {
       model.append(file);
     }
     unstagedArea.focus = true;
+
+    var path = '';
+    if (unstagedModel.count > 0) {
+      path = unstagedModel.get(0).path;
+    } else if (unstagedModel.count > 0) {
+      path = stagedModel.get(0).path;
+    }
+
+    loadDiff(path);
+  }
+
+  function loadDiff(path) {
+    diffView.text = '';
+    var diff = gitManager.diffPath(path);
+    for(var x = 0; x < diff.length; ++x) {
+      diffView.text += diff[x] + '\n';
+    }
   }
 }
