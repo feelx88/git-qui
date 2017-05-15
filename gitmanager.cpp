@@ -138,9 +138,22 @@ void GitManager::unstagePath(const QString &path)
   git_reference_free(ref);
 }
 
-QStringList GitManager::diffPath(const QString &path)
+QVariantList GitManager::diffPathVariant(const QString &path)
 {
-  QStringList output;
+  auto list = diffPath(path);
+  QVariantList propList;
+
+  for(auto *diffLine : list)
+  {
+    propList.append(qVariantFromValue(diffLine));
+  }
+
+  return propList;
+}
+
+QList<GitDiffLine*> GitManager::diffPath(const QString &path)
+{
+  QList<GitDiffLine*> output;
 
   git_diff *diff = nullptr;
   git_diff_options options = GIT_DIFF_OPTIONS_INIT;
@@ -162,8 +175,25 @@ QStringList GitManager::diffPath(const QString &path)
                  const git_diff_hunk *hunk,
                  const git_diff_line *line,
                  void *payload){
-    std::string content = line->origin + std::string(line->content, line->content_len);
-    static_cast<QStringList*>(payload)->append(QString::fromStdString(content));
+    GitDiffLine *diffLine = new GitDiffLine(nullptr);
+    diffLine->content = QString::fromStdString(std::string(line->content, line->content_len));
+    switch(line->origin)
+    {
+    case '+':
+      diffLine->type = GitDiffLine::diffType::ADD;
+      break;
+    case '-':
+      diffLine->type = GitDiffLine::diffType::REMOVE;
+      break;
+    case 'H':
+      diffLine->type = GitDiffLine::diffType::HEADER;
+      break;
+    case 'F':
+      diffLine->type = GitDiffLine::diffType::FILE_HEADER;
+      break;
+    }
+    static_cast<QList<GitDiffLine*>*>(payload)->append(diffLine);
+
     return 0;
   }, &output);
 

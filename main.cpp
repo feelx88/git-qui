@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
   manager.openRepository(QDir::currentPath());
 
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
+  qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
 
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", &manager);

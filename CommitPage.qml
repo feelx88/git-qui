@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import de.feelx88.GitFile 1.0
+import de.feelx88.GitDiffLine 1.0
 import QtQuick.Controls.Material 2.1
 
 CommitForm {
@@ -65,21 +66,21 @@ CommitForm {
 
   function loadDiff(path) {
     diffView.text = '';
-    var diff = gitManager.diffPath(path);
+    var diff = gitManager.diffPathVariant(path);
     for(var x = 0; x < diff.length; ++x) {
       var color = '#000',
-          curDiff = diff[x],
-          prefix = curDiff.substring(0, 1);
-      if (prefix == '-') {
+          curDiff = diff[x];
+      if (curDiff.type == GitDiffLine.REMOVE) {
         color = '#a00';
-      } else if (prefix == '+') {
+        curDiff.content = '-' + curDiff.content;
+      } else if (curDiff.type == GitDiffLine.ADD) {
         color = '#0a0';
-      } else if(prefix =='H' || prefix =='F') {
+        curDiff.content = '+' + curDiff.content;
+      } else if(curDiff.type == GitDiffLine.HEADER || curDiff.type == GitDiffLine.FILE_HEADER) {
         color = '#aaa';
-        curDiff = curDiff.substring(1);
       }
 
-      diffView.text += '<div style="color: ' + color + '">' + curDiff + '</div>';
+      diffView.text += '<div style="color: ' + color + '">' + curDiff.content + '</div>';
     }
   }
 }

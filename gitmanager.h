@@ -7,6 +7,7 @@
 #include <QVariantList>
 
 #include <gitfile.h>
+#include <gitdiffline.h>
 
 class GitManager : public QObject
 {
@@ -17,12 +18,13 @@ public:
   void openRepository(const QString &path);
 
   QList<GitFile*> status();
+  QList<GitDiffLine*> diffPath(const QString &path);
 
   Q_INVOKABLE QVariantList statusVariant();
   Q_INVOKABLE QString headName();
   Q_INVOKABLE void stagePath(const QString &path);
   Q_INVOKABLE void unstagePath(const QString &path);
-  Q_INVOKABLE QStringList diffPath(const QString &path);
+  Q_INVOKABLE QVariantList diffPathVariant(const QString &path);
 
 signals:
   void gitError(const QString &message);

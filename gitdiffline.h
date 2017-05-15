@@ -9,18 +9,23 @@ class GitDiffLine : public QObject
 public:
   enum class diffType
   {
-    ADD = 0,
+    FILE_HEADER = 0,
+    HEADER,
+    ADD,
     REMOVE
   };
   Q_ENUM(diffType)
 
   explicit GitDiffLine(QObject *parent = 0);
   Q_PROPERTY(diffType type MEMBER type NOTIFY typeChanged)
+  Q_PROPERTY(QString content MEMBER content NOTIFY contentChanged)
 
   diffType type;
+  QString content;
 
 signals:
   void typeChanged();
+  void contentChanged();
 
 public slots:
 };
