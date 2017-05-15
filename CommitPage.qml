@@ -67,7 +67,19 @@ CommitForm {
     diffView.text = '';
     var diff = gitManager.diffPath(path);
     for(var x = 0; x < diff.length; ++x) {
-      diffView.text += diff[x] + '\n';
+      var color = '#000',
+          curDiff = diff[x],
+          prefix = curDiff.substring(0, 1);
+      if (prefix == '-') {
+        color = '#a00';
+      } else if (prefix == '+') {
+        color = '#0a0';
+      } else if(prefix =='H' || prefix =='F') {
+        color = '#aaa';
+        curDiff = curDiff.substring(1);
+      }
+
+      diffView.text += '<div style="color: ' + color + '">' + curDiff + '</div>';
     }
   }
 }

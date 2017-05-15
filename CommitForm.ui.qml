@@ -4,9 +4,9 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 
 SplitView {
-  width: 800
-  height: 600
-  property alias diffView: diffView
+    width: 800
+    height: 600
+    property alias diffView: diffView
     property alias stagedArea: stagedArea
     property alias unstagedArea: unstagedArea
 
@@ -26,32 +26,32 @@ SplitView {
         }
 
         ListView {
-          id: stagedArea
-          y: 240
-          width: 320
-          height: 240
-          clip: true
+            id: stagedArea
+            y: 240
+            width: 320
+            height: 240
+            clip: true
         }
-
     }
 
     SplitView {
-      id: splitView1
-      x: 320
-      width: 320
-      height: 480
-      orientation: Qt.Vertical
-
-      ScrollView {
+        id: splitView1
+        x: 320
         width: 320
-        height: 240
-        x: 0
-        TextArea {
-          id: diffView
-          text: ""
-          textFormat: Text.RichText
-          font.pixelSize: 12
-          }
+        height: 480
+        orientation: Qt.Vertical
+
+        ScrollView {
+            width: 320
+            height: 240
+            x: 0
+            TextArea {
+                id: diffView
+                text: ""
+                font.family: "Monospace"
+                textFormat: Text.RichText
+                font.pixelSize: 12
+            }
         }
 
         RowLayout {

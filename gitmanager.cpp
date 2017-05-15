@@ -145,37 +145,29 @@ QStringList GitManager::diffPath(const QString &path)
   git_diff *diff = nullptr;
   git_diff_options options = GIT_DIFF_OPTIONS_INIT;
   options.pathspec = _impl->strarrayFromQString(path);
+  options.interhunk_lines = 3;
 
   git_index *index = nullptr;
   git_repository_index(&index, _impl->repo);
 
-  if(git_index_find(nullptr, index, path.toStdString().c_str()) != GIT_ENOTFOUND)
-  {
-    git_reference *head = nullptr;
-    git_repository_head(&head, _impl->repo);
+  git_reference *head = nullptr;
+  git_repository_head(&head, _impl->repo);
 
-    git_object *headTree = nullptr;
-    git_object_peel(&headTree, reinterpret_cast<git_object*>(head), GIT_OBJ_TREE);
+  git_object *headTree = nullptr;
+  git_reference_peel(&headTree, head, GIT_OBJ_TREE);
 
-    git_diff_tree_to_index(&diff, _impl->repo, reinterpret_cast<git_tree*>(headTree), nullptr, &options);
-
-    git_reference_free(head);
-    git_object_free(headTree);
-  }
-  else
-  {
-    git_diff_index_to_workdir(&diff, _impl->repo, index, &options);
-  }
+  git_diff_tree_to_workdir_with_index(&diff, _impl->repo, reinterpret_cast<git_tree*>(headTree), &options);
 
   git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, [](const git_diff_delta *delta,
                  const git_diff_hunk *hunk,
                  const git_diff_line *line,
                  void *payload){
-    std::string content(line->content, line->content_len);
+    std::string content = line->origin + std::string(line->content, line->content_len);
     static_cast<QStringList*>(payload)->append(QString::fromStdString(content));
     return 0;
   }, &output);
 
+  git_object_free(headTree);
   git_diff_free(diff);
   git_index_free(index);
   return output;
