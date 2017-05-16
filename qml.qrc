@@ -6,5 +6,6 @@
         <file>qtquickcontrols2.conf</file>
         <file>TreePage.qml</file>
         <file>FileRow.qml</file>
+        <file>DiffRow.qml</file>
     </qresource>
 </RCC>

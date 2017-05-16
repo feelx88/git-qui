@@ -45,12 +45,16 @@ SplitView {
             width: 320
             height: 240
             x: 0
-            TextArea {
+
+            ListView {
                 id: diffView
-                text: ""
-                font.family: "Monospace"
-                textFormat: Text.RichText
-                font.pixelSize: 12
+                x: 0
+                y: 0
+                width: 110
+                height: 160
+                flickableDirection: Flickable.HorizontalAndVerticalFlick
+                interactive: true
+                clip: true
             }
         }
 
@@ -106,7 +110,8 @@ SplitView {
                     id: textEdit1
                     width: 80
                     height: 20
-                    text: qsTr("Text Edit")
+                    text: qsTr("")
+                    clip: true
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter

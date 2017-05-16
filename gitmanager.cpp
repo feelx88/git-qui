@@ -176,7 +176,7 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
                  const git_diff_line *line,
                  void *payload){
     GitDiffLine *diffLine = new GitDiffLine(nullptr);
-    diffLine->content = QString::fromStdString(std::string(line->content, line->content_len));
+    diffLine->content = QString::fromStdString(std::string(line->content, line->content_len - 1));
     switch(line->origin)
     {
     case '+':
@@ -190,6 +190,13 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
       break;
     case 'F':
       diffLine->type = GitDiffLine::diffType::FILE_HEADER;
+      break;
+    case 'B':
+    case '=':
+    case '>':
+    case '<':
+    default:
+      diffLine->type = GitDiffLine::diffType::CONTEXT;
       break;
     }
     static_cast<QList<GitDiffLine*>*>(payload)->append(diffLine);

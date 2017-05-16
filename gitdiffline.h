@@ -11,6 +11,7 @@ public:
   {
     FILE_HEADER = 0,
     HEADER,
+    CONTEXT,
     ADD,
     REMOVE
   };

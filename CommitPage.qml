@@ -6,9 +6,11 @@ import QtQuick.Controls.Material 2.1
 CommitForm {
   unstagedArea.delegate: row
   stagedArea.delegate: row
+  diffView.delegate: diffRow
 
   unstagedArea.model: unstagedModel
   stagedArea.model: stagedModel
+  diffView.model: diffModel
 
   unstagedArea.highlight: selected == unstagedArea ? highlight : null
   stagedArea.highlight: selected == stagedArea ? highlight : null
@@ -33,12 +35,22 @@ CommitForm {
     }
   }
 
-   ListModel {
+  Component {
+    id: diffRow
+    DiffRow {
+    }
+  }
+
+  ListModel {
      id: unstagedModel
   }
 
-   ListModel {
+  ListModel {
      id: stagedModel
+  }
+
+  ListModel {
+    id: diffModel
   }
 
   Component.onCompleted: init();
@@ -65,22 +77,10 @@ CommitForm {
   }
 
   function loadDiff(path) {
-    diffView.text = '';
+    diffModel.clear();
     var diff = gitManager.diffPathVariant(path);
     for(var x = 0; x < diff.length; ++x) {
-      var color = '#000',
-          curDiff = diff[x];
-      if (curDiff.type == GitDiffLine.REMOVE) {
-        color = '#a00';
-        curDiff.content = '-' + curDiff.content;
-      } else if (curDiff.type == GitDiffLine.ADD) {
-        color = '#0a0';
-        curDiff.content = '+' + curDiff.content;
-      } else if(curDiff.type == GitDiffLine.HEADER || curDiff.type == GitDiffLine.FILE_HEADER) {
-        color = '#aaa';
-      }
-
-      diffView.text += '<div style="color: ' + color + '">' + curDiff.content + '</div>';
+      diffModel.append(diff[x]);
     }
   }
 }
