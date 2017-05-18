@@ -153,39 +153,36 @@ QVariantList GitManager::diffPathVariant(const QString &path)
 
 void GitManager::commit(const QString &message)
 {
+  // Get index
   git_index *index = nullptr;
   git_repository_index(&index, _impl->repo);
 
-  git_oid tree_id, parent_id, commit_id;
+  // Get index tree
+  git_oid tree_id;
   git_tree *tree = nullptr;
   git_commit *parent = nullptr;
-
   git_index_write_tree(&tree_id, index);
-
   git_tree_lookup(&tree, _impl->repo, &tree_id);
 
+  // Get head commit
+  git_oid parent_id;
   git_reference_name_to_id(&parent_id, _impl->repo, "HEAD");
   git_commit_lookup(&parent, _impl->repo, &parent_id);
 
+  // Get author
   git_signature *author = nullptr;
   git_signature_default(&author, _impl->repo);
 
+  // prettify message
   git_buf buf;
   git_message_prettify(&buf, message.toStdString().c_str(), 1, '#');
 
-  git_commit_create_v(
-      &commit_id,
-      _impl->repo,
-      "HEAD",
-      author,
-      author,
-      nullptr,
-      buf.ptr,
-      tree,
-      1,
-      parent
-  );
+  // Do the commit
+  git_oid commit_id;
+  git_commit_create_v(&commit_id, _impl->repo, "HEAD", author, author, nullptr,
+                      buf.ptr, tree, 1, parent);
 
+  // Clean up
   git_signature_free(author);
   git_commit_free(parent);
   git_tree_free(tree);
