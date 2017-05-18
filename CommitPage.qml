@@ -86,7 +86,9 @@ CommitForm {
     diffModel.clear();
     var diff = gitManager.diffPathVariant(path);
     for(var x = 0; x < diff.length; ++x) {
-      diffModel.append(diff[x]);
+      if (diff[x].type != GitDiffLine.FILE_HEADER) {
+        diffModel.append(diff[x]);
+      }
     }
   }
 }

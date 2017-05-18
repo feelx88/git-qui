@@ -6,9 +6,11 @@ Row {
   signal updated();
   signal clicked(ListView listView, string path);
   width: parent.width
+  height: 25
 
   CheckBox {
     id: checkbox
+    scale: 0.7
     anchors.verticalCenter: parent.verticalCenter
   }
 
