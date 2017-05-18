@@ -6,6 +6,8 @@ import QtQuick.Layouts 1.0
 SplitView {
     width: 800
     height: 600
+    property alias buttonCommit: buttonCommit
+    property alias commitMessage: commitMessage
     property alias diffView: diffView
     property alias stagedArea: stagedArea
     property alias unstagedArea: unstagedArea
@@ -70,8 +72,8 @@ SplitView {
                 height: 240
 
                 Button {
-                    id: button
-                    text: qsTr("Button")
+                    id: buttonCommit
+                    text: qsTr("Commit")
                 }
 
                 Button {
@@ -107,7 +109,7 @@ SplitView {
                 }
 
                 TextEdit {
-                    id: textEdit1
+                    id: commitMessage
                     width: 80
                     height: 20
                     text: qsTr("")

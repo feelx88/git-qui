@@ -25,6 +25,7 @@ public:
   Q_INVOKABLE void stagePath(const QString &path);
   Q_INVOKABLE void unstagePath(const QString &path);
   Q_INVOKABLE QVariantList diffPathVariant(const QString &path);
+  Q_INVOKABLE void commit(const QString &message);
 
 signals:
   void gitError(const QString &message);

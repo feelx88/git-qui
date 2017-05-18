@@ -151,6 +151,47 @@ QVariantList GitManager::diffPathVariant(const QString &path)
   return propList;
 }
 
+void GitManager::commit(const QString &message)
+{
+  git_index *index = nullptr;
+  git_repository_index(&index, _impl->repo);
+
+  git_oid tree_id, parent_id, commit_id;
+  git_tree *tree = nullptr;
+  git_commit *parent = nullptr;
+
+  git_index_write_tree(&tree_id, index);
+
+  git_tree_lookup(&tree, _impl->repo, &tree_id);
+
+  git_reference_name_to_id(&parent_id, _impl->repo, "HEAD");
+  git_commit_lookup(&parent, _impl->repo, &parent_id);
+
+  git_signature *author = nullptr;
+  git_signature_default(&author, _impl->repo);
+
+  git_buf buf;
+  git_message_prettify(&buf, message.toStdString().c_str(), 1, '#');
+
+  git_commit_create_v(
+      &commit_id,
+      _impl->repo,
+      "HEAD",
+      author,
+      author,
+      nullptr,
+      buf.ptr,
+      tree,
+      1,
+      parent
+  );
+
+  git_signature_free(author);
+  git_commit_free(parent);
+  git_tree_free(tree);
+  git_index_free(index);
+}
+
 QList<GitDiffLine*> GitManager::diffPath(const QString &path)
 {
   QList<GitDiffLine*> output;

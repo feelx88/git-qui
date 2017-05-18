@@ -17,6 +17,12 @@ CommitForm {
 
   property ListView selected: unstagedArea
 
+  buttonCommit.onClicked: {
+    gitManager.commit(commitMessage.text);
+    commitMessage.text = '';
+    init();
+  }
+
   Component {
     id: highlight
     Rectangle {
