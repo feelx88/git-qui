@@ -3,7 +3,6 @@ QT += qml quick
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    gitfilemodel.cpp \
     gitmanager.cpp \
     gitfile.cpp \
     gitdiffline.cpp
@@ -38,7 +37,6 @@ FORMS += \
     treeform.ui
 
 HEADERS += \
-    gitfilemodel.h \
     gitmanager.h \
     gitfile.h \
     gitdiffline.h

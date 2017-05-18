@@ -209,8 +209,8 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
 
   git_diff_tree_to_workdir_with_index(&diff, _impl->repo, reinterpret_cast<git_tree*>(headTree), &options);
 
-  git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, [](const git_diff_delta *delta,
-                 const git_diff_hunk *hunk,
+  git_diff_print(diff, GIT_DIFF_FORMAT_PATCH, [](const git_diff_delta *,
+                 const git_diff_hunk *,
                  const git_diff_line *line,
                  void *payload){
     GitDiffLine *diffLine = new GitDiffLine(nullptr);
