@@ -251,8 +251,9 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
 git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
 {
   std::string str = string.toStdString();
-  char *ch = new char[string.size()];
-  std::memcpy(ch, str.data(), str.size());
+  char *ch = new char[str.size()];
+  std::memcpy(ch, str.c_str(), str.size() + 1);
+  ch[str.size()] = 0;
   char **array = new char*[1];
   array[0] = ch;
 
