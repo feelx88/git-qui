@@ -21,13 +21,18 @@ public:
   explicit GitDiffLine(QObject *parent = 0);
   Q_PROPERTY(diffType type MEMBER type NOTIFY typeChanged)
   Q_PROPERTY(QString content MEMBER content NOTIFY contentChanged)
+  Q_PROPERTY(int oldLine MEMBER oldLine NOTIFY oldLineChanged)
+  Q_PROPERTY(int newLine MEMBER newLine NOTIFY newLineChanged)
 
   diffType type;
   QString content;
+  int oldLine, newLine;
 
 signals:
   void typeChanged();
   void contentChanged();
+  void oldLineChanged();
+  void newLineChanged();
 
 public slots:
 };

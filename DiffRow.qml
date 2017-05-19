@@ -11,10 +11,31 @@ Rectangle {
   height: 20
   color: _color
 
+  Text {
+    id: _oldLine
+    text: oldLine > 0 ? oldLine : ''
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.left: parent.left
+    anchors.leftMargin: 0
+    font.pixelSize: 12
+    width: 40
+  }
+
+  Text {
+    id: _newLine
+    text: newLine > 0 ? newLine : ''
+    anchors.verticalCenterOffset: 0
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.left: _oldLine.right
+    anchors.leftMargin: 10
+    font.pixelSize: 12
+    width: 40
+  }
+
   CheckBox {
     id: _checkBox
-    anchors.left: parent.left
-    anchors.leftMargin: -10
+    anchors.left: _newLine.right
+    anchors.leftMargin: 0
     scale: 0.7
     anchors.verticalCenter: parent.verticalCenter
     opacity: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE) ? 1 : 0
@@ -37,6 +58,7 @@ Rectangle {
     verticalAlignment: Text.AlignVCenter
     anchors.verticalCenter: _checkBox.verticalCenter
   }
+
 
   Component.onCompleted: {
     if (type == GitDiffLine.ADD) {

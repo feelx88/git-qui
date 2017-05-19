@@ -216,6 +216,8 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
                  void *payload){
     GitDiffLine *diffLine = new GitDiffLine(nullptr);
     diffLine->content = QString::fromStdString(std::string(line->content, line->content_len - 1));
+    diffLine->oldLine = line->old_lineno;
+    diffLine->newLine = line->new_lineno;
     switch(line->origin)
     {
     case '+':
