@@ -10,6 +10,7 @@ public:
   enum class diffType
   {
     FILE_HEADER = 0,
+    FILE_FOOTER,
     HEADER,
     CONTEXT,
     ADD,

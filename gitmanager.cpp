@@ -229,10 +229,13 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
     case 'F':
       diffLine->type = GitDiffLine::diffType::FILE_HEADER;
       break;
-    case 'B':
     case '=':
     case '>':
     case '<':
+      diffLine->type = GitDiffLine::diffType::FILE_FOOTER;
+      break;
+    case 'B':
+    case ' ':
     default:
       diffLine->type = GitDiffLine::diffType::CONTEXT;
       break;
