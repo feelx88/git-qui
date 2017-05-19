@@ -175,6 +175,7 @@ void GitManager::commit(const QString &message)
 
   // prettify message
   git_buf buf;
+  buf.ptr = new char[message.size()];
   git_message_prettify(&buf, message.toStdString().c_str(), 1, '#');
 
   // Do the commit
