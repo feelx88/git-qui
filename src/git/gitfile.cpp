@@ -1,4 +1,4 @@
-#include "git/libgit2/gitfile.h"
+#include "git/gitfile.h"
 
 
 GitFile::GitFile(QObject *parent)

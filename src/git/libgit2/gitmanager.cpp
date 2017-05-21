@@ -1,10 +1,13 @@
-#include "git/libgit2/gitmanager.h"
+#include <git/libgit2/gitmanager.h>
 
 #include <utility>
 #include <cstring>
 #include <QList>
 
 #include <git2.h>
+
+#include <git/gitfile.h>
+#include <git/gitdiffline.h>
 
 struct GitManager::GitManagerPrivate
 {
@@ -25,7 +28,7 @@ struct GitManager::GitManagerPrivate
 };
 
 GitManager::GitManager(QObject *parent)
-  : QObject(parent),
+  : AGitManager(parent),
     _impl(new GitManagerPrivate(this))
 {
 }
@@ -88,19 +91,6 @@ QList<GitFile*> GitManager::status()
   return list;
 }
 
-QVariantList GitManager::statusVariant()
-{
-  auto list = status();
-  QVariantList propList;
-
-  for(auto *file : list)
-  {
-    propList.append(qVariantFromValue(file));
-  }
-
-  return propList;
-}
-
 QString GitManager::headName()
 {
   const char* name;
@@ -136,19 +126,6 @@ void GitManager::unstagePath(const QString &path)
 
   git_object_free(head);
   git_reference_free(ref);
-}
-
-QVariantList GitManager::diffPathVariant(const QString &path)
-{
-  auto list = diffPath(path);
-  QVariantList propList;
-
-  for(auto *diffLine : list)
-  {
-    propList.append(qVariantFromValue(diffLine));
-  }
-
-  return propList;
 }
 
 void GitManager::commit(const QString &message)

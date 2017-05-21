@@ -4,14 +4,15 @@ CONFIG += c++11
 
 SOURCES += src/main.cpp \
     src/git/libgit2/gitmanager.cpp \
-    src/git/libgit2/gitfile.cpp \
-    src/git/libgit2/gitdiffline.cpp
+    src/git/gitfile.cpp \
+    src/git/gitdiffline.cpp \
+    src/git/agitmanager.cpp
 
 HEADERS += \
     include/git/libgit2/gitmanager.h \
-    include/git/libgit2/gitfile.h \
-    include/git/libgit2/gitdiffline.h \
-    include/git/gitmanager.h
+    include/git/gitfile.h \
+    include/git/gitdiffline.h \
+    include/git/agitmanager.h
 
 OTHER_FILES += qtquickcontrols2.conf \
     ui/default/main.qml \

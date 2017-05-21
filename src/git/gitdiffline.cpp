@@ -1,4 +1,4 @@
-#include "git/libgit2/gitdiffline.h"
+#include "git/gitdiffline.h"
 
 GitDiffLine::GitDiffLine(QObject *parent) : QObject(parent)
 {

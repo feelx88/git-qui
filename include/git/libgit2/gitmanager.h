@@ -6,10 +6,9 @@
 #include <QVariant>
 #include <QVariantList>
 
-#include "gitfile.h"
-#include "gitdiffline.h"
+#include <git/agitmanager.h>
 
-class GitManager : public QObject
+class GitManager : public AGitManager
 {
   Q_OBJECT
 public:
@@ -20,15 +19,10 @@ public:
   QList<GitFile*> status();
   QList<GitDiffLine*> diffPath(const QString &path);
 
-  Q_INVOKABLE QVariantList statusVariant();
   Q_INVOKABLE QString headName();
   Q_INVOKABLE void stagePath(const QString &path);
   Q_INVOKABLE void unstagePath(const QString &path);
-  Q_INVOKABLE QVariantList diffPathVariant(const QString &path);
   Q_INVOKABLE void commit(const QString &message);
-
-signals:
-  void gitError(const QString &message);
 
 private:
   struct GitManagerPrivate;

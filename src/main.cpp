@@ -6,14 +6,16 @@
 #include <QQmlContext>
 #include <QQuickStyle>
 
-#include "git/libgit2/gitmanager.h"
+#include <git/gitfile.h>
+#include <git/gitdiffline.h>
+#include <git/libgit2/gitmanager.h>
 
 int main(int argc, char *argv[])
 {
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QGuiApplication app(argc, argv);
 
-  GitManager manager(nullptr);
+  GitManager manager(&app);
   manager.connect(&manager, &GitManager::gitError, [&](const QString &message){
     std::cout << message.toStdString() << std::endl;
   });
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
 
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", &manager);
-  engine.load(QUrl(QLatin1String("ui/default/main.qml")));
+  engine.load(QUrl(QCoreApplication::applicationDirPath() + QLatin1String("/ui/default/main.qml")));
 
   return app.exec();
 }
