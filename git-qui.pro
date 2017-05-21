@@ -14,7 +14,8 @@ HEADERS += \
     include/git/gitdiffline.h \
     include/git/agitmanager.h
 
-OTHER_FILES += qtquickcontrols2.conf \
+OTHER_FILES += .gitignore \
+    qtquickcontrols2.conf \
     ui/default/main.qml \
     ui/default/CommitPage/CommiPage.qml \
     ui/default/CommitPage/CommitForm.ui.qml \
