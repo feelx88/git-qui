@@ -6,8 +6,8 @@
 #include <QVariant>
 #include <QVariantList>
 
-#include <gitfile.h>
-#include <gitdiffline.h>
+#include "gitfile.h"
+#include "gitdiffline.h"
 
 class GitManager : public QObject
 {

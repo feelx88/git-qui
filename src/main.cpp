@@ -4,8 +4,9 @@
 #include <QQmlApplicationEngine>
 #include <QDir>
 #include <QQmlContext>
+#include <QQuickStyle>
 
-#include <gitmanager.h>
+#include "git/libgit2/gitmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +23,11 @@ int main(int argc, char *argv[])
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
 
+  QQuickStyle::setFallbackStyle("Material");
+
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", &manager);
-  engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+  engine.load(QUrl(QLatin1String("ui/default/main.qml")));
 
   return app.exec();
 }

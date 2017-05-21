@@ -1,4 +1,4 @@
-#include "gitmanager.h"
+#include "git/libgit2/gitmanager.h"
 
 #include <utility>
 #include <cstring>

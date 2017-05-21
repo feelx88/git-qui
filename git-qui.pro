@@ -1,15 +1,29 @@
-QT += qml quick
+QT += qml quick quickcontrols2
 
 CONFIG += c++11
 
-SOURCES += main.cpp \
-    gitmanager.cpp \
-    gitfile.cpp \
-    gitdiffline.cpp
+SOURCES += src/main.cpp \
+    src/git/libgit2/gitmanager.cpp \
+    src/git/libgit2/gitfile.cpp \
+    src/git/libgit2/gitdiffline.cpp
 
-RESOURCES += qml.qrc
+HEADERS += \
+    include/git/libgit2/gitmanager.h \
+    include/git/libgit2/gitfile.h \
+    include/git/libgit2/gitdiffline.h \
+    include/git/gitmanager.h
+
+OTHER_FILES += qtquickcontrols2.conf \
+    ui/default/main.qml \
+    ui/default/CommitPage/CommiPage.qml \
+    ui/default/CommitPage/CommitForm.ui.qml \
+    ui/default/TreePage/TreePage.qml \
+    ui/default/CommitPage/FileRow.qml \
+    ui/default/CommitPage/DiffRow.qml
 
 LIBS += -lgit2
+
+INCLUDEPATH += include/
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -32,11 +46,3 @@ DEFINES += QT_DEPRECATED_WARNINGS
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-FORMS += \
-    treeform.ui
-
-HEADERS += \
-    gitmanager.h \
-    gitfile.h \
-    gitdiffline.h
