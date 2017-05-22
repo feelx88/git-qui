@@ -28,7 +28,7 @@ void gitBin::GitManager::openRepository(const QString &)
 
 QList<GitFile *> gitBin::GitManager::status()
 {
-  _impl->process->setArguments({"status", "--porcelain=v1"});
+  _impl->process->setArguments({"status", "-uall", "--porcelain=v1"});
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
   QByteArray output = _impl->process->readLine(1024);
@@ -39,7 +39,7 @@ QList<GitFile *> gitBin::GitManager::status()
   {
     GitFile *file = new GitFile(this);
 
-    file->staged = (output.at(0) != ' ');
+    file->staged = (output.at(0) != ' ' && output.at(0) != '?');
     file->unstaged = (output.at(1) != ' ');
     file->path = output.right(output.length() - 3).trimmed();
 
@@ -83,11 +83,11 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
 {
   if(diffStaged)
   {
-    _impl->process->setArguments({"diff", "--cached", "--", path});
+    _impl->process->setArguments({"diff", "HEAD", "--cached", "--", path});
   }
   else
   {
-    _impl->process->setArguments({"diff", "--", path});
+    _impl->process->setArguments({"diff", "HEAD", "--", path});
   }
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
@@ -100,6 +100,27 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   int lineNoOld = -1;
   int lineNoNew = -1;
 
+  if(output.length() == 0)
+  {
+    _impl->process->setProgram("sed");
+    _impl->process->setArguments({"s/^/+/", path});
+
+    _impl->process->start(QIODevice::ReadOnly);
+    _impl->process->waitForFinished();
+    output = _impl->process->readLine(1024);
+
+    lineNoOld = -1;
+    lineNoNew = 1;
+
+    GitDiffLine *header = new GitDiffLine(this);
+    header->type = GitDiffLine::diffType::HEADER;
+    header->content = "untracked file";
+
+    list.append(header);
+
+    _impl->process->setProgram("git");
+  }
+
   while(output.length() > 0)
   {
     GitDiffLine *line = new GitDiffLine(this);
@@ -108,11 +129,12 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
     line->content = output.trimmed();
     line->type = GitDiffLine::diffType::FILE_HEADER;
 
-
     if(output.startsWith("index")
        || output.startsWith("diff")
        || output.startsWith("+++")
-       || output.startsWith("---"))
+       || output.startsWith("---")
+       || output.startsWith("new file")
+       || output.startsWith("old file"))
     {
       line->type = GitDiffLine::diffType::HEADER;
     }
