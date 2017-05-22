@@ -9,7 +9,8 @@ class GitDiffLine : public QObject
 public:
   enum class diffType
   {
-    FILE_HEADER = 0,
+    NONE = 0,
+    FILE_HEADER,
     FILE_FOOTER,
     HEADER,
     CONTEXT,
@@ -24,9 +25,9 @@ public:
   Q_PROPERTY(int oldLine MEMBER oldLine NOTIFY oldLineChanged)
   Q_PROPERTY(int newLine MEMBER newLine NOTIFY newLineChanged)
 
-  diffType type;
-  QString content;
-  int oldLine, newLine;
+  diffType type = diffType::NONE;
+  QString content = "";
+  int oldLine = -1, newLine = -1;
 
 signals:
   void typeChanged();

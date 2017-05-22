@@ -1,5 +1,6 @@
 #include "git/gitdiffline.h"
 
-GitDiffLine::GitDiffLine(QObject *parent) : QObject(parent)
+GitDiffLine::GitDiffLine(QObject *parent)
+  : QObject(parent)
 {
 }
