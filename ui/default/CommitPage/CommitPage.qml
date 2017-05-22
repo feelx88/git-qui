@@ -17,6 +17,9 @@ CommitForm {
 
   property ListView selected: unstagedArea
 
+  Shortcut {
+    sequence: "Ctrl+Return"
+    onActivated: commit()
   }
 
   buttonCommit.onClicked: commit()
