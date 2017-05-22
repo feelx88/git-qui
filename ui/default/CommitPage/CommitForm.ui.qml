@@ -4,8 +4,9 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 
 SplitView {
-    width: 800
-    height: 600
+  width: 800
+  height: 600
+  property alias diffViewInactive: diffViewInactive
     property alias buttonCommit: buttonCommit
     property alias commitMessage: commitMessage
     property alias diffView: diffView
@@ -57,6 +58,14 @@ SplitView {
                 flickableDirection: Flickable.HorizontalAndVerticalFlick
                 interactive: true
                 clip: true
+
+                Rectangle {
+                    id: diffViewInactive
+                    color: "#a2a2a2"
+                    opacity: 0
+                    anchors.fill: parent
+                    z: -10
+                }
             }
         }
 

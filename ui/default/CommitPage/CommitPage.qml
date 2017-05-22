@@ -98,5 +98,7 @@ CommitForm {
         diffModel.append(diff[x]);
       }
     }
+
+    diffViewInactive.opacity = (diff.length === 0 ? 1 : 0);
   }
 }
