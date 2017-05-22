@@ -9,7 +9,8 @@
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
-#include <git/libgit2/gitmanager.h>
+#include <git/libgit2/libgit2gitmanager.h>
+#include <git/git-bin/gitbingitmanager.h>
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +36,10 @@ int main(int argc, char *argv[])
   if(parser.isSet(gitImpl))
   {
     manager = new libgit2::GitManager(&app);
+  }
+  else
+  {
+    manager = new gitBin::GitManager(&app);
   }
 
   manager->connect(manager, &AGitManager::gitError, [&](const QString &message){

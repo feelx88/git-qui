@@ -1,5 +1,5 @@
-#ifndef GITMANAGER_H
-#define GITMANAGER_H
+#ifndef LIBGIT2_GITMANAGER_H
+#define LIBGIT2_GITMANAGER_H
 
 #include <memory>
 #include <QObject>
@@ -8,7 +8,9 @@
 
 #include <git/agitmanager.h>
 
-namespace libgit2 {
+namespace libgit2
+{
+Q_NAMESPACE
 
 class GitManager : public AGitManager
 {
@@ -33,4 +35,4 @@ private:
 
 }
 
-#endif // GITMANAGER_H
+#endif // LIBGIT2_GITMANAGER_H

@@ -1,4 +1,4 @@
-#include <git/libgit2/gitmanager.h>
+#include <git/libgit2/libgit2gitmanager.h>
 
 #include <utility>
 #include <cstring>
@@ -9,10 +9,7 @@
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
 
-namespace libgit2
-{
-
-struct GitManager::GitManagerPrivate
+struct libgit2::GitManager::GitManagerPrivate
 {
   GitManagerPrivate(GitManager* main)
     : _main(main)
@@ -30,18 +27,18 @@ struct GitManager::GitManagerPrivate
   git_repository *repo;
 };
 
-GitManager::GitManager(QObject *parent)
+libgit2::GitManager::GitManager(QObject *parent)
   : AGitManager(parent),
     _impl(new GitManagerPrivate(this))
 {
 }
 
-void GitManager::init()
+void libgit2::GitManager::init()
 {
   git_libgit2_init();
 }
 
-void GitManager::openRepository(const QString &path)
+void libgit2::GitManager::openRepository(const QString &path)
 {
   if (git_repository_open(&_impl->repo, path.toStdString().c_str()))
   {
@@ -49,7 +46,7 @@ void GitManager::openRepository(const QString &path)
   }
 }
 
-QList<GitFile*> GitManager::status()
+QList<GitFile*> libgit2::GitManager::status()
 {
   QList<GitFile*> list;
 
@@ -94,7 +91,7 @@ QList<GitFile*> GitManager::status()
   return list;
 }
 
-QString GitManager::headName()
+QString libgit2::GitManager::headName()
 {
   const char* name;
   git_reference *ref = nullptr;
@@ -107,7 +104,7 @@ QString GitManager::headName()
   return QString(name);
 }
 
-void GitManager::stagePath(const QString &path)
+void libgit2::GitManager::stagePath(const QString &path)
 {
   git_index *index = nullptr;
   git_repository_index(&index, _impl->repo);
@@ -116,7 +113,7 @@ void GitManager::stagePath(const QString &path)
   git_index_free(index);
 }
 
-void GitManager::unstagePath(const QString &path)
+void libgit2::GitManager::unstagePath(const QString &path)
 {
   git_reference *ref = nullptr;
   git_repository_head(&ref, _impl->repo);
@@ -131,7 +128,7 @@ void GitManager::unstagePath(const QString &path)
   git_reference_free(ref);
 }
 
-void GitManager::commit(const QString &message)
+void libgit2::GitManager::commit(const QString &message)
 {
   // Get index
   git_index *index = nullptr;
@@ -170,7 +167,7 @@ void GitManager::commit(const QString &message)
   git_index_free(index);
 }
 
-QList<GitDiffLine*> GitManager::diffPath(const QString &path)
+QList<GitDiffLine*> libgit2::GitManager::diffPath(const QString &path)
 {
   QList<GitDiffLine*> output;
 
@@ -234,7 +231,7 @@ QList<GitDiffLine*> GitManager::diffPath(const QString &path)
   return output;
 }
 
-git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
+git_strarray libgit2::GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
 {
   std::string str = string.toStdString();
   char *ch = new char[str.size()];
@@ -244,6 +241,4 @@ git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &s
   array[0] = ch;
 
   return {array, 1};
-}
-
 }
