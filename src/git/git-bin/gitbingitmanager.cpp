@@ -81,6 +81,13 @@ QList<GitFile *> gitBin::GitManager::status()
 
 QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diffStaged)
 {
+  QList<GitDiffLine*> list;
+
+  if(path.isEmpty())
+  {
+    return list;
+  }
+
   if(diffStaged)
   {
     _impl->process->setArguments({"diff", "HEAD", "--cached", "--", path});
@@ -94,8 +101,6 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   QByteArray output = _impl->process->readLine(1024);
   QRegExp regex("@* \\-(\\d+),.* \\+(\\d+),.*");
   QStringList lineNos;
-
-  QList<GitDiffLine*> list;
 
   int lineNoOld = -1;
   int lineNoNew = -1;
