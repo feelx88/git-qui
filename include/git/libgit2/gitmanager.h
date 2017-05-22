@@ -8,6 +8,8 @@
 
 #include <git/agitmanager.h>
 
+namespace libgit2 {
+
 class GitManager : public AGitManager
 {
   Q_OBJECT
@@ -28,5 +30,7 @@ private:
   struct GitManagerPrivate;
   std::shared_ptr<GitManagerPrivate> _impl;
 };
+
+}
 
 #endif // GITMANAGER_H

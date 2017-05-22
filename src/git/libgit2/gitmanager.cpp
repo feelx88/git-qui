@@ -9,6 +9,9 @@
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
 
+namespace libgit2
+{
+
 struct GitManager::GitManagerPrivate
 {
   GitManagerPrivate(GitManager* main)
@@ -241,4 +244,6 @@ git_strarray GitManager::GitManagerPrivate::strarrayFromQString(const QString &s
   array[0] = ch;
 
   return {array, 1};
+}
+
 }
