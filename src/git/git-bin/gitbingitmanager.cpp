@@ -40,7 +40,7 @@ QList<GitFile *> gitBin::GitManager::status()
   return {new GitFile};
 }
 
-QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path)
+QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diffStaged)
 {
   return {new GitDiffLine};
 }

@@ -11,9 +11,9 @@ AGitManager::AGitManager(QObject *parent)
 {
 }
 
-QVariantList AGitManager::diffPathVariant(const QString &path)
+QVariantList AGitManager::diffPathVariant(const QString &path, bool diffStaged)
 {
-  auto list = diffPath(path);
+  auto list = diffPath(path, diffStaged);
   QVariantList propList;
 
   for(auto *diffLine : list)

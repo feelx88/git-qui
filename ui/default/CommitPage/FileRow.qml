@@ -21,7 +21,7 @@ Rectangle {
   ToolButton {
     id: _buttonModifiyIndex
     anchors.verticalCenter: parent.verticalCenter
-    text: staged ? '-' : '+'
+    text: buttonLabel
     anchors.left: _checkBox.right
     anchors.leftMargin: -20
     onClicked: {

@@ -36,7 +36,7 @@ CommitForm {
       onUpdated: init();
       onClicked: {
         selected = listView;
-        loadDiff(path);
+        loadDiff(path, listView == stagedArea);
       }
     }
   }
@@ -66,25 +66,33 @@ CommitForm {
     stagedModel.clear();
     var status = gitManager.statusVariant();
     for(var x = 0; x < status.length; ++x) {
-      var file = status[x],
-          model = file.staged ? stagedModel : unstagedModel;
-      model.append(file);
+      var file = status[x];
+      if (file.unstaged) {
+        file.buttonLabel = '+';
+        unstagedModel.append(file);
+      }
+      if (file.staged) {
+        file.buttonLabel = '-';
+        stagedModel.append(file);
+      }
     }
     unstagedArea.focus = true;
 
     var path = '';
+    var staged = false;
     if (unstagedModel.count > 0) {
       path = unstagedModel.get(0).path;
     } else if (unstagedModel.count > 0) {
       path = stagedModel.get(0).path;
+      staged = true;
     }
 
-    loadDiff(path);
+    loadDiff(path, staged);
   }
 
-  function loadDiff(path) {
+  function loadDiff(path, staged) {
     diffModel.clear();
-    var diff = gitManager.diffPathVariant(path);
+    var diff = gitManager.diffPathVariant(path, staged);
     for(var x = 0; x < diff.length; ++x) {
       if (diff[x].type != GitDiffLine.FILE_HEADER) {
         diffModel.append(diff[x]);

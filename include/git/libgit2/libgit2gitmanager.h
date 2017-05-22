@@ -21,7 +21,7 @@ public:
   void openRepository(const QString &path);
 
   QList<GitFile*> status();
-  QList<GitDiffLine*> diffPath(const QString &path);
+  QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false);
 
   Q_INVOKABLE QString headName();
   Q_INVOKABLE void stagePath(const QString &path);
