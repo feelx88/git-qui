@@ -17,11 +17,9 @@ CommitForm {
 
   property ListView selected: unstagedArea
 
-  buttonCommit.onClicked: {
-    gitManager.commit(commitMessage.text);
-    commitMessage.text = '';
-    init();
   }
+
+  buttonCommit.onClicked: commit()
 
   Component {
     id: highlight
@@ -100,5 +98,16 @@ CommitForm {
     }
 
     diffViewInactive.opacity = (diff.length === 0 ? 1 : 0);
+  }
+
+  function commit() {
+    if (stagedModel.count === 0) {
+      messageDialogNothingStaged.visible = true;
+      return;
+    }
+
+    gitManager.commit(commitMessage.text);
+    commitMessage.text = '';
+    init();
   }
 }
