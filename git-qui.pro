@@ -19,7 +19,7 @@ HEADERS += \
 OTHER_FILES += .gitignore \
     qtquickcontrols2.conf \
     ui/default/main.qml \
-    ui/default/CommitPage/CommiPage.qml \
+    ui/default/CommitPage/CommitPage.qml \
     ui/default/CommitPage/CommitForm.ui.qml \
     ui/default/TreePage/TreePage.qml \
     ui/default/CommitPage/FileRow.qml \
