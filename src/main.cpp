@@ -45,8 +45,6 @@ int main(int argc, char *argv[])
   manager->connect(manager, &AGitManager::gitError, [&](const QString &message){
     std::cout << message.toStdString() << std::endl;
   });
-  manager->init();
-  manager->openRepository(QDir::currentPath());
 
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
@@ -56,6 +54,9 @@ int main(int argc, char *argv[])
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", manager);
   engine.load(QUrl(QCoreApplication::applicationDirPath() + QLatin1String("/ui/default/main.qml")));
+
+  manager->init();
+  manager->openRepository(QDir::currentPath());
 
   return app.exec();
 }

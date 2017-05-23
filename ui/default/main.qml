@@ -11,11 +11,26 @@ ApplicationWindow {
   height: 600
   title: qsTr("Git QUI")
 
+  Connections {
+    target: gitManager
+    onGitError: {
+      errorDialog.text = message;
+      errorDialog.visible = true;
+    }
+  }
+
   MessageDialog {
       id: messageDialogNothingStaged
       standardButtons: StandardButton.Ok
-      title: "Warning"
-      text: "Nothing added to staging area yet."
+      title: 'Warning'
+      text: 'Nothing added to staging area yet.'
+  }
+
+  MessageDialog {
+      id: errorDialog
+      standardButtons: StandardButton.Ok
+      title: 'Error'
+      text: ''
   }
 
   SwipeView {
