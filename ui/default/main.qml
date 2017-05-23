@@ -2,14 +2,25 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.2
+import Qt.labs.settings 1.0
+
 import "CommitPage"
 import "TreePage"
 
 ApplicationWindow {
+  id: mainWindow
   visible: true
   width: 800
   height: 600
   title: qsTr("Git QUI")
+
+  Settings {
+    category: 'mainWindow'
+    property alias x: mainWindow.x
+    property alias y: mainWindow.y
+    property alias width: mainWindow.width
+    property alias height: mainWindow.height
+  }
 
   Connections {
     target: gitManager

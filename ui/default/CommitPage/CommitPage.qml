@@ -1,7 +1,8 @@
 import QtQuick 2.7
+import QtQuick.Controls.Material 2.1
+import Qt.labs.settings 1.0
 import de.feelx88.GitFile 1.0
 import de.feelx88.GitDiffLine 1.0
-import QtQuick.Controls.Material 2.1
 
 CommitForm {
   unstagedArea.delegate: row
@@ -16,6 +17,20 @@ CommitForm {
   stagedArea.highlight: selected == stagedArea ? highlight : null
 
   property ListView selected: unstagedArea
+
+  Settings {
+    id: settings
+    category: 'CommitForm'
+    property real stagedAreaHeight: stagedArea.height
+    property real splitViewLeftWidth: splitViewLeft.width
+    property string commitText: commitMessage.text
+
+    Component.objectName: {
+      stagedArea.height = settings.stagedAreaHeight;
+      splitViewLeft.width = settings.splitViewLeftWidth;
+      commitMessage.text = settings.commitText;
+    }
+  }
 
   Shortcut {
     sequence: "Ctrl+Return"
@@ -61,7 +76,7 @@ CommitForm {
     id: diffModel
   }
 
-  Component.onCompleted: init();
+  Component.onCompleted: init()
 
   function init() {
     unstagedModel.clear();
