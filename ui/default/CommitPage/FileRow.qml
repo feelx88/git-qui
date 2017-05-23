@@ -10,6 +10,17 @@ Rectangle {
   color: "#00000000"
   opacity: 1
 
+  Menu {
+    id: contextMenu
+    MenuItem {
+      text: 'Reset file'
+      onClicked: {
+        gitManager.checkout(path)
+        updated();
+      }
+    }
+  }
+
   CheckBox {
     id: _checkBox
     anchors.left: parent.left
@@ -30,7 +41,7 @@ Rectangle {
       } else {
         gitManager.stagePath(path);
       }
-      row.updated();
+      updated();
     }
   }
 
@@ -46,9 +57,15 @@ Rectangle {
 
     MouseArea {
       anchors.fill: parent
+      acceptedButtons: Qt.LeftButton | Qt.RightButton
       onClicked: {
         row.clicked(row.ListView.view, path);
         row.ListView.view.currentIndex = index
+        if (!staged && mouse.button == Qt.RightButton) {
+          contextMenu.x = mouse.x;
+          contextMenu.y = mouse.y;
+          contextMenu.visible = true;
+        }
       }
     }
   }

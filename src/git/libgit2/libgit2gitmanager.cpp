@@ -167,6 +167,11 @@ void libgit2::GitManager::commit(const QString &message)
   git_index_free(index);
 }
 
+void libgit2::GitManager::checkout(const QString &)
+{
+
+}
+
 QList<GitDiffLine*> libgit2::GitManager::diffPath(const QString &path, bool)
 {
   QList<GitDiffLine*> output;

@@ -27,6 +27,7 @@ public:
   Q_INVOKABLE void stagePath(const QString &path);
   Q_INVOKABLE void unstagePath(const QString &path);
   Q_INVOKABLE void commit(const QString &message);
+  Q_INVOKABLE void checkout(const QString &path);
 
 private:
   struct GitManagerPrivate;

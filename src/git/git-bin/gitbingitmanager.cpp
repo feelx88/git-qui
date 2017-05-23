@@ -222,3 +222,10 @@ void gitBin::GitManager::commit(const QString &message)
   _impl->process->start();
   _impl->process->waitForFinished();
 }
+
+void gitBin::GitManager::checkout(const QString &path)
+{
+  _impl->process->setArguments({"checkout", path});
+  _impl->process->start();
+  _impl->process->waitForFinished();
+}
