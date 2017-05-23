@@ -4,8 +4,10 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 
 SplitView {
-    width: 800
-    height: 600
+  width: 800
+  height: 600
+  property alias splitViewLeft: splitViewLeft
+  property alias splitViewRight: splitViewRight
     property alias diffViewInactive: diffViewInactive
     property alias buttonCommit: buttonCommit
     property alias commitMessage: commitMessage
@@ -14,7 +16,7 @@ SplitView {
     property alias unstagedArea: unstagedArea
 
     SplitView {
-        id: splitView
+        id: splitViewLeft
         width: 320
         height: 480
         orientation: Qt.Vertical
@@ -38,16 +40,16 @@ SplitView {
     }
 
     SplitView {
-        id: splitView1
+        id: splitViewRight
         x: 320
         width: 320
         height: 480
         orientation: Qt.Vertical
 
+
         ScrollView {
-            width: 320
-            height: 240
-            x: 0
+          Layout.fillWidth: true
+          Layout.fillHeight: true
 
             ListView {
                 id: diffView
@@ -78,65 +80,65 @@ SplitView {
         }
 
         RowLayout {
-            id: rowLayout
-            y: 240
+          id: rowLayout
+          y: 240
+          width: 320
+          height: 240
+
+          ColumnLayout {
+            id: columnLayout
             width: 320
             height: 240
 
-            ColumnLayout {
-                id: columnLayout
-                width: 320
-                height: 240
-
-                Button {
-                    id: buttonCommit
-                    text: qsTr("Commit")
-                }
-
-                Button {
-                    id: button1
-                    text: qsTr("Button")
-                }
-
-                Button {
-                    id: button2
-                    text: qsTr("Button")
-                }
-
-                Button {
-                    id: button3
-                    text: qsTr("Button")
-                }
-
-                Button {
-                    id: button4
-                    text: qsTr("Button")
-                }
+            Button {
+              id: buttonCommit
+              text: qsTr("Commit")
             }
 
-            ColumnLayout {
-                id: columnLayout1
-                width: 100
-                height: 100
-
-                SwitchDelegate {
-                    id: switchDelegate
-                    text: qsTr("Amend last commit")
-                    Layout.fillWidth: false
-                }
-
-                TextEdit {
-                    id: commitMessage
-                    width: 80
-                    height: 20
-                    text: qsTr("")
-                    clip: true
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    font.pixelSize: 12
-                }
+            Button {
+              id: button1
+              text: qsTr("Button")
             }
+
+            Button {
+              id: button2
+              text: qsTr("Button")
+            }
+
+            Button {
+              id: button3
+              text: qsTr("Button")
+            }
+
+            Button {
+              id: button4
+              text: qsTr("Button")
+            }
+          }
+
+          ColumnLayout {
+            id: columnLayout1
+            width: 100
+            height: 100
+
+            SwitchDelegate {
+              id: switchDelegate
+              text: qsTr("Amend last commit")
+              Layout.fillWidth: false
+            }
+
+            TextEdit {
+              id: commitMessage
+              width: 80
+              height: 20
+              text: qsTr("")
+              clip: true
+              Layout.fillHeight: true
+              Layout.fillWidth: true
+              Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+              font.pixelSize: 12
+            }
+          }
         }
     }
 }
