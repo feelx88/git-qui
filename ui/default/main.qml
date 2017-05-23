@@ -1,7 +1,6 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.2
 import Qt.labs.settings 1.0
 
 import "CommitPage"
@@ -25,23 +24,20 @@ ApplicationWindow {
   Connections {
     target: gitManager
     onGitError: {
-      errorDialog.text = message;
+      errorDialog.title = message;
       errorDialog.visible = true;
     }
   }
 
-  MessageDialog {
-      id: messageDialogNothingStaged
-      standardButtons: StandardButton.Ok
-      title: 'Warning'
-      text: 'Nothing added to staging area yet.'
-  }
-
-  MessageDialog {
+  Dialog {
       id: errorDialog
-      standardButtons: StandardButton.Ok
-      title: 'Error'
-      text: ''
+      x: parent.width / 2 - width / 2
+      y: parent.height / 2 - height / 2
+      dim: true
+      modal: true
+      closePolicy: Popup.NoAutoClose
+      standardButtons: Dialog.Ok
+      title: ''
   }
 
   SwipeView {

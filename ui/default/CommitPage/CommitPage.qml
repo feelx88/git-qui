@@ -121,7 +121,8 @@ CommitForm {
 
   function commit() {
     if (stagedModel.count === 0) {
-      messageDialogNothingStaged.visible = true;
+      errorDialog.title = 'Nothing has been staged yet';
+      errorDialog.visible = true;
       return;
     }
 
