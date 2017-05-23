@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.0
 SplitView {
   width: 800
   height: 600
+  property alias buttonRefresh: buttonRefresh
   property alias splitViewLeft: splitViewLeft
   property alias splitViewRight: splitViewRight
     property alias diffViewInactive: diffViewInactive
@@ -96,8 +97,8 @@ SplitView {
             }
 
             Button {
-              id: button1
-              text: qsTr("Button")
+              id: buttonRefresh
+              text: qsTr("Refresh")
             }
 
             Button {

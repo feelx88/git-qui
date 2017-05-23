@@ -23,6 +23,7 @@ CommitForm {
   }
 
   buttonCommit.onClicked: commit()
+  buttonRefresh.onClicked: init();
 
   Component {
     id: highlight
