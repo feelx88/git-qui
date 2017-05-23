@@ -22,8 +22,21 @@ void gitBin::GitManager::init()
 {
 }
 
-void gitBin::GitManager::openRepository(const QString &)
+void gitBin::GitManager::openRepository(const QString &path)
 {
+  _impl->process->setArguments({"rev-parse",  "--show-toplevel"});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  if(_impl->process->exitCode() == QProcess::NormalExit)
+  {
+    QString output = QString(_impl->process->readLine(1024)).trimmed();
+    _impl->process->setWorkingDirectory(output);
+  }
+  else
+  {
+    emit gitError(QString("Not a git repository: ") + path);
+  }
 }
 
 QList<GitFile *> gitBin::GitManager::status()

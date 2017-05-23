@@ -14,8 +14,6 @@ class GitManager : public AGitManager
   Q_OBJECT
 public:
   explicit GitManager(QObject *parent = 0);
-
-public:
   virtual void init() override;
   virtual void openRepository(const QString &path) override;
   virtual QList<GitFile *> status() override;
