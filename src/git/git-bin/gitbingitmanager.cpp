@@ -107,7 +107,7 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   }
   else
   {
-    _impl->process->setArguments({"diff", "HEAD", "--", path});
+    _impl->process->setArguments({"diff", "--", path});
   }
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
