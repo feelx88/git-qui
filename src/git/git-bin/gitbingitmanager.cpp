@@ -215,27 +215,27 @@ QString gitBin::GitManager::headName()
 void gitBin::GitManager::stagePath(const QString &path)
 {
   _impl->process->setArguments({"add", path});
-  _impl->process->start();
+  _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 }
 
 void gitBin::GitManager::unstagePath(const QString &path)
 {
   _impl->process->setArguments({"reset", "HEAD", path});
-  _impl->process->start();
+  _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 }
 
 void gitBin::GitManager::commit(const QString &message)
 {
   _impl->process->setArguments({"commit", "-m", message});
-  _impl->process->start();
+  _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 }
 
 void gitBin::GitManager::checkout(const QString &path)
 {
   _impl->process->setArguments({"checkout", path});
-  _impl->process->start();
+  _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 }
