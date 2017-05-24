@@ -50,7 +50,7 @@ CommitForm {
   Component {
     id: row
     FileRow {
-      onUpdated: init();
+      onUpdated: init()
       onClicked: {
         selected = listView;
         loadDiff(path, listView == stagedArea);
@@ -61,6 +61,7 @@ CommitForm {
   Component {
     id: diffRow
     DiffRow {
+      onUpdated: init()
     }
   }
 
@@ -112,6 +113,7 @@ CommitForm {
     var diff = gitManager.diffPathVariant(path, staged);
     for(var x = 0; x < diff.length; ++x) {
       if (diff[x].type != GitDiffLine.FILE_HEADER) {
+        diff[x].staged = staged;
         diffModel.append(diff[x]);
       }
     }

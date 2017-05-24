@@ -17,6 +17,7 @@ class GitFile;
 
    virtual QList<GitFile*> status() = 0;
    virtual QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false) = 0;
+   virtual void stageLines(const QList<GitDiffLine *> &lines, bool revert) = 0;
 
    virtual Q_INVOKABLE QString headName() = 0;
    virtual Q_INVOKABLE void stagePath(const QString &path) = 0;
@@ -27,6 +28,7 @@ class GitFile;
    // QML interface
    Q_INVOKABLE QVariantList diffPathVariant(const QString &path, bool diffStaged = false);
    Q_INVOKABLE QVariantList statusVariant();
+   Q_INVOKABLE void stageLinesVariant(const QVariantList &lines, bool reverse);
 
  signals:
    void gitError(const QString &message);

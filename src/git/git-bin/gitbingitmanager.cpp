@@ -1,6 +1,7 @@
 #include <git/git-bin/gitbingitmanager.h>
 
 #include <QProcess>
+#include <QtDebug>
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
@@ -205,6 +206,73 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   }
 
   return list;
+}
+
+void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reverse)
+{
+  if (lines.isEmpty())
+  {
+    return;
+  }
+
+  GitDiffLine *first = lines.first();
+  int addCount = 0, removeCount = 0;
+
+  for (GitDiffLine* line : lines)
+  {
+    if(line->type == GitDiffLine::diffType::ADD)
+    {
+      ++addCount;
+    }
+    else if(line->type == GitDiffLine::diffType::REMOVE)
+    {
+      ++removeCount;
+    }
+  }
+
+  QString patch = first->header;
+  if(first->oldLine < 0)
+  {
+    first->oldLine = first->newLine;
+  }
+
+  if(removeCount == 0)
+  {
+    --first->oldLine;
+  }
+
+  patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first->oldLine, removeCount, first->oldLine, addCount));
+
+  for (GitDiffLine* line : lines)
+  {
+    if(line->type == GitDiffLine::diffType::ADD)
+    {
+      patch += "+";
+    }
+    else if(line->type == GitDiffLine::diffType::REMOVE)
+    {
+      patch += "-";
+    }
+    patch += line->content + '\n';
+  }
+
+  if(reverse)
+  {
+    _impl->process->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"});
+  }
+  else
+  {
+    _impl->process->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"});
+  }
+
+  qDebug() << patch;
+
+  std::string stdPatch = patch.toStdString();
+  _impl->process->start(QIODevice::ReadWrite);
+  _impl->process->waitForStarted();
+  _impl->process->write(stdPatch.data(), stdPatch.length());
+  _impl->process->closeWriteChannel();
+  _impl->process->waitForFinished();
 }
 
 QString gitBin::GitManager::headName()

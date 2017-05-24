@@ -18,6 +18,7 @@ public:
   virtual void openRepository(const QString &path) override;
   virtual QList<GitFile *> status() override;
   virtual QList<GitDiffLine *> diffPath(const QString &path, bool diffStaged = false) override;
+  virtual void stageLines(const QList<GitDiffLine *> &lines, bool revert) override;
 
   virtual Q_INVOKABLE QString headName() override;
   virtual Q_INVOKABLE void stagePath(const QString &path) override;
@@ -28,6 +29,7 @@ public:
 private:
   struct GitManagerPrivate;
   std::shared_ptr<GitManagerPrivate> _impl;
+
 };
 
 }

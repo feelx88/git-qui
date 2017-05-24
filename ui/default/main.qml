@@ -14,7 +14,7 @@ ApplicationWindow {
   title: qsTr("Git QUI")
 
   Settings {
-    category: 'mainWindow'
+    category: 'MainWindow'
     property alias x: mainWindow.x
     property alias y: mainWindow.y
     property alias width: mainWindow.width

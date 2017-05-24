@@ -36,3 +36,23 @@ QVariantList AGitManager::statusVariant()
 
   return propList;
 }
+
+void AGitManager::stageLinesVariant(const QVariantList &lines, bool reverse)
+{
+  QList<GitDiffLine*> list;
+
+  for (auto line : lines) {
+    QVariantMap obj = line.toMap();
+    GitDiffLine *diffLine = new GitDiffLine(this);
+
+    diffLine->header = obj.value("header").toString();
+    diffLine->content = obj.value("content").toString();
+    diffLine->oldLine = obj.value("oldLine").toInt();
+    diffLine->newLine = obj.value("newLine").toInt();
+    diffLine->type = static_cast<GitDiffLine::diffType>(obj.value("type").toInt());
+
+    list.append(diffLine);
+  }
+
+  stageLines(list, reverse);
+}

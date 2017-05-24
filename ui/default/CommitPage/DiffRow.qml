@@ -5,11 +5,31 @@ import de.feelx88.GitDiffLine 1.0
 Rectangle {
   id: row
 
+  signal updated();
+
   property color _color: '#55ffffff'
   property string _typeText: ' '
   width: parent.width
   height: 20
   color: _color
+
+  MouseArea {
+    anchors.fill: parent
+    onDoubleClicked: {
+      if(!(type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)) {
+        return;
+      }
+
+      gitManager.stageLinesVariant([{
+                                      header: header,
+                                      content: content,
+                                      type: type,
+                                      oldLine: oldLine,
+                                      newLine: newLine
+                                   }], staged);
+      updated();
+    }
+  }
 
   Text {
     id: _oldLine
@@ -38,7 +58,8 @@ Rectangle {
     anchors.leftMargin: 0
     scale: 0.7
     anchors.verticalCenter: parent.verticalCenter
-    opacity: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE) ? 1 : 0
+    visible: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)
+    enabled: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)
   }
   Text {
     id: _type

@@ -236,6 +236,10 @@ QList<GitDiffLine*> libgit2::GitManager::diffPath(const QString &path, bool)
   return output;
 }
 
+void libgit2::GitManager::stageLines(const QList<GitDiffLine *>&, bool)
+{
+}
+
 git_strarray libgit2::GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
 {
   std::string str = string.toStdString();
