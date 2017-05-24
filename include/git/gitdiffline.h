@@ -24,16 +24,19 @@ public:
   Q_PROPERTY(QString content MEMBER content NOTIFY contentChanged)
   Q_PROPERTY(int oldLine MEMBER oldLine NOTIFY oldLineChanged)
   Q_PROPERTY(int newLine MEMBER newLine NOTIFY newLineChanged)
+  Q_PROPERTY(QString header MEMBER header NOTIFY headerChanged)
 
   diffType type = diffType::NONE;
   QString content = "";
   int oldLine = -1, newLine = -1;
+  QString header = "";
 
 signals:
   void typeChanged();
   void contentChanged();
   void oldLineChanged();
   void newLineChanged();
+  void headerChanged();
 
 public slots:
 };

@@ -139,13 +139,13 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
     _impl->process->setProgram("git");
   }
 
+  QString header;
+
   while(output.length() > 0)
   {
     GitDiffLine *line = new GitDiffLine(this);
     line->oldLine = lineNoOld;
     line->newLine = lineNoNew;
-    line->type = GitDiffLine::diffType::FILE_HEADER;
-
 
     while(output.length() > 2 && (output.endsWith(' ') || output.endsWith('\n') || output.endsWith('\t')))
     {
@@ -163,9 +163,11 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
        || output.startsWith("old file"))
     {
       line->type = GitDiffLine::diffType::HEADER;
+      header += output + '\n';
     }
     else
     {
+      line->header = header;
       switch(output.at(0))
       {
       case '@':
