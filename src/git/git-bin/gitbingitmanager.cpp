@@ -121,7 +121,7 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   if(output.length() == 0)
   {
     _impl->process->setProgram("sed");
-    _impl->process->setArguments({"s/^/+/", path});
+    _impl->process->setArguments({"s/^/+ /", path});
 
     _impl->process->start(QIODevice::ReadOnly);
     _impl->process->waitForFinished();
