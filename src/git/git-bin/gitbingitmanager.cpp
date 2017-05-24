@@ -172,6 +172,8 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
       {
       case '@':
         line->type = GitDiffLine::diffType::HEADER;
+        line->oldLine = -1;
+        line->newLine = -1;
         regex.indexIn(line->content);
         lineNos = regex.capturedTexts();
         lineNoOld = lineNos.at(1).toInt();
