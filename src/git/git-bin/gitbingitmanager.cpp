@@ -190,6 +190,7 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
         lineNoOld++;
         break;
       default:
+        line->content = line->content.right(line->content.length() - 1);
         line->type = GitDiffLine::diffType::CONTEXT;
         lineNoOld++;
         lineNoNew++;
