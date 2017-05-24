@@ -144,7 +144,15 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
     GitDiffLine *line = new GitDiffLine(this);
     line->oldLine = lineNoOld;
     line->newLine = lineNoNew;
-    line->content = output.trimmed();
+    line->type = GitDiffLine::diffType::FILE_HEADER;
+
+
+    while(output.length() > 2 && (output.endsWith(' ') || output.endsWith('\n') || output.endsWith('\t')))
+    {
+      output.chop(1);
+    }
+    line->content = output;
+
     line->type = GitDiffLine::diffType::FILE_HEADER;
 
     if(output.startsWith("index")
