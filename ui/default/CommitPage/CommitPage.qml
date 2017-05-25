@@ -24,12 +24,12 @@ CommitForm {
   Settings {
     id: settings
     category: 'CommitForm'
-    property real stagedAreaHeight: stagedArea.height
+    property real stagedAreaHeight: stagedContainer.height
     property real splitViewLeftWidth: splitViewLeft.width
     property string commitText: commitMessage.text
 
     Component.objectName: {
-      stagedArea.height = settings.stagedAreaHeight;
+      stagedContainer.height = settings.stagedAreaHeight;
       splitViewLeft.width = settings.splitViewLeftWidth;
       commitMessage.text = settings.commitText;
     }
