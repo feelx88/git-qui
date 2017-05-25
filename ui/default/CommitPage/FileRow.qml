@@ -35,6 +35,7 @@ Rectangle {
     text: buttonLabel
     anchors.left: _checkBox.right
     anchors.leftMargin: -20
+    scale: 0.7
     onClicked: {
       if (staged) {
         gitManager.unstagePath(path);

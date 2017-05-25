@@ -60,6 +60,9 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     visible: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)
     enabled: (type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)
+    onCheckedChanged: {
+      selected = checked;
+    }
   }
   Text {
     id: _type

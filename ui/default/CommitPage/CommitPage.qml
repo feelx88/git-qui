@@ -42,6 +42,26 @@ CommitForm {
 
   buttonCommit.onClicked: commit()
   buttonRefresh.onClicked: init();
+  buttonStageLines.onClicked: {
+    var lines = [];
+    for (var x = 0; x < diffModel.count; ++x) {
+      var diff = diffModel.get(x);
+      if (diff.selected) {
+        lines.push({
+                     header: diff.header,
+                     content: diff.content,
+                     type: diff.type,
+                     oldLine: diff.oldLine,
+                     newLine: diff.newLine
+                  });
+      }
+    }
+
+    if (lines.length > 0) {
+      gitManager.stageLinesVariant(lines, selected == stagedArea);
+      init();
+    }
+  }
 
   Component {
     id: highlight
@@ -115,6 +135,7 @@ CommitForm {
     for(var x = 0; x < diff.length; ++x) {
       if (diff[x].type != GitDiffLine.FILE_HEADER) {
         diff[x].staged = staged;
+        diff[x].selected = false;
         diffModel.append(diff[x]);
       }
     }

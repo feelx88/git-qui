@@ -230,40 +230,62 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
   }
 
   GitDiffLine *first = lines.first();
-  int newCount = 0, oldCount = 0;
-
-  for (GitDiffLine* line : lines)
-  {
-    if(line->type == GitDiffLine::diffType::ADD)
-    {
-      ++newCount;
-    }
-    else if(line->type == GitDiffLine::diffType::REMOVE
-            || line->type == GitDiffLine::diffType::CONTEXT)
-    {
-      ++oldCount;
-    }
-  }
-
   QString patch = first->header;
-  if(first->oldLine < 0)
+  QList<QList<GitDiffLine*>> hunks;
+  hunks.append(QList<GitDiffLine*>());
+  int lastLineNo = (first->type == GitDiffLine::diffType::ADD) ? first->newLine : first->oldLine;
+
+  for(auto line : lines)
   {
-    first->oldLine = first->newLine;
+    if(!(line->type == GitDiffLine::diffType::ADD
+        && std::abs(line->newLine - lastLineNo) <= 1)
+       && !(line->type == GitDiffLine::diffType::REMOVE
+           && std::abs(line->oldLine - lastLineNo) <= 1))
+    {
+      hunks.append(QList<GitDiffLine*>());
+    }
+
+    hunks.last().append(line);
+    lastLineNo = (line->type == GitDiffLine::diffType::ADD) ? line->newLine : line->oldLine;
   }
 
-  patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first->oldLine, oldCount, first->oldLine, newCount));
-
-  for (GitDiffLine* line : lines)
+  for(auto hunk : hunks)
   {
-    if(line->type == GitDiffLine::diffType::ADD)
+    int newCount = 0, oldCount = 0;
+    GitDiffLine *first = hunk.first();
+
+    for (GitDiffLine* line : hunk)
     {
-      patch += "+";
+      if(line->type == GitDiffLine::diffType::ADD)
+      {
+        ++newCount;
+      }
+      else if(line->type == GitDiffLine::diffType::REMOVE
+              || line->type == GitDiffLine::diffType::CONTEXT)
+      {
+        ++oldCount;
+      }
     }
-    else if(line->type == GitDiffLine::diffType::REMOVE)
+
+    if(first->oldLine < 0)
     {
-      patch += "-";
+      first->oldLine = first->newLine - 1;
     }
-    patch += line->content + '\n';
+
+    patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first->oldLine, oldCount, first->oldLine, newCount));
+
+    for (GitDiffLine* line : hunk)
+    {
+      if(line->type == GitDiffLine::diffType::ADD)
+      {
+        patch += "+";
+      }
+      else if(line->type == GitDiffLine::diffType::REMOVE)
+      {
+        patch += "-";
+      }
+      patch += line->content + '\n';
+    }
   }
 
   if(reverse)

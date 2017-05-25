@@ -8,6 +8,7 @@ SplitView {
   height: 600
   property alias unstagedContainer: unstagedContainer
   property alias stagedContainer: stagedContainer
+  property alias buttonStageLines: buttonStageLines
   property alias buttonRefresh: buttonRefresh
   property alias splitViewLeft: splitViewLeft
   property alias splitViewRight: splitViewRight
@@ -126,6 +127,11 @@ SplitView {
           anchors.fill: parent
         }
 
+        ToolButton {
+          id: buttonStageLines
+          text: "Stage selected lines"
+          anchors.left: parent.left
+        }
 
       }
 
