@@ -14,6 +14,7 @@ class GitFile;
    AGitManager(QObject *parent);
    virtual void init() = 0;
    virtual void openRepository(const QString &path) = 0;
+   virtual QString repositoryRoot(const QString &path) = 0;
 
    virtual QList<GitFile*> status() = 0;
    virtual QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false) = 0;

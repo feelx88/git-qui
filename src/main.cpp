@@ -6,6 +6,7 @@
 #include <QQmlContext>
 #include <QQuickStyle>
 #include <QCommandLineParser>
+#include <QSettings>
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
@@ -15,7 +16,8 @@
 int main(int argc, char *argv[])
 {
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  QCoreApplication::setApplicationName("git QUI");
+  QCoreApplication::setOrganizationDomain("feelx88.de");
+  QCoreApplication::setApplicationName("git-qui");
   QCoreApplication::setApplicationVersion("0.1.0");
   QGuiApplication app(argc, argv);
 
@@ -45,6 +47,9 @@ int main(int argc, char *argv[])
   manager->connect(manager, &AGitManager::gitError, [&](const QString &message){
     std::cout << message.toStdString() << std::endl;
   });
+
+  QSettings::setDefaultFormat(QSettings::IniFormat);
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, manager->repositoryRoot(QDir::currentPath()) + "/.git");
 
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");

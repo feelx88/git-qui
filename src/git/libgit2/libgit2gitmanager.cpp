@@ -46,6 +46,11 @@ void libgit2::GitManager::openRepository(const QString &path)
   }
 }
 
+QString libgit2::GitManager::repositoryRoot(const QString &)
+{
+  return "";
+}
+
 QList<GitFile*> libgit2::GitManager::status()
 {
   QList<GitFile*> list;

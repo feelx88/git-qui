@@ -19,6 +19,7 @@ public:
   GitManager(QObject *parent);
   void init();
   void openRepository(const QString &path);
+  QString repositoryRoot(const QString &);
 
   QList<GitFile*> status();
   QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false);
@@ -33,7 +34,6 @@ public:
 private:
   struct GitManagerPrivate;
   std::shared_ptr<GitManagerPrivate> _impl;
-
 };
 
 }
