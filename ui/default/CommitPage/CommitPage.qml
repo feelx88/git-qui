@@ -19,6 +19,7 @@ CommitForm {
   stagedArea.highlight: selected == stagedArea ? highlight : null
 
   property ListView selected: unstagedArea
+  property int selectedIndex: 0
 
   Settings {
     id: settings
@@ -55,6 +56,7 @@ CommitForm {
       onUpdated: init()
       onClicked: {
         selected = listView;
+        selectedIndex = index
         loadDiff(path, listView == stagedArea);
       }
     }
@@ -96,18 +98,15 @@ CommitForm {
         stagedModel.append(file);
       }
     }
-    unstagedArea.focus = true;
 
-    var path = '';
-    var staged = false;
-    if (unstagedModel.count > 0) {
-      path = unstagedModel.get(0).path;
-    } else if (unstagedModel.count > 0) {
-      path = stagedModel.get(0).path;
-      staged = true;
+    if (selected.model.count == 0) {
+      diffModel.clear();
+      return;
+    } if (selectedIndex >= selected.model.count) {
+      selectedIndex = 0;
     }
 
-    loadDiff(path, staged);
+    loadDiff(selected.model.get(selectedIndex).path, selected == stagedArea);
   }
 
   function loadDiff(path, staged) {

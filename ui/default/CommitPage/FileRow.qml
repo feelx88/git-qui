@@ -4,7 +4,7 @@ import QtQuick.Controls 2.1
 Rectangle {
   id: row
   signal updated();
-  signal clicked(ListView listView, string path);
+  signal clicked(ListView listView, string path, int index);
   width: parent.width
   height: 25
   color: "#00000000"
@@ -59,7 +59,7 @@ Rectangle {
       anchors.fill: parent
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       onClicked: {
-        row.clicked(row.ListView.view, path);
+        row.clicked(row.ListView.view, path, index);
         row.ListView.view.currentIndex = index
         if (!staged && mouse.button == Qt.RightButton) {
           contextMenu.x = mouse.x;
