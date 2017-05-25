@@ -13,6 +13,8 @@ CommitForm {
   stagedArea.model: stagedModel
   diffView.model: diffModel
 
+  diffViewInactive.opacity: (diffModel.count === 0) ? 1 : 0;
+
   unstagedArea.highlight: selected == unstagedArea ? highlight : null
   stagedArea.highlight: selected == stagedArea ? highlight : null
 
@@ -117,8 +119,6 @@ CommitForm {
         diffModel.append(diff[x]);
       }
     }
-
-    diffViewInactive.opacity = (diff.length === 0 ? 1 : 0);
   }
 
   function commit() {
