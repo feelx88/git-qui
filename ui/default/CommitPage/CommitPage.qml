@@ -54,7 +54,8 @@ CommitForm {
                      content: diff.content,
                      type: diff.type,
                      oldLine: diff.oldLine,
-                     newLine: diff.newLine
+                     newLine: diff.newLine,
+                     index: diff.index
                   });
       }
     }

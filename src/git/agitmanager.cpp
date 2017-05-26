@@ -49,6 +49,7 @@ void AGitManager::stageLinesVariant(const QVariantList &lines, bool reverse)
     diffLine->content = obj.value("content").toString();
     diffLine->oldLine = obj.value("oldLine").toInt();
     diffLine->newLine = obj.value("newLine").toInt();
+    diffLine->index = obj.value("index").toInt();
     diffLine->type = static_cast<GitDiffLine::diffType>(obj.value("type").toInt());
 
     list.append(diffLine);

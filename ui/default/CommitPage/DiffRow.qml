@@ -25,7 +25,8 @@ Rectangle {
                                       content: content,
                                       type: type,
                                       oldLine: oldLine,
-                                      newLine: newLine
+                                      newLine: newLine,
+                                      index: index
                                    }], staged);
       updated();
     }

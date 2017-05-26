@@ -129,6 +129,7 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
   QByteArray output = _impl->process->readLine(1024);
   QRegExp regex("@* \\-(\\d+),.* \\+(\\d+),.*");
   QStringList lineNos;
+  int index = 0;
 
   int lineNoOld = -1;
   int lineNoNew = -1;
@@ -161,6 +162,7 @@ QList<GitDiffLine *> gitBin::GitManager::diffPath(const QString &path, bool diff
     GitDiffLine *line = new GitDiffLine(this);
     line->oldLine = lineNoOld;
     line->newLine = lineNoNew;
+    line->index = index++;
 
     while(output.length() > 2 && (output.endsWith(' ') || output.endsWith('\n') || output.endsWith('\t')))
     {
@@ -233,20 +235,17 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
   QString patch = first->header;
   QList<QList<GitDiffLine*>> hunks;
   hunks.append(QList<GitDiffLine*>());
-  int lastLineNo = (first->type == GitDiffLine::diffType::ADD) ? first->newLine : first->oldLine;
+  int lastindex = (first->type == GitDiffLine::diffType::ADD) ? first->newLine : first->oldLine;
 
   for(auto line : lines)
   {
-    if(!(line->type == GitDiffLine::diffType::ADD
-        && std::abs(line->newLine - lastLineNo) <= 1)
-       && !(line->type == GitDiffLine::diffType::REMOVE
-           && std::abs(line->oldLine - lastLineNo) <= 1))
+    if(!(line->index - lastindex <= 1))
     {
       hunks.append(QList<GitDiffLine*>());
     }
 
     hunks.last().append(line);
-    lastLineNo = (line->type == GitDiffLine::diffType::ADD) ? line->newLine : line->oldLine;
+    lastindex = line->index;
   }
 
   for(auto hunk : hunks)
@@ -269,7 +268,7 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
 
     if(first->oldLine < 0)
     {
-      first->oldLine = first->newLine - 1;
+      first->oldLine = first->newLine;
     }
 
     patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first->oldLine, oldCount, first->oldLine, newCount));
