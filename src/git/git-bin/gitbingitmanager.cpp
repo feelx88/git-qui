@@ -347,7 +347,10 @@ void gitBin::GitManager::push(const QString &branch, const QString &remote, cons
 {
   _impl->process->setArguments({"push", remote, branch + ":" + remoteBranch});
   _impl->process->start(QIODevice::ReadOnly);
-  _impl->process->waitForFinished();
 
-  emit gitError(_impl->process->readAllStandardError().trimmed());
+  auto con = std::make_shared<QMetaObject::Connection>();
+  *con = connect(_impl->process, QOverload<int>::of(&QProcess::finished), [=] {
+    emit gitError(_impl->process->readAllStandardError().trimmed());
+    disconnect(*con);
+  });
 }

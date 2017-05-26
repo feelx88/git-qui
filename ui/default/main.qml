@@ -38,6 +38,20 @@ ApplicationWindow {
       closePolicy: Popup.NoAutoClose
       standardButtons: Dialog.Ok
       title: ''
+      onOpened: {
+        progressDialog.close();
+      }
+  }
+
+  Dialog {
+    id: progressDialog
+    modal: true
+    footer: null
+    header: null
+    x: parent.width / 2 - width / 2
+    y: parent.height / 2 - height / 2
+    closePolicy: Popup.NoAutoClose
+    contentItem: BusyIndicator {}
   }
 
   SwipeView {

@@ -45,6 +45,7 @@ CommitForm {
   buttonCommit.onClicked: commit()
   buttonRefresh.onClicked: init();
   buttonPush.onClicked: {
+    progressDialog.open();
     gitManager.push(gitManager.headName(), 'origin', gitManager.headName());
   }
 
@@ -153,7 +154,7 @@ CommitForm {
   function commit() {
     if (stagedModel.count === 0) {
       errorDialog.title = 'Nothing has been staged yet';
-      errorDialog.visible = true;
+      errorDialog.open();
       return;
     }
 
