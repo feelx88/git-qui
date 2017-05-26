@@ -37,7 +37,7 @@ void gitBin::GitManager::openRepository(const QString &path)
   }
 }
 
-QString gitBin::GitManager::repositoryRoot(const QString &path)
+QString gitBin::GitManager::repositoryRoot(const QString &)
 {
   _impl->process->setArguments({"rev-parse",  "--show-toplevel"});
   _impl->process->start(QIODevice::ReadOnly);
