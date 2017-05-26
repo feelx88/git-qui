@@ -7,6 +7,7 @@ import QtQuick.Controls.Material 2.1
 SplitView {
   width: 800
   height: 600
+  property alias buttonPush: buttonPush
   property alias unstagedContainer: unstagedContainer
   property alias stagedContainer: stagedContainer
   property alias buttonStageLines: buttonStageLines
@@ -195,8 +196,8 @@ SplitView {
       }
 
       Button {
-        id: button2
-        text: qsTr("Button")
+        id: buttonPush
+        text: qsTr("Push")
       }
 
 

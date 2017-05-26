@@ -27,6 +27,8 @@ public:
   virtual Q_INVOKABLE void unstagePath(const QString &path) override;
   virtual Q_INVOKABLE void commit(const QString &message) override;
   virtual Q_INVOKABLE void checkout(const QString &path) override;
+  virtual Q_INVOKABLE void push(const QString &branch, const QString &remote,
+                                const QString &remoteBranch) override;
 
 private:
   struct GitManagerPrivate;

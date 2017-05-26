@@ -44,6 +44,10 @@ CommitForm {
 
   buttonCommit.onClicked: commit()
   buttonRefresh.onClicked: init();
+  buttonPush.onClicked: {
+    gitManager.push(gitManager.headName(), 'origin', gitManager.headName());
+  }
+
   buttonStageLines.onClicked: {
     var lines = [];
     for (var x = 0; x < diffModel.count; ++x) {

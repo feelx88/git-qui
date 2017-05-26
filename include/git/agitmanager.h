@@ -25,8 +25,10 @@ class GitFile;
    virtual Q_INVOKABLE void unstagePath(const QString &path) = 0;
    virtual Q_INVOKABLE void commit(const QString &message) = 0;
    virtual Q_INVOKABLE void checkout(const QString &path) = 0;
+   virtual Q_INVOKABLE void push(const QString& branch, const QString& remote,
+                                 const QString& remoteBranch) = 0;
 
-   // QML interface
+   // QML-only interface
    Q_INVOKABLE QVariantList diffPathVariant(const QString &path, bool diffStaged = false);
    Q_INVOKABLE QVariantList statusVariant();
    Q_INVOKABLE void stageLinesVariant(const QVariantList &lines, bool reverse);

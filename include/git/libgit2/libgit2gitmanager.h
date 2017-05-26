@@ -30,6 +30,8 @@ public:
   Q_INVOKABLE void unstagePath(const QString &path);
   Q_INVOKABLE void commit(const QString &message);
   Q_INVOKABLE void checkout(const QString &path);
+  Q_INVOKABLE void push(const QString &branch, const QString &remote,
+                        const QString &remoteBranch);
 
 private:
   struct GitManagerPrivate;

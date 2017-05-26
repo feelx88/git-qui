@@ -341,3 +341,12 @@ void gitBin::GitManager::checkout(const QString &path)
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 }
+
+void gitBin::GitManager::push(const QString &branch, const QString &remote, const QString &remoteBranch)
+{
+  _impl->process->setArguments({"push", remote, branch + ":" + remoteBranch});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  emit gitError(_impl->process->readAllStandardError().trimmed());
+}

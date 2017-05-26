@@ -177,6 +177,10 @@ void libgit2::GitManager::checkout(const QString &)
 
 }
 
+void libgit2::GitManager::push(const QString &branch, const QString &remote, const QString &remoteBranch)
+{
+}
+
 QList<GitDiffLine*> libgit2::GitManager::diffPath(const QString &path, bool)
 {
   QList<GitDiffLine*> output;
