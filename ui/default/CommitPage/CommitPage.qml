@@ -17,6 +17,8 @@ CommitForm {
 
   unstagedArea.highlight: selected == unstagedArea ? highlight : null
   stagedArea.highlight: selected == stagedArea ? highlight : null
+  unstagedArea.highlightFollowsCurrentItem: true
+  stagedArea.highlightFollowsCurrentItem: true
 
   property ListView selected: unstagedArea
   property int selectedIndex: 0
@@ -125,6 +127,8 @@ CommitForm {
     } if (selectedIndex >= selected.model.count) {
       selectedIndex = 0;
     }
+
+    selected.currentIndex = selectedIndex;
 
     loadDiff(selected.model.get(selectedIndex).path, selected == stagedArea);
   }
