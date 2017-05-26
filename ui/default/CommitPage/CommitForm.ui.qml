@@ -210,6 +210,8 @@ SplitView {
         id: commitMessage
         text: ""
         Layout.rowSpan: 4
+        selectByMouse: true
+        selectByKeyboard: true
       }
     }
 
