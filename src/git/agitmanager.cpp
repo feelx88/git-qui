@@ -56,3 +56,8 @@ void AGitManager::stageLinesVariant(const QVariantList &lines, bool reverse)
 
   stageLines(list, reverse);
 }
+
+bool AGitManager::removeFile(const QString &path)
+{
+  return QFile::remove(path);
+}

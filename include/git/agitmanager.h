@@ -31,6 +31,9 @@ class GitFile;
    Q_INVOKABLE QVariantList statusVariant();
    Q_INVOKABLE void stageLinesVariant(const QVariantList &lines, bool reverse);
 
+   // Some simple default functionality
+   Q_INVOKABLE bool removeFile(const QString &path);
+
  signals:
    void gitError(const QString &message);
 };

@@ -15,7 +15,14 @@ Rectangle {
     MenuItem {
       text: 'Reset file'
       onClicked: {
-        gitManager.checkout(path)
+        gitManager.checkout(path);
+        updated();
+      }
+    }
+    MenuItem {
+      text: 'Delete file'
+      onClicked: {
+        gitManager.removeFile(path);
         updated();
       }
     }
