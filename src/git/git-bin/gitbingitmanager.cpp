@@ -308,10 +308,11 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
 
 QString gitBin::GitManager::headName()
 {
-  _impl->process->setArguments({"branch"});
+  _impl->process->setArguments({"rev-parse", "--abbrev-ref", "HEAD"});
   _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
 
-  return QString(_impl->process->readAll());
+  return QString(_impl->process->readAll().trimmed());
 }
 
 void gitBin::GitManager::stagePath(const QString &path)
