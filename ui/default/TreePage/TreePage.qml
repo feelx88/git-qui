@@ -24,6 +24,7 @@ Item {
     id: list
     anchors.fill: parent
     currentIndex: -1
+    highlightMoveDuration: 250
     model: ListModel {
       Component.onCompleted: {
         var commits = gitManager.logVariant();

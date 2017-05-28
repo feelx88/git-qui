@@ -309,16 +309,53 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
 
 QList<GitCommit *> gitBin::GitManager::log()
 {
-  _impl->process->setArguments({"log", "--pretty=%H#%P#%cn#%ce#%ct#%B"});
+  _impl->process->setArguments({"log",
+                                "--pretty="
+                                "%H%x0c"
+                                "%P%x0c"
+                                "%D%x0c"
+                                "%cn%x0c"
+                                "%ce%x0c"
+                                "%ct%x0c"
+                                "%s%x0c"
+                                "%b%x0b"
+                               });
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 
   QList<GitCommit*> list;
+  QRegExp regex(
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)\\f"
+        "(.*)"
+        );
 
-  for(QString output = _impl->process->readLine(1024); !output.isEmpty(); output = _impl->process->readLine(1024))
+  while(true)
   {
+    if(_impl->process->atEnd())
+    {
+      break;
+    }
+
+    QString buf;
+    QByteArray c = _impl->process->read(1);
+    while(c != "\v")
+    {
+      buf += c;
+      c = _impl->process->read(1);
+    }
+    _impl->process->read(1);
+    regex.exactMatch(buf);
+    QStringList captures = regex.capturedTexts();
+
     GitCommit *commit = new GitCommit(this);
-    commit->id = output;
+    commit->id = captures.at(1);
+    commit->branches = captures.at(3).split(',');
     list.append(commit);
   }
 
