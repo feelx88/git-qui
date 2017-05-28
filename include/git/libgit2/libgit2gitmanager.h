@@ -24,6 +24,7 @@ public:
   QList<GitFile*> status();
   QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false);
   void stageLines(const QList<GitDiffLine *> &, bool);
+  QList<GitCommit *> log();
 
   Q_INVOKABLE QString headName();
   Q_INVOKABLE void stagePath(const QString &path);
@@ -36,6 +37,7 @@ public:
 private:
   struct GitManagerPrivate;
   std::shared_ptr<GitManagerPrivate> _impl;
+
 };
 
 }

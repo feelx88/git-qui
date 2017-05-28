@@ -8,6 +8,7 @@
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
+#include <git/gitcommit.h>
 
 struct libgit2::GitManager::GitManagerPrivate
 {
@@ -246,6 +247,10 @@ QList<GitDiffLine*> libgit2::GitManager::diffPath(const QString &path, bool)
 }
 
 void libgit2::GitManager::stageLines(const QList<GitDiffLine *>&, bool)
+{
+}
+
+QList<GitCommit *> libgit2::GitManager::log()
 {
 }
 

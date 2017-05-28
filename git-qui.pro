@@ -7,14 +7,16 @@ SOURCES += src/main.cpp \
     src/git/gitdiffline.cpp \
     src/git/agitmanager.cpp \
     src/git/libgit2/libgit2gitmanager.cpp \
-    src/git/git-bin/gitbingitmanager.cpp
+    src/git/git-bin/gitbingitmanager.cpp \
+    src/git/gitcommit.cpp
 
 HEADERS += \
     include/git/gitfile.h \
     include/git/gitdiffline.h \
     include/git/agitmanager.h \
     include/git/libgit2/libgit2gitmanager.h \
-    include/git/git-bin/gitbingitmanager.h
+    include/git/git-bin/gitbingitmanager.h \
+    include/git/gitcommit.h
 
 OTHER_FILES += .gitignore \
     qtquickcontrols2.conf \

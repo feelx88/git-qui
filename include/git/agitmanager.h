@@ -6,6 +6,7 @@
 
 class GitDiffLine;
 class GitFile;
+class GitCommit;
 
  class AGitManager  : public QObject
 {
@@ -19,6 +20,7 @@ class GitFile;
    virtual QList<GitFile*> status() = 0;
    virtual QList<GitDiffLine*> diffPath(const QString &path, bool diffStaged = false) = 0;
    virtual void stageLines(const QList<GitDiffLine *> &lines, bool revert) = 0;
+   virtual QList<GitCommit*> log() = 0;
 
    virtual Q_INVOKABLE QString headName() = 0;
    virtual Q_INVOKABLE void stagePath(const QString &path) = 0;
@@ -32,6 +34,7 @@ class GitFile;
    Q_INVOKABLE QVariantList diffPathVariant(const QString &path, bool diffStaged = false);
    Q_INVOKABLE QVariantList statusVariant();
    Q_INVOKABLE void stageLinesVariant(const QVariantList &lines, bool reverse);
+   Q_INVOKABLE QVariantList logVariant();
 
    // Some simple default functionality
    Q_INVOKABLE bool removeFile(const QString &path);

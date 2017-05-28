@@ -10,6 +10,7 @@
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
+#include <git/gitcommit.h>
 #include <git/libgit2/libgit2gitmanager.h>
 #include <git/git-bin/gitbingitmanager.h>
 
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
 
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
+  qmlRegisterType<GitCommit>("de.feelx88.GitCommit", 1, 0, "GitCommit");
 
   QQuickStyle::setFallbackStyle("Material");
 

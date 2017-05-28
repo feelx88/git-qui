@@ -5,6 +5,7 @@
 
 #include <git/gitdiffline.h>
 #include <git/gitfile.h>
+#include <git/gitcommit.h>
 
 AGitManager::AGitManager(QObject *parent)
   : QObject (parent)
@@ -56,6 +57,19 @@ void AGitManager::stageLinesVariant(const QVariantList &lines, bool reverse)
   }
 
   stageLines(list, reverse);
+}
+
+QVariantList AGitManager::logVariant()
+{
+  auto list = log();
+  QVariantList propList;
+
+  for(auto *commit : list)
+  {
+    propList.append(qVariantFromValue(commit));
+  }
+
+  return propList;
 }
 
 bool AGitManager::removeFile(const QString &path)

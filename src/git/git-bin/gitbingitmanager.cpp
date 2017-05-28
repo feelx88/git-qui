@@ -5,6 +5,7 @@
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
+#include <git/gitcommit.h>
 
 struct gitBin::GitManager::GitManagerPrivate
 {
@@ -304,6 +305,24 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
   _impl->process->write(stdPatch.data(), stdPatch.length());
   _impl->process->closeWriteChannel();
   _impl->process->waitForFinished();
+}
+
+QList<GitCommit *> gitBin::GitManager::log()
+{
+  _impl->process->setArguments({"log", "--oneline"});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  QList<GitCommit*> list;
+
+  for(QString output = _impl->process->readLine(1024); !output.isEmpty(); output = _impl->process->readLine(1024))
+  {
+    GitCommit *commit = new GitCommit(this);
+    commit->id = output;
+    list.append(commit);
+  }
+
+  return list;
 }
 
 QString gitBin::GitManager::headName()
