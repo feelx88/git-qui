@@ -309,7 +309,7 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
 
 QList<GitCommit *> gitBin::GitManager::log()
 {
-  _impl->process->setArguments({"log", "--oneline"});
+  _impl->process->setArguments({"log", "--pretty=%H#%P#%cn#%ce#%ct#%B"});
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 
