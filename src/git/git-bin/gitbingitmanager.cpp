@@ -324,16 +324,6 @@ QList<GitCommit *> gitBin::GitManager::log()
   _impl->process->waitForFinished();
 
   QList<GitCommit*> list;
-  QRegExp regex(
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)\\f"
-        "(.*)"
-        );
 
   while(true)
   {
@@ -350,12 +340,11 @@ QList<GitCommit *> gitBin::GitManager::log()
       c = _impl->process->read(1);
     }
     _impl->process->read(1);
-    regex.exactMatch(buf);
-    QStringList captures = regex.capturedTexts();
+    QStringList parts = buf.split('\f');
 
     GitCommit *commit = new GitCommit(this);
-    commit->id = captures.at(1);
-    commit->branches = captures.at(3).split(',');
+    commit->id = parts.at(1);
+    commit->branches = parts.at(3).split(", ", QString::SkipEmptyParts);
     list.append(commit);
   }
 
