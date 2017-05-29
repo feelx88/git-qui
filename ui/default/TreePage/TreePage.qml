@@ -30,6 +30,8 @@ Item {
         var commits = gitManager.logVariant();
         for (var x = 0; x < commits.length; ++x) {
           append({
+                   id: commits[x].id,
+                   message: commits[x].message,
                    message: commits[x].id
                  });
         }
@@ -38,13 +40,21 @@ Item {
     delegate: Item {
       height: 20
       width: parent.width
-      Text {
-        text: message
         x: 30
       }
-      MouseArea {
-        anchors.fill: parent
-        onClicked: parent.ListView.view.currentIndex = index
+
+      RowLayout {
+        x: label.width + label.x
+        Text {
+          text: id
+        }
+        Text {
+          text: message
+        }
+        MouseArea {
+          anchors.fill: parent
+          onClicked: parent.parent.ListView.view.currentIndex = index
+        }
       }
     }
     onContentYChanged: {
