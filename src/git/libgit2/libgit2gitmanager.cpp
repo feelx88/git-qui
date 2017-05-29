@@ -178,7 +178,7 @@ void libgit2::GitManager::checkout(const QString &)
 
 }
 
-void libgit2::GitManager::push(const QString &branch, const QString &remote, const QString &remoteBranch)
+void libgit2::GitManager::push(const QString &, const QString &, const QString &)
 {
 }
 
@@ -252,6 +252,7 @@ void libgit2::GitManager::stageLines(const QList<GitDiffLine *>&, bool)
 
 QList<GitCommit *> libgit2::GitManager::log()
 {
+  return QList<GitCommit*>();
 }
 
 git_strarray libgit2::GitManager::GitManagerPrivate::strarrayFromQString(const QString &string)
