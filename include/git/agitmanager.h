@@ -41,6 +41,7 @@ class GitCommit;
 
  signals:
    void gitError(const QString &message);
+   void repositoryChanged(const QString path);
 };
 
 #endif // AGITMANAGER_H

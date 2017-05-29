@@ -31,6 +31,7 @@ void gitBin::GitManager::openRepository(const QString &path)
   if (root.length() > 0)
   {
     _impl->process->setWorkingDirectory(root);
+    emit repositoryChanged(root);
   }
   else
   {

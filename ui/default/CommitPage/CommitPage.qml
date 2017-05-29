@@ -109,7 +109,10 @@ CommitForm {
     id: diffModel
   }
 
-  Component.onCompleted: init()
+  Connections  {
+    target: gitManager
+    onRepositoryChanged: init()
+  }
 
   function init() {
     unstagedModel.clear();
