@@ -401,3 +401,27 @@ void gitBin::GitManager::push(const QString &branch, const QString &remote, cons
     disconnect(*con);
   });
 }
+
+QStringList gitBin::GitManager::repositoryFiles()
+{
+  _impl->process->setArguments({"ls-files",
+                                "--full-name",
+                                "--cached",
+                                "--deleted",
+                                "--modified",
+                                "--others",
+                                "--exclude-standard"});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  QStringList list;
+
+  for(QString output = _impl->process->readLine();
+      output.length() > 0;
+      output = _impl->process->readLine())
+  {
+    list.append(_impl->process->workingDirectory() + '/' + output.trimmed());
+  }
+
+  return list;
+}

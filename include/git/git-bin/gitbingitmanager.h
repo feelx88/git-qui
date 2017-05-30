@@ -17,6 +17,7 @@ public:
   virtual void init() override;
   virtual void openRepository(const QString &path) override;
   virtual QString repositoryRoot(const QString &) override;
+  virtual QStringList repositoryFiles() override;
 
   virtual QList<GitFile *> status() override;
   virtual QList<GitDiffLine *> diffPath(const QString &path, bool diffStaged = false) override;

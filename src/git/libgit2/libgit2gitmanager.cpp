@@ -266,3 +266,8 @@ git_strarray libgit2::GitManager::GitManagerPrivate::strarrayFromQString(const Q
 
   return {array, 1};
 }
+
+QStringList libgit2::GitManager::repositoryFiles()
+{
+  return QStringList();
+}
