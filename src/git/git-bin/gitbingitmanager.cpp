@@ -10,6 +10,7 @@
 struct gitBin::GitManager::GitManagerPrivate
 {
   QProcess *process;
+  QString repositoryRoot;
 };
 
 gitBin::GitManager::GitManager(QObject *parent)
@@ -31,6 +32,7 @@ void gitBin::GitManager::openRepository(const QString &path)
   if (root.length() > 0)
   {
     _impl->process->setWorkingDirectory(root);
+    _impl->repositoryRoot = root;
     emit repositoryChanged(root);
   }
   else
@@ -41,18 +43,25 @@ void gitBin::GitManager::openRepository(const QString &path)
 
 QString gitBin::GitManager::repositoryRoot(const QString &)
 {
-  _impl->process->setArguments({"rev-parse",  "--show-toplevel"});
-  _impl->process->start(QIODevice::ReadOnly);
-  _impl->process->waitForFinished();
-
-  if(_impl->process->exitCode() == QProcess::NormalExit)
+  if(!_impl->repositoryRoot.isEmpty())
   {
-    QString output = QString(_impl->process->readLine(1024)).trimmed();
-    return output;
+    return _impl->repositoryRoot;
   }
   else
   {
-    return "";
+    _impl->process->setArguments({"rev-parse",  "--show-toplevel"});
+    _impl->process->start(QIODevice::ReadOnly);
+    _impl->process->waitForFinished();
+
+    if(_impl->process->exitCode() == QProcess::NormalExit)
+    {
+      QString output = QString(_impl->process->readLine(1024)).trimmed();
+      return output;
+    }
+    else
+    {
+      return "";
+    }
   }
 }
 
