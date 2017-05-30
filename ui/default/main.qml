@@ -19,6 +19,7 @@ ApplicationWindow {
     property alias y: mainWindow.y
     property alias width: mainWindow.width
     property alias height: mainWindow.height
+    property alias selectedTab: tabBar.currentIndex
   }
 
   Connections {
