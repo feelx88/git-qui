@@ -2,6 +2,7 @@
 
 #include <QList>
 #include <QVariant>
+#include <QDir>
 
 #include <git/gitdiffline.h>
 #include <git/gitfile.h>
@@ -74,5 +75,5 @@ QVariantList AGitManager::logVariant()
 
 bool AGitManager::removeFile(const QString &path)
 {
-  return QFile::remove(path);
+  return QFile::remove(repositoryRoot(QDir::currentPath()) + '/' + path);
 }
