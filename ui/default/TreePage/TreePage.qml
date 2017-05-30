@@ -1,4 +1,5 @@
 import QtQuick 2.5
+import QtQuick.Layouts 1.3
 import QtQuick.Controls.Material 2.1
 
 Item {
@@ -14,6 +15,9 @@ Item {
         ctx.fillStyle = Material.accent;
         ctx.strokeStyle = Qt.rgba(0, 0, 0, 0);
         ctx.ellipse(10, 5 + contentY + x * 20, 10, 10);
+        if (x > 0) {
+          ctx.rect(14, 5 + contentY + x * 20 - 12.5, 2, 15);
+        }
         ctx.fill();
       }
       ctx.stroke();
@@ -22,6 +26,7 @@ Item {
 
   ListView {
     id: list
+    property var listModel: model
     anchors.fill: parent
     currentIndex: -1
     highlightMoveDuration: 250
@@ -37,31 +42,10 @@ Item {
         }
       }
     }
-    delegate: Item {
-      height: 20
-      width: parent.width
-        x: 30
-      }
-
-      RowLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: label.width + label.x
-        anchors.rightMargin: 10
-        Text {
-          text: message
-        }
-        Text {
-          text: id
-          font.family: 'monospace'
-          anchors.right: parent.right
-        }
-        MouseArea {
-          anchors.fill: parent
-          onClicked: parent.parent.ListView.view.currentIndex = index
-        }
-      }
+    delegate: HistoryLine {
+      branchModel: branches
     }
+
     onContentYChanged: {
       canvas.contentY = -contentY;
       canvas.requestPaint();
