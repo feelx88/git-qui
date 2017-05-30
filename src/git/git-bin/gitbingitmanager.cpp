@@ -345,8 +345,8 @@ QList<GitCommit *> gitBin::GitManager::log()
 
     GitCommit *commit = new GitCommit(this);
     commit->id = parts.at(0);
-    commit->message = parts.at(6);
     commit->branches = parts.at(2).split(", ", QString::SkipEmptyParts);
+    commit->message = parts.at(6);
     list.append(commit);
   }
 

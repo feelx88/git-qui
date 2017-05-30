@@ -32,7 +32,7 @@ Item {
           append({
                    id: commits[x].id,
                    message: commits[x].message,
-                   message: commits[x].id
+                   branches: commits[x].branches
                  });
         }
       }
@@ -44,12 +44,17 @@ Item {
       }
 
       RowLayout {
-        x: label.width + label.x
-        Text {
-          text: id
-        }
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: label.width + label.x
+        anchors.rightMargin: 10
         Text {
           text: message
+        }
+        Text {
+          text: id
+          font.family: 'monospace'
+          anchors.right: parent.right
         }
         MouseArea {
           anchors.fill: parent
