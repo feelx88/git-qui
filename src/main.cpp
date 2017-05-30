@@ -7,6 +7,7 @@
 #include <QQuickStyle>
 #include <QCommandLineParser>
 #include <QSettings>
+#include <QFileSystemWatcher>
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
@@ -49,8 +50,9 @@ int main(int argc, char *argv[])
     std::cout << message.toStdString() << std::endl;
   });
 
+  QString repositoryRoot = manager->repositoryRoot(QDir::currentPath());
   QSettings::setDefaultFormat(QSettings::IniFormat);
-  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, manager->repositoryRoot(QDir::currentPath()) + "/.git");
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, repositoryRoot + "/.git");
 
   qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
@@ -58,12 +60,25 @@ int main(int argc, char *argv[])
 
   QQuickStyle::setFallbackStyle("Material");
 
+  QFileSystemWatcher watcher;
+
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", manager);
+  engine.rootContext()->setContextProperty("watcher", &watcher);
   engine.load(QUrl(QCoreApplication::applicationDirPath() + QLatin1String("/ui/default/main.qml")));
 
   manager->init();
   manager->openRepository(QDir::currentPath());
+
+  watcher.addPaths(manager->repositoryFiles());
+  QObject::connect(&watcher, &QFileSystemWatcher::fileChanged, [&](const QString &path){
+    watcher.addPath(path);
+  });
+
+  watcher.addPath(repositoryRoot);
+  QObject::connect(&watcher, &QFileSystemWatcher::directoryChanged, [&]{
+    watcher.addPaths(manager->repositoryFiles());
+  });
 
   return app.exec();
 }

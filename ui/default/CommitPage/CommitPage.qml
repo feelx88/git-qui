@@ -114,6 +114,12 @@ CommitForm {
     onRepositoryChanged: init()
   }
 
+  Connections {
+    target: watcher
+    onFileChanged: init()
+    onDirectoryChanged: init()
+  }
+
   function init() {
     unstagedModel.clear();
     stagedModel.clear();
