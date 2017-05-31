@@ -16,7 +16,8 @@ Item {
           append({
                    id: commits[x].id,
                    message: commits[x].message,
-                   branches: commits[x].branches
+                   branches: commits[x].branches,
+                   parents: commits[x].parents
                  });
         }
         canvas.requestPaint();
@@ -41,16 +42,27 @@ Item {
       onPaint: {
         var ctx = getContext("2d");
         ctx.reset();
-        for (var x = 0; x < list.model.count; ++x) {
+        draw(ctx, list.model.get(0), 10, 5);
+        ctx.stroke();
+      }
+      function draw(ctx, commit, x, y) {
+        while(commit) {
           ctx.fillStyle = Material.accent;
           ctx.strokeStyle = Qt.rgba(0, 0, 0, 0);
-          ctx.ellipse(10, 5 + x * 20, 10, 10);
-          if (x > 0) {
-            ctx.rect(14, 5 + x * 20 - 12.5, 2, 15);
+          ctx.ellipse(x, y, 10, 8);
+          if (Object.keys(commit.parents).length) {
+            ctx.rect(x + 4, y + 6, 2, 15);
           }
           ctx.fill();
+
+          commit = commit.parents[0];
+          y += 20;
+
+          for (var pi = 1; pi < Object.keys(commit.parents).length - 1; ++pi) {
+            draw(ctx, commit, x +10, y + 10)
+          }
+
         }
-        ctx.stroke();
       }
     }
   }
