@@ -1,7 +1,10 @@
 #include <git/git-bin/gitbingitmanager.h>
 
+#include <algorithm>
+
 #include <QProcess>
 #include <QtDebug>
+#include <QHash>
 
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
@@ -320,6 +323,7 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
 QList<GitCommit *> gitBin::GitManager::log()
 {
   _impl->process->setArguments({"log",
+                                "--reverse",
                                 "--pretty="
                                 "%H%x0c"
                                 "%P%x0c"
@@ -334,6 +338,7 @@ QList<GitCommit *> gitBin::GitManager::log()
   _impl->process->waitForFinished();
 
   QList<GitCommit*> list;
+  QHash<QString, GitCommit*> map;
 
   while(true)
   {
@@ -357,8 +362,21 @@ QList<GitCommit *> gitBin::GitManager::log()
     commit->branches = parts.at(2).split(", ", QString::SkipEmptyParts);
     commit->message = parts.at(6);
     list.append(commit);
+    map.insert(commit->id, commit);
+
+    QStringList parents = parts.at(1).split(", ", QString::SkipEmptyParts);
+
+    for (QString parent : parents)
+    {
+      GitCommit * parentCommit = map.value(parent);
+      if(parentCommit)
+      {
+        commit->parents.append(parentCommit);
+      }
+    }
   }
 
+  std::reverse(list.begin(), list.end());
   return list;
 }
 
