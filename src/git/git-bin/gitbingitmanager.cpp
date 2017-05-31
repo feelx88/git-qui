@@ -364,7 +364,7 @@ QList<GitCommit *> gitBin::GitManager::log()
     list.append(commit);
     map.insert(commit->id, commit);
 
-    QStringList parents = parts.at(1).split(", ", QString::SkipEmptyParts);
+    QStringList parents = parts.at(1).split(" ", QString::SkipEmptyParts);
 
     for (QString parent : parents)
     {
