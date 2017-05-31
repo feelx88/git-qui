@@ -249,7 +249,7 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
   QString patch = first->header;
   QList<QList<GitDiffLine*>> hunks;
   hunks.append(QList<GitDiffLine*>());
-  int lastindex = (first->type == GitDiffLine::diffType::ADD) ? first->newLine : first->oldLine;
+  int lastindex = first->index;
 
   for(auto line : lines)
   {
