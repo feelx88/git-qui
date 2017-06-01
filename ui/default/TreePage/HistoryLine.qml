@@ -7,7 +7,7 @@ Item {
   width: parent.width
   Row {
     id: label
-    x: 30
+    x: x
     Repeater {
       model: Object.keys(branchModel).length
       Layout.rightMargin: 5

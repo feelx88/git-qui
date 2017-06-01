@@ -25,6 +25,7 @@ Item {
     }
     delegate: HistoryLine {
       branchModel: branches
+      x: canvas.width
     }
 
     highlight: Component {
@@ -36,33 +37,86 @@ Item {
       id: canvas
       z: 1
       height: parent.contentHeight
-      width: 50
+      width: 500
       y: -parent.contentY
       renderTarget: Canvas.FramebufferObject
       onPaint: {
         var ctx = getContext("2d");
         ctx.reset();
-        draw(ctx, list.model.get(0), 10, 5);
-        ctx.stroke();
-      }
-      function draw(ctx, commit, x, y) {
-        while(commit) {
-          ctx.fillStyle = Material.accent;
-          ctx.strokeStyle = Qt.rgba(0, 0, 0, 0);
-          ctx.ellipse(x, y, 10, 8);
-          if (Object.keys(commit.parents).length) {
-            ctx.rect(x + 4, y + 6, 2, 15);
-          }
-          ctx.fill();
 
-          commit = commit.parents[0];
+        var index = 0,
+            commits = [{
+                         x: 10,
+                         commit: list.model.get(index)
+                       }],
+            y = 5,
+            w = 0;
+
+        while(index < list.model.count) {
+          var newCommits = [];
+          for (var cx = 0; cx < commits.length; ++cx) {
+            var commit = commits[cx].commit,
+                x = commits[cx].x;
+
+            var currentCommit = false;
+
+            if (commit.id === list.model.get(index).id) {
+              currentCommit = true;
+              ctx.beginPath();
+              if (Object.keys(commit.parents).length > 1) {
+                ctx.fillStyle = '#00f';
+              } else {
+                ctx.fillStyle = Material.accent;
+              }
+
+              ctx.strokeStyle = Qt.rgba(0, 0, 0, 0);
+              ctx.ellipse(x, y, 10, 10);
+              ctx.fill();
+            } else {
+              newCommits.push({
+                                x: x,
+                                commit: commit
+                              });
+            }
+
+            ctx.beginPath();
+            ctx.fillStyle = Qt.rgba(0, 0, 0, 0);
+            ctx.strokeStyle = Material.accent;
+            ctx.lineWidth = 2;
+            for (var pi = 0; pi < Object.keys(commit.parents).length; ++pi) {
+
+              ctx.moveTo(x + 5, y + 5);
+              ctx.bezierCurveTo(x + 5, y + 25,
+                                x + 5 + 20 * pi, y + 5,
+                                x + 5 + 20 * pi, y + 25);
+              if (currentCommit) {
+                newCommits.push({
+                                  x: x + 20 * pi,
+                                  commit: commit.parents[pi]
+                                });
+              }
+            }
+            ctx.stroke();
+
+            w = Math.max(w, x + 10);
+          }
+          ++index;
           y += 20;
-
-          for (var pi = 1; pi < Object.keys(commit.parents).length - 1; ++pi) {
-            draw(ctx, commit, x +10, y + 10)
+          commits = [];
+          for (var newCommitsIndex = 0; newCommitsIndex < newCommits.length; ++newCommitsIndex) {
+            var found = false;
+            for (var commitsIndex = 0; commitsIndex < commits.length; ++commitsIndex) {
+              if (commits[commitsIndex].commit.id === newCommits[newCommitsIndex].commit.id) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              commits.push(newCommits[newCommitsIndex]);
+            }
           }
-
         }
+          width = w + 20;
       }
     }
   }
