@@ -297,7 +297,7 @@ void gitBin::GitManager::stageLines(const QList<GitDiffLine *> &lines, bool reve
       {
         patch += "-";
       }
-      patch += line->content + '\n';
+      patch += line->content.remove('\n') + '\n';
     }
   }
 
