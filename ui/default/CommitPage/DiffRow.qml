@@ -77,6 +77,7 @@ Rectangle {
   Text {
     id: _content
     text: content
+    textFormat: Text.PlainText
     anchors.left: _type.right
     anchors.leftMargin: 10
     font.family: 'monospace'
