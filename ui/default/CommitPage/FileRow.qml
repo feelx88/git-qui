@@ -69,7 +69,7 @@ Rectangle {
       onClicked: {
         row.clicked(row.ListView.view, path, index);
         row.ListView.view.currentIndex = index
-        if (!staged && mouse.button == Qt.RightButton) {
+        if (buttonLabel === '+' && mouse.button == Qt.RightButton) {
           contextMenu.x = mouse.x;
           contextMenu.y = mouse.y;
           contextMenu.visible = true;
