@@ -1,3 +1,5 @@
+#if defined (USE_LIBIGT2)
+
 #include <git/libgit2/libgit2gitmanager.h>
 
 #include <utility>
@@ -271,3 +273,5 @@ QStringList libgit2::GitManager::repositoryFiles()
 {
   return QStringList();
 }
+
+#endif // defined (USE_LIBIGT2)

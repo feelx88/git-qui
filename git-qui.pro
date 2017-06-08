@@ -6,7 +6,6 @@ SOURCES += src/main.cpp \
     src/git/gitfile.cpp \
     src/git/gitdiffline.cpp \
     src/git/agitmanager.cpp \
-    src/git/libgit2/libgit2gitmanager.cpp \
     src/git/git-bin/gitbingitmanager.cpp \
     src/git/gitcommit.cpp
 
@@ -14,7 +13,6 @@ HEADERS += \
     include/git/gitfile.h \
     include/git/gitdiffline.h \
     include/git/agitmanager.h \
-    include/git/libgit2/libgit2gitmanager.h \
     include/git/git-bin/gitbingitmanager.h \
     include/git/gitcommit.h
 
@@ -27,7 +25,13 @@ OTHER_FILES += .gitignore \
     ui/default/CommitPage/FileRow.qml \
     ui/default/CommitPage/DiffRow.qml
 
-LIBS += -lgit2
+libgit2 {
+  LIBS += -lgit2
+  DEFINES += USE_LIBIGT2
+
+  SOURCES += src/git/libgit2/libgit2gitmanager.cpp
+  HEADERS += include/git/libgit2/libgit2gitmanager.h
+}
 
 INCLUDEPATH += include/
 

@@ -12,8 +12,11 @@
 #include <git/gitfile.h>
 #include <git/gitdiffline.h>
 #include <git/gitcommit.h>
-#include <git/libgit2/libgit2gitmanager.h>
 #include <git/git-bin/gitbingitmanager.h>
+
+#if defined(USE_LIBIGT2)
+  #include <git/libgit2/libgit2gitmanager.h>
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -29,19 +32,23 @@ int main(int argc, char *argv[])
   parser.addVersionOption();
   parser.addPositionalArgument("<working directory>", "Git working directory.");
 
+#if defined (USE_LIBIGT2)
   // A boolean option with a single name (-p)
   QCommandLineOption gitImpl({"L", "libgit2"}, "Use libgit2 implementation instead of parsing git output");
   parser.addOption(gitImpl);
+#endif
 
   parser.process(app);
 
   AGitManager *manager = nullptr;
 
+#if defined (USE_LIBIGT2)
   if(parser.isSet(gitImpl))
   {
     manager = new libgit2::GitManager(&app);
   }
   else
+#endif
   {
     manager = new gitBin::GitManager(&app);
   }

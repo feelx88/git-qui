@@ -1,6 +1,8 @@
 #ifndef LIBGIT2_GITMANAGER_H
 #define LIBGIT2_GITMANAGER_H
 
+#if defined (USE_LIBIGT2)
+
 #include <memory>
 #include <QObject>
 #include <QVariant>
@@ -40,5 +42,7 @@ private:
 };
 
 }
+
+#endif // defined(USE_LIGIT2)
 
 #endif // LIBGIT2_GITMANAGER_H
