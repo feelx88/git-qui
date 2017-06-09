@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.0
 import Qt.labs.settings 1.0
 
 import "CommitPage"
-import "TreePage"
+import "HistoryPage"
 
 ApplicationWindow {
   id: mainWindow
@@ -64,7 +64,7 @@ ApplicationWindow {
     CommitPage {
     }
 
-    TreePage {
+    HistoryPage {
     }
   }
 

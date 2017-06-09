@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("gitManager", manager);
   engine.rootContext()->setContextProperty("watcher", &watcher);
-  engine.load(QUrl(QCoreApplication::applicationDirPath() + QLatin1String("/ui/default/main.qml")));
+  engine.load(QUrl(QLatin1String("qrc:/ui/default/main.qml")));
 
   manager->init();
   manager->openRepository(QDir::currentPath());

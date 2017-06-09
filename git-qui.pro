@@ -21,7 +21,7 @@ OTHER_FILES += .gitignore \
     ui/default/main.qml \
     ui/default/CommitPage/CommitPage.qml \
     ui/default/CommitPage/CommitForm.ui.qml \
-    ui/default/TreePage/TreePage.qml \
+    ui/default/HistoryPage/HistoryPage.qml \
     ui/default/CommitPage/FileRow.qml \
     ui/default/CommitPage/DiffRow.qml
 
@@ -59,3 +59,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     ui/default/TreePage/HistoryLine.qml
+
+RESOURCES += \
+    res.qrc

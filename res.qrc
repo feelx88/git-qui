@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ui/default/CommitPage/CommitForm.ui.qml</file>
+        <file>ui/default/CommitPage/CommitPage.qml</file>
+        <file>ui/default/CommitPage/DiffRow.qml</file>
+        <file>ui/default/CommitPage/FileRow.qml</file>
+        <file>ui/default/HistoryPage/HistoryLine.qml</file>
+        <file>ui/default/main.qml</file>
+        <file>ui/default/HistoryPage/HistoryPage.qml</file>
+    </qresource>
+</RCC>
