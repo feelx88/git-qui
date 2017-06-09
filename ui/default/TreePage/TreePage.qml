@@ -85,10 +85,12 @@ Item {
             ctx.lineWidth = 2;
             for (var pi = 0; pi < Object.keys(commit.parents).length; ++pi) {
 
-              ctx.moveTo(x + 5, y + 5);
-              ctx.bezierCurveTo(x + 5, y + 25,
-                                x + 5 + 20 * pi, y + 5,
-                                x + 5 + 20 * pi, y + 25);
+              if (currentCommit || pi === 0) {
+                ctx.moveTo(x + 5, y + 5);
+                ctx.bezierCurveTo(x + 5, y + 25,
+                                  x + 5 + 20 * pi, y + 5,
+                                  x + 5 + 20 * pi, y + 25);
+              }
               if (currentCommit) {
                 newCommits.push({
                                   x: x + 20 * pi,
