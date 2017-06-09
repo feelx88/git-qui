@@ -65,8 +65,6 @@ int main(int argc, char *argv[])
   qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
   qmlRegisterType<GitCommit>("de.feelx88.GitCommit", 1, 0, "GitCommit");
 
-  QQuickStyle::setFallbackStyle("Material");
-
   QFileSystemWatcher watcher;
 
   QQmlApplicationEngine engine;

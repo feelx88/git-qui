@@ -7,5 +7,6 @@
         <file>ui/default/HistoryPage/HistoryLine.qml</file>
         <file>ui/default/main.qml</file>
         <file>ui/default/HistoryPage/HistoryPage.qml</file>
+        <file>qtquickcontrols2.conf</file>
     </qresource>
 </RCC>
