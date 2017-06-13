@@ -72,15 +72,19 @@ QString gitBin::GitManager::repositoryRoot(const QString &)
 
 QList<GitFile *> gitBin::GitManager::status()
 {
-  _impl->process->setArguments({"status", "-uall", "--porcelain=v1"});
+  _impl->process->setArguments({"status", "-uall", "--porcelain=v1", "-z"});
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
-  QByteArray output = _impl->process->readLine(1024);
 
   QList<GitFile*> list;
 
-  while (output.length() > 0)
+  for(auto output : _impl->process->readAll().split('\0'))
   {
+    if(output.isEmpty())
+    {
+      continue;
+    }
+
     GitFile *file = new GitFile(this);
 
     file->staged = (output.at(0) != ' ' && output.at(0) != '?');
@@ -116,8 +120,6 @@ QList<GitFile *> gitBin::GitManager::status()
     }
 
     list.append(file);
-
-    output = _impl->process->readLine(1024);
   }
 
   return list;
@@ -469,15 +471,14 @@ QStringList gitBin::GitManager::repositoryFiles()
                                 "--deleted",
                                 "--modified",
                                 "--others",
-                                "--exclude-standard"});
+                                "--exclude-standard",
+                               "-z"});
   _impl->process->start(QIODevice::ReadOnly);
   _impl->process->waitForFinished();
 
   QStringList list;
 
-  for(QString output = _impl->process->readLine();
-      output.length() > 0;
-      output = _impl->process->readLine())
+  for(auto output : _impl->process->readAll().split('\0'))
   {
     list.append(_impl->process->workingDirectory() + '/' + output.trimmed());
   }
