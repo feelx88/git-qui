@@ -62,3 +62,6 @@ DISTFILES += \
 
 RESOURCES += \
     res.qrc
+
+# qpm dependencies
+include(vendor/vendor.pri)

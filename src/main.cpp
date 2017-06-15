@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
   QFileSystemWatcher watcher;
 
   QQmlApplicationEngine engine;
+  QPM_INIT(engine);
   engine.rootContext()->setContextProperty("gitManager", manager);
   engine.rootContext()->setContextProperty("watcher", &watcher);
   engine.load(QUrl(QLatin1String("qrc:/ui/default/main.qml")));
