@@ -15,6 +15,12 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
+    onClicked: {
+      if(!(type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)) {
+        return;
+      }
+      _checkBox.checked = !_checkBox.checked;
+    }
     onDoubleClicked: {
       if(!(type == GitDiffLine.ADD || type == GitDiffLine.REMOVE)) {
         return;
