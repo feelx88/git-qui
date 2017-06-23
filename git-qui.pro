@@ -17,21 +17,7 @@ HEADERS += \
     include/git/gitcommit.h
 
 OTHER_FILES += .gitignore \
-    qtquickcontrols2.conf \
-    ui/default/main.qml \
-    ui/default/CommitPage/CommitPage.qml \
-    ui/default/CommitPage/CommitForm.ui.qml \
-    ui/default/HistoryPage/HistoryPage.qml \
-    ui/default/CommitPage/FileRow.qml \
-    ui/default/CommitPage/DiffRow.qml
-
-libgit2 {
-  LIBS += -lgit2
-  DEFINES += USE_LIBIGT2
-
-  SOURCES += src/git/libgit2/libgit2gitmanager.cpp
-  HEADERS += include/git/libgit2/libgit2gitmanager.h
-}
+    qml/qtquickcontrols2.conf
 
 INCLUDEPATH += include/
 
@@ -56,9 +42,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-DISTFILES += \
-    ui/default/TreePage/HistoryLine.qml
 
 RESOURCES += \
     res.qrc
