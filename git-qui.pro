@@ -17,7 +17,8 @@ HEADERS += \
     include/git/gitcommit.h
 
 OTHER_FILES += .gitignore \
-    qml/qtquickcontrols2.conf
+    qml/qtquickcontrols2.conf \
+    qml/ui/default/main.qml
 
 INCLUDEPATH += include/
 
