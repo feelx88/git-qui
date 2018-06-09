@@ -3,22 +3,12 @@ QT += qml quick quickcontrols2
 CONFIG += c++11
 
 SOURCES += src/main.cpp \
-    src/git/gitfile.cpp \
-    src/git/gitdiffline.cpp \
-    src/git/agitmanager.cpp \
-    src/git/git-bin/gitbingitmanager.cpp \
-    src/git/gitcommit.cpp
 
 HEADERS += \
-    include/git/gitfile.h \
-    include/git/gitdiffline.h \
-    include/git/agitmanager.h \
-    include/git/git-bin/gitbingitmanager.h \
-    include/git/gitcommit.h
 
 OTHER_FILES += .gitignore \
     qml/qtquickcontrols2.conf \
-    qml/ui/default/main.qml
+    qml/ui/main.qml
 
 INCLUDEPATH += include/
 

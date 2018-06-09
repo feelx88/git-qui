@@ -9,11 +9,6 @@
 #include <QSettings>
 #include <QFileSystemWatcher>
 
-#include <git/gitfile.h>
-#include <git/gitdiffline.h>
-#include <git/gitcommit.h>
-#include <git/git-bin/gitbingitmanager.h>
-
 int main(int argc, char *argv[])
 {
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -30,19 +25,9 @@ int main(int argc, char *argv[])
 
   parser.process(app);
 
-  AGitManager *manager = new gitBin::GitManager(&app);
-
-  manager->connect(manager, &AGitManager::gitError, [&](const QString &message){
-    std::cout << message.toStdString() << std::endl;
-  });
-
-  qmlRegisterType<GitFile>("de.feelx88.GitFile", 1, 0, "GitFile");
-  qmlRegisterType<GitDiffLine>("de.feelx88.GitDiffLine", 1, 0, "GitDiffLine");
-  qmlRegisterType<GitCommit>("de.feelx88.GitCommit", 1, 0, "GitCommit");
-
   QQmlApplicationEngine engine;
   QPM_INIT(engine);
-  engine.load(QUrl(QLatin1String("qrc:/qml/ui/default/main.qml")));
+  engine.load(QUrl(QLatin1String("qrc:/qml/ui/main.qml")));
 
   return app.exec();
 }

@@ -1,9 +1,10 @@
 import QtQuick 2.0
 import QtQuick.Window 2.2
+import QtQuick.Controls 1.4
 
 Window {
-  visibility: "Maximized"
+  visible: true
   Text {
-    text: "Test"
+    text: 'moep'
   }
 }
