@@ -112,6 +112,7 @@ void GitInterface::log()
         children.pop_front();
 
         for (QString child : children) {
+          child = child.trimmed();
           commit->children.append(QVariant::fromValue(map.value(child)));
         }
       }
