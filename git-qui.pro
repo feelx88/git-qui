@@ -3,12 +3,16 @@ QT += qml quick quickcontrols2
 CONFIG += c++11
 
 SOURCES += src/main.cpp \
+    src/gitinterface.cpp
 
 HEADERS += \
+    include/gitinterface.h \
+    include/gitcommit.h
 
 OTHER_FILES += .gitignore \
     qml/qtquickcontrols2.conf \
-    qml/ui/main.qml
+    qml/ui/main.qml \
+    qml/ui/components/History.qml
 
 INCLUDEPATH += include/
 

@@ -9,6 +9,9 @@
 #include <QSettings>
 #include <QFileSystemWatcher>
 
+#include "gitinterface.h"
+#include "gitcommit.h"
+
 int main(int argc, char *argv[])
 {
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -25,8 +28,15 @@ int main(int argc, char *argv[])
 
   parser.process(app);
 
+  qmlRegisterUncreatableType<GitInterface>("de.feelx88.GitInterface", 1, 0, "GitInterface", "");
+  qmlRegisterUncreatableType<GitCommit>("de.feelx88.GitCommit", 1, 0, "GitCommit", "");
+
   QQmlApplicationEngine engine;
   QPM_INIT(engine);
+
+  GitInterface *gitInterface = new GitInterface(&app, QDir().absolutePath());
+  engine.rootContext()->setContextProperty("gitInterface", gitInterface);
+
   engine.load(QUrl(QLatin1String("qrc:/qml/ui/main.qml")));
 
   return app.exec();
