@@ -7,9 +7,13 @@ namespace Ui {
 class MainWindow;
 }
 
+struct MainWindowPrivate;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
+
+  friend struct MainWindowPrivate;
 
 public:
   explicit MainWindow(QWidget *parent = nullptr);
@@ -17,6 +21,8 @@ public:
 
 private:
   Ui::MainWindow *ui;
+
+  QScopedPointer<MainWindowPrivate> _impl;
 };
 
 #endif // MAINWINDOW_H

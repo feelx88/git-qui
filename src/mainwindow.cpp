@@ -5,31 +5,40 @@
 
 #include "components/repositoryfiles/repositoryfiles.hpp"
 
+struct MainWindowPrivate
+{
+  void connectSignals(MainWindow *_this)
+  {
+    _this->connect(_this->ui->actionTop, &QAction::triggered, [_this]{
+      _this->addToolBar(Qt::TopToolBarArea, new QToolBar(_this));
+    });
+
+    _this->connect(_this->ui->actionBottom, &QAction::triggered, [_this]{
+      _this->addToolBar(Qt::BottomToolBarArea, new QToolBar(_this));
+    });
+
+    _this->connect(_this->ui->actionLeft, &QAction::triggered, [_this]{
+      _this->addToolBar(Qt::LeftToolBarArea, new QToolBar(_this));
+    });
+
+    _this->connect(_this->ui->actionRight, &QAction::triggered, [_this]{
+      _this->addToolBar(Qt::RightToolBarArea, new QToolBar(_this));
+    });
+
+    _this->connect(_this->ui->actionRepositoryFiles, &QAction::triggered, [_this](){
+      _this->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(_this, nullptr));
+    });
+  }
+};
+
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
-ui(new Ui::MainWindow)
+ui(new Ui::MainWindow),
+_impl(new MainWindowPrivate)
 {
   ui->setupUi(this);
 
-  connect(ui->actionTop, &QAction::triggered, [this]{
-    addToolBar(Qt::TopToolBarArea, new QToolBar(this));
-  });
-
-  connect(ui->actionBottom, &QAction::triggered, [this]{
-    addToolBar(Qt::BottomToolBarArea, new QToolBar(this));
-  });
-
-  connect(ui->actionLeft, &QAction::triggered, [this]{
-    addToolBar(Qt::LeftToolBarArea, new QToolBar(this));
-  });
-
-  connect(ui->actionRight, &QAction::triggered, [this]{
-    addToolBar(Qt::RightToolBarArea, new QToolBar(this));
-  });
-
-  connect(ui->actionRepositoryFiles, &QAction::triggered, [this](){
-    this->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(this));
-  });
+  _impl->connectSignals(this);
 }
 
 MainWindow::~MainWindow()
