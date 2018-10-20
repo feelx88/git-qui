@@ -68,7 +68,6 @@ void GitInterface::log()
       QStringList parts = buf.split('\f');
 
       GitCommit *commit = new GitCommit(this);
-      commit->graph = parts.at(0).trimmed();
       if (parts.length() > 1)
       {
         commit->id = parts.at(1);

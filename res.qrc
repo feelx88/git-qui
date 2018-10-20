@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>qml/qtquickcontrols2.conf</file>
-        <file>qml/ui/main.qml</file>
-        <file>qml/ui/components/History.qml</file>
-    </qresource>
-</RCC>

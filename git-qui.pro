@@ -1,18 +1,19 @@
-QT += qml quick quickcontrols2
+QT += core gui widgets webengine
 
 CONFIG += c++11
 
 SOURCES += src/main.cpp \
-    src/gitinterface.cpp
+    src/gitinterface.cpp \
+    src/mainwindow.cpp
 
 HEADERS += \
     include/gitinterface.h \
-    include/gitcommit.h
+    include/gitcommit.h \
+    include/mainwindow.h
 
 OTHER_FILES += .gitignore \
-    qml/qtquickcontrols2.conf \
-    qml/ui/main.qml \
-    qml/ui/components/History.qml
+    qpm.json \
+    ui/mainwindow.ui
 
 INCLUDEPATH += include/
 
@@ -38,8 +39,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RESOURCES += \
-    res.qrc
+RESOURCES +=
 
 # qpm dependencies
 include(vendor/vendor.pri)
