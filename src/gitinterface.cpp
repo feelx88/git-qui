@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include "gitcommit.hpp"
+#include "gitfile.hpp"
 
 class GitInterfacePrivate
 {
@@ -30,7 +31,77 @@ GitInterface::~GitInterface()
 
 void GitInterface::reload()
 {
+  status();
+  log();
+}
 
+void GitInterface::status()
+{
+  _data->process->setArguments({
+    "status",
+    "--untracked=all",
+    "--porcelain=v1",
+    "-z",
+  });
+
+  _data->process->start(QIODevice::ReadOnly);
+  _data->process->waitForFinished();
+
+  QList<GitFile> unstaged, staged;
+
+  for(auto output : _data->process->readAll().split('\0'))
+  {
+    if(output.isEmpty())
+    {
+      continue;
+    }
+
+    GitFile file;
+
+    file.staged = (output.at(0) != ' ' && output.at(0) != '?');
+    file.unstaged = (output.at(1) != ' ');
+    file.path = output.right(output.length() - 3).trimmed();
+
+    switch(output.at(0))
+    {
+    case 'M':
+      file.modified = true;
+      break;
+    case 'D':
+      file.deleted = true;
+      break;
+    case 'R':
+    case 'C':
+    default:
+      break;
+    }
+
+    switch(output.at(1))
+    {
+    case 'M':
+      file.modified = true;
+      break;
+    case 'D':
+      file.deleted = true;
+      break;
+    case 'R':
+    case 'C':
+    default:
+      break;
+    }
+
+    if (file.unstaged)
+    {
+      unstaged.append(file);
+    }
+    else
+    {
+      staged.append(file);
+    }
+  }
+
+  emit nonStagingAreaChanged(unstaged);
+  emit stagingAreaChanged(staged);
 }
 
 void GitInterface::log()
@@ -89,7 +160,5 @@ void GitInterface::commit(const QString &message)
     _data->process->start(QIODevice::ReadOnly);
     _data->process->waitForFinished();
 
-  log();
-  emit stagingAreaChanged();
-  emit nonStagingAreaChanged();
+  reload();
 }

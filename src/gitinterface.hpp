@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QVariant>
 
+#include "gitfile.hpp"
+
 class QDir;
 class QFile;
 class GitCommit;
@@ -19,12 +21,13 @@ public:
   virtual ~GitInterface();
 public slots:
   void reload();
+  void status();
   void log();
   void commit(const QString& message);
 signals:
   void fileChanged(const QFile& fileName);
-  void nonStagingAreaChanged();
-  void stagingAreaChanged();
+  void nonStagingAreaChanged(QList<GitFile>);
+  void stagingAreaChanged(QList<GitFile>);
   void logChanged(QVariantList logs);
 
 private:

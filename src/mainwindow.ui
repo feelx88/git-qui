@@ -40,6 +40,7 @@
     </property>
     <addaction name="actionOpen_Repository"/>
     <addaction name="actionClose_current_repository"/>
+    <addaction name="actionReload_current_repository"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -106,6 +107,11 @@
   <action name="actionBottom">
    <property name="text">
     <string>Bottom</string>
+   </property>
+  </action>
+  <action name="actionReload_current_repository">
+   <property name="text">
+    <string>Reload current repository</string>
    </property>
   </action>
  </widget>

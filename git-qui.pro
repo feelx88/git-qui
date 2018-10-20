@@ -12,7 +12,8 @@ HEADERS += \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
     src/mainwindow.hpp \
-    src/components/repositoryfiles/repositoryfiles.hpp
+    src/components/repositoryfiles/repositoryfiles.hpp \
+    src/gitfile.hpp
 
 OTHER_FILES += \
     .gitignore \

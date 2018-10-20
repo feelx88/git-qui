@@ -15,7 +15,13 @@ struct RepositoryFilesPrivate
       _this->ui->stackedWidget->setCurrentIndex(1);
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, []{});
+    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, [_this](QList<GitFile> files){
+      _this->ui->listWidget->clear();
+      for(auto file: files)
+      {
+        _this->ui->listWidget->addItem(file.path);
+      }
+    });
   }
 };
 
