@@ -2,10 +2,10 @@
 
 #include <QApplication>
 
-#include "mainwindow.h"
+#include "mainwindow.hpp"
 
-#include "gitinterface.h"
-#include "gitcommit.h"
+#include "gitinterface.hpp"
+#include "gitcommit.hpp"
 
 int main(int argc, char *argv[])
 {

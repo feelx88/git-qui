@@ -9,17 +9,17 @@ SOURCES += \
     src/components/repositoryfiles/repositoryfiles.cpp
 
 HEADERS += \
-    include/gitinterface.h \
-    include/gitcommit.h \
-    include/mainwindow.h \
-    src/components/repositoryfiles/repositoryfiles.h
+    src/gitinterface.hpp \
+    src/gitcommit.hpp \
+    src/mainwindow.hpp \
+    src/components/repositoryfiles/repositoryfiles.hpp
 
 OTHER_FILES += \
     .gitignore \
     qpm.json
 
 FORMS += \
-    ui/mainwindow.ui \
+    src/mainwindow.ui \
     src/components/repositoryfiles/repositoryfiles.ui
 
 INCLUDEPATH += include/

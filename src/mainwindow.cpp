@@ -1,9 +1,9 @@
-#include "include/mainwindow.h"
+#include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 #include <QToolBar>
 
-#include "components/repositoryfiles/repositoryfiles.h"
+#include "components/repositoryfiles/repositoryfiles.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),

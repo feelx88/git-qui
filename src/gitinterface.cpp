@@ -1,11 +1,11 @@
-#include "include/gitinterface.h"
+#include "gitinterface.hpp"
 
 #include <QDir>
 #include <QFile>
 #include <QProcess>
 #include <QDebug>
 
-#include "gitcommit.h"
+#include "gitcommit.hpp"
 
 class GitInterfacePrivate
 {

@@ -1,4 +1,4 @@
-#include "repositoryfiles.h"
+#include "repositoryfiles.hpp"
 #include "ui_repositoryfiles.h"
 
 RepositoryFiles::RepositoryFiles(QWidget *parent) :
