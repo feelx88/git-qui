@@ -5,12 +5,14 @@ CONFIG += c++14
 SOURCES += \
     src/main.cpp \
     src/gitinterface.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/components/repositoryfiles/repositoryfiles.cpp
 
 HEADERS += \
     include/gitinterface.h \
     include/gitcommit.h \
-    include/mainwindow.h
+    include/mainwindow.h \
+    src/components/repositoryfiles/repositoryfiles.h
 
 OTHER_FILES += \
     .gitignore \
@@ -18,6 +20,7 @@ OTHER_FILES += \
 
 FORMS += \
     ui/mainwindow.ui \
+    src/components/repositoryfiles/repositoryfiles.ui
 
 INCLUDEPATH += include/
 

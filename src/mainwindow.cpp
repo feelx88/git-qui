@@ -3,6 +3,8 @@
 
 #include <QToolBar>
 
+#include "components/repositoryfiles/repositoryfiles.h"
+
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
 ui(new Ui::MainWindow)
