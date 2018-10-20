@@ -22,7 +22,7 @@ FORMS += \
     src/mainwindow.ui \
     src/components/repositoryfiles/repositoryfiles.ui
 
-INCLUDEPATH += include/
+INCLUDEPATH += src/
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
