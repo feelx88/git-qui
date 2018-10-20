@@ -43,18 +43,29 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <widget class="QMenu" name="menuAdd_view">
+     <property name="title">
+      <string>Add view</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuAdd_Toolbar">
+     <property name="title">
+      <string>Add Toolbar</string>
+     </property>
+     <addaction name="actionTop"/>
+     <addaction name="actionLeft"/>
+     <addaction name="actionRight"/>
+     <addaction name="actionBottom"/>
+    </widget>
+    <addaction name="menuAdd_view"/>
+    <addaction name="menuAdd_Toolbar"/>
+   </widget>
    <addaction name="menuFile"/>
-  </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+   <addaction name="menuEdit"/>
   </widget>
   <action name="actionOpen_Repository">
    <property name="text">
@@ -69,6 +80,31 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionRepositoryFiles">
+   <property name="text">
+    <string>RepositoryFiles</string>
+   </property>
+  </action>
+  <action name="actionTop">
+   <property name="text">
+    <string>Top</string>
+   </property>
+  </action>
+  <action name="actionLeft">
+   <property name="text">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionRight">
+   <property name="text">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionBottom">
+   <property name="text">
+    <string>Bottom</string>
    </property>
   </action>
  </widget>

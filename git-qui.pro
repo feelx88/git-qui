@@ -1,8 +1,9 @@
 QT += core gui widgets webengine
 
-CONFIG += c++11
+CONFIG += c++14
 
-SOURCES += src/main.cpp \
+SOURCES += \
+    src/main.cpp \
     src/gitinterface.cpp \
     src/mainwindow.cpp
 
@@ -11,9 +12,12 @@ HEADERS += \
     include/gitcommit.h \
     include/mainwindow.h
 
-OTHER_FILES += .gitignore \
-    qpm.json \
-    ui/mainwindow.ui
+OTHER_FILES += \
+    .gitignore \
+    qpm.json
+
+FORMS += \
+    ui/mainwindow.ui \
 
 INCLUDEPATH += include/
 
@@ -42,4 +46,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES +=
 
 # qpm dependencies
-include(vendor/vendor.pri)
+# include(vendor/vendor.pri)
