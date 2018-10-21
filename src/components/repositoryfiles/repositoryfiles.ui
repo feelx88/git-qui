@@ -14,7 +14,7 @@
    <set>QDockWidget::DockWidgetMovable</set>
   </property>
   <property name="windowTitle">
-   <string>Unstaged files</string>
+   <string>Repository files</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -37,13 +37,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButton">
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -61,7 +54,13 @@
       <widget class="QWidget" name="page_2">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QTreeWidget" name="treeWidget"/>
+         <widget class="QTreeWidget" name="treeWidget">
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
         </item>
        </layout>
       </widget>

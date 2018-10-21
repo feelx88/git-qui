@@ -62,6 +62,8 @@ _impl(new RepositoryFilesPrivate)
 
   _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
+
+  setWindowTitle(unstaged ? tr("Unstaged files") : tr("Staged files"));
 }
 
 RepositoryFiles::~RepositoryFiles()
