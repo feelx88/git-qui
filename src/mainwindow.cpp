@@ -3,6 +3,7 @@
 
 #include <QToolBar>
 #include <QDir>
+#include <QDockWidget>
 #include <QDebug>
 
 #include "gitinterface.hpp"
@@ -73,5 +74,9 @@ _impl(new MainWindowPrivate)
 
 MainWindow::~MainWindow()
 {
+  for (auto dockWidget : findChildren<QDockWidget *>())
+  {
+    delete dockWidget;
+  }
   delete ui;
 }
