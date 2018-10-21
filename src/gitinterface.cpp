@@ -58,11 +58,14 @@ void GitInterface::status()
 
     GitFile file;
 
-    file.staged = (output.at(0) != ' ' && output.at(0) != '?');
-    file.unstaged = (output.at(1) != ' ');
+    char firstByte = output.at(0);
+    char secondByte = output.at(1);
+
+    file.staged = (firstByte != ' ' && firstByte != '?');
+    file.unstaged = (secondByte != ' ');
     file.path = output.right(output.length() - 3).trimmed();
 
-    switch(output.at(0))
+    switch(firstByte)
     {
     case 'M':
       file.modified = true;
@@ -70,13 +73,16 @@ void GitInterface::status()
     case 'D':
       file.deleted = true;
       break;
+    case 'A':
+      file.added = true;
+      break;
     case 'R':
     case 'C':
     default:
       break;
     }
 
-    switch(output.at(1))
+    switch(secondByte)
     {
     case 'M':
       file.modified = true;
@@ -94,7 +100,8 @@ void GitInterface::status()
     {
       unstaged.append(file);
     }
-    else
+
+    if (file.staged)
     {
       staged.append(file);
     }

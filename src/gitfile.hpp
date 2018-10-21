@@ -5,7 +5,7 @@
 
 struct GitFile
 {
-  bool staged, unstaged, modified, deleted;
+  bool staged, unstaged, added, modified, deleted;
   QString path;
 };
 
