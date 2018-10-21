@@ -4,21 +4,21 @@
 #include <QDialog>
 
 namespace Ui {
-class RepositoryFileConfig;
+class RepositoryFilesConfig;
 }
 
-class RepositoryFileConfig : public QDialog
+class RepositoryFilesConfig : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit RepositoryFileConfig(QWidget *parent = nullptr);
-  ~RepositoryFileConfig();
+  explicit RepositoryFilesConfig(QWidget *parent = nullptr);
+  ~RepositoryFilesConfig();
 
   bool unstaged();
 
 private:
-  Ui::RepositoryFileConfig *ui;
+  Ui::RepositoryFilesConfig *ui;
 };
 
 #endif // REPOSITORYFILECONFIG_HPP

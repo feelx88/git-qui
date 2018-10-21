@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "repositoryfileconfig.hpp"
+#include "repositoryfilesconfig.hpp"
 
 struct RepositoryFilesPrivate
 {
@@ -32,7 +32,7 @@ struct RepositoryFilesPrivate
 
   static void initialize(QMainWindow* mainWindow, QSharedPointer<GitInterface> gitInterface)
   {
-    RepositoryFileConfig config;
+    RepositoryFilesConfig config;
     config.exec();
 
     if (config.result() == QDialog::Accepted)
