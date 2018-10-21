@@ -1,18 +1,14 @@
 #include "repositoryfiles.hpp"
 #include "ui_repositoryfiles.h"
 
-DOCK_WIDGET_IMPL(RepositoryFiles)
-{
-  return new RegistryEntry
-  {
-    tr("Repository files"),
-    [](QWidget* parent, QSharedPointer<GitInterface> gitInterface) -> QDockWidget* {return new RepositoryFiles(parent, gitInterface);}
-  };
-}
+#include <QMainWindow>
+
+#include "repositoryfileconfig.hpp"
 
 struct RepositoryFilesPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
+  bool unstaged;
 
   void connectSignals(RepositoryFiles *_this)
   {
@@ -24,7 +20,8 @@ struct RepositoryFilesPrivate
       _this->ui->stackedWidget->setCurrentIndex(1);
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, [_this](QList<GitFile> files){
+    auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
+    _this->connect(gitInterface.get(), signal, [_this](QList<GitFile> files){
       _this->ui->listWidget->clear();
       for(auto file: files)
       {
@@ -32,14 +29,36 @@ struct RepositoryFilesPrivate
       }
     });
   }
+
+  static void initialize(QMainWindow* mainWindow, QSharedPointer<GitInterface> gitInterface)
+  {
+    RepositoryFileConfig config;
+    config.exec();
+
+    if (config.result() == QDialog::Accepted)
+    {
+      mainWindow->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(mainWindow, gitInterface, config.unstaged()));
+    }
+  }
 };
 
-RepositoryFiles::RepositoryFiles(QWidget *parent, QSharedPointer<GitInterface> gitInterface) :
+DOCK_WIDGET_IMPL(RepositoryFiles)
+{
+  return new RegistryEntry
+  {
+    tr("Repository files"),
+    &RepositoryFilesPrivate::initialize
+  };
+}
+
+RepositoryFiles::RepositoryFiles(QWidget *parent, QSharedPointer<GitInterface> gitInterface, bool unstaged) :
 QDockWidget(parent),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)
 {
   ui->setupUi(this);
+
+  _impl->unstaged = unstaged;
 
   _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);

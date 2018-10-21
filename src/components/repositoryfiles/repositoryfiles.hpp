@@ -19,7 +19,7 @@ class RepositoryFiles : public QDockWidget, DockWidget
   friend struct RepositoryFilesPrivate;
 
 public:
-  explicit RepositoryFiles(QWidget *parent, QSharedPointer<GitInterface> gitInterface);
+  explicit RepositoryFiles(QWidget *parent, QSharedPointer<GitInterface> gitInterface, bool unstaged);
   ~RepositoryFiles();
 
 private:

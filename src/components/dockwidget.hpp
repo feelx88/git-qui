@@ -1,7 +1,10 @@
 #ifndef DOCKWIDGET_HPP
 #define DOCKWIDGET_HPP
 
+#include <QFuture>
+
 class QDockWidget;
+class QMainWindow;
 class GitInterface;
 
 #define DOCK_WIDGET \
@@ -21,7 +24,7 @@ public:
   struct RegistryEntry
   {
     QString name;
-    std::function<QDockWidget*(QWidget*, QSharedPointer<GitInterface>)> initializer;
+    std::function<void(QMainWindow*, QSharedPointer<GitInterface>)> initializer;
   };
 
   virtual ~DockWidget();

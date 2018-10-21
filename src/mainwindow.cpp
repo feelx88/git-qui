@@ -39,7 +39,7 @@ struct MainWindowPrivate
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
       _this->ui->menuAdd_view->addAction(entry->name, [=]{
-        _this->addDockWidget(Qt::TopDockWidgetArea, entry->initializer(_this, gitInterface));
+        entry->initializer(_this, gitInterface);
         gitInterface->reload();
       });
     }

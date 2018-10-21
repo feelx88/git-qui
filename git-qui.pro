@@ -7,7 +7,8 @@ SOURCES += \
     src/gitinterface.cpp \
     src/mainwindow.cpp \
     src/components/dockwidget.cpp \
-    src/components/repositoryfiles/repositoryfiles.cpp
+    src/components/repositoryfiles/repositoryfiles.cpp \
+    src/components/repositoryfiles/repositoryfileconfig.cpp
 
 HEADERS += \
     src/gitinterface.hpp \
@@ -15,7 +16,8 @@ HEADERS += \
     src/gitfile.hpp \
     src/mainwindow.hpp \
     src/components/dockwidget.hpp \
-    src/components/repositoryfiles/repositoryfiles.hpp
+    src/components/repositoryfiles/repositoryfiles.hpp \
+    src/components/repositoryfiles/repositoryfileconfig.hpp
 
 OTHER_FILES += \
     .gitignore \
@@ -23,7 +25,8 @@ OTHER_FILES += \
 
 FORMS += \
     src/mainwindow.ui \
-    src/components/repositoryfiles/repositoryfiles.ui
+    src/components/repositoryfiles/repositoryfiles.ui \
+    src/components/repositoryfiles/repositoryfileconfig.ui
 
 INCLUDEPATH += src/
 
