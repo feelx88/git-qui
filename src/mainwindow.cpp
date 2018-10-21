@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QDockWidget>
 #include <QDebug>
+#include <QSettings>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -59,6 +60,9 @@ _impl(new MainWindowPrivate)
   _impl->connectSignals(this);
   _impl->populateMenu(this);
 
+  QSettings settings;
+  restoreGeometry(settings.value("geometry").toByteArray());
+
   for (QAction* action : ui->menuAdd_view->actions())
   {
     action->trigger();
@@ -74,6 +78,9 @@ _impl(new MainWindowPrivate)
 
 MainWindow::~MainWindow()
 {
+  QSettings settings;
+  settings.setValue("geometry", saveGeometry());
+
   for (auto dockWidget : findChildren<QDockWidget *>())
   {
     delete dockWidget;
