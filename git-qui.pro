@@ -6,14 +6,16 @@ SOURCES += \
     src/main.cpp \
     src/gitinterface.cpp \
     src/mainwindow.cpp \
+    src/components/dockwidget.cpp \
     src/components/repositoryfiles/repositoryfiles.cpp
 
 HEADERS += \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
+    src/gitfile.hpp \
     src/mainwindow.hpp \
-    src/components/repositoryfiles/repositoryfiles.hpp \
-    src/gitfile.hpp
+    src/components/dockwidget.hpp \
+    src/components/repositoryfiles/repositoryfiles.hpp
 
 OTHER_FILES += \
     .gitignore \

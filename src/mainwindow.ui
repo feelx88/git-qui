@@ -52,7 +52,6 @@
      <property name="title">
       <string>Add view</string>
      </property>
-     <addaction name="actionRepositoryFiles"/>
     </widget>
     <widget class="QMenu" name="menuAdd_Toolbar">
      <property name="title">

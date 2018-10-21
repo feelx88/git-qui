@@ -3,6 +3,7 @@
 
 #include <QToolBar>
 #include <QDir>
+#include <QDebug>
 
 #include "components/repositoryfiles/repositoryfiles.hpp"
 
@@ -28,14 +29,20 @@ struct MainWindowPrivate
       _this->addToolBar(Qt::RightToolBarArea, new QToolBar(_this));
     });
 
-    _this->connect(_this->ui->actionRepositoryFiles, &QAction::triggered, [_this, this](){
-      _this->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(_this, gitInterface));
-      gitInterface->reload();
-    });
-
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, [this]{
       gitInterface->reload();
     });
+  }
+
+  void populateMenu(MainWindow *_this)
+  {
+    for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
+    {
+      _this->ui->menuAdd_view->addAction(entry->name, [=]{
+        _this->addDockWidget(Qt::TopDockWidgetArea, entry->initializer(_this, gitInterface));
+        gitInterface->reload();
+      });
+    }
   }
 };
 
@@ -48,6 +55,7 @@ _impl(new MainWindowPrivate)
 
   _impl->gitInterface.reset(new GitInterface(this, QDir::current()));
   _impl->connectSignals(this);
+  _impl->populateMenu(this);
 
   _impl->gitInterface->reload();
 }

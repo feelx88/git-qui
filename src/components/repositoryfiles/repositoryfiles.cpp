@@ -1,6 +1,15 @@
 #include "repositoryfiles.hpp"
 #include "ui_repositoryfiles.h"
 
+DOCK_WIDGET_IMPL(RepositoryFiles)
+{
+  return new RegistryEntry
+  {
+    tr("Repository files"),
+    [](QWidget* parent, QSharedPointer<GitInterface> gitInterface) -> QDockWidget* {return new RepositoryFiles(parent, gitInterface);}
+  };
+}
+
 struct RepositoryFilesPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
