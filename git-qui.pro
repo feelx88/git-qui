@@ -8,6 +8,7 @@ SOURCES += \
     src/mainwindow.cpp \
     src/components/dockwidget.cpp \
     src/components/repositoryfiles/repositoryfiles.cpp \
+    src/components/commit/commit.cpp \
     src/components/repositoryfiles/repositoryfilesconfig.cpp
 
 HEADERS += \
@@ -17,6 +18,7 @@ HEADERS += \
     src/mainwindow.hpp \
     src/components/dockwidget.hpp \
     src/components/repositoryfiles/repositoryfiles.hpp \
+    src/components/commit/commit.hpp \
     src/components/repositoryfiles/repositoryfilesconfig.hpp
 
 OTHER_FILES += \
@@ -26,6 +28,7 @@ OTHER_FILES += \
 FORMS += \
     src/mainwindow.ui \
     src/components/repositoryfiles/repositoryfiles.ui \
+    src/components/commit/commit.ui \
     src/components/repositoryfiles/repositoryfilesconfig.ui
 
 INCLUDEPATH += src/
