@@ -17,12 +17,12 @@ public:
 
 GitInterface::GitInterface(QObject *parent, const QDir &repositoryPath)
   : QObject(parent),
-    _data(new GitInterfacePrivate)
+    _impl(new GitInterfacePrivate)
 {
-  _data->repositoryPath = repositoryPath;
-  _data->process = new QProcess(this);
-  _data->process->setWorkingDirectory(repositoryPath.absolutePath());
-  _data->process->setProgram("git");
+  _impl->repositoryPath = repositoryPath;
+  _impl->process = new QProcess(this);
+  _impl->process->setWorkingDirectory(repositoryPath.absolutePath());
+  _impl->process->setProgram("git");
 }
 
 GitInterface::~GitInterface()
@@ -37,19 +37,19 @@ void GitInterface::reload()
 
 void GitInterface::status()
 {
-  _data->process->setArguments({
+  _impl->process->setArguments({
     "status",
     "--untracked=all",
     "--porcelain=v1",
     "-z",
   });
 
-  _data->process->start(QIODevice::ReadOnly);
-  _data->process->waitForFinished();
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
 
   QList<GitFile> unstaged, staged;
 
-  for(auto output : _data->process->readAll().split('\0'))
+  for(auto output : _impl->process->readAll().split('\0'))
   {
     if(output.isEmpty())
     {
@@ -113,7 +113,7 @@ void GitInterface::status()
 
 void GitInterface::log()
 {
-  _data->process->setArguments({"log",
+  _impl->process->setArguments({"log",
                                   "--all",
                                   "--graph",
                                   "--full-history",
@@ -123,25 +123,25 @@ void GitInterface::log()
                                   "%x0c"
                                   "%s"
                                  });
-    _data->process->start(QIODevice::ReadOnly);
-    _data->process->waitForFinished();
+    _impl->process->start(QIODevice::ReadOnly);
+    _impl->process->waitForFinished();
 
     QVariantList list;
     QHash<QString, GitCommit*> map;
 
     while(true)
     {
-      if(_data->process->atEnd())
+      if(_impl->process->atEnd())
       {
         break;
       }
 
       QString buf;
-      QByteArray c = _data->process->read(1);
+      QByteArray c = _impl->process->read(1);
       while(c != "\n")
       {
         buf += c;
-        c = _data->process->read(1);
+        c = _impl->process->read(1);
       }
       QStringList parts = buf.split('\f');
 
@@ -160,12 +160,12 @@ void GitInterface::log()
 
 void GitInterface::commit(const QString &message)
 {
-  _data->process->setArguments({"commit",
+  _impl->process->setArguments({"commit",
                                   "--message",
                                   message,
                                  });
-    _data->process->start(QIODevice::ReadOnly);
-    _data->process->waitForFinished();
+    _impl->process->start(QIODevice::ReadOnly);
+    _impl->process->waitForFinished();
 
   reload();
 }

@@ -31,7 +31,7 @@ signals:
   void logChanged(QVariantList logs);
 
 private:
-  std::unique_ptr<GitInterfacePrivate> _data;
+  QScopedPointer<GitInterfacePrivate> _impl;
 };
 
 #endif // GITINTERFACE_H
