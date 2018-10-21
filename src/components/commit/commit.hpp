@@ -18,7 +18,7 @@ class Commit : public QDockWidget, DockWidget
   friend struct CommitPrivate;
 
 public:
-  explicit Commit(QWidget *parent, QSharedPointer<GitInterface> gitInterface);
+  explicit Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
   ~Commit();
 
 private:

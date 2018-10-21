@@ -31,7 +31,7 @@ DOCK_WIDGET_IMPL(Commit)
   };
 }
 
-Commit::Commit(QWidget *parent, QSharedPointer<GitInterface> gitInterface) :
+Commit::Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
 QDockWidget(parent),
 ui(new Ui::Commit),
 _impl(new CommitPrivate)

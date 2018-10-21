@@ -51,7 +51,7 @@ DOCK_WIDGET_IMPL(RepositoryFiles)
   };
 }
 
-RepositoryFiles::RepositoryFiles(QWidget *parent, QSharedPointer<GitInterface> gitInterface, bool unstaged) :
+RepositoryFiles::RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface, bool unstaged) :
 QDockWidget(parent),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)
