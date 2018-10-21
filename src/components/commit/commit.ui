@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="features">
-   <set>QDockWidget::DockWidgetMovable</set>
+   <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable</set>
   </property>
   <property name="windowTitle">
    <string>Commit editor</string>

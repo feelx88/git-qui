@@ -5,7 +5,8 @@
 #include <QDir>
 #include <QDebug>
 
-#include "components/repositoryfiles/repositoryfiles.hpp"
+#include "gitinterface.hpp"
+#include "components/dockwidget.hpp"
 
 struct MainWindowPrivate
 {

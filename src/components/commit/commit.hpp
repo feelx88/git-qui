@@ -23,7 +23,7 @@ public:
 
 private:
   Ui::Commit *ui;
-  QSharedPointer<CommitPrivate> _impl;
+  QScopedPointer<CommitPrivate> _impl;
 };
 
 #endif // COMMIT_HPP
