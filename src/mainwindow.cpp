@@ -57,6 +57,16 @@ _impl(new MainWindowPrivate)
   _impl->connectSignals(this);
   _impl->populateMenu(this);
 
+  for (QAction* action : ui->menuAdd_view->actions())
+  {
+    action->trigger();
+
+    if(action->text() == "Repository files")
+    {
+      action->trigger();
+    }
+  }
+
   _impl->gitInterface->reload();
 }
 
