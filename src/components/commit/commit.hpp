@@ -11,7 +11,7 @@ class Commit;
 
 struct CommitPrivate;
 
-class Commit : public QDockWidget, DockWidget
+class Commit : public DockWidget
 {
   Q_OBJECT
   DOCK_WIDGET

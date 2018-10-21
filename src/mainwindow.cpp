@@ -14,6 +14,13 @@ struct MainWindowPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
 
+  static constexpr char CONFIG_GEOMETRY[] = "geometry";
+  static constexpr char CONFIG_STATE[] = "state";
+  static constexpr char CONFIG_DOCK_WIDGETS[] = "dockWidgets";
+  static constexpr char CONFIG_DW_ID[] = "id";
+  static constexpr char CONFIG_DW_CLASS[] = "class";
+  static constexpr char CONFIG_DW_CONFIGURATION[] = "configuration";
+
   void connectSignals(MainWindow *_this)
   {
     _this->connect(_this->ui->actionTop, &QAction::triggered, [_this]{
@@ -41,10 +48,11 @@ struct MainWindowPrivate
   {
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
-      _this->ui->menuAdd_view->addAction(entry->name, [=]{
+      QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=]{
         entry->initializer(_this, gitInterface);
         gitInterface->reload();
       });
+      action->setData(entry->id);
     }
   }
 };
@@ -61,17 +69,24 @@ _impl(new MainWindowPrivate)
   _impl->populateMenu(this);
 
   QSettings settings;
-  restoreGeometry(settings.value("geometry").toByteArray());
+  restoreGeometry(settings.value(MainWindowPrivate::CONFIG_GEOMETRY).toByteArray());
 
-  for (QAction* action : ui->menuAdd_view->actions())
+  QList<QVariant> dockWidgetConfigurations =
+    settings.value(MainWindowPrivate::CONFIG_DOCK_WIDGETS).toList();
+
+  for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
   {
-    action->trigger();
-
-    if(action->text() == "Repository files")
-    {
-      action->trigger();
-    }
+    QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
+    DockWidget::create(
+      config.value(MainWindowPrivate::CONFIG_DW_CLASS).toString(),
+      this,
+      _impl->gitInterface,
+      config.value(MainWindowPrivate::CONFIG_DW_ID).toString(),
+      config.value(MainWindowPrivate::CONFIG_DW_CONFIGURATION)
+    );
   }
+
+  restoreState(settings.value(MainWindowPrivate::CONFIG_STATE).toByteArray());
 
   _impl->gitInterface->reload();
 }
@@ -79,11 +94,28 @@ _impl(new MainWindowPrivate)
 MainWindow::~MainWindow()
 {
   QSettings settings;
-  settings.setValue("geometry", saveGeometry());
+  settings.setValue(MainWindowPrivate::CONFIG_GEOMETRY, saveGeometry());
+  settings.setValue(MainWindowPrivate::CONFIG_STATE, saveState());
 
-  for (auto dockWidget : findChildren<QDockWidget *>())
+  QList<QVariant> dockWidgetConfigurations;
+
+  for (auto dockWidget : findChildren<DockWidget*>())
   {
+    QMap<QString, QVariant> configuration;
+    configuration.insert(
+      MainWindowPrivate::CONFIG_DW_CLASS, dockWidget->metaObject()->className()
+    );
+    configuration.insert(
+      MainWindowPrivate::CONFIG_DW_ID, dockWidget->objectName()
+    );
+    configuration.insert(
+      MainWindowPrivate::CONFIG_DW_CONFIGURATION, dockWidget->configuration()
+    );
+    dockWidgetConfigurations.append(configuration);
     delete dockWidget;
   }
+
+  settings.setValue(MainWindowPrivate::CONFIG_DOCK_WIDGETS, QVariant(dockWidgetConfigurations));
+
   delete ui;
 }

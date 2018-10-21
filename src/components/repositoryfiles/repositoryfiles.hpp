@@ -12,7 +12,7 @@ class RepositoryFiles;
 
 struct RepositoryFilesPrivate;
 
-class RepositoryFiles : public QDockWidget, DockWidget
+class RepositoryFiles : public DockWidget
 {
   Q_OBJECT
   DOCK_WIDGET
@@ -20,8 +20,9 @@ class RepositoryFiles : public QDockWidget, DockWidget
 
 public:
   explicit RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface, bool unstaged);
-  ~RepositoryFiles();
+  ~RepositoryFiles() override;
 
+  virtual QVariant configuration() override;
 private:
   Ui::RepositoryFiles *ui;
   QScopedPointer<RepositoryFilesPrivate> _impl;

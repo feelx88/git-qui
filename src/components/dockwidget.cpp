@@ -1,7 +1,14 @@
 #include "dockwidget.hpp"
 #include <QThread>
 
-DockWidget *DockWidget::_instance = nullptr;
+QMap<QString, DockWidget::RegistryEntry*> DockWidget::_registry;
+
+DockWidget::DockWidget(QWidget *parent, const QString &id) :
+QDockWidget(parent)
+{
+  setAttribute(Qt::WA_DeleteOnClose);
+  setObjectName(id);
+}
 
 DockWidget::~DockWidget()
 {
@@ -9,20 +16,26 @@ DockWidget::~DockWidget()
 
 QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets()
 {
-  return instance()->_registry;
+  return _registry.values();
 }
 
-DockWidget *DockWidget::instance()
+void DockWidget::create(QString className, QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString& id, const QVariant &configuration)
 {
-  if (nullptr == _instance)
+  RegistryEntry *entry = _registry.value(className, nullptr);
+
+  if (entry)
   {
-    _instance = new DockWidget;
+    entry->restorer(mainWindow, gitInterface, id, configuration);
   }
-  return _instance;
+}
+
+QVariant DockWidget::configuration()
+{
+  return QVariant();
 }
 
 bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
 {
-  instance()->_registry.append(entry);
+  _registry.insert(entry->id, entry);
   return true;
 }

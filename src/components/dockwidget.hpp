@@ -3,7 +3,6 @@
 
 #include <QFuture>
 
-class QDockWidget;
 class QMainWindow;
 class GitInterface;
 
@@ -12,31 +11,44 @@ class GitInterface;
     static bool __registryHelper; \
     static DockWidget::RegistryEntry* registryEntry();
 
-#define DOCK_WIDGET_IMPL(name) \
+#define DOCK_WIDGET_IMPL(name, displayName, initializer, restorer) \
   bool name::__registryHelper = DockWidget::doRegister(name::registryEntry()); \
-  DockWidget::RegistryEntry *name::registryEntry()
+  DockWidget::RegistryEntry *name::registryEntry() \
+  { \
+  return new DockWidget::RegistryEntry { \
+    name::staticMetaObject.className(), \
+    displayName, \
+    initializer, \
+    restorer, \
+  }; \
+}
 
+#include <QDockWidget>
 #include <QList>
 
-class DockWidget
+class DockWidget : public QDockWidget
 {
 public:
   struct RegistryEntry
   {
+    QString id;
     QString name;
-    std::function<void(QMainWindow*, QSharedPointer<GitInterface>)> initializer;
+    std::function<void(QMainWindow*, const QSharedPointer<GitInterface>&)> initializer;
+    std::function<void(QMainWindow*, const QSharedPointer<GitInterface>&, const QString &, const QVariant&)> restorer;
   };
 
-  virtual ~DockWidget();
+  DockWidget(QWidget *parent = nullptr, const QString &id = QVariant(qrand()).toString());
+  virtual ~DockWidget() override;
   static QList<RegistryEntry*> registeredDockWidgets();
+  static void create(QString className, QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration);
+
+  virtual QVariant configuration();
 
 protected:
-  static DockWidget *instance();
   static bool doRegister(RegistryEntry *entry);
 
 private:
-  QList<RegistryEntry*> _registry;
-  static DockWidget *_instance;
+  static QMap<QString, RegistryEntry*> _registry;
 };
 
 #endif // DOCKWIDGET_HPP

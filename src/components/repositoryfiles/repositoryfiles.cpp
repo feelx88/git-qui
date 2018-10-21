@@ -12,16 +12,16 @@ struct RepositoryFilesPrivate
 
   void connectSignals(RepositoryFiles *_this)
   {
-    _this->connect(_this->ui->radioButton, &QRadioButton::clicked, [_this]{
+    _this->connect(_this->ui->radioButton, &QRadioButton::clicked, _this, [_this]{
       _this->ui->stackedWidget->setCurrentIndex(0);
     });
 
-    _this->connect(_this->ui->radioButton_2, &QRadioButton::clicked, [_this]{
+    _this->connect(_this->ui->radioButton_2, &QRadioButton::clicked, _this, [_this]{
       _this->ui->stackedWidget->setCurrentIndex(1);
     });
 
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
-    _this->connect(gitInterface.get(), signal, [_this](QList<GitFile> files){
+    _this->connect(gitInterface.get(), signal, _this, [_this](QList<GitFile> files){
       _this->ui->listWidget->clear();
       for(auto file: files)
       {
@@ -30,7 +30,7 @@ struct RepositoryFilesPrivate
     });
   }
 
-  static void initialize(QMainWindow* mainWindow, QSharedPointer<GitInterface> gitInterface)
+  static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
   {
     RepositoryFilesConfig config;
     config.exec();
@@ -40,19 +40,25 @@ struct RepositoryFilesPrivate
       mainWindow->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(mainWindow, gitInterface, config.unstaged()));
     }
   }
+
+  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
+  {
+    QMap<QString, QVariant> config = configuration.toMap();
+    RepositoryFiles *repositoryFiles = new RepositoryFiles(mainWindow, gitInterface, config.value("unstaged").toBool());
+    repositoryFiles->setObjectName(id);
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, repositoryFiles);
+  }
 };
 
-DOCK_WIDGET_IMPL(RepositoryFiles)
-{
-  return new RegistryEntry
-  {
-    tr("Repository files"),
-    &RepositoryFilesPrivate::initialize
-  };
-}
+DOCK_WIDGET_IMPL(
+  RepositoryFiles,
+  tr("Repository files"),
+  &RepositoryFilesPrivate::initialize,
+  &RepositoryFilesPrivate::restore
+)
 
 RepositoryFiles::RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface, bool unstaged) :
-QDockWidget(parent),
+DockWidget(parent),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)
 {
@@ -69,4 +75,11 @@ _impl(new RepositoryFilesPrivate)
 RepositoryFiles::~RepositoryFiles()
 {
   delete ui;
+}
+
+QVariant RepositoryFiles::configuration()
+{
+  QMap<QString, QVariant> config;
+  config.insert("unstaged", QVariant(_impl->unstaged));
+  return QVariant(config);
 }

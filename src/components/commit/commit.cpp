@@ -11,28 +11,34 @@ struct CommitPrivate
 
   void connectSignals(Commit *_this)
   {
-    _this->connect(_this->ui->pushButton, &QPushButton::clicked, [=]{
+    _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this, [=]{
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
       _this->ui->plainTextEdit->clear();
     });
   }
 
-  static void initialize(QMainWindow *mainWindow, QSharedPointer<GitInterface> gitInterface)
+  static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
   {
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, new Commit(mainWindow, gitInterface));
   }
+
+  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
+  {
+    Commit *commit = new Commit(mainWindow, gitInterface);
+    commit->setObjectName(id);
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, commit);
+  }
 };
 
-DOCK_WIDGET_IMPL(Commit)
-{
-  return new RegistryEntry {
-    tr("Commit editor"),
-    &CommitPrivate::initialize
-  };
-}
+DOCK_WIDGET_IMPL(
+  Commit,
+  tr("Commit editor"),
+  &CommitPrivate::initialize,
+  &CommitPrivate::restore
+)
 
 Commit::Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-QDockWidget(parent),
+DockWidget(parent),
 ui(new Ui::Commit),
 _impl(new CommitPrivate)
 {
