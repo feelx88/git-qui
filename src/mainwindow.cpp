@@ -14,12 +14,12 @@ struct MainWindowPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
 
-  static constexpr char CONFIG_GEOMETRY[] = "geometry";
-  static constexpr char CONFIG_STATE[] = "state";
-  static constexpr char CONFIG_DOCK_WIDGETS[] = "dockWidgets";
-  static constexpr char CONFIG_DW_ID[] = "id";
-  static constexpr char CONFIG_DW_CLASS[] = "class";
-  static constexpr char CONFIG_DW_CONFIGURATION[] = "configuration";
+  inline static const QString CONFIG_GEOMETRY = "geometry";
+  inline static const QString CONFIG_STATE = "state";
+  inline static const QString CONFIG_DOCK_WIDGETS = "dockWidgets";
+  inline static const QString CONFIG_DW_ID = "id";
+  inline static const QString CONFIG_DW_CLASS = "class";
+  inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
 
   void connectSignals(MainWindow *_this)
   {
