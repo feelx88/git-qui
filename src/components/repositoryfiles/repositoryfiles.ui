@@ -14,7 +14,7 @@
    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable</set>
   </property>
   <property name="windowTitle">
-   <string>Repository files</string>
+   <string>&amp;Repository files</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -23,7 +23,7 @@
       <item>
        <widget class="QRadioButton" name="radioButton">
         <property name="text">
-         <string>List view</string>
+         <string>L&amp;ist view</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -33,7 +33,7 @@
       <item>
        <widget class="QRadioButton" name="radioButton_2">
         <property name="text">
-         <string>Tree view</string>
+         <string>&amp;Tree view</string>
         </property>
        </widget>
       </item>
@@ -47,7 +47,11 @@
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QListWidget" name="listWidget"/>
+         <widget class="QListWidget" name="listWidget">
+          <property name="contextMenuPolicy">
+           <enum>Qt::ActionsContextMenu</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

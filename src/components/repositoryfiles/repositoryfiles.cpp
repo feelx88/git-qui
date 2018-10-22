@@ -2,6 +2,7 @@
 #include "ui_repositoryfiles.h"
 
 #include <QMainWindow>
+#include <QAction>
 
 #include "repositoryfilesconfig.hpp"
 
@@ -28,6 +29,35 @@ struct RepositoryFilesPrivate
         _this->ui->listWidget->addItem(file.path);
       }
     });
+
+    _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem *item){
+        if (unstaged)
+        {
+            gitInterface->stageFile(item->text());
+        }
+        else
+        {
+            gitInterface->unstageFile(item->text());
+        }
+    });
+  }
+
+  void addContextMenuActions(RepositoryFiles *_this)
+  {
+      QList<QAction*> actions;
+      QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"));
+      _this->connect(stageOrUnstageAction, &QAction::triggered, [=]{
+          if (unstaged)
+          {
+              gitInterface->stageFile(_this->ui->listWidget->currentItem()->text());
+          }
+          else
+          {
+              gitInterface->unstageFile(_this->ui->listWidget->currentItem()->text());
+          }
+      });
+
+      _this->ui->listWidget->addActions(actions << stageOrUnstageAction);
   }
 
   static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
@@ -68,6 +98,7 @@ _impl(new RepositoryFilesPrivate)
 
   _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
+  _impl->addContextMenuActions(this);
 
   setWindowTitle(unstaged ? tr("Unstaged files") : tr("Staged files"));
 }
