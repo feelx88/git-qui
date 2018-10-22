@@ -167,5 +167,23 @@ void GitInterface::commit(const QString &message)
     _impl->process->start(QIODevice::ReadOnly);
     _impl->process->waitForFinished();
 
-  reload();
+    reload();
+}
+
+void GitInterface::stageFile(const QString &path)
+{
+  _impl->process->setArguments({"add", path});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  status();
+}
+
+void GitInterface::unstageFile(const QString &path)
+{
+  _impl->process->setArguments({"reset", "HEAD", path});
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  status();
 }

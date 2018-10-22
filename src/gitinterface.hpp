@@ -23,7 +23,9 @@ public slots:
   void reload();
   void status();
   void log();
-  void commit(const QString& message);
+  void commit(const QString &message);
+  void stageFile(const QString &path);
+  void unstageFile(const QString &path);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(QList<GitFile>);
