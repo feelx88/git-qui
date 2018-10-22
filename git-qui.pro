@@ -1,6 +1,6 @@
 QT += core gui widgets webengine
 
-CONFIG += c++17
+CONFIG += c++1z
 
 SOURCES += \
     src/main.cpp \
