@@ -33,7 +33,7 @@ struct MainWindowPrivate
     QSettings settings;
     repositories = settings.value(CONFIG_REPOSITORIES).toStringList();
 
-    if (repositories.empty() && !selectRepository())
+    if (repositories.empty() && !selectRepository(_this))
     {
       QMessageBox message;
       message.setText(_this->tr("No repository selected! Closing."));
@@ -41,16 +41,19 @@ struct MainWindowPrivate
       message.exec();
       exit(EXIT_FAILURE);
     }
-
-    gitInterface.reset(new GitInterface(_this, repositories.at(settings.value(CONFIG_CURRENT_REPOSITORY, 0).toInt())));
-
-    for (auto repository : repositories)
+    else
     {
-      addRepositoryMenuEntry(_this, repository);
+      for (auto repository : repositories)
+      {
+        addRepositoryMenuEntry(_this, repository);
+      }
     }
+
+    currentRepository = std::min(settings.value(CONFIG_CURRENT_REPOSITORY, 0).toInt(), repositories.size() - 1);
+    gitInterface.reset(new GitInterface(_this, repositories.at(currentRepository)));
   }
 
-  bool selectRepository()
+  bool selectRepository(MainWindow *_this)
   {
     QFileDialog dialog;
     dialog.setFileMode(QFileDialog::DirectoryOnly);
@@ -59,7 +62,9 @@ struct MainWindowPrivate
 
     if (dialog.result() == QFileDialog::Accepted)
     {
-      repositories.append(dialog.directory().absolutePath());
+      QString path = dialog.directory().absolutePath();
+      repositories.append(path);
+      addRepositoryMenuEntry(_this, path);
       return true;
     }
 
@@ -97,10 +102,27 @@ struct MainWindowPrivate
     });
 
     _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, [=]{
-      if (selectRepository())
+      selectRepository(_this);
+    });
+    _this->connect(_this->ui->actionClose_current_repository, &QAction::triggered, [=]{
+      _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
+      repositories.removeAt(currentRepository);
+
+      if (repositories.empty())
       {
-        addRepositoryMenuEntry(_this, repositories.last());
+        if (!selectRepository(_this))
+        {
+          QMessageBox message;
+          message.setText(_this->tr("No repository selected! Closing."));
+          message.setIcon(QMessageBox::Critical);
+          message.exec();
+          saveSettings(_this);
+          exit(EXIT_FAILURE);
+        }
       }
+
+      currentRepository = 0;
+      gitInterface->switchRepository(repositories.at(0));
     });
 
     _this->statusBar()->hide();
