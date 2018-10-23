@@ -21,6 +21,12 @@ struct RepositoryFilesPrivate
       _this->ui->stackedWidget->setCurrentIndex(1);
     });
 
+    _this->connect(_this->ui->stackedWidget, &QStackedWidget::currentChanged, [=](int index){
+      if (index == 1) {
+        _this->ui->radioButton_2->setChecked(true);
+      }
+    });
+
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
     _this->connect(gitInterface.get(), signal, _this, [_this](QList<GitFile> files){
       _this->ui->listWidget->clear();
@@ -127,6 +133,7 @@ struct RepositoryFilesPrivate
     QMap<QString, QVariant> config = configuration.toMap();
     RepositoryFiles *repositoryFiles = new RepositoryFiles(mainWindow, gitInterface, config.value("unstaged").toBool());
     repositoryFiles->setObjectName(id);
+    repositoryFiles->ui->stackedWidget->setCurrentIndex(config.value("selectedViewIndex", 0).toInt());
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, repositoryFiles);
   }
 };
@@ -163,5 +170,6 @@ QVariant RepositoryFiles::configuration()
 {
   QMap<QString, QVariant> config;
   config.insert("unstaged", QVariant(_impl->unstaged));
+  config.insert("selectedViewIndex", QVariant(ui->stackedWidget->currentIndex()));
   return QVariant(config);
 }
