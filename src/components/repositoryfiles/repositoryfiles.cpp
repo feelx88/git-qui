@@ -70,6 +70,8 @@ struct RepositoryFilesPrivate
           topLevelItem = child;
         }
       }
+
+      _this->ui->treeWidget->expandAll();
     });
 
     _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem *item){
