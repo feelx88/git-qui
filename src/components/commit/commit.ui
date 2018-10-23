@@ -30,7 +30,11 @@
      </layout>
     </item>
     <item>
-     <widget class="QPlainTextEdit" name="plainTextEdit"/>
+     <widget class="QPlainTextEdit" name="plainTextEdit">
+      <property name="placeholderText">
+       <string>Commit message</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
