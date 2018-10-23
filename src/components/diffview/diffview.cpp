@@ -21,25 +21,27 @@ struct DiffViewPrivate
         QListWidgetItem *item = new QListWidgetItem(_this->ui->listWidget);
         item->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
+        QString content = line.content == "\n" ? "" : line.content;
+
         switch(line.type)
         {
         case GitDiffLine::diffType::ADD:
           item->setForeground(Qt::green);
-          item->setText("+ " + line.content);
+          item->setText("+ " + content);
           break;
         case GitDiffLine::diffType::REMOVE:
           item->setForeground(Qt::red);
-          item->setText("- " + line.content);
+          item->setText("- " + content);
           break;
         case GitDiffLine::diffType::CONTEXT:
           item->setForeground(Qt::gray);
-          item->setText("  " + line.content);
-          [[fallthrough]];
+          item->setText("  " + content);
+          break;
         case GitDiffLine::diffType::FILE_FOOTER:
         case GitDiffLine::diffType::FILE_HEADER:
         case GitDiffLine::diffType::HEADER:
         default:
-          item->setText(line.content);
+          item->setText(content);
           break;
         }
 
