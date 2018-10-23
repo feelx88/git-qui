@@ -16,18 +16,25 @@ public:
   bool readyForCommit = false;
 };
 
-GitInterface::GitInterface(QObject *parent, const QDir &repositoryPath)
+GitInterface::GitInterface(QObject *parent, const QString &path)
   : QObject(parent),
     _impl(new GitInterfacePrivate)
 {
-  _impl->repositoryPath = repositoryPath;
   _impl->process = new QProcess(this);
-  _impl->process->setWorkingDirectory(repositoryPath.absolutePath());
   _impl->process->setProgram("git");
+
+  switchRepository(path);
 }
 
 GitInterface::~GitInterface()
 {
+}
+
+void GitInterface::switchRepository(const QString &path)
+{
+  _impl->repositoryPath = path;
+  _impl->process->setWorkingDirectory(path);
+  reload();
 }
 
 void GitInterface::reload()

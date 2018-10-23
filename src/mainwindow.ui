@@ -65,8 +65,14 @@
     <addaction name="menuAdd_view"/>
     <addaction name="menuAdd_Toolbar"/>
    </widget>
+   <widget class="QMenu" name="menuRepositories">
+    <property name="title">
+     <string>Open repositories</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuRepositories"/>
   </widget>
   <action name="actionOpen_Repository">
    <property name="text">

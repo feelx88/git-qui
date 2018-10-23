@@ -17,10 +17,13 @@ struct MainWindowPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
   QList<QString> repositories;
+  int currentRepository = 0;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
   inline static const QString CONFIG_DOCK_WIDGETS = "dockWidgets";
+  inline static const QString CONFIG_REPOSITORIES = "repositories";
+  inline static const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
   inline static const QString CONFIG_DW_ID = "id";
   inline static const QString CONFIG_DW_CLASS = "class";
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
@@ -28,30 +31,47 @@ struct MainWindowPrivate
   void initGit(MainWindow *_this)
   {
     QSettings settings;
-    repositories = settings.value("repositories").toStringList();
+    repositories = settings.value(CONFIG_REPOSITORIES).toStringList();
 
-    if (repositories.empty())
+    if (repositories.empty() && !selectRepository())
     {
-      QFileDialog dialog;
-      dialog.setFileMode(QFileDialog::DirectoryOnly);
-      dialog.setWindowTitle(dialog.tr("Select repository to open"));
-      dialog.exec();
-
-      if (dialog.result() == QFileDialog::Accepted)
-      {
-        repositories.append(dialog.directory().absolutePath());
-      }
-      else
-      {
-        QMessageBox message;
-        message.setText(_this->tr("No repository selected! Closing."));
-        message.setIcon(QMessageBox::Critical);
-        message.exec();
-        exit(EXIT_FAILURE);
-      }
+      QMessageBox message;
+      message.setText(_this->tr("No repository selected! Closing."));
+      message.setIcon(QMessageBox::Critical);
+      message.exec();
+      exit(EXIT_FAILURE);
     }
 
-    gitInterface.reset(new GitInterface(_this, repositories.at(settings.value("currentRepository", 0).toInt())));
+    gitInterface.reset(new GitInterface(_this, repositories.at(settings.value(CONFIG_CURRENT_REPOSITORY, 0).toInt())));
+
+    for (auto repository : repositories)
+    {
+      addRepositoryMenuEntry(_this, repository);
+    }
+  }
+
+  bool selectRepository()
+  {
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
+    dialog.setWindowTitle(dialog.tr("Select repository to open"));
+    dialog.exec();
+
+    if (dialog.result() == QFileDialog::Accepted)
+    {
+      repositories.append(dialog.directory().absolutePath());
+      return true;
+    }
+
+    return false;
+  }
+
+  void addRepositoryMenuEntry(MainWindow *_this, const QString &path)
+  {
+    _this->ui->menuRepositories->addAction(path, _this, [=]{
+      gitInterface->switchRepository(path);
+      currentRepository = repositories.indexOf(path);
+    });
   }
 
   void connectSignals(MainWindow *_this)
@@ -74,6 +94,13 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, [this]{
       gitInterface->reload();
+    });
+
+    _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, [=]{
+      if (selectRepository())
+      {
+        addRepositoryMenuEntry(_this, repositories.last());
+      }
     });
 
     _this->statusBar()->hide();
@@ -100,6 +127,58 @@ struct MainWindowPrivate
       action->setData(entry->id);
     }
   }
+
+  void restoreSettings(MainWindow *_this)
+  {
+    QSettings settings;
+    _this->restoreGeometry(settings.value(CONFIG_GEOMETRY).toByteArray());
+
+    QList<QVariant> dockWidgetConfigurations =
+      settings.value(CONFIG_DOCK_WIDGETS).toList();
+
+    for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
+    {
+      QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
+      DockWidget::create(
+        config.value(CONFIG_DW_CLASS).toString(),
+        _this,
+        gitInterface,
+        config.value(CONFIG_DW_ID).toString(),
+        config.value(CONFIG_DW_CONFIGURATION)
+      );
+    }
+
+    _this->restoreState(settings.value(CONFIG_STATE).toByteArray());
+  }
+
+  void saveSettings(MainWindow *_this)
+  {
+    QSettings settings;
+    settings.setValue(CONFIG_GEOMETRY, _this->saveGeometry());
+    settings.setValue(CONFIG_STATE, _this->saveState());
+    settings.setValue(CONFIG_REPOSITORIES, QVariant(repositories));
+    settings.setValue(CONFIG_CURRENT_REPOSITORY, QVariant(currentRepository));
+
+    QList<QVariant> dockWidgetConfigurations;
+
+    for (auto dockWidget : _this->findChildren<DockWidget*>())
+    {
+      QMap<QString, QVariant> configuration;
+      configuration.insert(
+        CONFIG_DW_CLASS, dockWidget->metaObject()->className()
+      );
+      configuration.insert(
+        CONFIG_DW_ID, dockWidget->objectName()
+      );
+      configuration.insert(
+        CONFIG_DW_CONFIGURATION, dockWidget->configuration()
+      );
+      dockWidgetConfigurations.append(configuration);
+      delete dockWidget;
+    }
+
+    settings.setValue(CONFIG_DOCK_WIDGETS, QVariant(dockWidgetConfigurations));
+  }
 };
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -112,56 +191,12 @@ _impl(new MainWindowPrivate)
   _impl->initGit(this);
   _impl->connectSignals(this);
   _impl->populateMenu(this);
-
-  QSettings settings;
-  restoreGeometry(settings.value(MainWindowPrivate::CONFIG_GEOMETRY).toByteArray());
-
-  QList<QVariant> dockWidgetConfigurations =
-    settings.value(MainWindowPrivate::CONFIG_DOCK_WIDGETS).toList();
-
-  for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
-  {
-    QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
-    DockWidget::create(
-      config.value(MainWindowPrivate::CONFIG_DW_CLASS).toString(),
-      this,
-      _impl->gitInterface,
-      config.value(MainWindowPrivate::CONFIG_DW_ID).toString(),
-      config.value(MainWindowPrivate::CONFIG_DW_CONFIGURATION)
-    );
-  }
-
-  restoreState(settings.value(MainWindowPrivate::CONFIG_STATE).toByteArray());
-
+  _impl->restoreSettings(this);
   _impl->gitInterface->reload();
 }
 
 MainWindow::~MainWindow()
 {
-  QSettings settings;
-  settings.setValue(MainWindowPrivate::CONFIG_GEOMETRY, saveGeometry());
-  settings.setValue(MainWindowPrivate::CONFIG_STATE, saveState());
-  settings.setValue("repositories", QVariant(_impl->repositories));
-
-  QList<QVariant> dockWidgetConfigurations;
-
-  for (auto dockWidget : findChildren<DockWidget*>())
-  {
-    QMap<QString, QVariant> configuration;
-    configuration.insert(
-      MainWindowPrivate::CONFIG_DW_CLASS, dockWidget->metaObject()->className()
-    );
-    configuration.insert(
-      MainWindowPrivate::CONFIG_DW_ID, dockWidget->objectName()
-    );
-    configuration.insert(
-      MainWindowPrivate::CONFIG_DW_CONFIGURATION, dockWidget->configuration()
-    );
-    dockWidgetConfigurations.append(configuration);
-    delete dockWidget;
-  }
-
-  settings.setValue(MainWindowPrivate::CONFIG_DOCK_WIDGETS, QVariant(dockWidgetConfigurations));
-
+  _impl->saveSettings(this);
   delete ui;
 }

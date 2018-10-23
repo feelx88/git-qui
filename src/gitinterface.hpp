@@ -18,9 +18,10 @@ class GitInterface : public QObject
 {
   Q_OBJECT
 public:
-  GitInterface(QObject *parent, const QDir &repositoryPath);
+  GitInterface(QObject *parent, const QString &path);
   virtual ~GitInterface();
 public slots:
+  void switchRepository(const QString &path);
   void reload();
   void status();
   void log();
