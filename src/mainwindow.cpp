@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStatusBar>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -14,6 +16,7 @@
 struct MainWindowPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
+  QList<QString> repositories;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -21,6 +24,35 @@ struct MainWindowPrivate
   inline static const QString CONFIG_DW_ID = "id";
   inline static const QString CONFIG_DW_CLASS = "class";
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
+
+  void initGit(MainWindow *_this)
+  {
+    QSettings settings;
+    repositories = settings.value("repositories").toStringList();
+
+    if (repositories.empty())
+    {
+      QFileDialog dialog;
+      dialog.setFileMode(QFileDialog::DirectoryOnly);
+      dialog.setWindowTitle(dialog.tr("Select repository to open"));
+      dialog.exec();
+
+      if (dialog.result() == QFileDialog::Accepted)
+      {
+        repositories.append(dialog.directory().absolutePath());
+      }
+      else
+      {
+        QMessageBox message;
+        message.setText(_this->tr("No repository selected! Closing."));
+        message.setIcon(QMessageBox::Critical);
+        message.exec();
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    gitInterface.reset(new GitInterface(_this, repositories.at(settings.value("currentRepository", 0).toInt())));
+  }
 
   void connectSignals(MainWindow *_this)
   {
@@ -77,7 +109,7 @@ _impl(new MainWindowPrivate)
 {
   ui->setupUi(this);
 
-  _impl->gitInterface.reset(new GitInterface(this, QDir::current()));
+  _impl->initGit(this);
   _impl->connectSignals(this);
   _impl->populateMenu(this);
 
@@ -109,6 +141,7 @@ MainWindow::~MainWindow()
   QSettings settings;
   settings.setValue(MainWindowPrivate::CONFIG_GEOMETRY, saveGeometry());
   settings.setValue(MainWindowPrivate::CONFIG_STATE, saveState());
+  settings.setValue("repositories", QVariant(_impl->repositories));
 
   QList<QVariant> dockWidgetConfigurations;
 
