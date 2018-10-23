@@ -24,14 +24,58 @@ struct RepositoryFilesPrivate
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
     _this->connect(gitInterface.get(), signal, _this, [_this](QList<GitFile> files){
       _this->ui->listWidget->clear();
+      _this->ui->treeWidget->clear();
       for(auto file: files)
       {
         _this->ui->listWidget->addItem(file.path);
+
+        QList<QString> parts = file.path.split('/');
+
+        int index = parts.size() - 1;
+        QTreeWidgetItem *topLevelItem = nullptr;
+        for (; index >= 0; --index)
+        {
+          QList<QTreeWidgetItem*> result = _this->ui->treeWidget->findItems(parts.at(index), Qt::MatchCaseSensitive | Qt::MatchRecursive);
+          if (!result.empty())
+          {
+            topLevelItem = result.first();
+            index++;
+            break;
+          }
+        }
+
+        if (!topLevelItem)
+        {
+          topLevelItem = new QTreeWidgetItem(_this->ui->treeWidget);
+          topLevelItem->setText(0, parts.at(0));
+          topLevelItem->setData(0, Qt::UserRole, parts.at(0));
+          index = 1;
+          _this->ui->treeWidget->addTopLevelItem(topLevelItem);
+        }
+
+        for (; index < parts.size(); ++index)
+        {
+          QTreeWidgetItem *child = new QTreeWidgetItem(topLevelItem);
+          child->setText(0, parts.at(index));
+
+          child->setData(0, Qt::UserRole, index == parts.size() ? parts.at(index) : parts.mid(0, index + 1).join('/'));
+
+          topLevelItem->addChild(child);
+          topLevelItem = child;
+        }
       }
     });
 
     _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem *item){
-        stageOrUnstage(item->text());
+      stageOrUnstage(item->text());
+    });
+
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, [=](QTreeWidgetItem *item){
+      QVariant data = item->data(0, Qt::UserRole);
+      if (data.isValid())
+      {
+        stageOrUnstage(data.toString());
+      }
     });
   }
 
@@ -40,10 +84,19 @@ struct RepositoryFilesPrivate
       QList<QAction*> actions;
       QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"));
       _this->connect(stageOrUnstageAction, &QAction::triggered, [=]{
+        if (_this->ui->stackedWidget->currentIndex() == 0)
+        {
           stageOrUnstage(_this->ui->listWidget->currentItem()->text());
+        }
+        else
+        {
+          stageOrUnstage(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+        }
       });
 
-      _this->ui->listWidget->addActions(actions << stageOrUnstageAction);
+      actions << stageOrUnstageAction;
+      _this->ui->listWidget->addActions(actions);
+      _this->ui->treeWidget->addActions(actions);
   }
 
   void stageOrUnstage(const QString &path)

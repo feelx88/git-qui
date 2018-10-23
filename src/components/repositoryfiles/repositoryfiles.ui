@@ -23,7 +23,7 @@
       <item>
        <widget class="QRadioButton" name="radioButton">
         <property name="text">
-         <string>L&amp;ist view</string>
+         <string>&amp;List view</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -59,6 +59,12 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QTreeWidget" name="treeWidget">
+          <property name="contextMenuPolicy">
+           <enum>Qt::ActionsContextMenu</enum>
+          </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string notr="true">1</string>
