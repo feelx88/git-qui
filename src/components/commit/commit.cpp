@@ -14,6 +14,9 @@ struct CommitPrivate
   {
     _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this, [=]{
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::commited, [=]{
       _this->ui->plainTextEdit->clear();
     });
 

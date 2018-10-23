@@ -13,6 +13,8 @@ class GitInterfacePrivate
 public:
   QDir repositoryPath;
   QProcess *process;
+
+  bool readyForCommit = false;
 };
 
 GitInterface::GitInterface(QObject *parent, const QDir &repositoryPath)
@@ -107,6 +109,8 @@ void GitInterface::status()
     }
   }
 
+  _impl->readyForCommit = !staged.empty();
+
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
 }
@@ -160,14 +164,21 @@ void GitInterface::log()
 
 void GitInterface::commit(const QString &message)
 {
+  if (!_impl->readyForCommit)
+  {
+    emit error(tr("There are no files to commit."));
+    return;
+  }
+
   _impl->process->setArguments({"commit",
                                   "--message",
                                   message,
                                  });
-    _impl->process->start(QIODevice::ReadOnly);
-    _impl->process->waitForFinished();
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
 
-    reload();
+  reload();
+  emit commited();
 }
 
 void GitInterface::stageFile(const QString &path)

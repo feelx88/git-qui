@@ -31,6 +31,9 @@ signals:
   void nonStagingAreaChanged(QList<GitFile>);
   void stagingAreaChanged(QList<GitFile>);
   void logChanged(QVariantList logs);
+  void commited();
+
+  void error(const QString &message);
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;
