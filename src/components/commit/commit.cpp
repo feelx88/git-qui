@@ -22,10 +22,11 @@ struct CommitPrivate
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, new Commit(mainWindow, gitInterface));
   }
 
-  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
+  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
   {
     Commit *commit = new Commit(mainWindow, gitInterface);
     commit->setObjectName(id);
+    commit->ui->plainTextEdit->setPlainText(configuration.toString());
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, commit);
   }
 };
@@ -50,5 +51,10 @@ _impl(new CommitPrivate)
 
 Commit::~Commit()
 {
-  delete ui;
+    delete ui;
+}
+
+QVariant Commit::configuration()
+{
+    return QVariant(ui->plainTextEdit->toPlainText());
 }

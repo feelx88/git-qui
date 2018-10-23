@@ -19,7 +19,8 @@ class Commit : public DockWidget
 
 public:
   explicit Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
-  ~Commit();
+  virtual ~Commit() override;
+  virtual QVariant configuration() override;
 
 private:
   Ui::Commit *ui;
