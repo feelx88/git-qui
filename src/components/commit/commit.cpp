@@ -2,6 +2,7 @@
 #include "ui_commit.h"
 
 #include <QMainWindow>
+#include <QShortcut>
 
 #include "gitinterface.hpp"
 
@@ -15,6 +16,9 @@ struct CommitPrivate
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
       _this->ui->plainTextEdit->clear();
     });
+
+    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);
+    _this->connect(shortcut, &QShortcut::activated, _this->ui->pushButton, &QPushButton::click);
   }
 
   static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
