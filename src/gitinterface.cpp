@@ -166,7 +166,7 @@ void GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)
   {
-    emit error(tr("There are no files to commit."));
+    emit error(tr("There are no files to commit"));
     return;
   }
 

@@ -6,6 +6,7 @@
 #include <QDockWidget>
 #include <QDebug>
 #include <QSettings>
+#include <QStatusBar>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -41,6 +42,18 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, [this]{
       gitInterface->reload();
+    });
+
+    _this->statusBar()->hide();
+    _this->connect(gitInterface.get(), &GitInterface::error, [=](const QString& message){
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage(message, 3000);
+    });
+    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, [=](const QString &message){
+      if (message.isEmpty())
+      {
+        _this->statusBar()->hide();
+      }
     });
   }
 
