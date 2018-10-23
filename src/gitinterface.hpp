@@ -26,12 +26,14 @@ public slots:
   void commit(const QString &message);
   void stageFile(const QString &path);
   void unstageFile(const QString &path);
+  void selectFile(bool unstaged, const QString &path);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(QList<GitFile>);
   void stagingAreaChanged(QList<GitFile>);
   void logChanged(QVariantList logs);
   void commited();
+  void fileSelected(bool unstaged, const QString &path);
 
   void error(const QString &message);
 

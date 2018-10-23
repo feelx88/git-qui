@@ -74,6 +74,35 @@ struct RepositoryFilesPrivate
       _this->ui->treeWidget->expandAll();
     });
 
+    _this->connect(gitInterface.get(), &GitInterface::fileSelected, [=](bool unstaged, const QString &path){
+      if (unstaged != this->unstaged)
+      {
+        _this->ui->listWidget->setCurrentItem(nullptr);
+        _this->ui->treeWidget->setCurrentItem(nullptr);
+        return;
+      }
+
+      QList<QListWidgetItem*> listItems = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
+      _this->ui->listWidget->setCurrentItem(listItems.empty() ? nullptr : listItems.first());
+
+      QList<QTreeWidgetItem*> treeItems = _this->ui->treeWidget->findItems(path.split('/').last(), Qt::MatchCaseSensitive | Qt::MatchRecursive);
+      _this->ui->treeWidget->setCurrentItem(treeItems.empty() ? nullptr : treeItems.first());
+    });
+
+    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, [=]{
+      if (_this->ui->listWidget->currentItem())
+      {
+        gitInterface->selectFile(unstaged, _this->ui->listWidget->currentItem()->text());
+      }
+    });
+
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, [=]{
+      if (_this->ui->treeWidget->currentItem())
+      {
+        gitInterface->selectFile(unstaged, _this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+      }
+    });
+
     _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem *item){
       stageOrUnstage(item->text());
     });

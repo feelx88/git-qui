@@ -198,3 +198,8 @@ void GitInterface::unstageFile(const QString &path)
 
   status();
 }
+
+void GitInterface::selectFile(bool unstaged, const QString &path)
+{
+  emit fileSelected(unstaged, path);
+}
