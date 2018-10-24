@@ -38,6 +38,8 @@ signals:
   void commited();
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines);
+  void repositorySwitched(const QString &path);
+  void reloaded();
 
   void error(const QString &message);
 

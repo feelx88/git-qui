@@ -10,7 +10,8 @@ SOURCES += \
     src/components/repositoryfiles/repositoryfiles.cpp \
     src/components/commit/commit.cpp \
     src/components/repositoryfiles/repositoryfilesconfig.cpp \
-    src/components/diffview/diffview.cpp
+    src/components/diffview/diffview.cpp \
+    src/components/repositorylist/repositorylist.cpp
 
 HEADERS += \
     src/gitinterface.hpp \
@@ -22,7 +23,8 @@ HEADERS += \
     src/components/commit/commit.hpp \
     src/components/repositoryfiles/repositoryfilesconfig.hpp \
     src/components/diffview/diffview.h \
-    src/gitdiffline.h
+    src/gitdiffline.h \
+    src/components/repositorylist/repositorylist.h
 
 OTHER_FILES += \
     .gitignore \
@@ -33,7 +35,8 @@ FORMS += \
     src/components/repositoryfiles/repositoryfiles.ui \
     src/components/commit/commit.ui \
     src/components/repositoryfiles/repositoryfilesconfig.ui \
-    src/components/diffview/diffview.ui
+    src/components/diffview/diffview.ui \
+    src/components/repositorylist/repositorylist.ui
 
 INCLUDEPATH += src/
 

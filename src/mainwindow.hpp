@@ -19,6 +19,14 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
+public slots:
+  void openRepository();
+  void closeCurrentRepository();
+
+signals:
+  void repositoryAdded(const QString &path);
+  void repositoryRemoved(const QString &path);
+
 private:
   Ui::MainWindow *ui;
 

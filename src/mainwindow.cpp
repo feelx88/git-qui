@@ -65,6 +65,7 @@ struct MainWindowPrivate
       QString path = dialog.directory().absolutePath();
       repositories.append(path);
       addRepositoryMenuEntry(_this, path);
+      emit _this->repositoryAdded(path);
       return true;
     }
 
@@ -77,6 +78,30 @@ struct MainWindowPrivate
       gitInterface->switchRepository(path);
       currentRepository = repositories.indexOf(path);
     });
+  }
+
+  void closeCurrentRepository(MainWindow *_this)
+  {
+    QString path = repositories.at(currentRepository);
+    _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
+    repositories.removeAt(currentRepository);
+    emit _this->repositoryRemoved(path);
+
+    if (repositories.empty())
+    {
+      if (!selectRepository(_this))
+      {
+        QMessageBox message;
+        message.setText(_this->tr("No repository selected! Closing."));
+        message.setIcon(QMessageBox::Critical);
+        message.exec();
+        saveSettings(_this);
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    currentRepository = 0;
+    gitInterface->switchRepository(repositories.at(0));
   }
 
   void connectSignals(MainWindow *_this)
@@ -105,24 +130,7 @@ struct MainWindowPrivate
       selectRepository(_this);
     });
     _this->connect(_this->ui->actionClose_current_repository, &QAction::triggered, [=]{
-      _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
-      repositories.removeAt(currentRepository);
-
-      if (repositories.empty())
-      {
-        if (!selectRepository(_this))
-        {
-          QMessageBox message;
-          message.setText(_this->tr("No repository selected! Closing."));
-          message.setIcon(QMessageBox::Critical);
-          message.exec();
-          saveSettings(_this);
-          exit(EXIT_FAILURE);
-        }
-      }
-
-      currentRepository = 0;
-      gitInterface->switchRepository(repositories.at(0));
+      closeCurrentRepository(_this);
     });
 
     _this->statusBar()->hide();
@@ -135,6 +143,17 @@ struct MainWindowPrivate
       {
         _this->statusBar()->hide();
       }
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::reloaded, [=]{
+      for (auto repository : repositories)
+      {
+        emit _this->repositoryAdded(repository);
+      }
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, [=](const QString &path){
+      currentRepository = repositories.indexOf(path);
     });
   }
 
@@ -171,6 +190,12 @@ struct MainWindowPrivate
     }
 
     _this->restoreState(settings.value(CONFIG_STATE).toByteArray());
+  }
+
+  void postInit()
+  {
+    gitInterface->reload();
+    emit gitInterface->repositorySwitched(repositories.at(currentRepository));
   }
 
   void saveSettings(MainWindow *_this)
@@ -214,11 +239,21 @@ _impl(new MainWindowPrivate)
   _impl->connectSignals(this);
   _impl->populateMenu(this);
   _impl->restoreSettings(this);
-  _impl->gitInterface->reload();
+  _impl->postInit();
 }
 
 MainWindow::~MainWindow()
 {
   _impl->saveSettings(this);
   delete ui;
+}
+
+void MainWindow::openRepository()
+{
+  _impl->selectRepository(this);
+}
+
+void MainWindow::closeCurrentRepository()
+{
+  _impl->closeCurrentRepository(this);
 }

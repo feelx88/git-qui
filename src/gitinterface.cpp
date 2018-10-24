@@ -35,12 +35,14 @@ void GitInterface::switchRepository(const QString &path)
   _impl->repositoryPath = path;
   _impl->process->setWorkingDirectory(path);
   reload();
+  emit repositorySwitched(path);
 }
 
 void GitInterface::reload()
 {
   status();
   log();
+  emit reloaded();
 }
 
 void GitInterface::status()
