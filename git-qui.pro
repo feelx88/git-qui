@@ -1,39 +1,41 @@
-QT += qml quick quickcontrols2
+QT += core gui widgets webengine
 
-CONFIG += c++11
+CONFIG += c++1z
 
-SOURCES += src/main.cpp \
-    src/git/gitfile.cpp \
-    src/git/gitdiffline.cpp \
-    src/git/agitmanager.cpp \
-    src/git/git-bin/gitbingitmanager.cpp \
-    src/git/gitcommit.cpp
+SOURCES += \
+    src/main.cpp \
+    src/gitinterface.cpp \
+    src/mainwindow.cpp \
+    src/components/dockwidget.cpp \
+    src/components/repositoryfiles/repositoryfiles.cpp \
+    src/components/commit/commit.cpp \
+    src/components/repositoryfiles/repositoryfilesconfig.cpp \
+    src/components/diffview/diffview.cpp
 
 HEADERS += \
-    include/git/gitfile.h \
-    include/git/gitdiffline.h \
-    include/git/agitmanager.h \
-    include/git/git-bin/gitbingitmanager.h \
-    include/git/gitcommit.h
+    src/gitinterface.hpp \
+    src/gitcommit.hpp \
+    src/gitfile.hpp \
+    src/mainwindow.hpp \
+    src/components/dockwidget.hpp \
+    src/components/repositoryfiles/repositoryfiles.hpp \
+    src/components/commit/commit.hpp \
+    src/components/repositoryfiles/repositoryfilesconfig.hpp \
+    src/components/diffview/diffview.h \
+    src/gitdiffline.h
 
-OTHER_FILES += .gitignore \
-    qtquickcontrols2.conf \
-    ui/default/main.qml \
-    ui/default/CommitPage/CommitPage.qml \
-    ui/default/CommitPage/CommitForm.ui.qml \
-    ui/default/HistoryPage/HistoryPage.qml \
-    ui/default/CommitPage/FileRow.qml \
-    ui/default/CommitPage/DiffRow.qml
+OTHER_FILES += \
+    .gitignore \
+    qpm.json
 
-libgit2 {
-  LIBS += -lgit2
-  DEFINES += USE_LIBIGT2
+FORMS += \
+    src/mainwindow.ui \
+    src/components/repositoryfiles/repositoryfiles.ui \
+    src/components/commit/commit.ui \
+    src/components/repositoryfiles/repositoryfilesconfig.ui \
+    src/components/diffview/diffview.ui
 
-  SOURCES += src/git/libgit2/libgit2gitmanager.cpp
-  HEADERS += include/git/libgit2/libgit2gitmanager.h
-}
-
-INCLUDEPATH += include/
+INCLUDEPATH += src/
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -57,11 +59,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    ui/default/TreePage/HistoryLine.qml
-
-RESOURCES += \
-    res.qrc
+RESOURCES +=
 
 # qpm dependencies
-include(vendor/vendor.pri)
+# include(vendor/vendor.pri)
