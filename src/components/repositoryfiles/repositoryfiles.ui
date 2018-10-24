@@ -10,9 +10,6 @@
     <height>300</height>
    </rect>
   </property>
-  <property name="features">
-   <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable</set>
-  </property>
   <property name="windowTitle">
    <string>&amp;Repository files</string>
   </property>
@@ -23,7 +20,7 @@
       <item>
        <widget class="QRadioButton" name="radioButton">
         <property name="text">
-         <string>&amp;List view</string>
+         <string>L&amp;ist view</string>
         </property>
         <property name="checked">
          <bool>true</bool>

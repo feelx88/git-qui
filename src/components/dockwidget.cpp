@@ -8,6 +8,8 @@ QDockWidget(parent)
 {
   setAttribute(Qt::WA_DeleteOnClose);
   setObjectName(id);
+  setFeatures(DockWidgetClosable | DockWidgetMovable);
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 DockWidget::~DockWidget()
