@@ -16,7 +16,7 @@ struct CommitPrivate
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::commited, [=]{
+    _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
       _this->ui->plainTextEdit->clear();
     });
 

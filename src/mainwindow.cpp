@@ -106,53 +106,53 @@ struct MainWindowPrivate
 
   void connectSignals(MainWindow *_this)
   {
-    _this->connect(_this->ui->actionTop, &QAction::triggered, [_this]{
+    _this->connect(_this->ui->actionTop, &QAction::triggered, _this, [_this]{
       _this->addToolBar(Qt::TopToolBarArea, new QToolBar(_this));
     });
 
-    _this->connect(_this->ui->actionBottom, &QAction::triggered, [_this]{
+    _this->connect(_this->ui->actionBottom, &QAction::triggered, _this, [_this]{
       _this->addToolBar(Qt::BottomToolBarArea, new QToolBar(_this));
     });
 
-    _this->connect(_this->ui->actionLeft, &QAction::triggered, [_this]{
+    _this->connect(_this->ui->actionLeft, &QAction::triggered, _this, [_this]{
       _this->addToolBar(Qt::LeftToolBarArea, new QToolBar(_this));
     });
 
-    _this->connect(_this->ui->actionRight, &QAction::triggered, [_this]{
+    _this->connect(_this->ui->actionRight, &QAction::triggered, _this, [_this]{
       _this->addToolBar(Qt::RightToolBarArea, new QToolBar(_this));
     });
 
-    _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, [this]{
+    _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [this]{
       gitInterface->reload();
     });
 
-    _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, [=]{
+    _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, _this, [=]{
       selectRepository(_this);
     });
-    _this->connect(_this->ui->actionClose_current_repository, &QAction::triggered, [=]{
+    _this->connect(_this->ui->actionClose_current_repository, &QAction::triggered, _this, [=]{
       closeCurrentRepository(_this);
     });
 
     _this->statusBar()->hide();
-    _this->connect(gitInterface.get(), &GitInterface::error, [=](const QString& message){
+    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
       _this->statusBar()->show();
       _this->statusBar()->showMessage(message, 3000);
     });
-    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, [=](const QString &message){
+    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, _this, [=](const QString &message){
       if (message.isEmpty())
       {
         _this->statusBar()->hide();
       }
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::reloaded, [=]{
+    _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
       for (auto repository : repositories)
       {
         emit _this->repositoryAdded(repository);
       }
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, [=](const QString &path){
+    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
       currentRepository = repositories.indexOf(path);
     });
   }

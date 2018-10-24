@@ -21,7 +21,7 @@ struct RepositoryFilesPrivate
       _this->ui->stackedWidget->setCurrentIndex(1);
     });
 
-    _this->connect(_this->ui->stackedWidget, &QStackedWidget::currentChanged, [=](int index){
+    _this->connect(_this->ui->stackedWidget, &QStackedWidget::currentChanged, _this, [=](int index){
       if (index == 1) {
         _this->ui->radioButton_2->setChecked(true);
       }
@@ -74,7 +74,7 @@ struct RepositoryFilesPrivate
       _this->ui->treeWidget->expandAll();
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::fileSelected, [=](bool unstaged, const QString &path){
+    _this->connect(gitInterface.get(), &GitInterface::fileSelected, _this, [=](bool unstaged, const QString &path){
       if (unstaged != this->unstaged)
       {
         _this->ui->listWidget->setCurrentItem(nullptr);
@@ -89,25 +89,25 @@ struct RepositoryFilesPrivate
       _this->ui->treeWidget->setCurrentItem(treeItems.empty() ? nullptr : treeItems.first());
     });
 
-    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, [=]{
+    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->listWidget->currentItem())
       {
         gitInterface->selectFile(unstaged, _this->ui->listWidget->currentItem()->text());
       }
     });
 
-    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, [=]{
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->treeWidget->currentItem())
       {
         gitInterface->selectFile(unstaged, _this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
       }
     });
 
-    _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem *item){
+    _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, _this, [=](QListWidgetItem *item){
       stageOrUnstage(item->text());
     });
 
-    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, [=](QTreeWidgetItem *item){
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
       QVariant data = item->data(0, Qt::UserRole);
       if (data.isValid())
       {
@@ -120,7 +120,7 @@ struct RepositoryFilesPrivate
   {
       QList<QAction*> actions;
       QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"));
-      _this->connect(stageOrUnstageAction, &QAction::triggered, [=]{
+      _this->connect(stageOrUnstageAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
           stageOrUnstage(_this->ui->listWidget->currentItem()->text());

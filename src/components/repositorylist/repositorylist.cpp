@@ -9,7 +9,7 @@ struct RepositoryListPrivate
 
   void connectSignals(RepositoryList *_this)
   {
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryAdded, [=](const QString &path){
+    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryAdded, _this, [=](const QString &path){
       auto items = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
       if (items.isEmpty())
       {
@@ -17,7 +17,7 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryRemoved, [=](const QString &path){
+    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryRemoved, _this, [=](const QString &path){
       auto items = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
       if (!items.isEmpty())
       {
@@ -26,7 +26,7 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, [=](const QString &path){
+    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
       auto items = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
       if (!items.isEmpty())
       {
@@ -34,7 +34,7 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, [=]{
+    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->listWidget->currentItem())
       {
         gitInterface->switchRepository(_this->ui->listWidget->currentItem()->text());

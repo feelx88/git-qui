@@ -18,7 +18,7 @@ class RepositoryList : public DockWidget
 
 public:
   explicit RepositoryList(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
-  ~RepositoryList();
+  virtual ~RepositoryList() override;
 
 private:
   Ui::RepositoryList *ui;

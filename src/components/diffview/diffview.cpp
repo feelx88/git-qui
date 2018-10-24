@@ -13,7 +13,7 @@ struct DiffViewPrivate
 
   void connectSignals(DiffView *_this)
   {
-    _this->connect(gitInterface.get(), &GitInterface::fileDiffed, [=](const QString &path, QList<GitDiffLine> lines){
+    _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines){
       _this->setWindowTitle(path);
       _this->ui->listWidget->clear();
       for (auto line : lines)
