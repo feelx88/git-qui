@@ -27,6 +27,9 @@ signals:
   void repositoryAdded(const QString &path);
   void repositoryRemoved(const QString &path);
 
+protected:
+  void changeEvent(QEvent *);
+
 private:
   Ui::MainWindow *ui;
 

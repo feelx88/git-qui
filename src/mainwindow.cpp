@@ -257,3 +257,11 @@ void MainWindow::closeCurrentRepository()
 {
   _impl->closeCurrentRepository(this);
 }
+
+void MainWindow::changeEvent(QEvent *ev)
+{
+  if (ev->type() == QEvent::ActivationChange && isActiveWindow())
+  {
+    _impl->gitInterface->reload();
+  }
+}
