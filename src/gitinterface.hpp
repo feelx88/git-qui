@@ -30,6 +30,7 @@ public slots:
   void unstageFile(const QString &path);
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);
+  void addLines(const QList<GitDiffLine> &lines, bool unstage);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(QList<GitFile>);
@@ -37,7 +38,7 @@ signals:
   void logChanged(QVariantList logs);
   void commited();
   void fileSelected(bool unstaged, const QString &path);
-  void fileDiffed(const QString &path, QList<GitDiffLine> lines);
+  void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
   void repositorySwitched(const QString &path);
   void reloaded();
 

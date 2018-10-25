@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFontDatabase>
+#include <QAction>
 
 #include "gitinterface.hpp"
 #include "gitdiffline.h"
@@ -10,44 +11,79 @@
 struct DiffViewPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
+  bool unstaged = false;
 
   void connectSignals(DiffView *_this)
   {
-    _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines){
+    _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
+      this->unstaged = unstaged;
       _this->setWindowTitle(path);
-      _this->ui->listWidget->clear();
+      _this->ui->treeWidget->clear();
+
+      QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+      QFontMetrics metrics(font);
+      int col0Width = 0, col1Width = 0;
+
       for (auto line : lines)
       {
-        QListWidgetItem *item = new QListWidgetItem(_this->ui->listWidget);
-        item->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+        QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
+        item->setFont(2, font);
+        item->setData(2, Qt::UserRole, QVariant::fromValue(line));
 
         QString content = line.content == "\n" ? "" : line.content;
 
         switch(line.type)
         {
         case GitDiffLine::diffType::ADD:
-          item->setForeground(Qt::green);
-          item->setText("+ " + content);
+          item->setForeground(2, Qt::green);
+          item->setText(2, "+ " + content);
           break;
         case GitDiffLine::diffType::REMOVE:
-          item->setForeground(Qt::red);
-          item->setText("- " + content);
+          item->setForeground(2, Qt::red);
+          item->setText(2, "- " + content);
           break;
         case GitDiffLine::diffType::CONTEXT:
-          item->setForeground(Qt::gray);
-          item->setText("  " + content);
+          item->setForeground(2, Qt::gray);
+          item->setText(2, "  " + content);
           break;
         case GitDiffLine::diffType::FILE_FOOTER:
         case GitDiffLine::diffType::FILE_HEADER:
         case GitDiffLine::diffType::HEADER:
         default:
-          item->setText(content);
+          item->setText(2, content);
           break;
         }
 
-        _this->ui->listWidget->addItem(item);
+        item->setText(0, line.oldLine > 0 ? QString::number(line.oldLine) : "");
+        item->setText(1, line.newLine > 0 ? QString::number(line.newLine) : "");
+        item->setForeground(0, Qt::gray);
+        item->setForeground(1, Qt::gray);
+
+        col0Width = std::max(col0Width, metrics.width(QString::number(line.oldLine)));
+        col1Width = std::max(col1Width, metrics.width(QString::number(line.newLine)));
+
+        _this->ui->treeWidget->addTopLevelItem(item);
+
       }
+
+      _this->ui->treeWidget->setColumnWidth(0, col0Width + 10);
+      _this->ui->treeWidget->setColumnWidth(1, col1Width + 10);
     });
+  }
+
+  void addContextMenuActions(DiffView *_this)
+  {
+    QAction *stageOrUnstageSelected = new QAction(_this->tr("[Un]Stage selected lines"));
+    _this->connect(stageOrUnstageSelected, &QAction::triggered, _this, [=]{
+      QList<GitDiffLine> lines;
+      for (auto item : _this->ui->treeWidget->selectedItems())
+      {
+        lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
+      }
+      gitInterface->addLines(lines, unstaged);
+    });
+
+    _this->ui->treeWidget->addActions(QList<QAction*>() << stageOrUnstageSelected);
   }
 
   static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
@@ -79,6 +115,7 @@ DiffView::DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInter
   _impl->gitInterface = gitInterface;
 
   _impl->connectSignals(this);
+  _impl->addContextMenuActions(this);
 }
 
 DiffView::~DiffView()

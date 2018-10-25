@@ -374,5 +374,89 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   }
 
   delete readLine;
-  emit fileDiffed(path, list);
+  emit fileDiffed(path, list, unstaged);
+}
+
+void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
+{
+  if (lines.isEmpty())
+  {
+    return;
+  }
+
+  GitDiffLine first = lines.first();
+  QString patch = first.header;
+  QList<QList<GitDiffLine>> hunks;
+  hunks.append(QList<GitDiffLine>());
+  int lastindex = first.index;
+
+  for(auto line : lines)
+  {
+    if(!(line.index - lastindex <= 1))
+    {
+      hunks.append(QList<GitDiffLine>());
+    }
+
+    hunks.last().append(line);
+    lastindex = line.index;
+  }
+
+  for(auto hunk : hunks)
+  {
+    int newCount = 0, oldCount = 0;
+    GitDiffLine first = hunk.first();
+
+    for (GitDiffLine line : hunk)
+    {
+      if(line.type == GitDiffLine::diffType::ADD)
+      {
+        ++newCount;
+      }
+      else if(line.type == GitDiffLine::diffType::REMOVE
+              || line.type == GitDiffLine::diffType::CONTEXT)
+      {
+        ++oldCount;
+      }
+    }
+
+    if(first.oldLine < 0)
+    {
+      first.oldLine = first.newLine;
+    }
+
+    patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first.oldLine, oldCount, first.oldLine, newCount));
+
+    for (GitDiffLine line : hunk)
+    {
+      if(line.type == GitDiffLine::diffType::ADD)
+      {
+        patch += "+";
+      }
+      else if(line.type == GitDiffLine::diffType::REMOVE)
+      {
+        patch += "-";
+      }
+      patch += line.content.remove('\n') + '\n';
+    }
+  }
+
+  if(unstage)
+  {
+    _impl->process->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"});
+  }
+  else
+  {
+    _impl->process->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"});
+  }
+
+  qDebug().noquote() << patch;
+
+  std::string stdPatch = patch.toStdString();
+  _impl->process->start(QIODevice::ReadWrite);
+  _impl->process->waitForStarted();
+  _impl->process->write(stdPatch.data(), stdPatch.length());
+  _impl->process->closeWriteChannel();
+  _impl->process->waitForFinished();
+
+  status();
 }
