@@ -43,11 +43,11 @@ struct DiffViewPrivate
         switch(line.type)
         {
         case GitDiffLine::diffType::ADD:
-          item->setForeground(2, Qt::green);
+          item->setBackground(2, Qt::green);
           item->setText(2, "+ " + content);
           break;
         case GitDiffLine::diffType::REMOVE:
-          item->setForeground(2, Qt::red);
+          item->setBackground(2, Qt::red);
           item->setText(2, "- " + content);
           break;
         case GitDiffLine::diffType::CONTEXT:
@@ -58,14 +58,15 @@ struct DiffViewPrivate
         case GitDiffLine::diffType::FILE_HEADER:
         case GitDiffLine::diffType::HEADER:
         default:
+          item->setBackground(2, Qt::gray);
           item->setText(2, content);
           break;
         }
 
         item->setText(0, line.oldLine > 0 ? QString::number(line.oldLine) : "");
         item->setText(1, line.newLine > 0 ? QString::number(line.newLine) : "");
-        item->setForeground(0, Qt::gray);
-        item->setForeground(1, Qt::gray);
+        item->setBackground(0, Qt::gray);
+        item->setBackground(1, Qt::gray);
 
         col0Width = std::max(col0Width, metrics.width(QString::number(line.oldLine)));
         col1Width = std::max(col1Width, metrics.width(QString::number(line.newLine)));
