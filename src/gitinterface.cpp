@@ -47,8 +47,8 @@ void GitInterface::switchRepository(const QString &path)
 {
   _impl->repositoryPath = path;
   _impl->process->setWorkingDirectory(path);
-  reload();
   emit repositorySwitched(path);
+  reload();
 }
 
 void GitInterface::reload()
@@ -134,6 +134,17 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
+
+  _impl->process->setArguments({
+    "rev-parse",
+    "--abbrev-ref",
+    "HEAD"
+  });
+
+  _impl->process->start(QIODevice::ReadOnly);
+  _impl->process->waitForFinished();
+
+  emit branchChanged(_impl->process->readAll().trimmed(), !(unstaged.empty() && staged.empty()));
 }
 
 void GitInterface::log()

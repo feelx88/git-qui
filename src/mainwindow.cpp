@@ -194,8 +194,12 @@ struct MainWindowPrivate
 
   void postInit()
   {
-    gitInterface->reload();
-    emit gitInterface->repositorySwitched(repositories.at(currentRepository));
+    QString currentRepositoryPath = repositories.at(currentRepository);
+    for (auto repository : repositories)
+    {
+      gitInterface->switchRepository(repository);
+    }
+    gitInterface->switchRepository(currentRepositoryPath);
   }
 
   void saveSettings(MainWindow *_this)
@@ -262,6 +266,6 @@ void MainWindow::changeEvent(QEvent *ev)
 {
   if (ev->type() == QEvent::ActivationChange && isActiveWindow())
   {
-    _impl->gitInterface->reload();
+    _impl->postInit();
   }
 }

@@ -41,6 +41,7 @@ signals:
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
   void repositorySwitched(const QString &path);
   void reloaded();
+  void branchChanged(const QString &branch, bool hasChanges);
 
   void error(const QString &message);
 
