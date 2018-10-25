@@ -15,6 +15,14 @@ struct DiffViewPrivate
 
   void connectSignals(DiffView *_this)
   {
+    auto clear = [=](){
+      _this->setWindowTitle(_this->tr("Diff editor"));
+      _this->ui->treeWidget->clear();
+    };
+
+    _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, clear);
+    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, clear);
+
     _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
       this->unstaged = unstaged;
       _this->setWindowTitle(path);
