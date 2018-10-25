@@ -11,7 +11,8 @@ SOURCES += \
     src/components/commit/commit.cpp \
     src/components/repositoryfiles/repositoryfilesconfig.cpp \
     src/components/diffview/diffview.cpp \
-    src/components/repositorylist/repositorylist.cpp
+    src/components/repositorylist/repositorylist.cpp \
+    src/gitdiffline.cpp
 
 HEADERS += \
     src/gitinterface.hpp \

@@ -13,6 +13,17 @@ public:
   QDir repositoryPath;
   QProcess *process;
 
+  void connect()
+  {
+    QObject::connect(process, static_cast<void(QProcess::*)(int)>(&QProcess::finished), process, [=](int){
+      auto output = process->readAllStandardError();
+      if (!output.isEmpty())
+      {
+        qDebug() << output;
+      }
+    });
+  }
+
   bool readyForCommit = false;
 };
 
@@ -22,6 +33,8 @@ GitInterface::GitInterface(QObject *parent, const QString &path)
 {
   _impl->process = new QProcess(this);
   _impl->process->setProgram("git");
+
+  _impl->connect();
 
   switchRepository(path);
 }

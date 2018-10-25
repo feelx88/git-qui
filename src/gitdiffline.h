@@ -1,6 +1,7 @@
 #ifndef GITDIFFLINE_H
 #define GITDIFFLINE_H
 
+#include <QMetaType>
 #include <QString>
 
 struct GitDiffLine
@@ -22,5 +23,9 @@ struct GitDiffLine
   QString header = "";
   int index = -1;
 };
+
+Q_DECLARE_METATYPE(GitDiffLine)
+
+QDebug operator<<(QDebug dbg, const GitDiffLine &diffLine);
 
 #endif // GITDIFFLINE_H
