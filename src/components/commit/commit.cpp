@@ -3,21 +3,47 @@
 
 #include <QMainWindow>
 #include <QShortcut>
+#include <QMessageBox>
 
 #include "gitinterface.hpp"
 
 struct CommitPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
+  QList<GitFile> unstagedFiles, stagedFiles;
 
   void connectSignals(Commit *_this)
   {
     _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this, [=]{
+      if (stagedFiles.empty())
+      {
+        QMessageBox dlg;
+        dlg.setText(_this->tr("There are no staged files. Would you like to commit everything?"));
+        dlg.addButton(QMessageBox::Yes);
+        dlg.addButton(QMessageBox::No);
+        dlg.setDefaultButton(QMessageBox::Yes);
+
+        if (dlg.exec() == QMessageBox::Yes)
+        {
+          for (auto unstagedFile : QList<GitFile>(unstagedFiles))
+          {
+            gitInterface->stageFile(unstagedFile.path);
+          }
+        }
+      }
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
     });
 
     _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
       _this->ui->plainTextEdit->clear();
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, [=](const QList<GitFile> &list){
+      stagedFiles = list;
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, [=](const QList<GitFile> &list){
+      unstagedFiles = list;
     });
 
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);

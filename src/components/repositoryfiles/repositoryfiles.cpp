@@ -28,7 +28,7 @@ struct RepositoryFilesPrivate
     });
 
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
-    _this->connect(gitInterface.get(), signal, _this, [_this](QList<GitFile> files){
+    _this->connect(gitInterface.get(), signal, _this, [_this](const QList<GitFile> &files){
       _this->ui->listWidget->clear();
       _this->ui->treeWidget->clear();
       for(auto file: files)
