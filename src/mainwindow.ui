@@ -80,9 +80,18 @@
     <addaction name="actionStart_git_gui_for_current_repository"/>
     <addaction name="actionStart_gitk_for_current_repository"/>
    </widget>
+   <widget class="QMenu" name="menuCurrent_Repository">
+    <property name="title">
+     <string>Current Repository</string>
+    </property>
+    <addaction name="actionPush"/>
+    <addaction name="actionPull"/>
+    <addaction name="actionPull_Rebase"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuRepositories"/>
+   <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
   </widget>
   <action name="actionOpen_Repository">
@@ -138,6 +147,21 @@
   <action name="actionStart_gitk_for_current_repository">
    <property name="text">
     <string>Start gitk for current repository</string>
+   </property>
+  </action>
+  <action name="actionPush">
+   <property name="text">
+    <string>Push</string>
+   </property>
+  </action>
+  <action name="actionPull">
+   <property name="text">
+    <string>Pull</string>
+   </property>
+  </action>
+  <action name="actionPull_Rebase">
+   <property name="text">
+    <string>Pull (Rebase)</string>
    </property>
   </action>
  </widget>

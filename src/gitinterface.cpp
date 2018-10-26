@@ -471,3 +471,42 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 
   status();
 }
+
+void GitInterface::push()
+{
+  _impl->process->setArguments({
+    "push"
+  });
+  _impl->process->start();
+  _impl->process->waitForFinished();
+
+  if (_impl->process->exitCode() != 0)
+  {
+    emit error(tr("Push has failed"));
+  }
+  else
+  {
+    emit pushed();
+  }
+}
+
+void GitInterface::pull(bool rebase)
+{
+  QList<QString> arguments = {"pull"};
+  if (rebase)
+  {
+    arguments << "--rebase";
+  }
+  _impl->process->setArguments(arguments);
+  _impl->process->start();
+  _impl->process->waitForFinished();
+
+  if (_impl->process->exitCode() != 0)
+  {
+    emit error(tr("Pull has failed"));
+  }
+  else
+  {
+    emit pulled();
+  }
+}

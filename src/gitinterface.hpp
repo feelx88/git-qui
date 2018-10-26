@@ -31,6 +31,8 @@ public slots:
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);
   void addLines(const QList<GitDiffLine> &lines, bool unstage);
+  void push();
+  void pull(bool rebase);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);
@@ -42,6 +44,8 @@ signals:
   void repositorySwitched(const QString &path);
   void reloaded();
   void branchChanged(const QString &branch, bool hasChanges);
+  void pushed();
+  void pulled();
 
   void error(const QString &message);
 

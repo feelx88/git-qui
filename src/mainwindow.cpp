@@ -10,6 +10,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
+#include <QLabel>
+#include <QMovie>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -134,18 +136,6 @@ struct MainWindowPrivate
       closeCurrentRepository(_this);
     });
 
-    _this->statusBar()->hide();
-    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage(message, 3000);
-    });
-    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, _this, [=](const QString &message){
-      if (message.isEmpty())
-      {
-        _this->statusBar()->hide();
-      }
-    });
-
     _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
       for (auto repository : repositories)
       {
@@ -171,6 +161,55 @@ struct MainWindowPrivate
         process->setWorkingDirectory(repositories.at(currentRepository));
         process->startDetached();
       });
+
+    QLabel *progressSpinner = new QLabel(_this);
+    QMovie *movie = new QMovie(QDir::currentPath() + "/loading.gif", QByteArray(), _this);
+    progressSpinner->hide();
+    movie->start();
+    progressSpinner->setMovie(movie);
+    _this->statusBar()->addPermanentWidget(progressSpinner);
+    _this->statusBar()->setSizeGripEnabled(false);
+    _this->statusBar()->hide();
+
+    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
+      progressSpinner->hide();
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage(message, 3000);
+    });
+    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, _this, [=](const QString &message){
+      if (message.isEmpty())
+      {
+        _this->statusBar()->hide();
+        progressSpinner->hide();
+      }
+    });
+
+    _this->connect(_this->ui->actionPush, &QAction::triggered, _this, [=]{
+      progressSpinner->show();
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage("Pushing...");
+      gitInterface->push();
+    });
+    _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{
+      progressSpinner->show();
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage("Pulling...");
+      gitInterface->pull(false);
+    });
+    _this->connect(_this->ui->actionPull_Rebase, &QAction::triggered, _this, [=]{
+      progressSpinner->show();
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage("Pulling...");
+      gitInterface->pull(true);
+    });
+    _this->connect(gitInterface.get(), &GitInterface::pushed, _this, [=]{
+      progressSpinner->hide();
+      _this->statusBar()->showMessage(_this->tr("Pushed succesfully"), 3000);
+    });
+    _this->connect(gitInterface.get(), &GitInterface::pulled, _this, [=]{
+      progressSpinner->hide();
+      _this->statusBar()->showMessage(_this->tr("Pulled succesfully"), 3000);
+    });
   }
 
   void populateMenu(MainWindow *_this)
