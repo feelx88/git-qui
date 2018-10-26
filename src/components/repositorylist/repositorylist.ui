@@ -48,6 +48,9 @@
     </item>
     <item>
      <widget class="QTreeWidget" name="treeWidget">
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::InternalMove</enum>
+      </property>
       <property name="rootIsDecorated">
        <bool>false</bool>
       </property>

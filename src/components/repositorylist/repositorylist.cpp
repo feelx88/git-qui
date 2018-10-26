@@ -16,6 +16,7 @@ struct RepositoryListPrivate
       if (items.isEmpty())
       {
         QTreeWidgetItem *item = new QTreeWidgetItem;
+        item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
         item->setText(0, directory);
         item->setData(0, Qt::UserRole, path);
         _this->ui->treeWidget->addTopLevelItem(item);
