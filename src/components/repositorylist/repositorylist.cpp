@@ -11,17 +11,19 @@ struct RepositoryListPrivate
   void connectSignals(RepositoryList *_this)
   {
     _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryAdded, _this, [=](const QString &path){
-      auto items = _this->ui->treeWidget->findItems(path, Qt::MatchCaseSensitive, 0);
+      QString directory = path.split('/').last();
+      auto items = _this->ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
       if (items.isEmpty())
       {
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setText(0, path);
+        item->setText(0, directory);
+        item->setData(0, Qt::UserRole, path);
         _this->ui->treeWidget->addTopLevelItem(item);
       }
     });
 
     _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryRemoved, _this, [=](const QString &path){
-      auto items = _this->ui->treeWidget->findItems(path, Qt::MatchCaseSensitive, 0);
+      auto items = _this->ui->treeWidget->findItems(path.split('/').last(), Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
         delete items.first();
@@ -29,7 +31,7 @@ struct RepositoryListPrivate
     });
 
     _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
-      currentRepository = path;
+      currentRepository = path.split('/').last();
       auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
@@ -50,7 +52,7 @@ struct RepositoryListPrivate
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->treeWidget->currentItem())
       {
-        gitInterface->switchRepository(_this->ui->treeWidget->currentItem()->text(0));
+        gitInterface->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
       }
     });
 
