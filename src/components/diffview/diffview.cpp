@@ -44,10 +44,12 @@ struct DiffViewPrivate
         {
         case GitDiffLine::diffType::ADD:
           item->setBackground(2, Qt::green);
+          item->setForeground(2, Qt::black);
           item->setText(2, "+ " + content);
           break;
         case GitDiffLine::diffType::REMOVE:
           item->setBackground(2, Qt::red);
+          item->setForeground(2, Qt::black);
           item->setText(2, "- " + content);
           break;
         case GitDiffLine::diffType::CONTEXT:
