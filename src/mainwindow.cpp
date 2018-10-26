@@ -9,6 +9,7 @@
 #include <QStatusBar>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProcess>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -155,6 +156,21 @@ struct MainWindowPrivate
     _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
       currentRepository = repositories.indexOf(path);
     });
+
+    _this->connect(_this->ui->actionStart_git_gui_for_current_repository, &QAction::triggered, _this, [=]{
+        QProcess *process = new QProcess(_this);
+        process->setProgram("git");
+        process->setArguments({"gui"});
+        process->setWorkingDirectory(repositories.at(currentRepository));
+        process->startDetached();
+      });
+
+    _this->connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
+        QProcess *process = new QProcess(_this);
+        process->setProgram("gitk");
+        process->setWorkingDirectory(repositories.at(currentRepository));
+        process->startDetached();
+      });
   }
 
   void populateMenu(MainWindow *_this)
