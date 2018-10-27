@@ -72,8 +72,8 @@ struct DiffViewPrivate
         item->setBackground(0, Qt::gray);
         item->setBackground(1, Qt::gray);
 
-        col0Width = std::max(col0Width, metrics.width(QString::number(line.oldLine)));
-        col1Width = std::max(col1Width, metrics.width(QString::number(line.newLine)));
+        col0Width = std::max(col0Width, metrics.size(Qt::TextSingleLine, QString::number(line.oldLine)).width());
+        col1Width = std::max(col1Width, metrics.size(Qt::TextSingleLine, QString::number(line.newLine)).width());
 
         _this->ui->treeWidget->addTopLevelItem(item);
 
