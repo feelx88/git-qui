@@ -43,16 +43,17 @@ struct DiffViewPrivate
         switch(line.type)
         {
         case GitDiffLine::diffType::ADD:
-          item->setBackground(2, Qt::green);
+          item->setBackground(2, QColor::fromRgb(86, 244, 66));
           item->setForeground(2, Qt::black);
           item->setText(2, "+ " + content);
           break;
         case GitDiffLine::diffType::REMOVE:
-          item->setBackground(2, Qt::red);
+          item->setBackground(2, QColor::fromRgb(244, 66, 66));
           item->setForeground(2, Qt::black);
           item->setText(2, "- " + content);
           break;
         case GitDiffLine::diffType::CONTEXT:
+          item->setBackground(2, Qt::white);
           item->setForeground(2, Qt::gray);
           item->setText(2, "  " + content);
           break;
@@ -60,6 +61,7 @@ struct DiffViewPrivate
         case GitDiffLine::diffType::FILE_HEADER:
         case GitDiffLine::diffType::HEADER:
         default:
+          item->setForeground(2, Qt::black);
           item->setBackground(2, Qt::gray);
           item->setText(2, content);
           break;
