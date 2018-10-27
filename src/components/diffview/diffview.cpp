@@ -16,7 +16,7 @@ struct DiffViewPrivate
   void connectSignals(DiffView *_this)
   {
     auto clear = [=](){
-      _this->setWindowTitle(_this->tr("Diff editor"));
+      _this->setWindowTitle(_this->tr("Diff view"));
       _this->ui->treeWidget->clear();
     };
 
@@ -113,7 +113,7 @@ struct DiffViewPrivate
 
 DOCK_WIDGET_IMPL(
     DiffView,
-    tr("Diff View"),
+    tr("Diff view"),
     &DiffViewPrivate::initialize,
     &DiffViewPrivate::restore
 )
