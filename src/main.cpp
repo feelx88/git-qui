@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <QApplication>
+#include <QSettings>
 
 #include "mainwindow.hpp"
 
@@ -9,7 +10,12 @@
 
 int main(int argc, char *argv[])
 {
+  QSettings::setDefaultFormat(QSettings::IniFormat);
+
   QApplication app(argc, argv);
+  app.setOrganizationName("feelx88");
+  app.setOrganizationDomain("feelx88.de");
+
   MainWindow w;
   w.show();
 
