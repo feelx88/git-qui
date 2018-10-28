@@ -17,7 +17,8 @@ class DiffView : public DockWidget
 
 public:
   explicit DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
-  ~DiffView();
+  ~DiffView() override;
+  virtual QVariant configuration() override;
 
 private:
   Ui::DiffView *ui;

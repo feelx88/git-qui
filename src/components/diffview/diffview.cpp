@@ -11,8 +11,9 @@
 struct DiffViewPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
-  bool unstaged = false, fullFileDiff = false;
+  bool unstaged = false;
   QString currentPath;
+  QAction *fullFileDiffAction;
 
   void connectSignals(DiffView *_this)
   {
@@ -37,7 +38,7 @@ struct DiffViewPrivate
 
       for (auto line : lines)
       {
-        if (fullFileDiff && line.type == GitDiffLine::diffType::HEADER)
+        if (fullFileDiffAction->isChecked() && line.type == GitDiffLine::diffType::HEADER)
         {
           continue;
         }
@@ -97,12 +98,10 @@ struct DiffViewPrivate
 
   void addActions(DiffView *_this)
   {
-    QAction *fullDiffAction = new QAction(_this->tr("Full file diff"), _this);
-    fullDiffAction->setCheckable(true);
-    fullDiffAction->setChecked(fullFileDiff);
-    _this->addAction(fullDiffAction);
-    _this->connect(fullDiffAction, &QAction::triggered, _this, [=](bool checked){
-      fullFileDiff = checked;
+    fullFileDiffAction = new QAction(_this->tr("Full file diff"), _this);
+    fullFileDiffAction->setCheckable(true);
+    _this->addAction(fullFileDiffAction);
+    _this->connect(fullFileDiffAction, &QAction::toggled, _this, [=](bool checked){
       gitInterface->setFullFileDiff(checked);
       gitInterface->diffFile(unstaged, currentPath);
     });
@@ -128,10 +127,15 @@ struct DiffViewPrivate
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, new DiffView(mainWindow, gitInterface));
   }
 
-  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
+  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
   {
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, new DiffView(mainWindow, gitInterface));
+    QMap<QString, QVariant> config = configuration.toMap();
+    DiffView *diffView = new DiffView(mainWindow, gitInterface);
+    diffView->_impl->fullFileDiffAction->setChecked(config.value("fullFileDiff", false).toBool());
+    //emit diffView->_impl->fullFileDiffAction->triggered(config.value("fullFileDiff", false).toBool());
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, diffView);
     mainWindow->setObjectName(id);
+
   }
 };
 
@@ -159,4 +163,12 @@ DiffView::DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInter
 DiffView::~DiffView()
 {
   delete ui;
+}
+
+QVariant DiffView::configuration()
+{
+  QMap<QString, QVariant> config;
+  config.insert("fullFileDiff", _impl->fullFileDiffAction->isChecked());
+
+  return config;
 }
