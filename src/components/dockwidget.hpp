@@ -48,7 +48,8 @@ protected:
   static bool doRegister(RegistryEntry *entry);
 
 private:
-  static QMap<QString, RegistryEntry*> _registry;
+  static QSharedPointer<QMap<QString, RegistryEntry*>> registry();
+  static QSharedPointer<QMap<QString, RegistryEntry*>> _registry;
 };
 
 #endif // DOCKWIDGET_HPP
