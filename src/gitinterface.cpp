@@ -167,44 +167,36 @@ void GitInterface::log()
 {
   _impl->foregroundProcess->setArguments({"log",
                                   "--all",
-                                  "--graph",
                                   "--full-history",
                                   "--pretty="
                                   "%x0c"
-                                  "%H"
+                                  "%h"
                                   "%x0c"
                                   "%s"
+                                  "%x0c"
+                                  "%an"
+                                  "%x0c"
+                                  "%ct"
                                  });
     _impl->foregroundProcess->start(QIODevice::ReadOnly);
     _impl->foregroundProcess->waitForFinished();
 
-    QVariantList list;
+    QList<GitCommit> list;
     QHash<QString, GitCommit*> map;
 
-    while(true)
+    for (auto line : QString(_impl->foregroundProcess->readAllStandardOutput()).split('\n'))
     {
-      if(_impl->foregroundProcess->atEnd())
-      {
-        break;
-      }
-
-      QString buf;
-      QByteArray c = _impl->foregroundProcess->read(1);
-      while(c != "\n")
-      {
-        buf += c;
-        c = _impl->foregroundProcess->read(1);
-      }
-      QList<QString> parts = buf.split('\f');
+      QList<QString> parts = line.split('\f');
 
       GitCommit commit;
       if (parts.length() > 1)
       {
         commit.id = parts.at(1);
         commit.message = parts.at(2);
+        commit.author = parts.at(3);
+        commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
       }
-
-      list.append(QVariant::fromValue(commit));
+      list.append(commit);
     }
 
     emit logChanged(list);

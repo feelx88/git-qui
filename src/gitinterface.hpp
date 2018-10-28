@@ -38,7 +38,7 @@ signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);
   void stagingAreaChanged(const QList<GitFile>&);
-  void logChanged(QVariantList logs);
+  void logChanged(const QList<GitCommit> &logs);
   void commited();
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);

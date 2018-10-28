@@ -1,0 +1,74 @@
+#include "logview.hpp"
+#include "ui_logview.h"
+
+#include <QMainWindow>
+
+#include "gitinterface.hpp"
+#include "gitcommit.hpp"
+
+struct LogViewPrivate
+{
+  QSharedPointer<GitInterface> gitInterface;
+
+  void connectSignals(LogView *_this)
+  {
+    _this->ui->treeWidget->setHeaderLabels({
+      _this->tr("Id"),
+      _this->tr("Message"),
+      _this->tr("Author"),
+      _this->tr("Date"),
+    });
+    _this->connect(gitInterface.get(), &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
+      _this->ui->treeWidget->clear();
+      for (GitCommit commit : commits)
+      {
+        QTreeWidgetItem *item = new QTreeWidgetItem;
+        item->setText(0, commit.id);
+        item->setText(1, commit.message);
+        item->setText(2, commit.author);
+        item->setText(3, commit.date.toString());
+
+        _this->ui->treeWidget->addTopLevelItem(item);
+      }
+
+      _this->ui->treeWidget->resizeColumnToContents(0);
+      _this->ui->treeWidget->resizeColumnToContents(2);
+      _this->ui->treeWidget->resizeColumnToContents(3);
+    });
+  }
+
+  static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
+  {
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, new LogView(mainWindow, gitInterface));
+  }
+
+  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
+  {
+    LogView *logView = new LogView(mainWindow, gitInterface);
+    logView->setObjectName(id);
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, logView);
+  }
+};
+
+DOCK_WIDGET_IMPL(
+    LogView,
+    tr("Log view"),
+    &LogViewPrivate::initialize,
+    &LogViewPrivate::restore
+)
+
+LogView::LogView(QWidget *parent, QSharedPointer<GitInterface> gitInterface) :
+DockWidget(parent),
+ui(new Ui::LogView),
+_impl(new LogViewPrivate)
+{
+  ui->setupUi(this);
+
+  _impl->gitInterface = gitInterface;
+  _impl->connectSignals(this);
+}
+
+LogView::~LogView()
+{
+  delete ui;
+}

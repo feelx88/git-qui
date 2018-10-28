@@ -2,13 +2,13 @@
 #define GITCOMMIT_H
 
 #include <QList>
-#include <QDate>
+#include <QDateTime>
 
 struct GitCommit
 {
 public:
-  QString id, message;
-  QDate date;
+  QString id, message, author;
+  QDateTime date;
   QList<QString> branches, parents, children;
 };
 Q_DECLARE_METATYPE(GitCommit)
