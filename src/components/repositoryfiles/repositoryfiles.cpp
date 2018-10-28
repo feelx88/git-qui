@@ -123,11 +123,17 @@ struct RepositoryFilesPrivate
       _this->connect(stageOrUnstageAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
-          stageOrUnstage(_this->ui->listWidget->currentItem()->text());
+          if (_this->ui->listWidget->currentItem())
+          {
+            stageOrUnstage(_this->ui->listWidget->currentItem()->text());
+          }
         }
         else
         {
-          stageOrUnstage(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+          if (_this->ui->treeWidget->currentItem())
+          {
+            stageOrUnstage(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+          }
         }
       });
 
