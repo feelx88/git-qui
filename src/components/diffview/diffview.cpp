@@ -13,7 +13,7 @@ struct DiffViewPrivate
   QSharedPointer<GitInterface> gitInterface;
   bool unstaged = false;
   QString currentPath;
-  QAction *fullFileDiffAction;
+  QAction *fullFileDiffAction, *stageOrUnstageSelected;
 
   void connectSignals(DiffView *_this)
   {
@@ -29,6 +29,8 @@ struct DiffViewPrivate
       currentPath = path;
       this->unstaged = unstaged;
       _this->setWindowTitle(path);
+      stageOrUnstageSelected->setText(unstaged ?
+        _this->tr("Stage selected lines") : _this->tr("Unstage selected lines"));
       _this->ui->treeWidget->clear();
 
       QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
@@ -109,7 +111,7 @@ struct DiffViewPrivate
 
   void addContextMenuActions(DiffView *_this)
   {
-    QAction *stageOrUnstageSelected = new QAction(_this->tr("[Un]Stage selected lines"));
+    stageOrUnstageSelected = new QAction(_this);
     _this->connect(stageOrUnstageSelected, &QAction::triggered, _this, [=]{
       QList<GitDiffLine> lines;
       for (auto item : _this->ui->treeWidget->selectedItems())
