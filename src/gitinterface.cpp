@@ -195,13 +195,13 @@ void GitInterface::log()
         buf += c;
         c = _impl->foregroundProcess->read(1);
       }
-      QStringList parts = buf.split('\f');
+      QList<QString> parts = buf.split('\f');
 
-      GitCommit *commit = new GitCommit(this);
+      GitCommit commit;
       if (parts.length() > 1)
       {
-        commit->id = parts.at(1);
-        commit->message = parts.at(2);
+        commit.id = parts.at(1);
+        commit.message = parts.at(2);
       }
 
       list.append(QVariant::fromValue(commit));
