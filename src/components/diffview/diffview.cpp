@@ -20,12 +20,14 @@ struct DiffViewPrivate
     auto clear = [=](){
       _this->setWindowTitle(_this->tr("Diff view"));
       _this->ui->treeWidget->clear();
+      stageOrUnstageSelected->setVisible(false);
     };
 
     _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, clear);
     _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, clear);
 
     _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
+      stageOrUnstageSelected->setVisible(true);
       currentPath = path;
       this->unstaged = unstaged;
       _this->setWindowTitle(path);
