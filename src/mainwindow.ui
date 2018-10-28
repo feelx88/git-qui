@@ -47,9 +47,9 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>Ed&amp;it</string>
+     <string>Window</string>
     </property>
     <widget class="QMenu" name="menuAdd_view">
      <property name="title">
@@ -89,10 +89,10 @@
     <addaction name="actionPull_Rebase"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
    <addaction name="menuRepositories"/>
    <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
+   <addaction name="menuWindow"/>
   </widget>
   <action name="actionOpen_Repository">
    <property name="text">
