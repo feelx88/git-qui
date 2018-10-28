@@ -33,6 +33,7 @@ public slots:
   void addLines(const QList<GitDiffLine> &lines, bool unstage);
   void push();
   void pull(bool rebase);
+  void setFullFileDiff(bool fullFileDiff);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);

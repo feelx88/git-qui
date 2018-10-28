@@ -13,6 +13,7 @@ public:
   QDir repositoryPath;
   QProcess *foregroundProcess, *backgroundProcess;
   bool readyForCommit = false;
+  bool fullFileDiff = false;
 
   void connect()
   {
@@ -262,15 +263,47 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
     return;
   }
 
+  bool binary = false;
+  int lineCount = 0;
+
+  QFile *file = new QFile(absolutePath, this);
+  file->open(QIODevice::ReadOnly);
+
+  QByteArray tmp = file->read(1024 * 512); //512kiB
+  if(tmp.size() > 0 && tmp.contains('\0'))
+  {
+    binary = true;
+  }
+  else
+  {
+    file->reset();
+    while(!file->readLine(0).isEmpty())
+    {
+      ++lineCount;
+    }
+  }
+
   QList<GitDiffLine> list;
 
   if(unstaged)
   {
-    _impl->foregroundProcess->setArguments({"diff", "--", path});
+    _impl->foregroundProcess->setArguments({
+      "diff",
+      _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+      "--",
+      path
+    });
   }
   else
   {
-    _impl->foregroundProcess->setArguments({"diff", "HEAD", "--cached", "--", path});
+    _impl->foregroundProcess->setArguments({
+      "diff",
+      _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+      "HEAD",
+      "--cached",
+      "--",
+      path
+    });
   }
   _impl->foregroundProcess->start(QIODevice::ReadOnly);
   _impl->foregroundProcess->waitForFinished();
@@ -282,17 +315,6 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
 
   int lineNoOld = -1;
   int lineNoNew = -1;
-
-  bool binary = false;
-
-  QFile *file = new QFile(absolutePath, this);
-  file->open(QIODevice::ReadOnly);
-
-  QByteArray tmp = file->read(1024 * 512); //512kiB
-  if(tmp.size() > 0 && tmp.contains('\0'))
-  {
-    binary = true;
-  }
 
   auto readLine = new std::function<QByteArray()>([&] {
     return _impl->foregroundProcess->readLine();
@@ -527,4 +549,9 @@ void GitInterface::pull(bool rebase)
       emit pulled();
     }
   });
+}
+
+void GitInterface::setFullFileDiff(bool fullFileDiff)
+{
+  _impl->fullFileDiff = fullFileDiff;
 }
