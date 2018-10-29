@@ -557,3 +557,27 @@ void GitInterface::setFullFileDiff(bool fullFileDiff)
 {
   _impl->fullFileDiff = fullFileDiff;
 }
+
+void GitInterface::revertLastCommit()
+{
+  _impl->foregroundProcess->setArguments({
+    "log",
+    "--max-count=1",
+    "--pretty="
+    "%s"
+  });
+  _impl->foregroundProcess->start();
+  _impl->foregroundProcess->waitForFinished();
+  QString message = _impl->foregroundProcess->readAllStandardOutput();
+
+  _impl->foregroundProcess->setArguments({
+    "reset",
+    "--soft",
+    "HEAD^"
+  });
+  _impl->foregroundProcess->start();
+  _impl->foregroundProcess->waitForFinished();
+
+  reload();
+  emit lastCommitReverted(message);
+}

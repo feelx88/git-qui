@@ -34,6 +34,7 @@ public slots:
   void push();
   void pull(bool rebase);
   void setFullFileDiff(bool fullFileDiff);
+  void revertLastCommit();
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);
@@ -47,6 +48,7 @@ signals:
   void branchChanged(const QString &branch, bool hasChanges);
   void pushed();
   void pulled();
+  void lastCommitReverted(const QString &lastCommitMessage);
 
   void error(const QString &message);
 

@@ -32,6 +32,16 @@ struct CommitPrivate
         }
       }
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
+      _this->ui->pushButton_2->setEnabled(true);
+    });
+
+    _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, _this, [=]{
+      gitInterface->revertLastCommit();
+      _this->ui->pushButton_2->setDisabled(true);
+    });
+
+    _this->connect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, [=](const QString &message){
+      _this->ui->plainTextEdit->setPlainText(message);
     });
 
     _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
