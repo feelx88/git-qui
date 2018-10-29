@@ -188,6 +188,11 @@ void GitInterface::log()
 
     for (auto line : QString(_impl->foregroundProcess->readAllStandardOutput()).split('\n'))
     {
+      if (line.isEmpty())
+      {
+        continue;
+      }
+
       QList<QString> parts = line.split('\f');
 
       GitCommit commit;

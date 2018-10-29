@@ -22,8 +22,7 @@ struct LogViewPrivate
       _this->ui->treeWidget->clear();
       for (GitCommit commit : commits)
       {
-        QTreeWidgetItem *item = new QTreeWidgetItem;
-        qDebug() << commit.branches.empty();
+        QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
         item->setText(0, commit.id);
         item->setText(1, commit.branches.empty() ? commit.message : QString("[%1] %2").arg(commit.branches.join(", "), commit.message));
         item->setText(2, commit.author);
