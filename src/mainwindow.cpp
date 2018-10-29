@@ -158,6 +158,7 @@ struct MainWindowPrivate
     _this->connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
         QProcess *process = new QProcess(_this);
         process->setProgram("gitk");
+        process->setArguments({"--all"});
         process->setWorkingDirectory(repositories.at(currentRepository));
         process->startDetached();
       });
