@@ -206,10 +206,12 @@ struct MainWindowPrivate
     _this->connect(gitInterface.get(), &GitInterface::pushed, _this, [=]{
       progressSpinner->hide();
       _this->statusBar()->showMessage(_this->tr("Pushed succesfully"), 3000);
+      gitInterface->log();
     });
     _this->connect(gitInterface.get(), &GitInterface::pulled, _this, [=]{
       progressSpinner->hide();
       _this->statusBar()->showMessage(_this->tr("Pulled succesfully"), 3000);
+      gitInterface->log();
     });
   }
 
