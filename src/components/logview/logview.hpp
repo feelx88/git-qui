@@ -18,6 +18,7 @@ class LogView : public DockWidget
 public:
   explicit LogView(QWidget *parent, QSharedPointer<GitInterface> gitInterface);
   ~LogView();
+  QVariant configuration();
 
 private:
   Ui::LogView *ui;

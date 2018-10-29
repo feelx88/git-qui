@@ -42,11 +42,17 @@ struct LogViewPrivate
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, new LogView(mainWindow, gitInterface));
   }
 
-  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
+  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
   {
     LogView *logView = new LogView(mainWindow, gitInterface);
     logView->setObjectName(id);
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, logView);
+
+    QList<QVariant> widths = configuration.toList();
+    for (int x = 0; x < widths.size(); ++x)
+    {
+      logView->ui->treeWidget->setColumnWidth(x, widths.at(x).toInt());
+    }
   }
 };
 
@@ -71,4 +77,16 @@ _impl(new LogViewPrivate)
 LogView::~LogView()
 {
   delete ui;
+}
+
+QVariant LogView::configuration()
+{
+  QList<QVariant> widths;
+
+  for (int x = 0; x < ui->treeWidget->columnCount(); ++x)
+  {
+    widths << ui->treeWidget->columnWidth(x);
+  }
+
+  return widths;
 }
