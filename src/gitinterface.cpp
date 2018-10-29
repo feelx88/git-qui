@@ -17,13 +17,15 @@ public:
 
   void connect()
   {
-    QObject::connect(foregroundProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), foregroundProcess, [=](int){
+    auto logger = [=](int){
       auto output = foregroundProcess->readAllStandardError();
       if (!output.isEmpty())
       {
         qDebug() << output;
       }
-    });
+    };
+    QObject::connect(foregroundProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), foregroundProcess, logger);
+    QObject::connect(backgroundProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), backgroundProcess, logger);
   }
 
   void callAsyncSingle(QProcess *process, std::function<void(int)> lambda)
