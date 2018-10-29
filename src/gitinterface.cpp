@@ -177,6 +177,8 @@ void GitInterface::log()
                                   "%an"
                                   "%x0c"
                                   "%ct"
+                                  "%x0c"
+                                  "%D"
                                  });
     _impl->foregroundProcess->start(QIODevice::ReadOnly);
     _impl->foregroundProcess->waitForFinished();
@@ -195,6 +197,7 @@ void GitInterface::log()
         commit.message = parts.at(2);
         commit.author = parts.at(3);
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
+        commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
       }
       list.append(commit);
     }
