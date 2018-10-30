@@ -137,7 +137,30 @@ struct RepositoryFilesPrivate
         }
       });
 
+      QAction *checkoutAction = new QAction(_this->tr("Reset file"));
+      _this->connect(checkoutAction, &QAction::triggered, _this, [=]{
+        if (_this->ui->stackedWidget->currentIndex() == 0)
+        {
+          if (_this->ui->listWidget->currentItem())
+          {
+            gitInterface->checkoutPath(_this->ui->listWidget->currentItem()->text());
+          }
+        }
+        else
+        {
+          if (_this->ui->treeWidget->currentItem())
+          {
+            gitInterface->checkoutPath(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+          }
+        }
+      });
+
       actions << stageOrUnstageAction;
+
+      if (unstaged) {
+        actions << checkoutAction;
+      }
+
       _this->ui->listWidget->addActions(actions);
       _this->ui->treeWidget->addActions(actions);
   }

@@ -614,3 +614,12 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
 
   status();
 }
+
+void GitInterface::checkoutPath(const QString &path)
+{
+  _impl->foregroundProcess->setArguments({"checkout", "--", path});
+  _impl->foregroundProcess->start();
+  _impl->foregroundProcess->waitForFinished();
+
+  status();
+}
