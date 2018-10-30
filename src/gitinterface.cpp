@@ -612,8 +612,5 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
   _impl->foregroundProcess->closeWriteChannel();
   _impl->foregroundProcess->waitForFinished();
 
-  qDebug() << _impl->foregroundProcess->readAllStandardOutput();
-  qDebug() << _impl->foregroundProcess->readAllStandardError();
-
   status();
 }
