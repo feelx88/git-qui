@@ -34,7 +34,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -49,7 +49,7 @@
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>Window</string>
+     <string>W&amp;indow</string>
     </property>
     <widget class="QMenu" name="menuAdd_view">
      <property name="title">
@@ -82,7 +82,7 @@
    </widget>
    <widget class="QMenu" name="menuCurrent_Repository">
     <property name="title">
-     <string>Current Repository</string>
+     <string>&amp;Current Repository</string>
     </property>
     <addaction name="actionPush"/>
     <addaction name="actionPull"/>
@@ -141,27 +141,27 @@
   </action>
   <action name="actionStart_git_gui_for_current_repository">
    <property name="text">
-    <string>Start git gui for current repository</string>
+    <string>&amp;Start git gui for current repository</string>
    </property>
   </action>
   <action name="actionStart_gitk_for_current_repository">
    <property name="text">
-    <string>Start gitk for current repository</string>
+    <string>Start gitk &amp;for current repository</string>
    </property>
   </action>
   <action name="actionPush">
    <property name="text">
-    <string>Push</string>
+    <string>&amp;Push (HEAD -&gt; origin)</string>
    </property>
   </action>
   <action name="actionPull">
    <property name="text">
-    <string>Pull</string>
+    <string>P&amp;ull</string>
    </property>
   </action>
   <action name="actionPull_Rebase">
    <property name="text">
-    <string>Pull (Rebase)</string>
+    <string>Pull (&amp;Rebase)</string>
    </property>
   </action>
  </widget>

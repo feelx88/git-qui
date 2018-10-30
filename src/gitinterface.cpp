@@ -522,7 +522,9 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 void GitInterface::push()
 {
   _impl->backgroundProcess->setArguments({
-    "push"
+    "push",
+    "origin",
+    "HEAD"
   });
   _impl->backgroundProcess->start();
 
