@@ -35,6 +35,7 @@ public slots:
   void pull(bool rebase);
   void setFullFileDiff(bool fullFileDiff);
   void revertLastCommit();
+  void resetLines(const QList<GitDiffLine> &lines);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);

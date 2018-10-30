@@ -13,7 +13,7 @@ struct DiffViewPrivate
   QSharedPointer<GitInterface> gitInterface;
   bool unstaged = false;
   QString currentPath;
-  QAction *fullFileDiffAction, *stageOrUnstageSelected;
+  QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
 
   void connectSignals(DiffView *_this)
   {
@@ -21,6 +21,7 @@ struct DiffViewPrivate
       _this->setWindowTitle(_this->tr("Diff view"));
       _this->ui->treeWidget->clear();
       stageOrUnstageSelected->setVisible(false);
+      resetSelected->setVisible(false);
     };
 
     _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, clear);
@@ -28,6 +29,9 @@ struct DiffViewPrivate
 
     _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
       stageOrUnstageSelected->setVisible(true);
+      resetSelected->setVisible(true);
+      resetSelected->setEnabled(unstaged);
+
       currentPath = path;
       this->unstaged = unstaged;
       _this->setWindowTitle(path);
@@ -123,7 +127,17 @@ struct DiffViewPrivate
       gitInterface->addLines(lines, unstaged);
     });
 
-    _this->ui->treeWidget->addActions(QList<QAction*>() << stageOrUnstageSelected);
+    resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
+    _this->connect(resetSelected, &QAction::triggered, _this, [=]{
+      QList<GitDiffLine> lines;
+      for (auto item : _this->ui->treeWidget->selectedItems())
+      {
+        lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
+      }
+      gitInterface->resetLines(lines);
+    });
+
+    _this->ui->treeWidget->addActions(QList<QAction*>() << stageOrUnstageSelected << resetSelected);
   }
 
   static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
