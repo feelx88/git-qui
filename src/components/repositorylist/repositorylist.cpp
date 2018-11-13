@@ -19,6 +19,7 @@ struct RepositoryListPrivate
         item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
         item->setText(0, directory);
         item->setData(0, Qt::UserRole, path);
+        item->setTextAlignment(1, Qt::AlignRight);
         _this->ui->treeWidget->addTopLevelItem(item);
       }
     });
