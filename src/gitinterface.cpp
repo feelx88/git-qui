@@ -153,7 +153,7 @@ void GitInterface::status()
 
   for(auto output : _impl->foregroundProcess->readAll().split('\0'))
   {
-    if(output.isEmpty())
+    if(output.isEmpty() || !output.contains(' '))
     {
       continue;
     }
