@@ -41,12 +41,12 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges){
+    _this->connect(gitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, int commitsAhead, int commitsBehind){
       auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
         auto item = items.first();
-        item->setText(1, branch + (hasChanges ? "*" : ""));
+        item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
         _this->ui->treeWidget->resizeColumnToContents(1);
       }
     });

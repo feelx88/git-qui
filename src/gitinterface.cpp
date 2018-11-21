@@ -143,6 +143,7 @@ void GitInterface::status()
     "status",
     "--untracked=all",
     "--porcelain=v1",
+    "-b",
     "-z",
   });
 
@@ -150,11 +151,22 @@ void GitInterface::status()
   _impl->foregroundProcess->waitForFinished();
 
   QList<GitFile> unstaged, staged;
+  QString branchName;
+  int commitsAhead = 0, commitsBehind = 0;
 
   for(auto output : _impl->foregroundProcess->readAll().split('\0'))
   {
     if(output.isEmpty() || !output.contains(' '))
     {
+      continue;
+    }
+
+    if (output.startsWith("##"))
+    {
+      QRegExp branchRegex("## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
+      branchName = branchRegex.indexIn(output) > -1 ? branchRegex.cap(1) : output.split(' ').at(1);
+      commitsAhead = branchRegex.cap(2).toInt();
+      commitsBehind = branchRegex.cap(3).toInt();
       continue;
     }
 
@@ -213,17 +225,7 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
-
-  _impl->foregroundProcess->setArguments({
-    "rev-parse",
-    "--abbrev-ref",
-    "HEAD"
-  });
-
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
-
-  emit branchChanged(_impl->foregroundProcess->readAll().trimmed(), !(unstaged.empty() && staged.empty()));
+  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), commitsAhead, commitsBehind);
 }
 
 void GitInterface::log()
@@ -535,6 +537,7 @@ void GitInterface::push()
     }
     else
     {
+      status();
       emit pushed();
     }
   });
@@ -558,6 +561,7 @@ void GitInterface::pull(bool rebase)
     }
     else
     {
+      status();
       emit pulled();
     }
   });
