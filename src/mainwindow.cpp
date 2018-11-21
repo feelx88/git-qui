@@ -145,6 +145,7 @@ struct MainWindowPrivate
 
     _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
       currentRepository = repositories.indexOf(path);
+      _this->setWindowTitle(QString("MainWindow - %1").arg(path));
     });
 
     _this->connect(_this->ui->actionStart_git_gui_for_current_repository, &QAction::triggered, _this, [=]{
