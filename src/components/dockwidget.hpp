@@ -25,6 +25,7 @@ class GitInterface;
 
 #include <QDockWidget>
 #include <QList>
+#include <QUuid>
 
 class DockWidget : public QDockWidget
 {
@@ -37,7 +38,7 @@ public:
     std::function<void(QMainWindow*, const QSharedPointer<GitInterface>&, const QString &, const QVariant&)> restorer;
   };
 
-  DockWidget(QWidget *parent = nullptr, const QString &id = QVariant(qrand()).toString());
+  DockWidget(QWidget *parent = nullptr, const QString &id = QUuid::createUuid().toString());
   virtual ~DockWidget() override;
   static QList<RegistryEntry*> registeredDockWidgets();
   static void create(QString className, QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration);
