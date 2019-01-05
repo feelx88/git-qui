@@ -150,10 +150,8 @@ struct DiffViewPrivate
     QMap<QString, QVariant> config = configuration.toMap();
     DiffView *diffView = new DiffView(mainWindow, gitInterface);
     diffView->_impl->fullFileDiffAction->setChecked(config.value("fullFileDiff", false).toBool());
-    //emit diffView->_impl->fullFileDiffAction->triggered(config.value("fullFileDiff", false).toBool());
     mainWindow->addDockWidget(Qt::TopDockWidgetArea, diffView);
     mainWindow->setObjectName(id);
-
   }
 };
 
