@@ -152,6 +152,7 @@ void GitInterface::status()
 
   QList<GitFile> unstaged, staged;
   QString branchName;
+  bool hasUpstream = false;
   int commitsAhead = 0, commitsBehind = 0;
 
   for(auto output : _impl->foregroundProcess->readAll().split('\0'))
@@ -164,7 +165,8 @@ void GitInterface::status()
     if (output.startsWith("##"))
     {
       QRegExp branchRegex("## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
-      branchName = branchRegex.indexIn(output) > -1 ? branchRegex.cap(1) : output.split(' ').at(1);
+      hasUpstream = branchRegex.indexIn(output) > -1;
+      branchName = hasUpstream ? branchRegex.cap(1) : output.split(' ').at(1);
       commitsAhead = branchRegex.cap(2).toInt();
       commitsBehind = branchRegex.cap(3).toInt();
       continue;
@@ -225,7 +227,7 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
-  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), commitsAhead, commitsBehind);
+  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
 }
 
 void GitInterface::log()
