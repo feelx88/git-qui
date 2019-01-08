@@ -250,7 +250,6 @@ void GitInterface::log()
     _impl->foregroundProcess->waitForFinished();
 
     QList<GitCommit> list;
-    QHash<QString, GitCommit*> map;
 
     for (auto line : QString(_impl->foregroundProcess->readAllStandardOutput()).split('\n'))
     {
