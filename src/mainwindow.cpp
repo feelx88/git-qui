@@ -256,17 +256,16 @@ struct MainWindowPrivate
 
   void postInit()
   {
-    QString currentRepositoryPath = repositories.at(currentRepository);
-    for (auto repository : repositories)
+    selectedGitInterface->reload();
+
+    for (auto interface : gitInterfaces)
     {
-      if (repository != currentRepositoryPath) {
-        QSharedPointer<GitInterface> repoInterface = gitInterfaces.value(repository, nullptr);
-        QtConcurrent::run([repoInterface]{
-          repoInterface->reload();
+      if (interface != selectedGitInterface) {
+        QtConcurrent::run([interface]{
+          interface->reload();
         });
       }
     }
-    selectedGitInterface->reload();
   }
 
   void saveSettings(MainWindow *_this)
