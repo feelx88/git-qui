@@ -264,7 +264,9 @@ struct MainWindowPrivate
     {
       if (repository != currentRepositoryPath) {
         QSharedPointer<GitInterface> repoInterface = gitInterfaces.value(repository, nullptr);
-        repoInterface->reload();
+        QtConcurrent::run([repoInterface]{
+          repoInterface->reload();
+        });
       }
     }
     selectedGitInterface->reload();
