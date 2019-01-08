@@ -381,7 +381,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   int lineNoOld = -1;
   int lineNoNew = -1;
 
-  auto readLine = new std::function<QByteArray()>([&] {
+  auto readLine = std::function<QByteArray()>([&] {
     return _impl->foregroundProcess->readLine();
   });
 
@@ -398,7 +398,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
 
     file->reset();
 
-    readLine = new std::function<QByteArray()>([&] {
+    readLine = std::function<QByteArray()>([&] {
       QByteArray arr(file->readLine());
       if (arr.size() > 0)
       {
@@ -407,7 +407,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
       return arr;
     });
 
-    output = (*readLine)();
+    output = readLine();
   }
 
   QString header;
@@ -482,11 +482,10 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
       }
 
       list.append(line);
-      output = (*readLine)();
+      output = readLine();
     }
   }
 
-  delete readLine;
   emit fileDiffed(path, list, unstaged);
 }
 
