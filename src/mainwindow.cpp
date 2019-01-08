@@ -317,6 +317,7 @@ _impl(new MainWindowPrivate)
   _impl->populateMenu(this);
   _impl->restoreSettings(this);
   _impl->postInit();
+  emit repositorySwitched(_impl->selectedGitInterface);
 }
 
 MainWindow::~MainWindow()
