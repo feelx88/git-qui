@@ -1,10 +1,10 @@
 #include "commit.hpp"
 #include "ui_commit.h"
 
-#include <QMainWindow>
 #include <QShortcut>
 #include <QMessageBox>
 
+#include "mainwindow.hpp"
 #include "gitinterface.hpp"
 
 struct CommitPrivate
@@ -35,25 +35,35 @@ struct CommitPrivate
       _this->ui->pushButton_2->setEnabled(true);
     });
 
-    _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, _this, [=]{
-      gitInterface->revertLastCommit();
-    });
+    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      _this->disconnect(_this->ui->pushButton_2, &QPushButton::clicked, _this, nullptr);
+      _this->disconnect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, nullptr);
+      _this->disconnect(gitInterface.get(), &GitInterface::commited, _this, nullptr);
+      _this->disconnect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, nullptr);
+      _this->disconnect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, nullptr);
 
-    _this->connect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, [=](const QString &message){
-      _this->ui->plainTextEdit->setPlainText(message);
-      _this->ui->pushButton_2->setDisabled(true);
-    });
+      gitInterface = newGitInterface;
 
-    _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
-      _this->ui->plainTextEdit->clear();
-    });
+      _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, _this, [=]{
+        gitInterface->revertLastCommit();
+      });
 
-    _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, [=](const QList<GitFile> &list){
-      stagedFiles = list;
-    });
+      _this->connect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, [=](const QString &message){
+        _this->ui->plainTextEdit->setPlainText(message);
+        _this->ui->pushButton_2->setDisabled(true);
+      });
 
-    _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, [=](const QList<GitFile> &list){
-      unstagedFiles = list;
+      _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
+        _this->ui->plainTextEdit->clear();
+      });
+
+      _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, [=](const QList<GitFile> &list){
+        stagedFiles = list;
+      });
+
+      _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, [=](const QList<GitFile> &list){
+        unstagedFiles = list;
+      });
     });
 
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);

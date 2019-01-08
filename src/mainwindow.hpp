@@ -8,6 +8,7 @@ class MainWindow;
 }
 
 struct MainWindowPrivate;
+class GitInterface;
 
 class MainWindow : public QMainWindow
 {
@@ -22,10 +23,12 @@ public:
 public slots:
   void openRepository();
   void closeCurrentRepository();
+  void switchRepository(const QString &path);
 
 signals:
-  void repositoryAdded(const QString &path);
-  void repositoryRemoved(const QString &path);
+  void repositoryAdded(QSharedPointer<GitInterface> repository);
+  void repositoryRemoved(QSharedPointer<GitInterface> repository);
+  void repositorySwitched(QSharedPointer<GitInterface> repository);
 
 protected:
   void changeEvent(QEvent *);

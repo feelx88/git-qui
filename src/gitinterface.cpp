@@ -110,20 +110,19 @@ GitInterface::GitInterface(QObject *parent, const QString &path)
 
   _impl->connect();
 
-  switchRepository(path);
+  _impl->repositoryPath = path;
+  _impl->foregroundProcess->setWorkingDirectory(path);
+  _impl->backgroundProcess->setWorkingDirectory(path);
+  reload();
 }
 
 GitInterface::~GitInterface()
 {
 }
 
-void GitInterface::switchRepository(const QString &path)
+const QString GitInterface::path()
 {
-  _impl->repositoryPath = path;
-  _impl->foregroundProcess->setWorkingDirectory(path);
-  _impl->backgroundProcess->setWorkingDirectory(path);
-  emit repositorySwitched(path);
-  reload();
+  return _impl->repositoryPath.path();
 }
 
 void GitInterface::reload()
