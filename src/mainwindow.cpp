@@ -199,10 +199,7 @@ struct MainWindowPrivate
   void connectGitInterfaceSignals(MainWindow *_this, const QSharedPointer<GitInterface> &gitInterface)
   {
     _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
-      for (auto repository : repositories)
-      {
-        emit _this->repositoryAdded(gitInterfaces.value(repository, nullptr));
-      }
+      emit _this->repositoryAdded(gitInterfaces.value(gitInterface->path()));
     });
     _this->connect(gitInterface.get(), &GitInterface::pushed, _this, [=]{
       progressSpinner->hide();
