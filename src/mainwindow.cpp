@@ -180,19 +180,25 @@ struct MainWindowPrivate
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pushing...");
-      selectedGitInterface->push();
+      QtConcurrent::run([=]{
+        selectedGitInterface->push();
+      });
     });
     _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pulling...");
-      selectedGitInterface->pull(false);
+      QtConcurrent::run([=]{
+        selectedGitInterface->pull(false);
+      });
     });
     _this->connect(_this->ui->actionPull_Rebase, &QAction::triggered, _this, [=]{
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pulling...");
-      selectedGitInterface->pull(true);
+      QtConcurrent::run([=]{
+        selectedGitInterface->pull(true);
+      });
     });
   }
 
