@@ -125,12 +125,12 @@ void GitInterface::reload()
 void GitInterface::status()
 {
   auto process = _impl->git({
-    "status",
-    "--untracked=all",
-    "--porcelain=v1",
-    "-b",
-    "-z",
-  });
+                              "status",
+                              "--untracked=all",
+                              "--porcelain=v1",
+                              "-b",
+                              "-z",
+                            });
 
   QList<GitFile> unstaged, staged;
   QString branchName;
@@ -230,30 +230,30 @@ void GitInterface::log()
                              "%D"
                             });
 
-    QList<GitCommit> list;
+  QList<GitCommit> list;
 
-    for (auto line : QString(process->readAllStandardOutput()).split('\n'))
+  for (auto line : QString(process->readAllStandardOutput()).split('\n'))
+  {
+    if (line.isEmpty())
     {
-      if (line.isEmpty())
-      {
-        continue;
-      }
-
-      QList<QString> parts = line.split('\f');
-
-      GitCommit commit;
-      if (parts.length() > 1)
-      {
-        commit.id = parts.at(1);
-        commit.message = parts.at(2);
-        commit.author = parts.at(3);
-        commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
-      }
-      list.append(commit);
+      continue;
     }
 
-    emit logChanged(list);
+    QList<QString> parts = line.split('\f');
+
+    GitCommit commit;
+    if (parts.length() > 1)
+    {
+      commit.id = parts.at(1);
+      commit.message = parts.at(2);
+      commit.author = parts.at(3);
+      commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
+      commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
+    }
+    list.append(commit);
+  }
+
+  emit logChanged(list);
 }
 
 void GitInterface::commit(const QString &message)
@@ -496,10 +496,10 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 void GitInterface::push()
 {
   auto process = _impl->git({
-    "push",
-    "origin",
-    "HEAD"
-  });
+                              "push",
+                              "origin",
+                              "HEAD"
+                            });
 
   if (process->exitCode() != 0)
   {
@@ -540,19 +540,19 @@ void GitInterface::setFullFileDiff(bool fullFileDiff)
 void GitInterface::revertLastCommit()
 {
   auto process = _impl->git({
-    "log",
-    "--max-count=1",
-    "--pretty="
-    "%s"
-  });
+                              "log",
+                              "--max-count=1",
+                              "--pretty="
+                              "%s"
+                            });
 
   QString message = process->readAllStandardOutput();
 
   _impl->git({
-    "reset",
-    "--soft",
-    "HEAD^"
-  });
+               "reset",
+               "--soft",
+               "HEAD^"
+             });
 
   reload();
   emit lastCommitReverted(message);
