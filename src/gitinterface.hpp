@@ -7,10 +7,10 @@
 
 #include "gitfile.hpp"
 #include "gitdiffline.h"
+#include "gitcommit.hpp"
 
 class QDir;
 class QFile;
-class GitCommit;
 
 class GitInterfacePrivate;
 

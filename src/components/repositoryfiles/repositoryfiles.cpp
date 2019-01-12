@@ -1,9 +1,9 @@
 #include "repositoryfiles.hpp"
 #include "ui_repositoryfiles.h"
 
-#include "mainwindow.hpp"
 #include <QAction>
 
+#include "mainwindow.hpp"
 #include "repositoryfilesconfig.hpp"
 
 struct RepositoryFilesPrivate

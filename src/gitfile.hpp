@@ -2,7 +2,7 @@
 #define GITFILE_HPP
 
 #include <QString>
-#include <QList>
+#include <QMetaType>
 
 struct GitFile
 {

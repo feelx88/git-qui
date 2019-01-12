@@ -2,7 +2,6 @@
 #include "ui_logview.h"
 
 #include "mainwindow.hpp"
-
 #include "gitinterface.hpp"
 #include "gitcommit.hpp"
 
