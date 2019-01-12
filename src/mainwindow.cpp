@@ -314,6 +314,7 @@ ui(new Ui::MainWindow),
 _impl(new MainWindowPrivate)
 {
   ui->setupUi(this);
+  connect(ui->actionAbout_qt, &QAction::triggered, this, QApplication::aboutQt);
 
   _impl->initGit(this);
   _impl->connectSignals(this);

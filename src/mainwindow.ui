@@ -89,11 +89,18 @@
     <addaction name="separator"/>
     <addaction name="actionClose_current_repository"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_qt"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRepositories"/>
    <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
    <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionOpen_Repository">
    <property name="text">
@@ -166,6 +173,11 @@
   <action name="actionPull_Rebase">
    <property name="text">
     <string>Pull (&amp;Rebase)</string>
+   </property>
+  </action>
+  <action name="actionAbout_qt">
+   <property name="text">
+    <string>About qt...</string>
    </property>
   </action>
  </widget>
