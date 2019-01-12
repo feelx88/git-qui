@@ -313,11 +313,18 @@ _impl(new MainWindowPrivate)
 
   _impl->initGit(this);
   _impl->connectSignals(this);
+
   for (auto interface : _impl->gitInterfaces) {
     _impl->connectGitInterfaceSignals(this, interface);
   }
+
   _impl->populateMenu(this);
   _impl->restoreSettings(this);
+
+  for (auto interface : _impl->gitInterfaces) {
+    emit repositoryAdded(interface);
+  }
+
   _impl->postInit();
   emit repositorySwitched(_impl->selectedGitInterface);
 }
