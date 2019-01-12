@@ -231,7 +231,11 @@ struct MainWindowPrivate
     {
       QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=]{
         entry->initializer(_this, selectedGitInterface);
-        selectedGitInterface->reload();
+        emit _this->repositorySwitched(selectedGitInterface);
+        for (auto interface : gitInterfaces) {
+          emit _this->repositoryAdded(interface);
+          interface->reload();
+        }
       });
       action->setData(entry->id);
     }
