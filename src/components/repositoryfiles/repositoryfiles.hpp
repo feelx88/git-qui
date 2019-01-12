@@ -19,10 +19,11 @@ class RepositoryFiles : public DockWidget
   friend struct RepositoryFilesPrivate;
 
 public:
-  explicit RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface, bool unstaged);
+  explicit RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
   ~RepositoryFiles() override;
 
   virtual QVariant configuration() override;
+  virtual void configure(const QVariant &configuration) override;
 private:
   Ui::RepositoryFiles *ui;
   QScopedPointer<RepositoryFilesPrivate> _impl;

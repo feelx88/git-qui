@@ -69,23 +69,11 @@ struct RepositoryListPrivate
     _this->connect(_this->ui->pushButton, &QPushButton::clicked, static_cast<MainWindow*>(_this->parent()), &MainWindow::openRepository);
     _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, static_cast<MainWindow*>(_this->parent()), &MainWindow::closeCurrentRepository);
   }
-
-  static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
-  {
-    DockWidget::initialize(mainWindow, new RepositoryList(mainWindow, gitInterface));
-  }
-
-  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
-  {
-    DockWidget::restore(mainWindow, id, new RepositoryList(mainWindow, gitInterface));
-  }
 };
 
 DOCK_WIDGET_IMPL(
     RepositoryList,
-    tr("Repository list"),
-    &RepositoryListPrivate::initialize,
-    &RepositoryListPrivate::restore
+    tr("Repository list")
 )
 
 RepositoryList::RepositoryList(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :

@@ -230,7 +230,7 @@ struct MainWindowPrivate
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
       QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=]{
-        entry->initializer(_this, selectedGitInterface);
+        DockWidget::create(entry->id, _this, selectedGitInterface);
         emit _this->repositorySwitched(selectedGitInterface);
         for (auto interface : gitInterfaces) {
           emit _this->repositoryAdded(interface);

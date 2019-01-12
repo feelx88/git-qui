@@ -147,26 +147,11 @@ struct DiffViewPrivate
 
     _this->ui->treeWidget->addActions(QList<QAction*>() << stageOrUnstageSelected << resetSelected);
   }
-
-  static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
-  {
-    DockWidget::initialize(mainWindow, new DiffView(mainWindow, gitInterface));
-  }
-
-  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
-  {
-    QMap<QString, QVariant> config = configuration.toMap();
-    DiffView *diffView = new DiffView(mainWindow, gitInterface);
-    diffView->_impl->fullFileDiffAction->setChecked(config.value("fullFileDiff", false).toBool());
-    DockWidget::restore(mainWindow, id, diffView);
-  }
 };
 
 DOCK_WIDGET_IMPL(
     DiffView,
-    tr("Diff view"),
-    &DiffViewPrivate::initialize,
-    &DiffViewPrivate::restore
+    tr("Diff view")
 )
 
 DiffView::DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
@@ -194,4 +179,10 @@ QVariant DiffView::configuration()
   config.insert("fullFileDiff", _impl->fullFileDiffAction->isChecked());
 
   return config;
+}
+
+void DiffView::configure(const QVariant &configuration)
+{
+  auto map = configuration.toMap();
+  _impl->fullFileDiffAction->setChecked(map.value("fullFileDiff", false).toBool());
 }

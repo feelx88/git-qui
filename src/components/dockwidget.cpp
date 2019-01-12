@@ -4,11 +4,10 @@
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry*>> DockWidget::_registry;
 
-DockWidget::DockWidget(QWidget *parent, const QString &id) :
+DockWidget::DockWidget(QWidget *parent) :
 QDockWidget(parent)
 {
   setAttribute(Qt::WA_DeleteOnClose);
-  setObjectName(id);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -28,7 +27,10 @@ void DockWidget::create(QString className, QMainWindow *mainWindow, const QShare
 
   if (entry)
   {
-    entry->restorer(mainWindow, gitInterface, id, configuration);
+    DockWidget *widget = entry->factory(mainWindow, gitInterface);
+    mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
+    widget->setObjectName(id);
+    widget->configure(configuration);
   }
 }
 
@@ -37,21 +39,14 @@ QVariant DockWidget::configuration()
   return QVariant();
 }
 
+void DockWidget::configure(const QVariant &)
+{
+}
+
 bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
 {
   registry()->insert(entry->id, entry);
   return true;
-}
-
-void DockWidget::initialize(QMainWindow *mainWindow, DockWidget *widget)
-{
-  mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
-}
-
-void DockWidget::restore(QMainWindow *mainWindow, const QString &id, DockWidget *widget)
-{
-  widget->setObjectName(id);
-  mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
 }
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *> > DockWidget::registry()

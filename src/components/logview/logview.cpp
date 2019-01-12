@@ -36,31 +36,11 @@ struct LogViewPrivate
       });
     });
   }
-
-  static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
-  {
-    DockWidget::initialize(mainWindow, new LogView(mainWindow, gitInterface));
-  }
-
-  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
-  {
-    LogView *logView = new LogView(mainWindow, gitInterface);
-
-    QList<QVariant> widths = configuration.toList();
-    for (int x = 0; x < widths.size(); ++x)
-    {
-      logView->ui->treeWidget->setColumnWidth(x, widths.at(x).toInt());
-    }
-
-    DockWidget::restore(mainWindow, id, logView);
-  }
 };
 
 DOCK_WIDGET_IMPL(
     LogView,
-    tr("Log view"),
-    &LogViewPrivate::initialize,
-    &LogViewPrivate::restore
+    tr("Log view")
 )
 
 LogView::LogView(QWidget *parent, QSharedPointer<GitInterface> gitInterface) :
@@ -88,4 +68,13 @@ QVariant LogView::configuration()
   }
 
   return widths;
+}
+
+void LogView::configure(const QVariant &configuration)
+{
+  QList<QVariant> widths = configuration.toList();
+  for (int x = 0; x < widths.size(); ++x)
+  {
+    ui->treeWidget->setColumnWidth(x, widths.at(x).toInt());
+  }
 }

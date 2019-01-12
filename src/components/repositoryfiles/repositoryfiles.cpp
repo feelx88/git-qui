@@ -184,48 +184,21 @@ struct RepositoryFilesPrivate
           gitInterface->unstageFile(path);
       }
   }
-
-  static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
-  {
-    RepositoryFilesConfig config;
-    config.exec();
-
-    if (config.result() == QDialog::Accepted)
-    {
-      DockWidget::initialize(mainWindow, new RepositoryFiles(mainWindow, gitInterface, config.unstaged()));
-    }
-  }
-
-  static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
-  {
-    QMap<QString, QVariant> config = configuration.toMap();
-    RepositoryFiles *repositoryFiles = new RepositoryFiles(mainWindow, gitInterface, config.value("unstaged").toBool());
-    repositoryFiles->ui->stackedWidget->setCurrentIndex(config.value("selectedViewIndex", 0).toInt());
-    DockWidget::restore(mainWindow, id, repositoryFiles);
-  }
 };
 
 DOCK_WIDGET_IMPL(
   RepositoryFiles,
-  tr("Repository files"),
-  &RepositoryFilesPrivate::initialize,
-  &RepositoryFilesPrivate::restore
+  tr("Repository files")
 )
 
-RepositoryFiles::RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface, bool unstaged) :
+RepositoryFiles::RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
 DockWidget(parent),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)
 {
   ui->setupUi(this);
 
-  _impl->unstaged = unstaged;
-
   _impl->gitInterface = gitInterface;
-  _impl->connectSignals(this);
-  _impl->addContextMenuActions(this);
-
-  setWindowTitle(unstaged ? tr("Unstaged files") : tr("Staged files"));
 }
 
 RepositoryFiles::~RepositoryFiles()
@@ -239,4 +212,24 @@ QVariant RepositoryFiles::configuration()
   config.insert("unstaged", QVariant(_impl->unstaged));
   config.insert("selectedViewIndex", QVariant(ui->stackedWidget->currentIndex()));
   return QVariant(config);
+}
+
+void RepositoryFiles::configure(const QVariant &configuration)
+{
+  auto map = configuration.toMap();
+
+  if (map.empty())
+  {
+    RepositoryFilesConfig dialog;
+    dialog.exec();
+    map.insert("unstaged", dialog.unstaged());
+  }
+
+  _impl->unstaged = map.value("unstaged", true).toBool();
+  ui->stackedWidget->setCurrentIndex(map.value("selectedViewIndex", 0).toInt());
+
+  _impl->connectSignals(this);
+  _impl->addContextMenuActions(this);
+
+  setWindowTitle(_impl->unstaged ? tr("Unstaged files") : tr("Staged files"));
 }

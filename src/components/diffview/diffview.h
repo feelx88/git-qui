@@ -19,6 +19,7 @@ public:
   explicit DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
   ~DiffView() override;
   virtual QVariant configuration() override;
+  virtual void configure(const QVariant &configuration) override;
 
 private:
   Ui::DiffView *ui;

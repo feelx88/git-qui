@@ -18,11 +18,13 @@ class LogView : public DockWidget
 public:
   explicit LogView(QWidget *parent, QSharedPointer<GitInterface> gitInterface);
   ~LogView();
-  QVariant configuration();
+  virtual QVariant configuration() override;
+  virtual void configure(const QVariant &configuration) override;
 
 private:
   Ui::LogView *ui;
   QScopedPointer<LogViewPrivate> _impl;
+
 };
 
 #endif // LOGVIEW_HPP

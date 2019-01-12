@@ -21,6 +21,7 @@ public:
   explicit Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
   virtual ~Commit() override;
   virtual QVariant configuration() override;
+  virtual void configure(const QVariant &configuration) override;
 
 private:
   Ui::Commit *ui;

@@ -69,25 +69,11 @@ struct CommitPrivate
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);
     _this->connect(shortcut, &QShortcut::activated, _this->ui->pushButton, &QPushButton::click);
   }
-
-  static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
-  {
-    DockWidget::initialize(mainWindow, new Commit(mainWindow, gitInterface));
-  }
-
-  static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
-  {
-    Commit *commit = new Commit(mainWindow, gitInterface);
-    commit->ui->plainTextEdit->setPlainText(configuration.toString());
-    DockWidget::restore(mainWindow, id, commit);
-  }
 };
 
 DOCK_WIDGET_IMPL(
   Commit,
-  tr("Commit editor"),
-  &CommitPrivate::initialize,
-  &CommitPrivate::restore
+  tr("Commit editor")
 )
 
 Commit::Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
@@ -108,5 +94,10 @@ Commit::~Commit()
 
 QVariant Commit::configuration()
 {
-    return QVariant(ui->plainTextEdit->toPlainText());
+  return QVariant(ui->plainTextEdit->toPlainText());
+}
+
+void Commit::configure(const QVariant &configuration)
+{
+  ui->plainTextEdit->setPlainText(configuration.toString());
 }
