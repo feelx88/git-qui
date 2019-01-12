@@ -11,30 +11,29 @@ class GitInterfacePrivate
 {
 public:
   QDir repositoryPath;
-  QProcess *foregroundProcess, *backgroundProcess;
   bool readyForCommit = false;
   bool fullFileDiff = false;
 
-  void connect()
+  QSharedPointer<QProcess> git(const QList<QString> &params)
   {
+    QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
+
     auto logger = [=](int){
-      auto output = foregroundProcess->readAllStandardError();
+      auto output = process->readAllStandardError();
       if (!output.isEmpty())
       {
         qDebug() << output;
       }
     };
-    QObject::connect(foregroundProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), foregroundProcess, logger);
-    QObject::connect(backgroundProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), backgroundProcess, logger);
-  }
+    process->connect(process.get(), static_cast<void(QProcess::*)(int)>(&QProcess::finished), process.get(), logger);
 
-  void callAsyncSingle(QProcess *process, std::function<void(int)> lambda)
-  {
-    QObject *context = new QObject;
-    process->connect(process, static_cast<void(QProcess::*)(int)>(&QProcess::finished), context, [=](int exitCode){
-      lambda(exitCode);
-      delete context;
-    });
+    process->setWorkingDirectory(repositoryPath.path());
+    process->setProgram("git");
+    process->setArguments(params);
+    process->start();
+    process->waitForFinished();
+
+    return process;
   }
 
   QString createPatch(const QList<GitDiffLine> &lines)
@@ -103,35 +102,21 @@ GitInterface::GitInterface(QObject *parent, const QString &path)
   : QObject(parent),
     _impl(new GitInterfacePrivate)
 {
-  _impl->foregroundProcess = new QProcess(this);
-  _impl->foregroundProcess->setProgram("git");
-  _impl->backgroundProcess = new QProcess(this);
-  _impl->backgroundProcess->setProgram("git");
-
-  _impl->connect();
-
-  switchRepository(path);
+  _impl->repositoryPath = path;
+  reload();
 }
 
 GitInterface::~GitInterface()
 {
 }
 
-void GitInterface::switchRepository(const QString &path)
+const QString GitInterface::path()
 {
-  _impl->repositoryPath = path;
-  _impl->foregroundProcess->setWorkingDirectory(path);
-  _impl->backgroundProcess->setWorkingDirectory(path);
-  emit repositorySwitched(path);
-  reload();
+  return _impl->repositoryPath.path();
 }
 
 void GitInterface::reload()
 {
-  if (_impl->foregroundProcess->state() == QProcess::Running)
-  {
-    return;
-  }
   status();
   log();
   emit reloaded();
@@ -139,23 +124,20 @@ void GitInterface::reload()
 
 void GitInterface::status()
 {
-  _impl->foregroundProcess->setArguments({
-    "status",
-    "--untracked=all",
-    "--porcelain=v1",
-    "-b",
-    "-z",
-  });
-
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
+  auto process = _impl->git({
+                              "status",
+                              "--untracked=all",
+                              "--porcelain=v1",
+                              "-b",
+                              "-z",
+                            });
 
   QList<GitFile> unstaged, staged;
   QString branchName;
   bool hasUpstream = false;
   int commitsAhead = 0, commitsBehind = 0;
 
-  for(auto output : _impl->foregroundProcess->readAll().split('\0'))
+  for(auto output : process->readAll().split('\0'))
   {
     if(output.isEmpty() || !output.contains(' '))
     {
@@ -232,49 +214,46 @@ void GitInterface::status()
 
 void GitInterface::log()
 {
-  _impl->foregroundProcess->setArguments({"log",
-                                  "--all",
-                                  "--full-history",
-                                  "--pretty="
-                                  "%x0c"
-                                  "%h"
-                                  "%x0c"
-                                  "%s"
-                                  "%x0c"
-                                  "%an"
-                                  "%x0c"
-                                  "%ct"
-                                  "%x0c"
-                                  "%D"
-                                 });
-    _impl->foregroundProcess->start(QIODevice::ReadOnly);
-    _impl->foregroundProcess->waitForFinished();
+  auto process = _impl->git({"log",
+                             "--all",
+                             "--full-history",
+                             "--pretty="
+                             "%x0c"
+                             "%h"
+                             "%x0c"
+                             "%s"
+                             "%x0c"
+                             "%an"
+                             "%x0c"
+                             "%ct"
+                             "%x0c"
+                             "%D"
+                            });
 
-    QList<GitCommit> list;
-    QHash<QString, GitCommit*> map;
+  QList<GitCommit> list;
 
-    for (auto line : QString(_impl->foregroundProcess->readAllStandardOutput()).split('\n'))
+  for (auto line : QString(process->readAllStandardOutput()).split('\n'))
+  {
+    if (line.isEmpty())
     {
-      if (line.isEmpty())
-      {
-        continue;
-      }
-
-      QList<QString> parts = line.split('\f');
-
-      GitCommit commit;
-      if (parts.length() > 1)
-      {
-        commit.id = parts.at(1);
-        commit.message = parts.at(2);
-        commit.author = parts.at(3);
-        commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
-      }
-      list.append(commit);
+      continue;
     }
 
-    emit logChanged(list);
+    QList<QString> parts = line.split('\f');
+
+    GitCommit commit;
+    if (parts.length() > 1)
+    {
+      commit.id = parts.at(1);
+      commit.message = parts.at(2);
+      commit.author = parts.at(3);
+      commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
+      commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
+    }
+    list.append(commit);
+  }
+
+  emit logChanged(list);
 }
 
 void GitInterface::commit(const QString &message)
@@ -285,32 +264,23 @@ void GitInterface::commit(const QString &message)
     return;
   }
 
-  _impl->foregroundProcess->setArguments({"commit",
-                                  "--message",
-                                  message,
-                                 });
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
-
+  auto process = _impl->git({"commit",
+                             "--message",
+                             message,
+                            });
   reload();
   emit commited();
 }
 
 void GitInterface::stageFile(const QString &path)
 {
-  _impl->foregroundProcess->setArguments({"add", path});
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
-
+  _impl->git({"add", path});
   status();
 }
 
 void GitInterface::unstageFile(const QString &path)
 {
-  _impl->foregroundProcess->setArguments({"reset", "HEAD", path});
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
-
+  _impl->git({"reset", "HEAD", path});
   status();
 }
 
@@ -351,31 +321,30 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   }
 
   QList<GitDiffLine> list;
+  QSharedPointer<QProcess> process;
 
   if(unstaged)
   {
-    _impl->foregroundProcess->setArguments({
-      "diff",
-      _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
-      "--",
-      path
-    });
+    process = _impl->git({
+                           "diff",
+                           _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+                           "--",
+                           path
+                         });
   }
   else
   {
-    _impl->foregroundProcess->setArguments({
-      "diff",
-      _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
-      "HEAD",
-      "--cached",
-      "--",
-      path
-    });
+    process = _impl->git({
+                           "diff",
+                           _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+                           "HEAD",
+                           "--cached",
+                           "--",
+                           path
+                         });
   }
-  _impl->foregroundProcess->start(QIODevice::ReadOnly);
-  _impl->foregroundProcess->waitForFinished();
 
-  QByteArray output = _impl->foregroundProcess->readLine();
+  QByteArray output = process->readLine();
   QRegExp regex("@* \\-(\\d+),.* \\+(\\d+),.*");
   QStringList lineNos;
   int index = 0;
@@ -383,8 +352,8 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   int lineNoOld = -1;
   int lineNoNew = -1;
 
-  auto readLine = new std::function<QByteArray()>([&] {
-    return _impl->foregroundProcess->readLine();
+  auto readLine = std::function<QByteArray()>([&] {
+    return process->readLine();
   });
 
   if(output.length() == 0)
@@ -400,7 +369,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
 
     file->reset();
 
-    readLine = new std::function<QByteArray()>([&] {
+    readLine = std::function<QByteArray()>([&] {
       QByteArray arr(file->readLine());
       if (arr.size() > 0)
       {
@@ -409,7 +378,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
       return arr;
     });
 
-    output = (*readLine)();
+    output = readLine();
   }
 
   QString header;
@@ -484,11 +453,10 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
       }
 
       list.append(line);
-      output = (*readLine)();
+      output = readLine();
     }
   }
 
-  delete readLine;
   emit fileDiffed(path, list, unstaged);
 }
 
@@ -503,47 +471,45 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 
   qDebug().noquote() << patch;
 
+  QProcess process;
+
   if(unstage)
   {
-    _impl->foregroundProcess->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"});
+    process.setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"});
   }
   else
   {
-    _impl->foregroundProcess->setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"});
+    process.setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"});
   }
 
 
   std::string stdPatch = patch.toStdString();
-  _impl->foregroundProcess->start(QIODevice::ReadWrite);
-  _impl->foregroundProcess->waitForStarted();
-  _impl->foregroundProcess->write(stdPatch.data(), stdPatch.length());
-  _impl->foregroundProcess->closeWriteChannel();
-  _impl->foregroundProcess->waitForFinished();
+  process.start(QIODevice::ReadWrite);
+  process.waitForStarted();
+  process.write(stdPatch.data(), stdPatch.length());
+  process.closeWriteChannel();
+  process.waitForFinished();
 
   status();
 }
 
 void GitInterface::push()
 {
-  _impl->backgroundProcess->setArguments({
-    "push",
-    "origin",
-    "HEAD"
-  });
-  _impl->backgroundProcess->start();
+  auto process = _impl->git({
+                              "push",
+                              "origin",
+                              "HEAD"
+                            });
 
-  _impl->callAsyncSingle(_impl->backgroundProcess, [=](int exitCode){
-    if (exitCode != 0)
-    {
-      emit error(tr("Push has failed"));
-    }
-    else
-    {
-      status();
-      emit pushed();
-    }
-  });
-
+  if (process->exitCode() != 0)
+  {
+    emit error(tr("Push has failed"));
+  }
+  else
+  {
+    status();
+    emit pushed();
+  }
 }
 
 void GitInterface::pull(bool rebase)
@@ -553,20 +519,17 @@ void GitInterface::pull(bool rebase)
   {
     arguments << "--rebase";
   }
-  _impl->backgroundProcess->setArguments(arguments);
-  _impl->backgroundProcess->start();
+  auto process = _impl->git(arguments);
 
-  _impl->callAsyncSingle(_impl->backgroundProcess, [=](int exitCode){
-    if (exitCode != 0)
-    {
-      emit error(tr("Pull has failed"));
-    }
-    else
-    {
-      status();
-      emit pulled();
-    }
-  });
+  if (process->exitCode() != 0)
+  {
+    emit error(tr("Pull has failed"));
+  }
+  else
+  {
+    status();
+    emit pulled();
+  }
 }
 
 void GitInterface::setFullFileDiff(bool fullFileDiff)
@@ -576,23 +539,20 @@ void GitInterface::setFullFileDiff(bool fullFileDiff)
 
 void GitInterface::revertLastCommit()
 {
-  _impl->foregroundProcess->setArguments({
-    "log",
-    "--max-count=1",
-    "--pretty="
-    "%s"
-  });
-  _impl->foregroundProcess->start();
-  _impl->foregroundProcess->waitForFinished();
-  QString message = _impl->foregroundProcess->readAllStandardOutput();
+  auto process = _impl->git({
+                              "log",
+                              "--max-count=1",
+                              "--pretty="
+                              "%s"
+                            });
 
-  _impl->foregroundProcess->setArguments({
-    "reset",
-    "--soft",
-    "HEAD^"
-  });
-  _impl->foregroundProcess->start();
-  _impl->foregroundProcess->waitForFinished();
+  QString message = process->readAllStandardOutput();
+
+  _impl->git({
+               "reset",
+               "--soft",
+               "HEAD^"
+             });
 
   reload();
   emit lastCommitReverted(message);
@@ -608,24 +568,23 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
   QString patch = _impl->createPatch(lines);
 
   qDebug().noquote() << patch;
+  QProcess process;
 
-  _impl->foregroundProcess->setArguments({"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"});
+  process.setArguments({"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"});
 
   std::string stdPatch = patch.toStdString();
-  _impl->foregroundProcess->start(QIODevice::ReadWrite);
-  _impl->foregroundProcess->waitForStarted();
-  _impl->foregroundProcess->write(stdPatch.data(), stdPatch.length());
-  _impl->foregroundProcess->closeWriteChannel();
-  _impl->foregroundProcess->waitForFinished();
+  process.start(QIODevice::ReadWrite);
+  process.waitForStarted();
+  process.write(stdPatch.data(), stdPatch.length());
+  process.closeWriteChannel();
+  process.waitForFinished();
 
   status();
 }
 
 void GitInterface::checkoutPath(const QString &path)
 {
-  _impl->foregroundProcess->setArguments({"checkout", "--", path});
-  _impl->foregroundProcess->start();
-  _impl->foregroundProcess->waitForFinished();
+  _impl->git({"checkout", "--", path});
 
   status();
 }

@@ -7,10 +7,10 @@
 
 #include "gitfile.hpp"
 #include "gitdiffline.h"
+#include "gitcommit.hpp"
 
 class QDir;
 class QFile;
-class GitCommit;
 
 class GitInterfacePrivate;
 
@@ -20,8 +20,10 @@ class GitInterface : public QObject
 public:
   GitInterface(QObject *parent, const QString &path);
   virtual ~GitInterface();
+
+  const QString path();
+
 public slots:
-  void switchRepository(const QString &path);
   void reload();
   void status();
   void log();
@@ -45,7 +47,6 @@ signals:
   void commited();
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
-  void repositorySwitched(const QString &path);
   void reloaded();
   void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream, int behindRemote, int aheadRemote);
   void pushed();

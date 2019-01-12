@@ -1,15 +1,12 @@
 #include "logview.hpp"
 #include "ui_logview.h"
 
-#include <QMainWindow>
-
+#include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "gitcommit.hpp"
 
 struct LogViewPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
-
   void connectSignals(LogView *_this)
   {
     _this->ui->treeWidget->setHeaderLabels({
@@ -18,22 +15,25 @@ struct LogViewPrivate
       _this->tr("Author"),
       _this->tr("Date"),
     });
-    _this->connect(gitInterface.get(), &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
-      _this->ui->treeWidget->clear();
-      for (GitCommit commit : commits)
-      {
-        QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
-        item->setText(0, commit.id);
-        item->setText(1, commit.branches.empty() ? commit.message : QString("[%1] %2").arg(commit.branches.join(", "), commit.message));
-        item->setText(2, commit.author);
-        item->setText(3, commit.date.toString());
 
-        _this->ui->treeWidget->addTopLevelItem(item);
-      }
+    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      _this->connect(newGitInterface.get(), &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
+        _this->ui->treeWidget->clear();
+        for (GitCommit commit : commits)
+        {
+          QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
+          item->setText(0, commit.id);
+          item->setText(1, commit.branches.empty() ? commit.message : QString("[%1] %2").arg(commit.branches.join(", "), commit.message));
+          item->setText(2, commit.author);
+          item->setText(3, commit.date.toString());
 
-      _this->ui->treeWidget->resizeColumnToContents(0);
-      _this->ui->treeWidget->resizeColumnToContents(2);
-      _this->ui->treeWidget->resizeColumnToContents(3);
+          _this->ui->treeWidget->addTopLevelItem(item);
+        }
+
+        _this->ui->treeWidget->resizeColumnToContents(0);
+        _this->ui->treeWidget->resizeColumnToContents(2);
+        _this->ui->treeWidget->resizeColumnToContents(3);
+      });
     });
   }
 
@@ -70,7 +70,6 @@ _impl(new LogViewPrivate)
 {
   ui->setupUi(this);
 
-  _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
 }
 

@@ -5,35 +5,54 @@
 
 struct RepositoryListPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
   QString currentRepository;
 
   void connectSignals(RepositoryList *_this)
   {
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryAdded, _this, [=](const QString &path){
-      QString directory = path.split('/').last();
+    MainWindow *mainWindow = static_cast<MainWindow*>(_this->parent());
+
+    _this->connect(mainWindow, &MainWindow::repositoryAdded, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      QString directory = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
       if (items.isEmpty())
       {
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
         item->setText(0, directory);
-        item->setData(0, Qt::UserRole, path);
+        item->setData(0, Qt::UserRole, newGitInterface->path());
         item->setTextAlignment(1, Qt::AlignRight);
         _this->ui->treeWidget->addTopLevelItem(item);
       }
+
+      _this->connect(newGitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
+        if (!items.isEmpty())
+        {
+          auto item = items.first();
+          if (hasUpstream)
+          {
+            item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
+          }
+          else
+          {
+            item->setText(1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
+          }
+          _this->ui->treeWidget->resizeColumnToContents(1);
+        }
+      });
     });
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositoryRemoved, _this, [=](const QString &path){
-      auto items = _this->ui->treeWidget->findItems(path.split('/').last(), Qt::MatchCaseSensitive, 0);
+    _this->connect(mainWindow, &MainWindow::repositoryRemoved, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
         delete items.first();
       }
+
+      _this->disconnect(newGitInterface.get(), &GitInterface::branchChanged, _this, nullptr);
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
-      currentRepository = path.split('/').last();
+    _this->connect(mainWindow, &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      currentRepository = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
@@ -41,27 +60,10 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
-      auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
-      if (!items.isEmpty())
-      {
-        auto item = items.first();
-        if (hasUpstream)
-        {
-          item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
-        }
-        else
-        {
-          item->setText(1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
-        }
-        _this->ui->treeWidget->resizeColumnToContents(1);
-      }
-    });
-
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->treeWidget->currentItem())
       {
-        gitInterface->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+        mainWindow->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
       }
     });
 
@@ -96,7 +98,6 @@ RepositoryList::RepositoryList(QWidget *parent, const QSharedPointer<GitInterfac
 {
   ui->setupUi(this);
 
-  _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
 
   ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);

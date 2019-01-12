@@ -12,15 +12,19 @@
 #include <QProcess>
 #include <QLabel>
 #include <QMovie>
+#include <QMap>
+#include <QtConcurrent/QtConcurrent>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
 
 struct MainWindowPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
+  QSharedPointer<GitInterface> selectedGitInterface;
+  QMap<QString, QSharedPointer<GitInterface>> gitInterfaces;
   QList<QString> repositories;
   int currentRepository = 0;
+  QLabel *progressSpinner;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -48,12 +52,13 @@ struct MainWindowPrivate
     {
       for (auto repository : repositories)
       {
+        gitInterfaces.insert(repository, QSharedPointer<GitInterface>(new GitInterface(_this, repository)));
         addRepositoryMenuEntry(_this, repository);
       }
     }
 
     currentRepository = std::min(settings.value(CONFIG_CURRENT_REPOSITORY, 0).toInt(), repositories.size() - 1);
-    gitInterface.reset(new GitInterface(_this, repositories.at(currentRepository)));
+    selectedGitInterface = gitInterfaces.value(repositories.at(currentRepository), nullptr);
   }
 
   bool selectRepository(MainWindow *_this)
@@ -66,9 +71,10 @@ struct MainWindowPrivate
     if (dialog.result() == QFileDialog::Accepted)
     {
       QString path = dialog.directory().absolutePath();
+      auto inserted = gitInterfaces.insert(path, QSharedPointer<GitInterface>(new GitInterface(_this, path)));
       repositories.append(path);
       addRepositoryMenuEntry(_this, path);
-      emit _this->repositoryAdded(path);
+      emit _this->repositoryAdded(inserted.value());
       return true;
     }
 
@@ -78,7 +84,7 @@ struct MainWindowPrivate
   void addRepositoryMenuEntry(MainWindow *_this, const QString &path)
   {
     _this->ui->menuRepositories->addAction(path, _this, [=]{
-      gitInterface->switchRepository(path);
+      selectedGitInterface = gitInterfaces.value(path, nullptr);
       currentRepository = repositories.indexOf(path);
     });
   }
@@ -88,7 +94,8 @@ struct MainWindowPrivate
     QString path = repositories.at(currentRepository);
     _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
     repositories.removeAt(currentRepository);
-    emit _this->repositoryRemoved(path);
+    emit _this->repositoryRemoved(gitInterfaces.value(path, nullptr));
+    gitInterfaces.remove(path);
 
     if (repositories.empty())
     {
@@ -104,7 +111,7 @@ struct MainWindowPrivate
     }
 
     currentRepository = 0;
-    gitInterface->switchRepository(repositories.at(0));
+    selectedGitInterface = gitInterfaces.value(repositories.first(), nullptr);
   }
 
   void connectSignals(MainWindow *_this)
@@ -126,7 +133,7 @@ struct MainWindowPrivate
     });
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [this]{
-      gitInterface->reload();
+      selectedGitInterface->reload();
     });
 
     _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, _this, [=]{
@@ -136,35 +143,23 @@ struct MainWindowPrivate
       closeCurrentRepository(_this);
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
-      for (auto repository : repositories)
-      {
-        emit _this->repositoryAdded(repository);
-      }
-    });
-
-    _this->connect(gitInterface.get(), &GitInterface::repositorySwitched, _this, [=](const QString &path){
-      currentRepository = repositories.indexOf(path);
-      _this->setWindowTitle(QString("MainWindow - %1").arg(path));
-    });
-
     _this->connect(_this->ui->actionStart_git_gui_for_current_repository, &QAction::triggered, _this, [=]{
-        QProcess *process = new QProcess(_this);
-        process->setProgram("git");
-        process->setArguments({"gui"});
-        process->setWorkingDirectory(repositories.at(currentRepository));
-        process->startDetached();
-      });
+      QProcess *process = new QProcess(_this);
+      process->setProgram("git");
+      process->setArguments({"gui"});
+      process->setWorkingDirectory(repositories.at(currentRepository));
+      process->startDetached();
+    });
 
     _this->connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
-        QProcess *process = new QProcess(_this);
-        process->setProgram("gitk");
-        process->setArguments({"--all"});
-        process->setWorkingDirectory(repositories.at(currentRepository));
-        process->startDetached();
-      });
+      QProcess *process = new QProcess(_this);
+      process->setProgram("gitk");
+      process->setArguments({"--all"});
+      process->setWorkingDirectory(repositories.at(currentRepository));
+      process->startDetached();
+    });
 
-    QLabel *progressSpinner = new QLabel(_this);
+    progressSpinner = new QLabel(_this);
     QMovie *movie = new QMovie(QDir::currentPath() + "/loading.gif", QByteArray(), _this);
     progressSpinner->hide();
     movie->start();
@@ -173,11 +168,6 @@ struct MainWindowPrivate
     _this->statusBar()->setSizeGripEnabled(false);
     _this->statusBar()->hide();
 
-    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
-      progressSpinner->hide();
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage(message, 3000);
-    });
     _this->connect(_this->statusBar(), &QStatusBar::messageChanged, _this, [=](const QString &message){
       if (message.isEmpty())
       {
@@ -190,19 +180,32 @@ struct MainWindowPrivate
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pushing...");
-      gitInterface->push();
+      QtConcurrent::run([=]{
+        selectedGitInterface->push();
+      });
     });
     _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pulling...");
-      gitInterface->pull(false);
+      QtConcurrent::run([=]{
+        selectedGitInterface->pull(false);
+      });
     });
     _this->connect(_this->ui->actionPull_Rebase, &QAction::triggered, _this, [=]{
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pulling...");
-      gitInterface->pull(true);
+      QtConcurrent::run([=]{
+        selectedGitInterface->pull(true);
+      });
+    });
+  }
+
+  void connectGitInterfaceSignals(MainWindow *_this, const QSharedPointer<GitInterface> &gitInterface)
+  {
+    _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
+      emit _this->repositoryAdded(gitInterfaces.value(gitInterface->path()));
     });
     _this->connect(gitInterface.get(), &GitInterface::pushed, _this, [=]{
       progressSpinner->hide();
@@ -214,6 +217,12 @@ struct MainWindowPrivate
       _this->statusBar()->showMessage(_this->tr("Pulled succesfully"), 3000);
       gitInterface->log();
     });
+
+    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
+      progressSpinner->hide();
+      _this->statusBar()->show();
+      _this->statusBar()->showMessage(message, 3000);
+    });
   }
 
   void populateMenu(MainWindow *_this)
@@ -221,8 +230,8 @@ struct MainWindowPrivate
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
       QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=]{
-        entry->initializer(_this, gitInterface);
-        gitInterface->reload();
+        entry->initializer(_this, selectedGitInterface);
+        selectedGitInterface->reload();
       });
       action->setData(entry->id);
     }
@@ -242,7 +251,7 @@ struct MainWindowPrivate
       DockWidget::create(
         config.value(CONFIG_DW_CLASS).toString(),
         _this,
-        gitInterface,
+        selectedGitInterface,
         config.value(CONFIG_DW_ID).toString(),
         config.value(CONFIG_DW_CONFIGURATION)
       );
@@ -253,12 +262,16 @@ struct MainWindowPrivate
 
   void postInit()
   {
-    QString currentRepositoryPath = repositories.at(currentRepository);
-    for (auto repository : repositories)
+    selectedGitInterface->reload();
+
+    for (auto interface : gitInterfaces)
     {
-      gitInterface->switchRepository(repository);
+      if (interface != selectedGitInterface) {
+        QtConcurrent::run([interface]{
+          interface->reload();
+        });
+      }
     }
-    gitInterface->switchRepository(currentRepositoryPath);
   }
 
   void saveSettings(MainWindow *_this)
@@ -300,14 +313,31 @@ _impl(new MainWindowPrivate)
 
   _impl->initGit(this);
   _impl->connectSignals(this);
+
+  for (auto interface : _impl->gitInterfaces) {
+    _impl->connectGitInterfaceSignals(this, interface);
+  }
+
   _impl->populateMenu(this);
   _impl->restoreSettings(this);
+
+  for (auto interface : _impl->gitInterfaces) {
+    emit repositoryAdded(interface);
+  }
+
   _impl->postInit();
+  emit repositorySwitched(_impl->selectedGitInterface);
 }
 
 MainWindow::~MainWindow()
 {
   _impl->saveSettings(this);
+
+  for (auto interface : _impl->gitInterfaces)
+  {
+    interface->disconnect(nullptr, this);
+  }
+
   delete ui;
 }
 
@@ -319,6 +349,14 @@ void MainWindow::openRepository()
 void MainWindow::closeCurrentRepository()
 {
   _impl->closeCurrentRepository(this);
+}
+
+void MainWindow::switchRepository(const QString &path)
+{
+  _impl->currentRepository = _impl->repositories.indexOf(path);
+  _impl->selectedGitInterface = _impl->gitInterfaces.value(path, nullptr);
+  emit repositorySwitched(_impl->selectedGitInterface);
+  _impl->selectedGitInterface->reload();
 }
 
 void MainWindow::changeEvent(QEvent *ev)

@@ -1,9 +1,9 @@
 #include "repositoryfiles.hpp"
 #include "ui_repositoryfiles.h"
 
-#include <QMainWindow>
 #include <QAction>
 
+#include "mainwindow.hpp"
 #include "repositoryfilesconfig.hpp"
 
 struct RepositoryFilesPrivate
@@ -28,65 +28,73 @@ struct RepositoryFilesPrivate
     });
 
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
-    _this->connect(gitInterface.get(), signal, _this, [_this](const QList<GitFile> &files){
-      _this->ui->listWidget->clear();
-      _this->ui->treeWidget->clear();
-      for(auto file: files)
-      {
-        _this->ui->listWidget->addItem(file.path);
 
-        QList<QString> parts = file.path.split('/');
+    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+      _this->disconnect(gitInterface.get(), signal, _this, nullptr);
+      _this->disconnect(gitInterface.get(), &GitInterface::fileSelected, _this, nullptr);
 
-        int index = parts.size() - 1;
-        QTreeWidgetItem *topLevelItem = nullptr;
-        for (; index >= 0; --index)
+      gitInterface = newGitInterface;
+
+      _this->connect(gitInterface.get(), signal, _this, [_this](const QList<GitFile> &files){
+        _this->ui->listWidget->clear();
+        _this->ui->treeWidget->clear();
+        for(auto file: files)
         {
-          QList<QTreeWidgetItem*> result = _this->ui->treeWidget->findItems(parts.at(index), Qt::MatchCaseSensitive | Qt::MatchRecursive);
-          if (!result.empty())
+          _this->ui->listWidget->addItem(file.path);
+
+          QList<QString> parts = file.path.split('/');
+
+          int index = parts.size() - 1;
+          QTreeWidgetItem *topLevelItem = nullptr;
+          for (; index >= 0; --index)
           {
-            topLevelItem = result.first();
-            index++;
-            break;
+            QList<QTreeWidgetItem*> result = _this->ui->treeWidget->findItems(parts.at(index), Qt::MatchCaseSensitive | Qt::MatchRecursive);
+            if (!result.empty())
+            {
+              topLevelItem = result.first();
+              index++;
+              break;
+            }
+          }
+
+          if (!topLevelItem)
+          {
+            topLevelItem = new QTreeWidgetItem(_this->ui->treeWidget);
+            topLevelItem->setText(0, parts.at(0));
+            topLevelItem->setData(0, Qt::UserRole, parts.at(0));
+            index = 1;
+            _this->ui->treeWidget->addTopLevelItem(topLevelItem);
+          }
+
+          for (; index < parts.size(); ++index)
+          {
+            QTreeWidgetItem *child = new QTreeWidgetItem(topLevelItem);
+            child->setText(0, parts.at(index));
+
+            child->setData(0, Qt::UserRole, index == parts.size() ? parts.at(index) : parts.mid(0, index + 1).join('/'));
+
+            topLevelItem->addChild(child);
+            topLevelItem = child;
           }
         }
 
-        if (!topLevelItem)
+        _this->ui->treeWidget->expandAll();
+      });
+
+      _this->connect(gitInterface.get(), &GitInterface::fileSelected, _this, [=](bool unstaged, const QString &path){
+        if (unstaged != this->unstaged)
         {
-          topLevelItem = new QTreeWidgetItem(_this->ui->treeWidget);
-          topLevelItem->setText(0, parts.at(0));
-          topLevelItem->setData(0, Qt::UserRole, parts.at(0));
-          index = 1;
-          _this->ui->treeWidget->addTopLevelItem(topLevelItem);
+          _this->ui->listWidget->setCurrentItem(nullptr);
+          _this->ui->treeWidget->setCurrentItem(nullptr);
+          return;
         }
 
-        for (; index < parts.size(); ++index)
-        {
-          QTreeWidgetItem *child = new QTreeWidgetItem(topLevelItem);
-          child->setText(0, parts.at(index));
+        QList<QListWidgetItem*> listItems = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
+        _this->ui->listWidget->setCurrentItem(listItems.empty() ? nullptr : listItems.first());
 
-          child->setData(0, Qt::UserRole, index == parts.size() ? parts.at(index) : parts.mid(0, index + 1).join('/'));
-
-          topLevelItem->addChild(child);
-          topLevelItem = child;
-        }
-      }
-
-      _this->ui->treeWidget->expandAll();
-    });
-
-    _this->connect(gitInterface.get(), &GitInterface::fileSelected, _this, [=](bool unstaged, const QString &path){
-      if (unstaged != this->unstaged)
-      {
-        _this->ui->listWidget->setCurrentItem(nullptr);
-        _this->ui->treeWidget->setCurrentItem(nullptr);
-        return;
-      }
-
-      QList<QListWidgetItem*> listItems = _this->ui->listWidget->findItems(path, Qt::MatchCaseSensitive);
-      _this->ui->listWidget->setCurrentItem(listItems.empty() ? nullptr : listItems.first());
-
-      QList<QTreeWidgetItem*> treeItems = _this->ui->treeWidget->findItems(path.split('/').last(), Qt::MatchCaseSensitive | Qt::MatchRecursive);
-      _this->ui->treeWidget->setCurrentItem(treeItems.empty() ? nullptr : treeItems.first());
+        QList<QTreeWidgetItem*> treeItems = _this->ui->treeWidget->findItems(path.split('/').last(), Qt::MatchCaseSensitive | Qt::MatchRecursive);
+        _this->ui->treeWidget->setCurrentItem(treeItems.empty() ? nullptr : treeItems.first());
+      });
     });
 
     _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, _this, [=]{
@@ -119,7 +127,7 @@ struct RepositoryFilesPrivate
   void addContextMenuActions(RepositoryFiles *_this)
   {
       QList<QAction*> actions;
-      QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"));
+      QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"), _this);
       _this->connect(stageOrUnstageAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
@@ -137,7 +145,7 @@ struct RepositoryFilesPrivate
         }
       });
 
-      QAction *checkoutAction = new QAction(_this->tr("Reset file"));
+      QAction *checkoutAction = new QAction(_this->tr("Reset file"), _this);
       _this->connect(checkoutAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
