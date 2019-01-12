@@ -8,6 +8,7 @@
 #include "gitfile.hpp"
 #include "gitdiffline.h"
 #include "gitcommit.hpp"
+#include "gitbranch.hpp"
 
 class QDir;
 class QFile;
@@ -52,6 +53,7 @@ signals:
   void pushed();
   void pulled();
   void lastCommitReverted(const QString &lastCommitMessage);
+  void branchesChanged(const QList<GitBranch> branches);
 
   void error(const QString &message);
 

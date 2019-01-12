@@ -210,6 +210,34 @@ void GitInterface::status()
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
   emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
+
+  process = _impl->git({
+    "branch",
+    "--format="
+    "%(HEAD)"
+    "#"
+    "%(refname:short)"
+    "#"
+    "%(upstream:short)"
+  });
+
+  QList<GitBranch> branches;
+
+  for (auto line : process->readAll().split('\n'))
+  {
+    if (!line.isEmpty())
+    {
+      auto parts = line.split('#');
+
+      branches.append({
+        parts.at(0) == "*",
+        parts.at(1),
+        parts.at(2)
+      });
+    }
+  }
+
+  emit branchesChanged(branches);
 }
 
 void GitInterface::log()
