@@ -14,30 +14,29 @@ struct RepositoryListPrivate
     _this->connect(mainWindow, &MainWindow::repositoryAdded, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       QString directory = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
-      if (items.isEmpty())
+
+      if (!items.isEmpty())
       {
-        QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
-        item->setText(0, directory);
-        item->setData(0, Qt::UserRole, newGitInterface->path());
-        item->setTextAlignment(1, Qt::AlignRight);
-        _this->ui->treeWidget->addTopLevelItem(item);
+        return;
       }
 
+      QTreeWidgetItem *item = new QTreeWidgetItem;
+      item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
+      item->setText(0, directory);
+      item->setData(0, Qt::UserRole, newGitInterface->path());
+      item->setTextAlignment(1, Qt::AlignRight);
+      _this->ui->treeWidget->addTopLevelItem(item);
+
       _this->connect(newGitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
-        if (!items.isEmpty())
+        if (hasUpstream)
         {
-          auto item = items.first();
-          if (hasUpstream)
-          {
-            item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
-          }
-          else
-          {
-            item->setText(1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
-          }
-          _this->ui->treeWidget->resizeColumnToContents(1);
+          item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
         }
+        else
+        {
+          item->setText(1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
+        }
+        _this->ui->treeWidget->resizeColumnToContents(1);
       });
     });
 
