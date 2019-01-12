@@ -127,7 +127,7 @@ struct RepositoryFilesPrivate
   void addContextMenuActions(RepositoryFiles *_this)
   {
       QList<QAction*> actions;
-      QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"));
+      QAction *stageOrUnstageAction = new QAction(unstaged ? _this->tr("Stage") : _this->tr("Unstage"), _this);
       _this->connect(stageOrUnstageAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
@@ -145,7 +145,7 @@ struct RepositoryFilesPrivate
         }
       });
 
-      QAction *checkoutAction = new QAction(_this->tr("Reset file"));
+      QAction *checkoutAction = new QAction(_this->tr("Reset file"), _this);
       _this->connect(checkoutAction, &QAction::triggered, _this, [=]{
         if (_this->ui->stackedWidget->currentIndex() == 0)
         {
