@@ -325,6 +325,12 @@ _impl(new MainWindowPrivate)
 MainWindow::~MainWindow()
 {
   _impl->saveSettings(this);
+
+  for (auto interface : _impl->gitInterfaces)
+  {
+    interface->disconnect(nullptr, this);
+  }
+
   delete ui;
 }
 
