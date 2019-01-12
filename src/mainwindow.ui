@@ -34,7 +34,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -42,8 +42,6 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionOpen_Repository"/>
-    <addaction name="actionClose_current_repository"/>
-    <addaction name="actionReload_current_repository"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -84,9 +82,12 @@
     <property name="title">
      <string>&amp;Current Repository</string>
     </property>
+    <addaction name="actionReload_current_repository"/>
     <addaction name="actionPush"/>
     <addaction name="actionPull"/>
     <addaction name="actionPull_Rebase"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose_current_repository"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRepositories"/>
@@ -101,7 +102,10 @@
   </action>
   <action name="actionClose_current_repository">
    <property name="text">
-    <string>&amp;Close current repository</string>
+    <string>&amp;Close</string>
+   </property>
+   <property name="iconText">
+    <string>Close</string>
    </property>
   </action>
   <action name="actionExit">
@@ -136,7 +140,7 @@
   </action>
   <action name="actionReload_current_repository">
    <property name="text">
-    <string>&amp;Reload current repository</string>
+    <string>&amp;Reload</string>
    </property>
   </action>
   <action name="actionStart_git_gui_for_current_repository">
