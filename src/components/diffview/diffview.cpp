@@ -150,16 +150,15 @@ struct DiffViewPrivate
 
   static void initialize(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface)
   {
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, new DiffView(mainWindow, gitInterface));
+    DockWidget::initialize(mainWindow, new DiffView(mainWindow, gitInterface));
   }
 
   static void restore(QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &configuration)
   {
     QMap<QString, QVariant> config = configuration.toMap();
     DiffView *diffView = new DiffView(mainWindow, gitInterface);
-    diffView->setObjectName(id);
     diffView->_impl->fullFileDiffAction->setChecked(config.value("fullFileDiff", false).toBool());
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, diffView);
+    DockWidget::restore(mainWindow, id, diffView);
   }
 };
 

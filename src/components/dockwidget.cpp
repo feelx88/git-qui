@@ -1,5 +1,6 @@
 #include "dockwidget.hpp"
 #include <QThread>
+#include <QMainWindow>
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry*>> DockWidget::_registry;
 
@@ -40,6 +41,17 @@ bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
 {
   registry()->insert(entry->id, entry);
   return true;
+}
+
+void DockWidget::initialize(QMainWindow *mainWindow, DockWidget *widget)
+{
+  mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
+}
+
+void DockWidget::restore(QMainWindow *mainWindow, const QString &id, DockWidget *widget)
+{
+  widget->setObjectName(id);
+  mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
 }
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *> > DockWidget::registry()

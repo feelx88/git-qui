@@ -72,14 +72,12 @@ struct RepositoryListPrivate
 
   static void initialize(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface)
   {
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, new RepositoryList(mainWindow, gitInterface));
+    DockWidget::initialize(mainWindow, new RepositoryList(mainWindow, gitInterface));
   }
 
   static void restore(QMainWindow* mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString &id, const QVariant &)
   {
-    RepositoryList *repositoryList = new RepositoryList(mainWindow, gitInterface);
-    repositoryList->setObjectName(id);
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, repositoryList);
+    DockWidget::restore(mainWindow, id, new RepositoryList(mainWindow, gitInterface));
   }
 };
 

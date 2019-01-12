@@ -192,7 +192,7 @@ struct RepositoryFilesPrivate
 
     if (config.result() == QDialog::Accepted)
     {
-      mainWindow->addDockWidget(Qt::TopDockWidgetArea, new RepositoryFiles(mainWindow, gitInterface, config.unstaged()));
+      DockWidget::initialize(mainWindow, new RepositoryFiles(mainWindow, gitInterface, config.unstaged()));
     }
   }
 
@@ -200,9 +200,8 @@ struct RepositoryFilesPrivate
   {
     QMap<QString, QVariant> config = configuration.toMap();
     RepositoryFiles *repositoryFiles = new RepositoryFiles(mainWindow, gitInterface, config.value("unstaged").toBool());
-    repositoryFiles->setObjectName(id);
     repositoryFiles->ui->stackedWidget->setCurrentIndex(config.value("selectedViewIndex", 0).toInt());
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, repositoryFiles);
+    DockWidget::restore(mainWindow, id, repositoryFiles);
   }
 };
 

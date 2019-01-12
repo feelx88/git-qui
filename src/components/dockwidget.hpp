@@ -45,6 +45,9 @@ public:
 
   virtual QVariant configuration();
 
+  static void initialize(QMainWindow *mainWindow, DockWidget *widget);
+  static void restore(QMainWindow* mainWindow, const QString &id, DockWidget *widget);
+
 protected:
   static bool doRegister(RegistryEntry *entry);
 
