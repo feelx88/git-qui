@@ -2,9 +2,8 @@
 #define DOCKWIDGET_HPP
 
 #include <QFuture>
-
-class QMainWindow;
-class GitInterface;
+#include <QMainWindow>
+#include <gitinterface.hpp>
 
 #define DOCK_WIDGET \
   private: \

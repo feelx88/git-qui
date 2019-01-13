@@ -162,7 +162,7 @@
   </action>
   <action name="actionPush">
    <property name="text">
-    <string>&amp;Push (HEAD -&gt; origin)</string>
+    <string>&amp;Push</string>
    </property>
   </action>
   <action name="actionPull">

@@ -13,6 +13,7 @@ public:
   QDir repositoryPath;
   bool readyForCommit = false;
   bool fullFileDiff = false;
+  GitBranch activeBranch;
 
   QSharedPointer<QProcess> git(const QList<QString> &params, const QString &writeData = "")
   {
@@ -117,6 +118,11 @@ const QString GitInterface::path()
   return _impl->repositoryPath.path();
 }
 
+const GitBranch GitInterface::activeBranch()
+{
+  return _impl->activeBranch;
+}
+
 void GitInterface::reload()
 {
   status();
@@ -211,6 +217,57 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
+
+  process = _impl->git({"remote"});
+  QList<QByteArray> remotes = process->readAll().split('\n');
+  remotes.pop_back();
+
+  process = _impl->git({
+    "branch",
+    "--all",
+    "--format="
+    "%(HEAD)"
+    "#"
+    "%(refname:short)"
+    "#"
+    "%(upstream:short)"
+  });
+
+  QList<GitBranch> branches;
+
+  for (auto line : process->readAll().split('\n'))
+  {
+    if (!line.isEmpty())
+    {
+      auto parts = line.split('#');
+      bool isRemote = false;
+
+      for (auto remote : remotes)
+      {
+        if (parts.at(1).startsWith(remote))
+        {
+          isRemote = true;
+          break;
+        }
+      }
+
+      GitBranch branch = {
+        parts.at(0) == "*",
+        parts.at(1),
+        parts.at(2),
+        isRemote
+      };
+
+      branches.append(branch);
+
+      if (branch.active)
+      {
+        _impl->activeBranch = branches.last();
+      }
+    }
+  }
+
+  emit branchesChanged(branches);
   emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
 }
 
@@ -492,11 +549,7 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 
 void GitInterface::push()
 {
-  auto process = _impl->git({
-                              "push",
-                              "origin",
-                              "HEAD"
-                            });
+  auto process = _impl->git({"push"});
 
   if (process->exitCode() != 0)
   {
@@ -575,4 +628,37 @@ void GitInterface::checkoutPath(const QString &path)
   _impl->git({"checkout", "--", path});
 
   status();
+}
+
+void GitInterface::changeBranch(const QString &branchName, const QString &upstreamBranchName)
+{
+  if (upstreamBranchName.isEmpty())
+  {
+    _impl->git({"checkout", branchName});
+  }
+  else
+  {
+    _impl->git({"checkout", "-b", branchName, upstreamBranchName});
+  }
+  reload();
+}
+
+void GitInterface::createBranch(const QString &name)
+{
+  _impl->git({"branch", name});
+  status();
+}
+
+void GitInterface::deleteBranch(const QString &name)
+{
+  _impl->git({"branch", "-d", name});
+  status();
+}
+
+void GitInterface::setUpstream(const QString &remote, const QString &branch)
+{
+  _impl->git({
+    "branch",
+    QString("--set-upstream-to=%1/%2").arg(remote).arg(branch)
+  });
 }

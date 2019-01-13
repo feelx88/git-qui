@@ -8,6 +8,7 @@
 #include "gitfile.hpp"
 #include "gitdiffline.h"
 #include "gitcommit.hpp"
+#include "gitbranch.hpp"
 
 class QDir;
 class QFile;
@@ -22,6 +23,7 @@ public:
   virtual ~GitInterface();
 
   const QString path();
+  const GitBranch activeBranch();
 
 public slots:
   void reload();
@@ -40,6 +42,10 @@ public slots:
   void revertLastCommit();
   void resetLines(const QList<GitDiffLine> &lines);
   void checkoutPath(const QString &path);
+  void changeBranch(const QString &branchName, const QString &upstreamBranchName = "");
+  void createBranch(const QString &name);
+  void deleteBranch(const QString &name);
+  void setUpstream(const QString &remote, const QString &branch);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);
@@ -53,6 +59,7 @@ signals:
   void pushed();
   void pulled();
   void lastCommitReverted(const QString &lastCommitMessage);
+  void branchesChanged(const QList<GitBranch> branches);
 
   void error(const QString &message);
 
