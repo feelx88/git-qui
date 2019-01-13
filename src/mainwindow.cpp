@@ -399,6 +399,8 @@ void MainWindow::switchRepository(const QString &path)
   _impl->selectedGitInterface = _impl->gitInterfaces.value(path, nullptr);
   emit repositorySwitched(_impl->selectedGitInterface);
   _impl->selectedGitInterface->reload();
+
+  setWindowTitle(QString("MainWindow - %1").arg(path.split('/').last()));
 }
 
 void MainWindow::changeEvent(QEvent *ev)
