@@ -242,6 +242,11 @@ void GitInterface::status()
       auto parts = line.split('#');
       bool isRemote = false;
 
+      if (parts.at(1).endsWith("HEAD"))
+      {
+        continue;
+      }
+
       for (auto remote : remotes)
       {
         if (parts.at(1).startsWith(remote))
