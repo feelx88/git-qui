@@ -31,6 +31,10 @@ struct BranchListPrivate
         _this->ui->treeWidget->resizeColumnToContents(2);
       });
     });
+
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
+      gitInterface->changeBranch(item->text(1));
+    });
   }
 };
 

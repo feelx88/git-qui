@@ -40,6 +40,7 @@ public slots:
   void revertLastCommit();
   void resetLines(const QList<GitDiffLine> &lines);
   void checkoutPath(const QString &path);
+  void changeBranch(const QString &branchName);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);

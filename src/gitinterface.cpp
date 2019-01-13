@@ -209,7 +209,6 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
-  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
 
   process = _impl->git({
     "branch",
@@ -238,6 +237,7 @@ void GitInterface::status()
   }
 
   emit branchesChanged(branches);
+  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
 }
 
 void GitInterface::log()
@@ -615,4 +615,10 @@ void GitInterface::checkoutPath(const QString &path)
   _impl->git({"checkout", "--", path});
 
   status();
+}
+
+void GitInterface::changeBranch(const QString &branchName)
+{
+  _impl->git({"checkout", branchName});
+  reload();
 }
