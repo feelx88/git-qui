@@ -622,3 +622,15 @@ void GitInterface::changeBranch(const QString &branchName)
   _impl->git({"checkout", branchName});
   reload();
 }
+
+void GitInterface::createBranch(const QString &name)
+{
+  _impl->git({"branch", name});
+  status();
+}
+
+void GitInterface::deleteBranch(const QString &name)
+{
+  _impl->git({"branch", "-d", name});
+  status();
+}

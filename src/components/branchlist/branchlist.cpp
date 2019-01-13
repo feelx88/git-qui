@@ -1,6 +1,9 @@
 #include "branchlist.hpp"
 #include "ui_branchlist.h"
 
+#include <QInputDialog>
+#include <QAction>
+
 #include "mainwindow.hpp"
 
 struct BranchListPrivate
@@ -40,6 +43,17 @@ struct BranchListPrivate
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
       gitInterface->changeBranch(item->text(1));
     });
+
+    _this->connect(_this->ui->createBranchButton, &QPushButton::clicked, _this, [=]{
+      gitInterface->createBranch(QInputDialog::getText(_this, _this->tr("Create new branch"), _this->tr("New branch name")));
+    });
+
+    _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
+    _this->connect(deleteAction, &QAction::triggered, _this, [=]{
+      gitInterface->deleteBranch(_this->ui->treeWidget->selectedItems().first()->text(1));
+    });
+    _this->ui->treeWidget->addAction(deleteAction);
   }
 };
 
