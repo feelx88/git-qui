@@ -642,9 +642,16 @@ void GitInterface::checkoutPath(const QString &path)
   status();
 }
 
-void GitInterface::changeBranch(const QString &branchName)
+void GitInterface::changeBranch(const QString &branchName, const QString &upstreamBranchName)
 {
-  _impl->git({"checkout", branchName});
+  if (upstreamBranchName.isEmpty())
+  {
+    _impl->git({"checkout", "-b", branchName, upstreamBranchName});
+  }
+  else
+  {
+    _impl->git({"checkout", branchName});
+  }
   reload();
 }
 

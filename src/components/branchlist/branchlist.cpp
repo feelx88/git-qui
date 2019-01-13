@@ -75,6 +75,15 @@ struct BranchListPrivate
       }
     });
 
+    _this->connect(_this->ui->treeWidget_2, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
+      QString branch = item->data(0, Qt::UserRole).toString();
+      if (!branch.isEmpty())
+      {
+        QString localBranch = branch.right(branch.length() - branch.indexOf('/') - 1);
+        gitInterface->changeBranch(localBranch, branch);
+      }
+    });
+
     _this->connect(_this->ui->createBranchButton, &QPushButton::clicked, _this, [=]{
       gitInterface->createBranch(QInputDialog::getText(_this, _this->tr("Create new branch"), _this->tr("New branch name")));
     });

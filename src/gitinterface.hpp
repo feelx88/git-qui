@@ -41,7 +41,7 @@ public slots:
   void revertLastCommit();
   void resetLines(const QList<GitDiffLine> &lines);
   void checkoutPath(const QString &path);
-  void changeBranch(const QString &branchName);
+  void changeBranch(const QString &branchName, const QString &upstreamBranchName = "");
   void createBranch(const QString &name);
   void deleteBranch(const QString &name);
   void setUpstream(const QString &remote, const QString &branch);
