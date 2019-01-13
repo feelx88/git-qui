@@ -23,6 +23,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Local branches</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QTreeWidget" name="treeWidget">
       <property name="columnCount">
        <number>3</number>
@@ -43,6 +50,25 @@
       <column>
        <property name="text">
         <string notr="true">3</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Upstream branches</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTreeWidget" name="treeWidget_2">
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
        </property>
       </column>
      </widget>

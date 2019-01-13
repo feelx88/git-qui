@@ -210,8 +210,13 @@ void GitInterface::status()
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
 
+  process = _impl->git({"remote"});
+  QList<QByteArray> remotes = process->readAll().split('\n');
+  remotes.pop_back();
+
   process = _impl->git({
     "branch",
+    "--all",
     "--format="
     "%(HEAD)"
     "#"
@@ -227,11 +232,22 @@ void GitInterface::status()
     if (!line.isEmpty())
     {
       auto parts = line.split('#');
+      bool isRemote = false;
+
+      for (auto remote : remotes)
+      {
+        if (parts.at(1).startsWith(remote))
+        {
+          isRemote = true;
+          break;
+        }
+      }
 
       branches.append({
         parts.at(0) == "*",
         parts.at(1),
-        parts.at(2)
+        parts.at(2),
+        isRemote
       });
     }
   }

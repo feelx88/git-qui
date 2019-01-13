@@ -24,19 +24,31 @@ struct BranchListPrivate
 
       gitInterface->connect(gitInterface.get(), &GitInterface::branchesChanged, _this, [=](const QList<GitBranch> &branches){
         _this->ui->treeWidget->clear();
+        _this->ui->treeWidget_2->clear();
         for (auto branch : branches)
         {
-          auto item = new QTreeWidgetItem(_this->ui->treeWidget, {
-            branch.active ? "➔" : "",
-            branch.name,
-            branch.upstreamName
-          });
-          item->setFont(2, italicFont);
-          _this->ui->treeWidget->addTopLevelItem(item);
+          if (branch.remote)
+          {
+            auto item = new QTreeWidgetItem(_this->ui->treeWidget_2, {
+              branch.name
+            });
+            _this->ui->treeWidget_2->addTopLevelItem(item);
+          }
+          else
+          {
+            auto item = new QTreeWidgetItem(_this->ui->treeWidget, {
+              branch.active ? "➔" : "",
+              branch.name,
+              branch.upstreamName
+            });
+            item->setFont(2, italicFont);
+            _this->ui->treeWidget->addTopLevelItem(item);
+          }
         }
         _this->ui->treeWidget->resizeColumnToContents(0);
         _this->ui->treeWidget->resizeColumnToContents(1);
         _this->ui->treeWidget->resizeColumnToContents(2);
+        _this->ui->treeWidget_2->resizeColumnToContents(0);
       });
     });
 

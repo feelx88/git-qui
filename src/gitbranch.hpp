@@ -10,6 +10,7 @@ public:
   bool active;
   QString name;
   QString upstreamName;
+  bool remote;
 };
 
 Q_DECLARE_METATYPE(GitBranch)
