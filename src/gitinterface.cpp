@@ -256,6 +256,12 @@ void GitInterface::log()
   emit logChanged(list);
 }
 
+void GitInterface::fetch()
+{
+  _impl->git({"fetch", "--all"});
+  reload();
+}
+
 void GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)

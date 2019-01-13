@@ -14,6 +14,7 @@
 #include <QMovie>
 #include <QMap>
 #include <QtConcurrent/QtConcurrent>
+#include <QTimer>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -25,6 +26,7 @@ struct MainWindowPrivate
   QList<QString> repositories;
   int currentRepository = 0;
   QLabel *progressSpinner;
+  QTimer *autoFetchTimer;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -202,6 +204,21 @@ struct MainWindowPrivate
     });
   }
 
+  void initAutoFetchTimer(MainWindow *_this)
+  {
+    autoFetchTimer = new QTimer(_this);
+    autoFetchTimer->setInterval(30000);
+    _this->connect(autoFetchTimer, &QTimer::timeout, _this, [=]{
+      for (auto interface : gitInterfaces)
+      {
+        QtConcurrent::run([=]{
+          interface->fetch();
+        });
+      }
+    });
+    autoFetchTimer->start();
+  }
+
   void connectGitInterfaceSignals(MainWindow *_this, const QSharedPointer<GitInterface> &gitInterface)
   {
     _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
@@ -318,6 +335,7 @@ _impl(new MainWindowPrivate)
 
   _impl->initGit(this);
   _impl->connectSignals(this);
+  _impl->initAutoFetchTimer(this);
 
   for (auto interface : _impl->gitInterfaces) {
     _impl->connectGitInterfaceSignals(this, interface);
