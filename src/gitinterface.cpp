@@ -13,6 +13,7 @@ public:
   QDir repositoryPath;
   bool readyForCommit = false;
   bool fullFileDiff = false;
+  GitBranch activeBranch;
 
   QSharedPointer<QProcess> git(const QList<QString> &params)
   {
@@ -113,6 +114,11 @@ GitInterface::~GitInterface()
 const QString GitInterface::path()
 {
   return _impl->repositoryPath.path();
+}
+
+const GitBranch GitInterface::activeBranch()
+{
+  return _impl->activeBranch;
 }
 
 void GitInterface::reload()
@@ -243,12 +249,19 @@ void GitInterface::status()
         }
       }
 
-      branches.append({
+      GitBranch branch = {
         parts.at(0) == "*",
         parts.at(1),
         parts.at(2),
         isRemote
-      });
+      };
+
+      branches.append(branch);
+
+      if (branch.active)
+      {
+        _impl->activeBranch = branches.last();
+      }
     }
   }
 
@@ -539,11 +552,7 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 
 void GitInterface::push()
 {
-  auto process = _impl->git({
-                              "push",
-                              "origin",
-                              "HEAD"
-                            });
+  auto process = _impl->git({"push"});
 
   if (process->exitCode() != 0)
   {
@@ -649,4 +658,12 @@ void GitInterface::deleteBranch(const QString &name)
 {
   _impl->git({"branch", "-d", name});
   status();
+}
+
+void GitInterface::setUpstream(const QString &remote, const QString &branch)
+{
+  _impl->git({
+    "branch",
+    QString("--set-upstream-to=%1/%2").arg(remote).arg(branch)
+  });
 }

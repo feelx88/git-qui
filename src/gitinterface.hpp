@@ -23,6 +23,7 @@ public:
   virtual ~GitInterface();
 
   const QString path();
+  const GitBranch activeBranch();
 
 public slots:
   void reload();
@@ -43,6 +44,7 @@ public slots:
   void changeBranch(const QString &branchName);
   void createBranch(const QString &name);
   void deleteBranch(const QString &name);
+  void setUpstream(const QString &remote, const QString &branch);
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);
