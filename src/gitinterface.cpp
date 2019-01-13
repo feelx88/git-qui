@@ -317,7 +317,7 @@ void GitInterface::log()
 
 void GitInterface::fetch()
 {
-  _impl->git({"fetch", "--all"});
+  _impl->git({"fetch", "--all", "--prune"});
   reload();
 }
 
