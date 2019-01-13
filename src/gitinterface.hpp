@@ -29,6 +29,7 @@ public slots:
   void reload();
   void status();
   void log();
+  void fetch();
   void commit(const QString &message);
   void stageFile(const QString &path);
   void unstageFile(const QString &path);

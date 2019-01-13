@@ -15,24 +15,26 @@ public:
   bool fullFileDiff = false;
   GitBranch activeBranch;
 
-  QSharedPointer<QProcess> git(const QList<QString> &params)
+  QSharedPointer<QProcess> git(const QList<QString> &params, const QString &writeData = "")
   {
     QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
-
-    auto logger = [=](int){
-      auto output = process->readAllStandardError();
-      if (!output.isEmpty())
-      {
-        qDebug().noquote() << output;
-      }
-    };
-    process->connect(process.get(), static_cast<void(QProcess::*)(int)>(&QProcess::finished), process.get(), logger);
+    std::string stdWriteData = writeData.toStdString();
 
     process->setWorkingDirectory(repositoryPath.path());
     process->setProgram("git");
     process->setArguments(params);
     process->start();
+    process->waitForStarted();
+    process->write(stdWriteData.data(), static_cast<qint64>(stdWriteData.length()));
+    process->waitForBytesWritten();
+    process->closeWriteChannel();
     process->waitForFinished();
+
+    auto output = process->readAllStandardError();
+    if (!output.isEmpty())
+    {
+      qDebug() << output;
+    }
 
     return process;
   }
@@ -313,6 +315,12 @@ void GitInterface::log()
   emit logChanged(list);
 }
 
+void GitInterface::fetch()
+{
+  _impl->git({"fetch", "--all"});
+  reload();
+}
+
 void GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)
@@ -525,27 +533,16 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
   }
 
   QString patch =_impl->createPatch(lines);
-
   qDebug().noquote() << patch;
-
-  QProcess process;
 
   if(unstage)
   {
-    process.setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"});
+    _impl->git({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"}, patch);
   }
   else
   {
-    process.setArguments({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"});
+    _impl->git({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"}, patch);
   }
-
-
-  std::string stdPatch = patch.toStdString();
-  process.start(QIODevice::ReadWrite);
-  process.waitForStarted();
-  process.write(stdPatch.data(), stdPatch.length());
-  process.closeWriteChannel();
-  process.waitForFinished();
 
   status();
 }
@@ -619,18 +616,9 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
   }
 
   QString patch = _impl->createPatch(lines);
-
   qDebug().noquote() << patch;
-  QProcess process;
 
-  process.setArguments({"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"});
-
-  std::string stdPatch = patch.toStdString();
-  process.start(QIODevice::ReadWrite);
-  process.waitForStarted();
-  process.write(stdPatch.data(), stdPatch.length());
-  process.closeWriteChannel();
-  process.waitForFinished();
+  _impl->git({"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"}, patch);
 
   status();
 }
