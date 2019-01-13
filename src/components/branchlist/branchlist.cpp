@@ -5,6 +5,7 @@
 #include <QAction>
 
 #include "mainwindow.hpp"
+#include "qtreewidgetutils.hpp"
 
 struct BranchListPrivate
 {
@@ -25,35 +26,53 @@ struct BranchListPrivate
       gitInterface->connect(gitInterface.get(), &GitInterface::branchesChanged, _this, [=](const QList<GitBranch> &branches){
         _this->ui->treeWidget->clear();
         _this->ui->treeWidget_2->clear();
+
+        QList<QString> localBranches, remoteBranches;
+        QString currentBranch;
+
         for (auto branch : branches)
         {
+          if (branch.active)
+          {
+            currentBranch = branch.name;
+          }
+
           if (branch.remote)
           {
-            auto item = new QTreeWidgetItem(_this->ui->treeWidget_2, {
-              branch.name
-            });
-            _this->ui->treeWidget_2->addTopLevelItem(item);
+            remoteBranches.append(branch.name);
           }
           else
           {
-            auto item = new QTreeWidgetItem(_this->ui->treeWidget, {
-              branch.active ? "➔" : "",
-              branch.name,
-              branch.upstreamName
-            });
-            item->setFont(2, italicFont);
-            _this->ui->treeWidget->addTopLevelItem(item);
+            localBranches.append(branch.name);
           }
         }
+        _this->ui->treeWidget->addTopLevelItems(QTreeWidgetUtils::createItems(_this->ui->treeWidget, localBranches));
+        _this->ui->treeWidget_2->addTopLevelItems(QTreeWidgetUtils::createItems(_this->ui->treeWidget_2, remoteBranches));
+        QTreeWidgetItemIterator it(_this->ui->treeWidget);
+        while (*it)
+        {
+          if ((*it)->data(0, Qt::UserRole) == currentBranch)
+          {
+            auto font = _this->font();
+            font.setBold(true);
+            (*it)->setFont(0, font);
+          }
+          (*it)->setExpanded(true);
+          ++it;
+        }
+
+        _this->ui->treeWidget_2->expandAll();
         _this->ui->treeWidget->resizeColumnToContents(0);
-        _this->ui->treeWidget->resizeColumnToContents(1);
-        _this->ui->treeWidget->resizeColumnToContents(2);
         _this->ui->treeWidget_2->resizeColumnToContents(0);
       });
     });
 
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
-      gitInterface->changeBranch(item->text(1));
+      QString branch = item->data(0, Qt::UserRole).toString();
+      if (!branch.isEmpty())
+      {
+        gitInterface->changeBranch(branch);
+      }
     });
 
     _this->connect(_this->ui->createBranchButton, &QPushButton::clicked, _this, [=]{
@@ -63,7 +82,11 @@ struct BranchListPrivate
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
     QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
     _this->connect(deleteAction, &QAction::triggered, _this, [=]{
-      gitInterface->deleteBranch(_this->ui->treeWidget->selectedItems().first()->text(1));
+      QString branch = _this->ui->treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString();
+      if (!branch.isEmpty())
+      {
+        gitInterface->deleteBranch(branch);
+      }
     });
     _this->ui->treeWidget->addAction(deleteAction);
   }
