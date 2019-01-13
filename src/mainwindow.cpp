@@ -185,7 +185,7 @@ struct MainWindowPrivate
         bool addUpstream = QMessageBox::question(
           _this,
           _this->tr("No upstream branch configured"),
-          _this->tr("Would you like to set the default upstream branch to origin/%1").arg(branch),
+          _this->tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
           QMessageBox::Yes,
           QMessageBox::No
         ) == QMessageBox::Yes;
