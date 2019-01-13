@@ -22,7 +22,7 @@ public:
       auto output = process->readAllStandardError();
       if (!output.isEmpty())
       {
-        qDebug() << output;
+        qDebug().noquote() << output;
       }
     };
     process->connect(process.get(), static_cast<void(QProcess::*)(int)>(&QProcess::finished), process.get(), logger);
