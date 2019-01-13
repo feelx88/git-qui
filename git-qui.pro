@@ -14,7 +14,8 @@ SOURCES += \
     src/components/repositorylist/repositorylist.cpp \
     src/gitdiffline.cpp \
     src/components/logview/logview.cpp \
-    src/components/branchlist/branchlist.cpp
+    src/components/branchlist/branchlist.cpp \
+    src/qtreewidgetutils.cpp
 
 HEADERS += \
     src/gitinterface.hpp \
@@ -30,7 +31,8 @@ HEADERS += \
     src/components/repositorylist/repositorylist.h \
     src/components/logview/logview.hpp \
     src/components/branchlist/branchlist.hpp \
-    src/gitbranch.hpp
+    src/gitbranch.hpp \
+    src/qtreewidgetutils.hpp
 
 OTHER_FILES += \
     .gitignore \
