@@ -33,7 +33,7 @@ public:
     auto output = process->readAllStandardError();
     if (!output.isEmpty())
     {
-      qDebug() << output;
+      qDebug().noquote() << output;
     }
 
     return process;
