@@ -221,6 +221,47 @@ struct MainWindowPrivate
         selectedGitInterface->pull(true);
       });
     });
+
+    _this->connect(_this->ui->actionQuick_cleanup, &QAction::triggered, _this, [=]{
+      QList<QString> branches;
+      for (auto branch : selectedGitInterface->branches({"--merged", "master"}))
+      {
+        if (branch.name != "master")
+        {
+          branches.append(QString("<b>%1</b>").arg(branch.name));
+        }
+      }
+
+      if (branches.isEmpty())
+      {
+        QMessageBox::information(
+          _this,
+          _this->tr("Quick cleanup"),
+          _this->tr("There are no branches for cleanup.")
+        );
+        return;
+      }
+
+      QMessageBox dialog(
+        QMessageBox::Warning,
+        _this->tr("Quick cleanup"),
+        _this->tr("Would you like to remove the following local branches? "
+          "They are merged into master and have no upstream branch associated."
+          "<br><br> %1").arg(branches.join("<br>")),
+        QMessageBox::Yes | QMessageBox::No,
+        _this
+      );
+
+      dialog.setTextFormat(Qt::RichText);
+      if (dialog.exec() == QMessageBox::Yes)
+      {
+        for (auto branch: branches)
+        {
+          selectedGitInterface->deleteBranch(branch.remove(QRegExp("<[^>]*>")));
+        }
+        selectedGitInterface->reload();
+      }
+    });
   }
 
   void initAutoFetchTimer(MainWindow *_this)

@@ -87,6 +87,7 @@
     <addaction name="actionPull"/>
     <addaction name="actionPull_Rebase"/>
     <addaction name="separator"/>
+    <addaction name="actionQuick_cleanup"/>
     <addaction name="actionClose_current_repository"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -178,6 +179,11 @@
   <action name="actionAbout_qt">
    <property name="text">
     <string>About qt...</string>
+   </property>
+  </action>
+  <action name="actionQuick_cleanup">
+   <property name="text">
+    <string>Quick cleanup</string>
    </property>
   </action>
  </widget>
