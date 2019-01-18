@@ -25,6 +25,8 @@ public:
   const QString path();
   const GitBranch activeBranch();
 
+  const QList<GitBranch> branches(const QList<QString> &args);
+
 public slots:
   void reload();
   void status();

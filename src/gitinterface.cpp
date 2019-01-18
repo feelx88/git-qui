@@ -123,6 +123,47 @@ const GitBranch GitInterface::activeBranch()
   return _impl->activeBranch;
 }
 
+const QList<GitBranch> GitInterface::branches(const QList<QString> &args)
+{
+  auto process = _impl->git({"remote"});
+  QList<QByteArray> remotes = process->readAll().split('\n');
+  remotes.pop_back();
+
+  process = _impl->git(QList<QString>{
+    "branch",
+    "--format="
+    "%(HEAD)"
+    "#"
+    "%(refname:short)"
+    "#"
+    "%(upstream:short)"
+  } << args);
+
+  QList<GitBranch> branches;
+
+  for (auto line : process->readAll().split('\n'))
+  {
+    if (!line.isEmpty())
+    {
+      auto parts = line.split('#');
+
+      if (parts.at(1).endsWith("HEAD"))
+      {
+        continue;
+      }
+
+      branches.append({
+        parts[0] == "*",
+        parts[1],
+        parts[2],
+        remotes.indexOf(parts[1].split('/')[0]) > -1
+      });
+    }
+  }
+
+  return branches;
+}
+
 void GitInterface::reload()
 {
   status();
@@ -218,57 +259,14 @@ void GitInterface::status()
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
 
-  process = _impl->git({"remote"});
-  QList<QByteArray> remotes = process->readAll().split('\n');
-  remotes.pop_back();
+  QList<GitBranch> branches = this->branches({"--all"});
 
-  process = _impl->git({
-    "branch",
-    "--all",
-    "--format="
-    "%(HEAD)"
-    "#"
-    "%(refname:short)"
-    "#"
-    "%(upstream:short)"
-  });
-
-  QList<GitBranch> branches;
-
-  for (auto line : process->readAll().split('\n'))
+  for (auto branch : branches)
   {
-    if (!line.isEmpty())
+    if (branch.active)
     {
-      auto parts = line.split('#');
-      bool isRemote = false;
-
-      if (parts.at(1).endsWith("HEAD"))
-      {
-        continue;
-      }
-
-      for (auto remote : remotes)
-      {
-        if (parts.at(1).startsWith(remote))
-        {
-          isRemote = true;
-          break;
-        }
-      }
-
-      GitBranch branch = {
-        parts.at(0) == "*",
-        parts.at(1),
-        parts.at(2),
-        isRemote
-      };
-
-      branches.append(branch);
-
-      if (branch.active)
-      {
-        _impl->activeBranch = branches.last();
-      }
+      _impl->activeBranch = branch;
+      break;
     }
   }
 
