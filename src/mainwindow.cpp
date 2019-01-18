@@ -16,6 +16,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QInputDialog>
 #include <QTimer>
+#include <QDirIterator>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
@@ -73,11 +74,23 @@ struct MainWindowPrivate
 
     if (dialog.result() == QFileDialog::Accepted)
     {
-      QString path = dialog.directory().absolutePath();
-      auto inserted = gitInterfaces.insert(path, QSharedPointer<GitInterface>(new GitInterface(_this, path)));
-      repositories.append(path);
-      addRepositoryMenuEntry(_this, path);
-      emit _this->repositoryAdded(inserted.value());
+      QDirIterator iterator(
+        dialog.directory().absolutePath(),
+        {".git"},
+        QDir::Dirs | QDir::Hidden,
+        QDirIterator::Subdirectories
+      );
+
+      while (iterator.hasNext())
+      {
+        QDir currentDir = QDir(iterator.next());
+        currentDir.cdUp();
+        QString path = currentDir.absolutePath();
+        auto inserted = gitInterfaces.insert(path, QSharedPointer<GitInterface>(new GitInterface(_this, path)));
+        repositories.append(path);
+        addRepositoryMenuEntry(_this, path);
+        emit _this->repositoryAdded(inserted.value());
+      }
       return true;
     }
 
