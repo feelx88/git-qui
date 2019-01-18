@@ -111,6 +111,7 @@ struct MainWindowPrivate
     _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
     repositories.removeAt(currentRepository);
     emit _this->repositoryRemoved(gitInterfaces.value(path, nullptr));
+    selectedGitInterface->disconnect(nullptr, _this);
     gitInterfaces.remove(path);
 
     if (repositories.empty())
