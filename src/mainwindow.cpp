@@ -129,6 +129,7 @@ struct MainWindowPrivate
 
     currentRepository = 0;
     selectedGitInterface = gitInterfaces.value(repositories.first(), nullptr);
+    emit _this->repositorySwitched(selectedGitInterface);
   }
 
   void connectSignals(MainWindow *_this)
