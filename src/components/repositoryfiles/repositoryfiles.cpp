@@ -2,9 +2,9 @@
 #include "ui_repositoryfiles.h"
 
 #include <QAction>
+#include <QInputDialog>
 
 #include "mainwindow.hpp"
-#include "repositoryfilesconfig.hpp"
 
 struct RepositoryFilesPrivate
 {
@@ -220,9 +220,14 @@ void RepositoryFiles::configure(const QVariant &configuration)
 
   if (map.empty())
   {
-    RepositoryFilesConfig dialog;
-    dialog.exec();
-    map.insert("unstaged", dialog.unstaged());
+    map.insert("unstaged", QInputDialog::getItem(
+      this,
+      "Select widget type",
+      "Please choose the type of files displayed for this widget.",
+      {tr("Unstaged"), tr("Staged")},
+      0,
+      false
+    ) == tr("Unstaged"));
   }
 
   _impl->unstaged = map.value("unstaged", true).toBool();
