@@ -43,6 +43,11 @@ void DockWidget::configure(const QVariant &)
 {
 }
 
+void DockWidget::setEditModeEnabled(bool enabled)
+{
+  setTitleBarWidget(enabled ? nullptr : new QWidget(this));
+}
+
 bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
 {
   registry()->insert(entry->id, entry);

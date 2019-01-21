@@ -34,7 +34,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,6 +63,7 @@
      <addaction name="actionRight"/>
      <addaction name="actionBottom"/>
     </widget>
+    <addaction name="actionEdit_mode"/>
     <addaction name="menuAdd_view"/>
     <addaction name="menuAdd_Toolbar"/>
    </widget>
@@ -92,7 +93,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout_qt"/>
    </widget>
@@ -173,17 +174,28 @@
   </action>
   <action name="actionPull_Rebase">
    <property name="text">
-    <string>Pull (&amp;Rebase)</string>
+    <string>Pu&amp;ll (Rebase)</string>
    </property>
   </action>
   <action name="actionAbout_qt">
    <property name="text">
-    <string>About qt...</string>
+    <string>&amp;About qt...</string>
    </property>
   </action>
   <action name="actionQuick_cleanup">
    <property name="text">
-    <string>Quick cleanup</string>
+    <string>&amp;Quick cleanup</string>
+   </property>
+  </action>
+  <action name="actionEdit_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit mode</string>
    </property>
   </action>
  </widget>

@@ -48,6 +48,8 @@ public:
   virtual QVariant configuration();
   virtual void configure(const QVariant &configuration);
 
+  void setEditModeEnabled(bool enabled);
+
 protected:
   DockWidget(QWidget *parent = nullptr);
   static bool doRegister(RegistryEntry *entry);

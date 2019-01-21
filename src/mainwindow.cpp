@@ -29,6 +29,7 @@ struct MainWindowPrivate
   int currentRepository = 0;
   QLabel *progressSpinner;
   QTimer *autoFetchTimer;
+  bool editMode;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -38,6 +39,7 @@ struct MainWindowPrivate
   inline static const QString CONFIG_DW_ID = "id";
   inline static const QString CONFIG_DW_CLASS = "class";
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
+  inline static const QString CONFIG_EDIT_MODE = "editMode";
 
   void initGit(MainWindow *_this)
   {
@@ -134,6 +136,8 @@ struct MainWindowPrivate
 
   void connectSignals(MainWindow *_this)
   {
+    QSettings settings;
+
     _this->connect(_this->ui->actionTop, &QAction::triggered, _this, [_this]{
       _this->addToolBar(Qt::TopToolBarArea, new QToolBar(_this));
     });
@@ -277,6 +281,16 @@ struct MainWindowPrivate
         selectedGitInterface->reload();
       }
     });
+
+    _this->connect(_this->ui->actionAbout_qt, &QAction::triggered, _this, QApplication::aboutQt);
+
+    _this->connect(_this->ui->actionEdit_mode, &QAction::toggled, _this, [=](bool checked){
+      editMode = checked;
+      for (auto dockWidget : _this->findChildren<DockWidget*>())
+      {
+        dockWidget->setEditModeEnabled(editMode);
+      }
+    });
   }
 
   void initAutoFetchTimer(MainWindow *_this)
@@ -354,6 +368,8 @@ struct MainWindowPrivate
     }
 
     _this->restoreState(settings.value(CONFIG_STATE).toByteArray());
+
+    _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
   }
 
   void postInit()
@@ -377,6 +393,7 @@ struct MainWindowPrivate
     settings.setValue(CONFIG_STATE, _this->saveState());
     settings.setValue(CONFIG_REPOSITORIES, QVariant(repositories));
     settings.setValue(CONFIG_CURRENT_REPOSITORY, QVariant(currentRepository));
+    settings.setValue(CONFIG_EDIT_MODE, editMode);
 
     QList<QVariant> dockWidgetConfigurations;
 
@@ -406,7 +423,6 @@ ui(new Ui::MainWindow),
 _impl(new MainWindowPrivate)
 {
   ui->setupUi(this);
-  connect(ui->actionAbout_qt, &QAction::triggered, this, QApplication::aboutQt);
 
   _impl->initGit(this);
   _impl->connectSignals(this);
