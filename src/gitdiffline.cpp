@@ -1,4 +1,4 @@
-#include "gitdiffline.h"
+#include "gitdiffline.hpp"
 
 #include <QDebug>
 

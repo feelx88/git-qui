@@ -24,13 +24,13 @@ HEADERS += \
     src/components/dockwidget.hpp \
     src/components/repositoryfiles/repositoryfiles.hpp \
     src/components/commit/commit.hpp \
-    src/components/diffview/diffview.h \
-    src/gitdiffline.h \
-    src/components/repositorylist/repositorylist.h \
     src/components/logview/logview.hpp \
     src/components/branchlist/branchlist.hpp \
     src/gitbranch.hpp \
-    src/qtreewidgetutils.hpp
+    src/qtreewidgetutils.hpp \
+    src/components/repositorylist/repositorylist.hpp \
+    src/components/diffview/diffview.hpp \
+    src/gitdiffline.hpp
 
 OTHER_FILES += \
     .gitignore \

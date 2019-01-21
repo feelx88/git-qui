@@ -17,7 +17,7 @@ class BranchList : public DockWidget
 
 public:
   explicit BranchList(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
-  virtual ~BranchList();
+  virtual ~BranchList() override;
 
 private:
   Ui::BranchList *ui;

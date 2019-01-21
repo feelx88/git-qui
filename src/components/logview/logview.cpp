@@ -43,7 +43,7 @@ DOCK_WIDGET_IMPL(
     tr("Log view")
 )
 
-LogView::LogView(QWidget *parent, QSharedPointer<GitInterface> gitInterface) :
+LogView::LogView(QWidget *parent, QSharedPointer<GitInterface>) :
 DockWidget(parent),
 ui(new Ui::LogView),
 _impl(new LogViewPrivate)

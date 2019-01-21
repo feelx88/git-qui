@@ -1,4 +1,4 @@
-#include "diffview.h"
+#include "diffview.hpp"
 #include "ui_diffview.h"
 
 #include <QFontDatabase>
@@ -6,7 +6,7 @@
 
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
-#include "gitdiffline.h"
+#include "gitdiffline.hpp"
 
 struct DiffViewPrivate
 {

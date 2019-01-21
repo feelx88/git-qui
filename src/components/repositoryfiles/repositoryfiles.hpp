@@ -20,7 +20,7 @@ class RepositoryFiles : public DockWidget
 
 public:
   explicit RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface);
-  ~RepositoryFiles() override;
+  virtual ~RepositoryFiles() override;
 
   virtual QVariant configuration() override;
   virtual void configure(const QVariant &configuration) override;

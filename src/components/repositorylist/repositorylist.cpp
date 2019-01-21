@@ -1,4 +1,4 @@
-#include "repositorylist.h"
+#include "repositorylist.hpp"
 #include "ui_repositorylist.h"
 
 #include "mainwindow.hpp"
@@ -83,6 +83,7 @@ RepositoryList::RepositoryList(QWidget *parent, const QSharedPointer<GitInterfac
 {
   ui->setupUi(this);
 
+  _impl->currentRepository = gitInterface->path();
   _impl->connectSignals(this);
 
   ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);

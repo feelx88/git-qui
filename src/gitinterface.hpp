@@ -6,7 +6,7 @@
 #include <QVariant>
 
 #include "gitfile.hpp"
-#include "gitdiffline.h"
+#include "gitdiffline.hpp"
 #include "gitcommit.hpp"
 #include "gitbranch.hpp"
 
