@@ -10,6 +10,7 @@ struct RepositoryFilesPrivate
 {
   QSharedPointer<GitInterface> gitInterface;
   bool unstaged;
+  QString selection;
 
   void connectSignals(RepositoryFiles *_this)
   {
@@ -35,7 +36,7 @@ struct RepositoryFilesPrivate
 
       gitInterface = newGitInterface;
 
-      _this->connect(gitInterface.get(), signal, _this, [_this](const QList<GitFile> &files){
+      _this->connect(gitInterface.get(), signal, _this, [=](const QList<GitFile> &files){
         _this->ui->listWidget->clear();
         _this->ui->treeWidget->clear();
         for(auto file: files)
@@ -98,28 +99,30 @@ struct RepositoryFilesPrivate
     });
 
     _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged, _this, [=]{
-      if (_this->ui->listWidget->currentItem())
+      auto item = _this->ui->listWidget->currentItem();
+      if (item && !item->text().isEmpty())
       {
-        gitInterface->selectFile(unstaged, _this->ui->listWidget->currentItem()->text());
+        gitInterface->selectFile(unstaged, item->text());
       }
     });
 
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
-      if (_this->ui->treeWidget->currentItem())
+      auto item = _this->ui->treeWidget->currentItem();
+      if (item && !item->data(0, Qt::UserRole).toString().isEmpty())
       {
-        gitInterface->selectFile(unstaged, _this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+        gitInterface->selectFile(unstaged, item->data(0, Qt::UserRole).toString());
       }
     });
 
     _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked, _this, [=](QListWidgetItem *item){
-      stageOrUnstage(item->text());
+      stageOrUnstage(_this, item->text());
     });
 
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=](QTreeWidgetItem *item){
       QVariant data = item->data(0, Qt::UserRole);
       if (data.isValid())
       {
-        stageOrUnstage(data.toString());
+        stageOrUnstage(_this, data.toString());
       }
     });
   }
@@ -133,14 +136,14 @@ struct RepositoryFilesPrivate
         {
           if (_this->ui->listWidget->currentItem())
           {
-            stageOrUnstage(_this->ui->listWidget->currentItem()->text());
+            stageOrUnstage(_this, _this->ui->listWidget->currentItem()->text());
           }
         }
         else
         {
           if (_this->ui->treeWidget->currentItem())
           {
-            stageOrUnstage(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+            stageOrUnstage(_this, _this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
           }
         }
       });
@@ -161,6 +164,7 @@ struct RepositoryFilesPrivate
             gitInterface->checkoutPath(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
           }
         }
+        emit gitInterface->fileDiffed("", {}, unstaged);
       });
 
       actions << stageOrUnstageAction;
@@ -173,7 +177,7 @@ struct RepositoryFilesPrivate
       _this->ui->treeWidget->addActions(actions);
   }
 
-  void stageOrUnstage(const QString &path)
+  void stageOrUnstage(RepositoryFiles *_this, const QString &path)
   {
       if (unstaged)
       {
@@ -183,6 +187,10 @@ struct RepositoryFilesPrivate
       {
           gitInterface->unstageFile(path);
       }
+      emit gitInterface->fileSelected(!unstaged, path);
+      _this->ui->listWidget->setCurrentItem(nullptr);
+      _this->ui->treeWidget->setCurrentItem(nullptr);
+      selection = "";
   }
 };
 

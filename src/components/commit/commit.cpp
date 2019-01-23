@@ -32,6 +32,7 @@ struct CommitPrivate
         }
       }
       gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
+      emit gitInterface->fileDiffed("", {}, false);
       _this->ui->pushButton_2->setEnabled(true);
     });
 

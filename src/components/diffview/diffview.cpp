@@ -14,6 +14,7 @@ struct DiffViewPrivate
   bool unstaged = false;
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
+  int nonTrivialLines;
 
   void connectSignals(DiffView *_this)
   {
@@ -25,14 +26,10 @@ struct DiffViewPrivate
     };
 
     _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
-      _this->disconnect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, nullptr);
+      _this->ui->treeWidget->clear();
       _this->disconnect(gitInterface.get(), &GitInterface::fileDiffed, _this, nullptr);
 
       gitInterface = newGitInterface;
-
-      _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, clear);
-      _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, clear);
 
       _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
         stageOrUnstageSelected->setVisible(true);
@@ -50,6 +47,7 @@ struct DiffViewPrivate
         QFontMetrics metrics(font);
         int col0Width = 0, col1Width = 0;
         QTreeWidgetItem *firstInterestingItem = nullptr;
+        nonTrivialLines = 0;
 
         for (auto line : lines)
         {
@@ -71,12 +69,14 @@ struct DiffViewPrivate
             item->setForeground(2, Qt::black);
             item->setText(2, "+ " + content);
             firstInterestingItem = firstInterestingItem ? firstInterestingItem : item;
+            ++nonTrivialLines;
             break;
           case GitDiffLine::diffType::REMOVE:
             item->setBackground(2, QColor::fromRgb(244, 66, 66));
             item->setForeground(2, Qt::black);
             item->setText(2, "- " + content);
             firstInterestingItem = firstInterestingItem ? firstInterestingItem : item;
+            ++nonTrivialLines;
             break;
           case GitDiffLine::diffType::CONTEXT:
             item->setBackground(2, Qt::white);
@@ -110,6 +110,10 @@ struct DiffViewPrivate
         _this->ui->treeWidget->scrollToItem(firstInterestingItem);
       });
     });
+
+    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked, _this, [=]{
+      stageOrUnstage(_this);
+    });
   }
 
   void addActions(DiffView *_this)
@@ -127,12 +131,7 @@ struct DiffViewPrivate
   {
     stageOrUnstageSelected = new QAction(_this);
     _this->connect(stageOrUnstageSelected, &QAction::triggered, _this, [=]{
-      QList<GitDiffLine> lines;
-      for (auto item : _this->ui->treeWidget->selectedItems())
-      {
-        lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
-      }
-      gitInterface->addLines(lines, unstaged);
+      stageOrUnstage(_this);
     });
 
     resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
@@ -142,10 +141,25 @@ struct DiffViewPrivate
       {
         lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
       }
+      bool stillUnstaged = lines.count() == nonTrivialLines ? !unstaged : unstaged;
       gitInterface->resetLines(lines);
+      emit gitInterface->fileSelected(stillUnstaged, currentPath);
     });
 
     _this->ui->treeWidget->addActions(QList<QAction*>() << stageOrUnstageSelected << resetSelected);
+  }
+
+  void stageOrUnstage(DiffView *_this)
+  {
+    QList<GitDiffLine> lines;
+    for (auto item : _this->ui->treeWidget->selectedItems())
+    {
+      lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
+    }
+    bool stillUnstaged = lines.count() == nonTrivialLines ? !unstaged : unstaged;
+    gitInterface->addLines(lines, unstaged);
+
+    emit gitInterface->fileSelected(stillUnstaged, currentPath);
   }
 };
 
