@@ -200,28 +200,24 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionPush, &QAction::triggered, _this, [=]{
 
+      QString branch = selectedGitInterface->activeBranch().name;
+      bool addUpstream = false;
       if (selectedGitInterface->activeBranch().upstreamName.isEmpty())
       {
-        QString branch = selectedGitInterface->activeBranch().name;
-        bool addUpstream = QMessageBox::question(
+        addUpstream = QMessageBox::question(
           _this,
           _this->tr("No upstream branch configured"),
           _this->tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
           QMessageBox::Yes,
           QMessageBox::No
         ) == QMessageBox::Yes;
-
-        if(addUpstream)
-        {
-          this->selectedGitInterface->setUpstream("origin", branch);
-        }
       }
 
       progressSpinner->show();
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pushing...");
       QtConcurrent::run([=]{
-        selectedGitInterface->push();
+        selectedGitInterface->push("origin", branch, true);
       });
     });
     _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{

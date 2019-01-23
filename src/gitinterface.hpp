@@ -38,7 +38,7 @@ public slots:
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);
   void addLines(const QList<GitDiffLine> &lines, bool unstage);
-  void push();
+  void push(const QString& remote = "origin", const QVariant& branch = QVariant(), bool setUpstream = false);
   void pull(bool rebase);
   void setFullFileDiff(bool fullFileDiff);
   void revertLastCommit();

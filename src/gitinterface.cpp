@@ -550,9 +550,21 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
   status();
 }
 
-void GitInterface::push()
+void GitInterface::push(const QString &remote, const QVariant& branch, bool setUpstream)
 {
-  auto process = _impl->git({"push"});
+  QList<QString> args = {"push", remote};
+
+  if (setUpstream)
+  {
+    args << "--set-upstream";
+  }
+
+  if (!branch.isNull())
+  {
+    args << branch.toString();
+  }
+
+  auto process = _impl->git(args);
 
   if (process->exitCode() != 0)
   {
