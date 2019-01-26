@@ -378,6 +378,7 @@ struct MainWindowPrivate
           emit _this->repositoryAdded(interface);
           interface->reload();
         }
+        _this->ui->actionEdit_mode->setChecked(true);
       });
       action->setData(entry->id);
     }
@@ -466,6 +467,8 @@ struct MainWindowPrivate
       selectedGitInterface
     );
     _this->ui->tabWidget->addTab(history, _this->tr("History"));
+
+    _this->ui->actionEdit_mode->setChecked(true);
   }
 
   void restoreSettings(MainWindow *_this)
