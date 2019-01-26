@@ -34,6 +34,7 @@ struct MainWindowPrivate
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
   inline static const QString CONFIG_TABS = "tabs";
+  inline static const QString CONFIG_TAB_NAME = "tabName";
   inline static const QString CONFIG_DOCK_WIDGETS = "dockWidgets";
   inline static const QString CONFIG_REPOSITORIES = "repositories";
   inline static const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
@@ -410,7 +411,7 @@ struct MainWindowPrivate
       }
       page->restoreState(config.value(CONFIG_STATE).toByteArray());
       page->restoreGeometry(config.value(CONFIG_GEOMETRY).toByteArray());
-      _this->ui->tabWidget->addTab(page, tab.first);
+      _this->ui->tabWidget->addTab(page, config.value(CONFIG_TAB_NAME).toString());
     }
 
     _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
@@ -466,7 +467,8 @@ struct MainWindowPrivate
       config.insert(CONFIG_DOCK_WIDGETS, dockWidgetConfigurations);
       config.insert(CONFIG_STATE, tab->saveState());
       config.insert(CONFIG_GEOMETRY, tab->saveGeometry());
-      tabs.insert(_this->ui->tabWidget->tabText(x), config);
+      config.insert(CONFIG_TAB_NAME, _this->ui->tabWidget->tabText(x));
+      tabs.insert(QString::number(x), config);
     }
 
     settings.setValue(CONFIG_TABS, tabs);
