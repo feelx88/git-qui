@@ -16,7 +16,7 @@ struct LogViewPrivate
       _this->tr("Date"),
     });
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       _this->connect(newGitInterface.get(), &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
         _this->ui->treeWidget->clear();
         for (GitCommit commit : commits)
@@ -43,8 +43,8 @@ DOCK_WIDGET_IMPL(
     tr("Log view")
 )
 
-LogView::LogView(QWidget *parent, QSharedPointer<GitInterface>) :
-DockWidget(parent),
+LogView::LogView(MainWindow *mainWindow, QSharedPointer<GitInterface>) :
+DockWidget(mainWindow),
 ui(new Ui::LogView),
 _impl(new LogViewPrivate)
 {

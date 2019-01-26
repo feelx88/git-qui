@@ -30,7 +30,7 @@ struct RepositoryFilesPrivate
 
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       _this->disconnect(gitInterface.get(), signal, _this, nullptr);
       _this->disconnect(gitInterface.get(), &GitInterface::fileSelected, _this, nullptr);
 
@@ -199,8 +199,8 @@ DOCK_WIDGET_IMPL(
   tr("Repository files")
 )
 
-RepositoryFiles::RepositoryFiles(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-DockWidget(parent),
+RepositoryFiles::RepositoryFiles(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+DockWidget(mainWindow),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)
 {

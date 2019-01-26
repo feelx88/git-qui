@@ -15,11 +15,10 @@ struct BranchListPrivate
 
   void connectSignals(BranchList *_this)
   {
-    MainWindow *mainWindow = static_cast<MainWindow*>(_this->parent());
     italicFont = _this->ui->treeWidget->font();
     italicFont.setItalic(true);
 
-    _this->connect(mainWindow, &MainWindow::repositorySwitched, _this, [=](const QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](const QSharedPointer<GitInterface> newGitInterface){
       gitInterface->disconnect(gitInterface.get(), &GitInterface::branchesChanged, _this, nullptr);
 
       gitInterface = newGitInterface;
@@ -119,8 +118,8 @@ DOCK_WIDGET_IMPL(
   tr("Branch list")
 )
 
-BranchList::BranchList(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-DockWidget(parent),
+BranchList::BranchList(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+DockWidget(mainWindow),
 ui(new Ui::BranchList),
 _impl(new BranchListPrivate)
 {

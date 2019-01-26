@@ -9,9 +9,7 @@ struct RepositoryListPrivate
 
   void connectSignals(RepositoryList *_this)
   {
-    MainWindow *mainWindow = static_cast<MainWindow*>(_this->parent());
-
-    _this->connect(mainWindow, &MainWindow::repositoryAdded, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositoryAdded, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       QString directory = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
 
@@ -40,7 +38,7 @@ struct RepositoryListPrivate
       });
     });
 
-    _this->connect(mainWindow, &MainWindow::repositoryRemoved, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositoryRemoved, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
@@ -50,7 +48,7 @@ struct RepositoryListPrivate
       _this->disconnect(newGitInterface.get(), &GitInterface::branchChanged, _this, nullptr);
     });
 
-    _this->connect(mainWindow, &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       currentRepository = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
@@ -62,12 +60,12 @@ struct RepositoryListPrivate
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->treeWidget->currentItem())
       {
-        mainWindow->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+        _this->mainWindow()->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
       }
     });
 
-    _this->connect(_this->ui->pushButton, &QPushButton::clicked, static_cast<MainWindow*>(_this->parent()), &MainWindow::openRepository);
-    _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, static_cast<MainWindow*>(_this->parent()), &MainWindow::closeCurrentRepository);
+    _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this->mainWindow(), &MainWindow::openRepository);
+    _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, _this->mainWindow(), &MainWindow::closeCurrentRepository);
   }
 };
 
@@ -76,8 +74,8 @@ DOCK_WIDGET_IMPL(
     tr("Repository list")
 )
 
-RepositoryList::RepositoryList(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-  DockWidget(parent),
+RepositoryList::RepositoryList(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+  DockWidget(mainWindow),
   ui(new Ui::RepositoryList),
   _impl(new RepositoryListPrivate)
 {

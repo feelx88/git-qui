@@ -36,7 +36,7 @@ struct CommitPrivate
       _this->ui->pushButton_2->setEnabled(true);
     });
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       _this->disconnect(_this->ui->pushButton_2, &QPushButton::clicked, _this, nullptr);
       _this->disconnect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, nullptr);
       _this->disconnect(gitInterface.get(), &GitInterface::commited, _this, nullptr);
@@ -77,8 +77,8 @@ DOCK_WIDGET_IMPL(
   tr("Commit editor")
 )
 
-Commit::Commit(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-DockWidget(parent),
+Commit::Commit(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+DockWidget(mainWindow),
 ui(new Ui::Commit),
 _impl(new CommitPrivate)
 {

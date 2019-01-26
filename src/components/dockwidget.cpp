@@ -1,12 +1,13 @@
 #include "dockwidget.hpp"
-#include <QThread>
-#include <QMainWindow>
+
+#include "mainwindow.hpp"
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry*>> DockWidget::_registry;
 
-DockWidget::DockWidget(QWidget *parent) :
-QDockWidget(parent)
+DockWidget::DockWidget(MainWindow *mainWindow) :
+QDockWidget(mainWindow)
 {
+  _mainWindow = mainWindow;
   setAttribute(Qt::WA_DeleteOnClose);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -21,7 +22,13 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets()
   return registry()->values();
 }
 
-void DockWidget::create(QString className, QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface, const QString& id, const QVariant &configuration)
+void DockWidget::create(
+  QString className,
+  MainWindow *mainWindow,
+  const QSharedPointer<GitInterface> &gitInterface,
+  const QString& id,
+  const QVariant &configuration
+)
 {
   RegistryEntry *entry = registry()->value(className, nullptr);
 
@@ -46,6 +53,11 @@ void DockWidget::configure(const QVariant &)
 void DockWidget::setEditModeEnabled(bool enabled)
 {
   setTitleBarWidget(enabled ? nullptr : new QWidget(this));
+}
+
+MainWindow *DockWidget::mainWindow()
+{
+  return _mainWindow;
 }
 
 bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)

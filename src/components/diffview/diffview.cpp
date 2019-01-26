@@ -25,7 +25,7 @@ struct DiffViewPrivate
       resetSelected->setVisible(false);
     };
 
-    _this->connect(static_cast<MainWindow*>(_this->parent()), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
       _this->ui->treeWidget->clear();
       _this->disconnect(gitInterface.get(), &GitInterface::fileDiffed, _this, nullptr);
 
@@ -168,8 +168,8 @@ DOCK_WIDGET_IMPL(
     tr("Diff view")
 )
 
-DiffView::DiffView(QWidget *parent, const QSharedPointer<GitInterface> &gitInterface) :
-  DockWidget(parent),
+DiffView::DiffView(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+  DockWidget(mainWindow),
   ui(new Ui::DiffView),
   _impl(new DiffViewPrivate)
 {

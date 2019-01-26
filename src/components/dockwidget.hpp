@@ -17,13 +17,15 @@
   return new DockWidget::RegistryEntry { \
     name::staticMetaObject.className(), \
     displayName, \
-    [](QMainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface){return new name(mainWindow, gitInterface);} \
+    [](MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface){return new name(mainWindow, gitInterface);} \
   }; \
 }
 
 #include <QDockWidget>
 #include <QList>
 #include <QUuid>
+
+class MainWindow;
 
 class DockWidget : public QDockWidget
 {
@@ -32,14 +34,14 @@ public:
   {
     QString id;
     QString name;
-    std::function<DockWidget*(QMainWindow*, const QSharedPointer<GitInterface>&)> factory;
+    std::function<DockWidget*(MainWindow*, const QSharedPointer<GitInterface>&)> factory;
   };
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry*> registeredDockWidgets();
   static void create(
     QString className,
-    QMainWindow* mainWindow,
+    MainWindow *mainWindow,
     const QSharedPointer<GitInterface> &gitInterface,
     const QString &id = QUuid::createUuid().toString(),
     const QVariant &configuration = QVariant()
@@ -50,13 +52,17 @@ public:
 
   void setEditModeEnabled(bool enabled);
 
+  MainWindow *mainWindow();
+
 protected:
-  DockWidget(QWidget *parent = nullptr);
+  DockWidget(MainWindow *mainWindow);
   static bool doRegister(RegistryEntry *entry);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry*>> registry();
   static QSharedPointer<QMap<QString, RegistryEntry*>> _registry;
+
+  MainWindow *_mainWindow;
 };
 
 #endif // DOCKWIDGET_HPP
