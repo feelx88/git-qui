@@ -217,7 +217,7 @@ struct MainWindowPrivate
       _this->statusBar()->show();
       _this->statusBar()->showMessage("Pushing...");
       QtConcurrent::run([=]{
-        selectedGitInterface->push("origin", branch, true);
+        selectedGitInterface->push("origin", branch, addUpstream);
       });
     });
     _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{
