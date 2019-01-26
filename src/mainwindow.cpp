@@ -293,14 +293,16 @@ struct MainWindowPrivate
   {
     autoFetchTimer = new QTimer(_this);
     autoFetchTimer->setInterval(30000);
-    _this->connect(autoFetchTimer, &QTimer::timeout, _this, [=]{
+    auto timeout = [=]{
       for (auto interface : gitInterfaces)
       {
         QtConcurrent::run([=]{
           interface->fetch();
         });
       }
-    });
+    };
+    _this->connect(autoFetchTimer, &QTimer::timeout, _this, timeout);
+    timeout();
     autoFetchTimer->start();
   }
 
