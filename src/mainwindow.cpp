@@ -90,10 +90,13 @@ struct MainWindowPrivate
         QDir currentDir = QDir(iterator.next());
         currentDir.cdUp();
         QString path = currentDir.absolutePath();
-        auto inserted = gitInterfaces.insert(path, new GitInterface(_this, path));
-        repositories.append(path);
-        addRepositoryMenuEntry(_this, path);
-        emit _this->repositoryAdded(inserted.value());
+        if (repositories.indexOf(path) == -1)
+        {
+          auto inserted = gitInterfaces.insert(path, new GitInterface(_this, path));
+          repositories.append(path);
+          addRepositoryMenuEntry(_this, path);
+          emit _this->repositoryAdded(inserted.value());
+        }
       }
       return true;
     }
