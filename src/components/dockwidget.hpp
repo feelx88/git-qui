@@ -42,6 +42,7 @@ public:
   static void create(
     QString className,
     MainWindow *mainWindow,
+    QMainWindow *container,
     const QSharedPointer<GitInterface> &gitInterface,
     const QString &id = QUuid::createUuid().toString(),
     const QVariant &configuration = QVariant()

@@ -33,6 +33,7 @@ struct MainWindowPrivate
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
+  inline static const QString CONFIG_TABS = "tabs";
   inline static const QString CONFIG_DOCK_WIDGETS = "dockWidgets";
   inline static const QString CONFIG_REPOSITORIES = "repositories";
   inline static const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
@@ -286,6 +287,24 @@ struct MainWindowPrivate
       {
         dockWidget->setEditModeEnabled(editMode);
       }
+      _this->ui->tabWidget->setTabsClosable(editMode);
+    });
+
+    _this->connect(_this->ui->actionAdd_tab, &QAction::triggered, _this, [=]{
+      QString tabName = QInputDialog::getText(
+        _this,
+        _this->tr("Tab name"),
+        _this->tr("Please enter the new tab's name")
+      );
+      if (!tabName.isNull())
+      {
+        QMainWindow *tab = createTab(_this);
+        _this->ui->tabWidget->addTab(tab, tabName);
+      }
+    });
+
+    _this->connect(_this->ui->tabWidget, &QTabWidget::tabCloseRequested, _this, [=](int index){
+      _this->ui->tabWidget->removeTab(index);
     });
   }
 
@@ -334,7 +353,12 @@ struct MainWindowPrivate
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
       QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=]{
-        DockWidget::create(entry->id, _this, selectedGitInterface);
+        DockWidget::create(
+          entry->id,
+          _this,
+          static_cast<QMainWindow*>(_this->ui->tabWidget->currentWidget()),
+          selectedGitInterface
+        );
         emit _this->repositorySwitched(selectedGitInterface);
         for (auto interface : gitInterfaces) {
           emit _this->repositoryAdded(interface);
@@ -345,27 +369,49 @@ struct MainWindowPrivate
     }
   }
 
+  QMainWindow *createTab(MainWindow *_this)
+  {
+    QMainWindow *tab = new QMainWindow(_this->ui->tabWidget);
+    tab->setDockOptions(
+      QMainWindow::AllowNestedDocks |
+      QMainWindow::AllowTabbedDocks |
+      QMainWindow::AnimatedDocks |
+      QMainWindow::GroupedDragging
+    );
+    return tab;
+  }
+
   void restoreSettings(MainWindow *_this)
   {
     QSettings settings;
     _this->restoreGeometry(settings.value(CONFIG_GEOMETRY).toByteArray());
 
-    QList<QVariant> dockWidgetConfigurations =
-      settings.value(CONFIG_DOCK_WIDGETS).toList();
+    QMap<QString, QVariant> tabs =
+      settings.value(CONFIG_TABS).toMap();
 
-    for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
+    for (auto tab : tabs.toStdMap())
     {
-      QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
-      DockWidget::create(
-        config.value(CONFIG_DW_CLASS).toString(),
-        _this,
-        selectedGitInterface,
-        config.value(CONFIG_DW_ID).toString(),
-        config.value(CONFIG_DW_CONFIGURATION)
-      );
-    }
+      QMap<QString, QVariant> config = tab.second.toMap();
+      QList<QVariant> dockWidgetConfigurations = config.value(CONFIG_DOCK_WIDGETS).toList();
 
-    _this->restoreState(settings.value(CONFIG_STATE).toByteArray());
+      QMainWindow *page = createTab(_this);
+
+      for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
+      {
+        QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
+        DockWidget::create(
+          config.value(CONFIG_DW_CLASS).toString(),
+          _this,
+          page,
+          selectedGitInterface,
+          config.value(CONFIG_DW_ID).toString(),
+          config.value(CONFIG_DW_CONFIGURATION)
+        );
+      }
+      page->restoreState(config.value(CONFIG_STATE).toByteArray());
+      page->restoreGeometry(config.value(CONFIG_GEOMETRY).toByteArray());
+      _this->ui->tabWidget->addTab(page, tab.first);
+    }
 
     _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
   }
@@ -393,25 +439,37 @@ struct MainWindowPrivate
     settings.setValue(CONFIG_CURRENT_REPOSITORY, QVariant(currentRepository));
     settings.setValue(CONFIG_EDIT_MODE, editMode);
 
-    QList<QVariant> dockWidgetConfigurations;
+    QMap<QString, QVariant> tabs;
 
-    for (auto dockWidget : _this->findChildren<DockWidget*>())
+    for (int x = 0; x < _this->ui->tabWidget->count(); ++x)
     {
-      QMap<QString, QVariant> configuration;
-      configuration.insert(
-        CONFIG_DW_CLASS, dockWidget->metaObject()->className()
-      );
-      configuration.insert(
-        CONFIG_DW_ID, dockWidget->objectName()
-      );
-      configuration.insert(
-        CONFIG_DW_CONFIGURATION, dockWidget->configuration()
-      );
-      dockWidgetConfigurations.append(configuration);
-      delete dockWidget;
+      QMap<QString, QVariant> config;
+      QList<QVariant> dockWidgetConfigurations;
+      QMainWindow *tab = static_cast<QMainWindow*>(_this->ui->tabWidget->widget(x));
+
+      for (auto dockWidget : tab->findChildren<DockWidget*>())
+      {
+        QMap<QString, QVariant> configuration;
+        configuration.insert(
+          CONFIG_DW_CLASS, dockWidget->metaObject()->className()
+        );
+        configuration.insert(
+          CONFIG_DW_ID, dockWidget->objectName()
+        );
+        configuration.insert(
+          CONFIG_DW_CONFIGURATION, dockWidget->configuration()
+        );
+        dockWidgetConfigurations.append(configuration);
+        delete dockWidget;
+      }
+
+      config.insert(CONFIG_DOCK_WIDGETS, dockWidgetConfigurations);
+      config.insert(CONFIG_STATE, tab->saveState());
+      config.insert(CONFIG_GEOMETRY, tab->saveGeometry());
+      tabs.insert(_this->ui->tabWidget->tabText(x), config);
     }
 
-    settings.setValue(CONFIG_DOCK_WIDGETS, QVariant(dockWidgetConfigurations));
+    settings.setValue(CONFIG_TABS, tabs);
   }
 };
 

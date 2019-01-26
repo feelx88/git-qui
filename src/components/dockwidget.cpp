@@ -25,6 +25,7 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets()
 void DockWidget::create(
   QString className,
   MainWindow *mainWindow,
+  QMainWindow *container,
   const QSharedPointer<GitInterface> &gitInterface,
   const QString& id,
   const QVariant &configuration
@@ -35,7 +36,7 @@ void DockWidget::create(
   if (entry)
   {
     DockWidget *widget = entry->factory(mainWindow, gitInterface);
-    mainWindow->addDockWidget(Qt::TopDockWidgetArea, widget);
+    container->addDockWidget(Qt::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
   }
