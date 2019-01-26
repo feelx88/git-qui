@@ -307,6 +307,19 @@ struct MainWindowPrivate
     _this->connect(_this->ui->tabWidget, &QTabWidget::tabCloseRequested, _this, [=](int index){
       _this->ui->tabWidget->removeTab(index);
     });
+
+    _this->connect(_this->ui->actionRestore_defaults, &QAction::triggered, _this, [=]{
+      auto response = QMessageBox::question(
+        _this,
+        _this->tr("Restore defaults"),
+        _this->tr("Do really want to restore the default tab and widget configuration?")
+      );
+      if (response == QMessageBox::Yes)
+      {
+        _this->ui->tabWidget->clear();
+        initFirstTimeConfig(_this);
+      }
+    });
   }
 
   void initAutoFetchTimer(MainWindow *_this)
@@ -384,12 +397,6 @@ struct MainWindowPrivate
 
   void initFirstTimeConfig(MainWindow *_this)
   {
-    QSettings settings;
-    if (settings.contains(CONFIG_TABS))
-    {
-      return;
-    }
-
     QMainWindow *main = createTab(_this);
     QMap<QString, QVariant> unstagedConfig = {{"unstaged", true}};
     DockWidget::create(
@@ -464,6 +471,13 @@ struct MainWindowPrivate
   void restoreSettings(MainWindow *_this)
   {
     QSettings settings;
+
+    if (!settings.contains(CONFIG_GEOMETRY))
+    {
+      initFirstTimeConfig(_this);
+      return;
+    }
+
     _this->restoreGeometry(settings.value(CONFIG_GEOMETRY).toByteArray());
 
     QMap<QString, QVariant> tabs =
@@ -570,7 +584,6 @@ _impl(new MainWindowPrivate)
   }
 
   _impl->populateMenu(this);
-  _impl->initFirstTimeConfig(this);
   _impl->restoreSettings(this);
 
   for (auto interface : _impl->gitInterfaces) {
