@@ -9,7 +9,7 @@
 
 struct CommitPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
+  GitInterface *gitInterface;
   QList<GitFile> unstagedFiles, stagedFiles;
 
   void connectSignals(Commit *_this)
@@ -36,12 +36,12 @@ struct CommitPrivate
       _this->ui->pushButton_2->setEnabled(true);
     });
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
       _this->disconnect(_this->ui->pushButton_2, &QPushButton::clicked, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::commited, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::lastCommitReverted, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::commited, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::stagingAreaChanged, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::nonStagingAreaChanged, _this, nullptr);
 
       gitInterface = newGitInterface;
 
@@ -49,20 +49,20 @@ struct CommitPrivate
         gitInterface->revertLastCommit();
       });
 
-      _this->connect(gitInterface.get(), &GitInterface::lastCommitReverted, _this, [=](const QString &message){
+      _this->connect(gitInterface, &GitInterface::lastCommitReverted, _this, [=](const QString &message){
         _this->ui->plainTextEdit->setPlainText(message);
         _this->ui->pushButton_2->setDisabled(true);
       });
 
-      _this->connect(gitInterface.get(), &GitInterface::commited, _this, [=]{
+      _this->connect(gitInterface, &GitInterface::commited, _this, [=]{
         _this->ui->plainTextEdit->clear();
       });
 
-      _this->connect(gitInterface.get(), &GitInterface::stagingAreaChanged, _this, [=](const QList<GitFile> &list){
+      _this->connect(gitInterface, &GitInterface::stagingAreaChanged, _this, [=](const QList<GitFile> &list){
         stagedFiles = list;
       });
 
-      _this->connect(gitInterface.get(), &GitInterface::nonStagingAreaChanged, _this, [=](const QList<GitFile> &list){
+      _this->connect(gitInterface, &GitInterface::nonStagingAreaChanged, _this, [=](const QList<GitFile> &list){
         unstagedFiles = list;
       });
     });
@@ -77,7 +77,7 @@ DOCK_WIDGET_IMPL(
   tr("Commit editor")
 )
 
-Commit::Commit(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+Commit::Commit(MainWindow *mainWindow, GitInterface *gitInterface) :
 DockWidget(mainWindow),
 ui(new Ui::Commit),
 _impl(new CommitPrivate)

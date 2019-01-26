@@ -17,7 +17,7 @@
   return new DockWidget::RegistryEntry { \
     name::staticMetaObject.className(), \
     displayName, \
-    [](MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface){return new name(mainWindow, gitInterface);} \
+    [](MainWindow *mainWindow, GitInterface *gitInterface){return new name(mainWindow, gitInterface);} \
   }; \
 }
 
@@ -34,7 +34,7 @@ public:
   {
     QString id;
     QString name;
-    std::function<DockWidget*(MainWindow*, const QSharedPointer<GitInterface>&)> factory;
+    std::function<DockWidget*(MainWindow*, GitInterface*)> factory;
   };
 
   virtual ~DockWidget() override;
@@ -43,7 +43,7 @@ public:
     QString className,
     MainWindow *mainWindow,
     QMainWindow *container,
-    const QSharedPointer<GitInterface> &gitInterface,
+    GitInterface *gitInterface,
     const QString &id = QUuid::createUuid().toString(),
     const QVariant &configuration = QVariant()
   );

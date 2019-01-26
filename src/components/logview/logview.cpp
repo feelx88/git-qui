@@ -7,6 +7,8 @@
 
 struct LogViewPrivate
 {
+  GitInterface *gitInterface;
+
   void connectSignals(LogView *_this)
   {
     _this->ui->treeWidget->setHeaderLabels({
@@ -16,8 +18,12 @@ struct LogViewPrivate
       _this->tr("Date"),
     });
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
-      _this->connect(newGitInterface.get(), &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
+      _this->disconnect(gitInterface, &GitInterface::logChanged, _this, nullptr);
+
+      gitInterface = newGitInterface;
+
+      _this->connect(gitInterface, &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
         _this->ui->treeWidget->clear();
         for (GitCommit commit : commits)
         {
@@ -43,13 +49,14 @@ DOCK_WIDGET_IMPL(
     tr("Log view")
 )
 
-LogView::LogView(MainWindow *mainWindow, QSharedPointer<GitInterface>) :
+LogView::LogView(MainWindow *mainWindow, GitInterface *gitInterface) :
 DockWidget(mainWindow),
 ui(new Ui::LogView),
 _impl(new LogViewPrivate)
 {
   ui->setupUi(this);
 
+  _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
 }
 

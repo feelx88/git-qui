@@ -10,7 +10,7 @@
 
 struct BranchListPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
+  GitInterface *gitInterface;
   QFont italicFont;
 
   void connectSignals(BranchList *_this)
@@ -18,12 +18,12 @@ struct BranchListPrivate
     italicFont = _this->ui->treeWidget->font();
     italicFont.setItalic(true);
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](const QSharedPointer<GitInterface> newGitInterface){
-      gitInterface->disconnect(gitInterface.get(), &GitInterface::branchesChanged, _this, nullptr);
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
+      gitInterface->disconnect(gitInterface, &GitInterface::branchesChanged, _this, nullptr);
 
       gitInterface = newGitInterface;
 
-      gitInterface->connect(gitInterface.get(), &GitInterface::branchesChanged, _this, [=](const QList<GitBranch> &branches){
+      gitInterface->connect(gitInterface, &GitInterface::branchesChanged, _this, [=](const QList<GitBranch> &branches){
         _this->ui->treeWidget->clear();
         _this->ui->treeWidget_2->clear();
 
@@ -118,7 +118,7 @@ DOCK_WIDGET_IMPL(
   tr("Branch list")
 )
 
-BranchList::BranchList(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+BranchList::BranchList(MainWindow *mainWindow, GitInterface *gitInterface) :
 DockWidget(mainWindow),
 ui(new Ui::BranchList),
 _impl(new BranchListPrivate)

@@ -18,7 +18,7 @@ class Commit : public DockWidget
   friend struct CommitPrivate;
 
 public:
-  explicit Commit(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface);
+  explicit Commit(MainWindow *mainWindow, GitInterface *gitInterface);
   virtual ~Commit() override;
   virtual QVariant configuration() override;
   virtual void configure(const QVariant &configuration) override;

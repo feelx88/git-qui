@@ -8,7 +8,7 @@
 
 struct RepositoryFilesPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
+  GitInterface *gitInterface;
   bool unstaged;
   QString selection;
 
@@ -30,13 +30,13 @@ struct RepositoryFilesPrivate
 
     auto signal = unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged;
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
-      _this->disconnect(gitInterface.get(), signal, _this, nullptr);
-      _this->disconnect(gitInterface.get(), &GitInterface::fileSelected, _this, nullptr);
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
+      _this->disconnect(gitInterface, signal, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::fileSelected, _this, nullptr);
 
       gitInterface = newGitInterface;
 
-      _this->connect(gitInterface.get(), signal, _this, [=](const QList<GitFile> &files){
+      _this->connect(gitInterface, signal, _this, [=](const QList<GitFile> &files){
         _this->ui->listWidget->clear();
         _this->ui->treeWidget->clear();
         for(auto file: files)
@@ -82,7 +82,7 @@ struct RepositoryFilesPrivate
         _this->ui->treeWidget->expandAll();
       });
 
-      _this->connect(gitInterface.get(), &GitInterface::fileSelected, _this, [=](bool unstaged, const QString &path){
+      _this->connect(gitInterface, &GitInterface::fileSelected, _this, [=](bool unstaged, const QString &path){
         if (unstaged != this->unstaged)
         {
           _this->ui->listWidget->setCurrentItem(nullptr);
@@ -199,7 +199,7 @@ DOCK_WIDGET_IMPL(
   tr("Repository files")
 )
 
-RepositoryFiles::RepositoryFiles(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+RepositoryFiles::RepositoryFiles(MainWindow *mainWindow, GitInterface *gitInterface) :
 DockWidget(mainWindow),
 ui(new Ui::RepositoryFiles),
 _impl(new RepositoryFilesPrivate)

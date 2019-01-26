@@ -23,8 +23,8 @@
 
 struct MainWindowPrivate
 {
-  QSharedPointer<GitInterface> selectedGitInterface;
-  QMap<QString, QSharedPointer<GitInterface>> gitInterfaces;
+  GitInterface* selectedGitInterface;
+  QMap<QString, GitInterface*> gitInterfaces;
   QList<QString> repositories;
   int currentRepository = 0;
   QLabel *progressSpinner;
@@ -60,7 +60,7 @@ struct MainWindowPrivate
     {
       for (auto repository : repositories)
       {
-        gitInterfaces.insert(repository, QSharedPointer<GitInterface>(new GitInterface(_this, repository)));
+        gitInterfaces.insert(repository, new GitInterface(_this, repository));
         addRepositoryMenuEntry(_this, repository);
       }
     }
@@ -90,7 +90,7 @@ struct MainWindowPrivate
         QDir currentDir = QDir(iterator.next());
         currentDir.cdUp();
         QString path = currentDir.absolutePath();
-        auto inserted = gitInterfaces.insert(path, QSharedPointer<GitInterface>(new GitInterface(_this, path)));
+        auto inserted = gitInterfaces.insert(path, new GitInterface(_this, path));
         repositories.append(path);
         addRepositoryMenuEntry(_this, path);
         emit _this->repositoryAdded(inserted.value());
@@ -339,23 +339,23 @@ struct MainWindowPrivate
     autoFetchTimer->start();
   }
 
-  void connectGitInterfaceSignals(MainWindow *_this, const QSharedPointer<GitInterface> &gitInterface)
+  void connectGitInterfaceSignals(MainWindow *_this, GitInterface *gitInterface)
   {
-    _this->connect(gitInterface.get(), &GitInterface::reloaded, _this, [=]{
+    _this->connect(gitInterface, &GitInterface::reloaded, _this, [=]{
       emit _this->repositoryAdded(gitInterfaces.value(gitInterface->path()));
     });
-    _this->connect(gitInterface.get(), &GitInterface::pushed, _this, [=]{
+    _this->connect(gitInterface, &GitInterface::pushed, _this, [=]{
       progressSpinner->hide();
       _this->statusBar()->showMessage(_this->tr("Pushed succesfully"), 3000);
       gitInterface->log();
     });
-    _this->connect(gitInterface.get(), &GitInterface::pulled, _this, [=]{
+    _this->connect(gitInterface, &GitInterface::pulled, _this, [=]{
       progressSpinner->hide();
       _this->statusBar()->showMessage(_this->tr("Pulled succesfully"), 3000);
       gitInterface->log();
     });
 
-    _this->connect(gitInterface.get(), &GitInterface::error, _this, [=](const QString& message){
+    _this->connect(gitInterface, &GitInterface::error, _this, [=](const QString& message){
       progressSpinner->hide();
       _this->statusBar()->show();
       _this->statusBar()->showMessage(message, 3000);

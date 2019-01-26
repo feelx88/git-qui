@@ -10,7 +10,7 @@
 
 struct DiffViewPrivate
 {
-  QSharedPointer<GitInterface> gitInterface;
+  GitInterface *gitInterface;
   bool unstaged = false;
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
@@ -25,13 +25,13 @@ struct DiffViewPrivate
       resetSelected->setVisible(false);
     };
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface* newGitInterface){
       _this->ui->treeWidget->clear();
-      _this->disconnect(gitInterface.get(), &GitInterface::fileDiffed, _this, nullptr);
+      _this->disconnect(gitInterface, &GitInterface::fileDiffed, _this, nullptr);
 
       gitInterface = newGitInterface;
 
-      _this->connect(gitInterface.get(), &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
+      _this->connect(gitInterface, &GitInterface::fileDiffed, _this, [=](const QString &path, QList<GitDiffLine> lines, bool unstaged){
         stageOrUnstageSelected->setVisible(true);
         resetSelected->setVisible(true);
         resetSelected->setEnabled(unstaged);
@@ -168,7 +168,7 @@ DOCK_WIDGET_IMPL(
     tr("Diff view")
 )
 
-DiffView::DiffView(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+DiffView::DiffView(MainWindow *mainWindow, GitInterface *gitInterface) :
   DockWidget(mainWindow),
   ui(new Ui::DiffView),
   _impl(new DiffViewPrivate)

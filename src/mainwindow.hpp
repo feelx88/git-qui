@@ -26,9 +26,9 @@ public slots:
   void switchRepository(const QString &path);
 
 signals:
-  void repositoryAdded(QSharedPointer<GitInterface> repository);
-  void repositoryRemoved(QSharedPointer<GitInterface> repository);
-  void repositorySwitched(QSharedPointer<GitInterface> repository);
+  void repositoryAdded(GitInterface *repository);
+  void repositoryRemoved(GitInterface *repository);
+  void repositorySwitched(GitInterface *repository);
 
 protected:
   void changeEvent(QEvent *);

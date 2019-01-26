@@ -9,7 +9,7 @@ struct RepositoryListPrivate
 
   void connectSignals(RepositoryList *_this)
   {
-    _this->connect(_this->mainWindow(), &MainWindow::repositoryAdded, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositoryAdded, _this, [=](GitInterface *newGitInterface){
       QString directory = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
 
@@ -25,7 +25,7 @@ struct RepositoryListPrivate
       item->setTextAlignment(1, Qt::AlignRight);
       _this->ui->treeWidget->addTopLevelItem(item);
 
-      _this->connect(newGitInterface.get(), &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
+      _this->connect(newGitInterface, &GitInterface::branchChanged, _this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
         if (hasUpstream)
         {
           item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
@@ -38,17 +38,17 @@ struct RepositoryListPrivate
       });
     });
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositoryRemoved, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositoryRemoved, _this, [=](GitInterface *newGitInterface){
       auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
       {
         delete items.first();
       }
 
-      _this->disconnect(newGitInterface.get(), &GitInterface::branchChanged, _this, nullptr);
+      _this->disconnect(newGitInterface, &GitInterface::branchChanged, _this, nullptr);
     });
 
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](QSharedPointer<GitInterface> newGitInterface){
+    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
       currentRepository = newGitInterface->path().split('/').last();
       auto items = _this->ui->treeWidget->findItems(currentRepository, Qt::MatchCaseSensitive, 0);
       if (!items.isEmpty())
@@ -74,7 +74,7 @@ DOCK_WIDGET_IMPL(
     tr("Repository list")
 )
 
-RepositoryList::RepositoryList(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface) :
+RepositoryList::RepositoryList(MainWindow *mainWindow, GitInterface *gitInterface) :
   DockWidget(mainWindow),
   ui(new Ui::RepositoryList),
   _impl(new RepositoryListPrivate)

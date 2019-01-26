@@ -17,7 +17,7 @@ class RepositoryList : public DockWidget
   friend struct RepositoryListPrivate;
 
 public:
-  explicit RepositoryList(MainWindow *mainWindow, const QSharedPointer<GitInterface> &gitInterface);
+  explicit RepositoryList(MainWindow *mainWindow, GitInterface *gitInterface);
   virtual ~RepositoryList() override;
 
 private:

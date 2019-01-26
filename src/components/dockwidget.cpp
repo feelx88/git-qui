@@ -26,7 +26,7 @@ void DockWidget::create(
   QString className,
   MainWindow *mainWindow,
   QMainWindow *container,
-  const QSharedPointer<GitInterface> &gitInterface,
+  GitInterface *gitInterface,
   const QString& id,
   const QVariant &configuration
 )
