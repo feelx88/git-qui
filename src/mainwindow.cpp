@@ -382,6 +382,85 @@ struct MainWindowPrivate
     return tab;
   }
 
+  void initFirstTimeConfig(MainWindow *_this)
+  {
+    QSettings settings;
+    if (settings.contains(CONFIG_TABS))
+    {
+      return;
+    }
+
+    QMainWindow *main = createTab(_this);
+    QMap<QString, QVariant> unstagedConfig = {{"unstaged", true}};
+    DockWidget::create(
+      "RepositoryFiles",
+      _this,
+      main,
+      selectedGitInterface,
+      QUuid::createUuid().toString(),
+      unstagedConfig
+    );
+    QMap<QString, QVariant> stagedConfig = {{"unstaged", false}};
+    DockWidget::create(
+      "RepositoryFiles",
+      _this,
+      main,
+      selectedGitInterface,
+      QUuid::createUuid().toString(),
+      stagedConfig
+    );
+    DockWidget::create(
+      "DiffView",
+      _this,
+      main,
+      selectedGitInterface
+    );
+    DockWidget::create(
+      "Commit",
+      _this,
+      main,
+      selectedGitInterface
+    );
+    DockWidget::create(
+      "RepositoryList",
+      _this,
+      main,
+      selectedGitInterface
+    );
+    DockWidget::create(
+      "BranchList",
+      _this,
+      main,
+      selectedGitInterface
+    );
+    main->splitDockWidget(
+      static_cast<QDockWidget*>(main->children()[1]),
+      static_cast<QDockWidget*>(main->children()[2]),
+      Qt::Vertical
+    );
+    main->splitDockWidget(
+      static_cast<QDockWidget*>(main->children()[3]),
+      static_cast<QDockWidget*>(main->children()[4]),
+      Qt::Vertical
+    );
+    main->splitDockWidget(
+      static_cast<QDockWidget*>(main->children()[5]),
+      static_cast<QDockWidget*>(main->children()[6]),
+      Qt::Vertical
+    );
+
+    _this->ui->tabWidget->addTab(main, _this->tr("Main"));
+
+    QMainWindow *history = createTab(_this);
+    DockWidget::create(
+      "LogView",
+      _this,
+      history,
+      selectedGitInterface
+    );
+    _this->ui->tabWidget->addTab(history, _this->tr("History"));
+  }
+
   void restoreSettings(MainWindow *_this)
   {
     QSettings settings;
@@ -491,6 +570,7 @@ _impl(new MainWindowPrivate)
   }
 
   _impl->populateMenu(this);
+  _impl->initFirstTimeConfig(this);
   _impl->restoreSettings(this);
 
   for (auto interface : _impl->gitInterfaces) {
