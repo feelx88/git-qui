@@ -56,6 +56,9 @@
     </item>
     <item>
      <widget class="QTreeWidget" name="treeWidget_2">
+      <property name="contextMenuPolicy">
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
       <property name="rootIsDecorated">
        <bool>true</bool>
       </property>
