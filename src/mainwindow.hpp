@@ -20,6 +20,8 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
+  const QList<GitInterface*> repositories() const;
+
 public slots:
   void openRepository();
   void closeCurrentRepository();

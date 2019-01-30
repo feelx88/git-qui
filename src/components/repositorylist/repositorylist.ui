@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>466</width>
     <height>300</height>
    </rect>
   </property>
@@ -28,6 +28,26 @@
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Close current repository</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton">
+        <property name="text">
+         <string>Pull</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::MenuButtonPopup</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_2">
+        <property name="text">
+         <string>Push</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::MenuButtonPopup</enum>
         </property>
        </widget>
       </item>
@@ -86,6 +106,16 @@
     </item>
    </layout>
   </widget>
+  <action name="actionPull_all_repositories">
+   <property name="text">
+    <string>Pull all repositories</string>
+   </property>
+  </action>
+  <action name="actionPush_all_repositories">
+   <property name="text">
+    <string>Push all repositories</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

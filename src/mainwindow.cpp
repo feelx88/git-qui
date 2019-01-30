@@ -612,6 +612,11 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
+const QList<GitInterface*> MainWindow::repositories() const
+{
+  return _impl->gitInterfaces.values();
+}
+
 void MainWindow::openRepository()
 {
   _impl->selectRepository(this);
