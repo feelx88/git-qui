@@ -603,6 +603,8 @@ _impl(new MainWindowPrivate)
 MainWindow::~MainWindow()
 {
   _impl->saveSettings(this);
+  QThreadPool::globalInstance()->clear();
+  QThreadPool::globalInstance()->waitForDone();
 
   for (auto interface : _impl->gitInterfaces)
   {
