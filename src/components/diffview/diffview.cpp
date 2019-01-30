@@ -26,7 +26,7 @@ struct DiffViewPrivate
     };
 
     _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface* newGitInterface){
-      _this->ui->treeWidget->clear();
+      clear();
       _this->disconnect(gitInterface, &GitInterface::fileDiffed, _this, nullptr);
 
       gitInterface = newGitInterface;
