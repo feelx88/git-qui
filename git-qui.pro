@@ -1,4 +1,4 @@
-QT += core gui widgets webengine
+QT += core gui widgets
 
 CONFIG += c++1z
 
