@@ -1,7 +1,6 @@
 #ifndef GITINTERFACE_H
 #define GITINTERFACE_H
 
-#include <memory>
 #include <QObject>
 #include <QVariant>
 

@@ -5,8 +5,6 @@
 #include <QProcess>
 #include <QDebug>
 
-#include "gitcommit.hpp"
-
 class GitInterfacePrivate
 {
 public:
