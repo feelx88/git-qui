@@ -1,4 +1,4 @@
-![git-qui](https://raw.githubusercontent.com/feelx88/git-qui/master/deploy/git-qui.svg "git-qui")
+![git-qui](https://raw.githubusercontent.com/feelx88/git-qui/master/deploy/git-qui.svg?sanitize=true "git-qui")
 
 # git-qui
 qt5 ui replacement for git-gui.
