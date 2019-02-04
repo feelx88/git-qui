@@ -34,7 +34,11 @@ HEADERS += \
 
 OTHER_FILES += \
     .gitignore \
-    qpm.json
+    qpm.json \
+    README.md \
+    LICENSE \
+    deploy/git-qui.svg \
+    deploy/git-qui.desktop
 
 FORMS += \
     src/mainwindow.ui \
