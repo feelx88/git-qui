@@ -584,13 +584,13 @@ void GitInterface::pull(bool rebase)
   }
   auto process = _impl->git(arguments);
 
+  status();
   if (process->exitCode() != 0)
   {
     emit error(tr("Pull has failed"));
   }
   else
   {
-    status();
     emit pulled();
   }
 }
