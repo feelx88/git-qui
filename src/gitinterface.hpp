@@ -47,6 +47,8 @@ public slots:
   void createBranch(const QString &name);
   void deleteBranch(const QString &name);
   void setUpstream(const QString &remote, const QString &branch);
+  void stash();
+  void stashPop();
 signals:
   void fileChanged(const QFile& fileName);
   void nonStagingAreaChanged(const QList<GitFile>&);

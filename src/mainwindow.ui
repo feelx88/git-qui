@@ -58,7 +58,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -113,6 +113,9 @@
     <addaction name="actionPush"/>
     <addaction name="actionPull"/>
     <addaction name="actionPull_Rebase"/>
+    <addaction name="separator"/>
+    <addaction name="actionStash_changes"/>
+    <addaction name="actionStash_pop"/>
     <addaction name="separator"/>
     <addaction name="actionQuick_cleanup"/>
     <addaction name="actionClose_current_repository"/>
@@ -232,6 +235,16 @@
   <action name="actionRestore_defaults">
    <property name="text">
     <string>&amp;Restore defaults</string>
+   </property>
+  </action>
+  <action name="actionStash_changes">
+   <property name="text">
+    <string>Stash changes</string>
+   </property>
+  </action>
+  <action name="actionStash_pop">
+   <property name="text">
+    <string>Stash pop</string>
    </property>
   </action>
  </widget>

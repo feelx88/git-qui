@@ -323,6 +323,14 @@ struct MainWindowPrivate
         initFirstTimeConfig(_this);
       }
     });
+
+    _this->connect(_this->ui->actionStash_changes, &QAction::triggered, _this, [=]{
+      selectedGitInterface->stash();
+    });
+
+    _this->connect(_this->ui->actionStash_pop, &QAction::triggered, _this, [=]{
+      selectedGitInterface->stashPop();
+    });
   }
 
   void initAutoFetchTimer(MainWindow *_this)

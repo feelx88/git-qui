@@ -675,3 +675,15 @@ void GitInterface::setUpstream(const QString &remote, const QString &branch)
     QString("--set-upstream-to=%1/%2").arg(remote).arg(branch)
   });
 }
+
+void GitInterface::stash()
+{
+  _impl->git({"stash"});
+  status();
+}
+
+void GitInterface::stashPop()
+{
+  _impl->git({"stash", "pop"});
+  status();
+}
