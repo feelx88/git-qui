@@ -50,7 +50,7 @@ struct RepositoryListPrivate
           auto item = items.first();
           item->setDisabled(true);
           item->setText(1, _this->tr("Pushing..."));
-          item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-ok.svg")));
+          item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
         }
       });
 
@@ -62,12 +62,12 @@ struct RepositoryListPrivate
           auto item = items.first();
           item->setDisabled(true);
           item->setText(1, _this->tr("Pulling..."));
-          item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-ok.svg")));
+          item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
         }
       });
 
       _this->connect(newGitInterface, &GitInterface::error, _this, [=]{
-        item->setIcon(0, QIcon::fromTheme("state-error", QIcon(":/deploy/icons/state-ok.svg")));
+        item->setIcon(0, QIcon::fromTheme("state-error", QIcon(":/deploy/icons/state-error.svg")));
       });
     });
 
