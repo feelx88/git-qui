@@ -53,7 +53,9 @@ void DockWidget::configure(const QVariant &)
 
 void DockWidget::setEditModeEnabled(bool enabled)
 {
-  setTitleBarWidget(enabled ? nullptr : new QWidget(this));
+  setFeatures(enabled ?
+    features() | DockWidgetClosable | DockWidgetMovable :
+    features() & ~DockWidgetClosable & ~DockWidgetMovable);
 }
 
 MainWindow *DockWidget::mainWindow()
