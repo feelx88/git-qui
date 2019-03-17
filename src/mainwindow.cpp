@@ -293,6 +293,11 @@ struct MainWindowPrivate
       {
         dockWidget->setEditModeEnabled(editMode);
       }
+
+      for(auto toolbar : _this->findChildren<QToolBar*>())
+      {
+        toolbar->setMovable(editMode);
+      }
       _this->ui->tabWidget->setTabsClosable(editMode);
     });
 
@@ -340,6 +345,7 @@ struct MainWindowPrivate
     QToolBar *toolbar = new QToolBar(_this);
     toolbar->setContextMenuPolicy(Qt::CustomContextMenu);
     toolbar->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
+    toolbar->setMovable(editMode);
 
     _this->connect(toolbar, &QToolBar::customContextMenuRequested, _this, [=](const QPoint &pos){
       QAction *configAction = new QAction(_this->tr("Configure toolbar..."), toolbar);
