@@ -20,5 +20,6 @@
         <file>deploy/icons/go-previous.svg</file>
         <file>deploy/icons/go-top.svg</file>
         <file>deploy/icons/go-up.svg</file>
+        <file>deploy/icons/distribute-graph-directed.svg</file>
     </qresource>
 </RCC>

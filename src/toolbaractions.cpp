@@ -2,6 +2,7 @@
 
 #include <QAction>
 #include <QtConcurrent/QtConcurrent>
+#include <QInputDialog>
 
 #include "qobjecthelpers.hpp"
 #include "mainwindow.hpp"
@@ -17,6 +18,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   addAction("pull", "expand-all", "Pull current repository (with rebase)");
   addAction("push-all", "go-top", "Push all repositories");
   addAction("pull-all", "go-bottom", "Pull all repositories (with rebase)");
+  addAction("new-branch", "distribute-graph-directed", "Create new branch");
 
   for (auto &[id, action]: _actionMap.toStdMap())
   {
@@ -42,6 +44,14 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
       QtConcurrent::run([=]{
         repository->pull(true);
       });
+    });
+
+    RECONNECT(_actionMap["new-branch"], &QAction::triggered, _actionMap["new-branch"], [=]{
+      repository->createBranch(
+        QInputDialog::getText(mainWindow,
+        QObject::tr("Create new branch"),
+        QObject::tr("New branch name"))
+      );
     });
   });
 

@@ -16,13 +16,6 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPushButton" name="createBranchButton">
-      <property name="text">
-       <string>New Branch...</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Local branches</string>

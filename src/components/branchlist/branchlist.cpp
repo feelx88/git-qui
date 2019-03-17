@@ -7,6 +7,7 @@
 
 #include "mainwindow.hpp"
 #include "qtreewidgetutils.hpp"
+#include "toolbaractions.hpp"
 
 struct BranchListPrivate
 {
@@ -84,10 +85,6 @@ struct BranchListPrivate
       }
     });
 
-    _this->connect(_this->ui->createBranchButton, &QPushButton::clicked, _this, [=]{
-      gitInterface->createBranch(QInputDialog::getText(_this, _this->tr("Create new branch"), _this->tr("New branch name")));
-    });
-
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
     QAction *copyAction = new QAction(_this->tr("Copy branch name"), _this);
     QAction *copyAction2 = new QAction(_this->tr("Copy branch name"), _this);
@@ -107,6 +104,7 @@ struct BranchListPrivate
         gitInterface->deleteBranch(branch);
       }
     });
+    _this->ui->treeWidget->addAction(ToolBarActions::byId("new-branch"));
     _this->ui->treeWidget->addAction(copyAction);
     _this->ui->treeWidget_2->addAction(copyAction2);
     _this->ui->treeWidget->addAction(deleteAction);
