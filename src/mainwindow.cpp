@@ -340,7 +340,7 @@ struct MainWindowPrivate
     });
   }
 
-  void addToolbar(Qt::ToolBarArea area, MainWindow *_this)
+  QToolBar *addToolbar(Qt::ToolBarArea area, MainWindow *_this)
   {
     QToolBar *toolbar = new QToolBar(_this);
     toolbar->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -355,6 +355,7 @@ struct MainWindowPrivate
       QAction *removeAction = new QAction(_this->tr("Remove toolbar"), toolbar);
       _this->connect(removeAction, &QAction::triggered, _this, [=]{
         _this->removeToolBar(toolbar);
+        toolbar->deleteLater();
       });
 
       QMenu *menu = new QMenu(toolbar);
@@ -368,6 +369,7 @@ struct MainWindowPrivate
     });
 
     _this->addToolBar(area, toolbar);
+    return toolbar;
   }
 
   void initAutoFetchTimer(MainWindow *_this)
@@ -558,6 +560,19 @@ struct MainWindowPrivate
       _this->ui->tabWidget->addTab(page, config.value(CONFIG_TAB_NAME).toString());
     }
 
+    QList<QVariant> toolbars = settings.value("toolbars").toList();
+    for (auto toolbarConfig: toolbars)
+    {
+      QMap<QString, QVariant> config = toolbarConfig.toMap();
+      QToolBar *toolbar = addToolbar(static_cast<Qt::ToolBarArea>(config.value("area").toInt()), _this);
+      toolbar->restoreGeometry(config.value("geometry").toByteArray());
+
+      for (auto action : config.value("actions").toList())
+      {
+        toolbar->addAction(ToolBarActions::byId(action.toString()));
+      }
+    }
+
     _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
   }
 
@@ -614,6 +629,23 @@ struct MainWindowPrivate
       config.insert(CONFIG_TAB_NAME, _this->ui->tabWidget->tabText(x));
       tabs.insert(QString::number(x), config);
     }
+
+    QList<QVariant> toolbars;
+    for (auto toolbar : _this->findChildren<QToolBar*>())
+    {
+      QList<QVariant> actions;
+      for (auto action: toolbar->actions())
+      {
+        actions.push_back(action->data());
+      }
+
+      QMap<QString, QVariant> config = {
+        {"area", _this->toolBarArea(toolbar)},
+        {"actions", actions},
+      };
+      toolbars.append(config);
+    }
+    settings.setValue("toolbars", toolbars);
 
     settings.setValue(CONFIG_TABS, tabs);
   }
