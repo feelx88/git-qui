@@ -59,7 +59,9 @@ signals:
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
   void reloaded();
   void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream, int behindRemote, int aheadRemote);
+  void pushStarted();
   void pushed();
+  void pullStarted();
   void pulled();
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);

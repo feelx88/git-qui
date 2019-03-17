@@ -550,6 +550,8 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
 
 void GitInterface::push(const QString &remote, const QVariant& branch, bool setUpstream)
 {
+  emit pushStarted();
+
   QList<QString> args = {"push", remote};
 
   if (setUpstream)
@@ -571,12 +573,15 @@ void GitInterface::push(const QString &remote, const QVariant& branch, bool setU
   else
   {
     status();
-    emit pushed();
   }
+
+  emit pushed();
 }
 
 void GitInterface::pull(bool rebase)
 {
+  emit pullStarted();
+
   QList<QString> arguments = {"pull"};
   if (rebase)
   {
@@ -589,10 +594,8 @@ void GitInterface::pull(bool rebase)
   {
     emit error(tr("Pull has failed"));
   }
-  else
-  {
-    emit pulled();
-  }
+
+  emit pulled();
 }
 
 void GitInterface::setFullFileDiff(bool fullFileDiff)

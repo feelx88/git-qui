@@ -1,7 +1,7 @@
 #include "toolbaractions.hpp"
 
 #include <QAction>
-#include <QtSvg>
+#include <QtConcurrent/QtConcurrent>
 
 #include "qobjecthelpers.hpp"
 #include "mainwindow.hpp"
@@ -33,25 +33,33 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     });
 
     RECONNECT(_actionMap["push"], &QAction::triggered, _actionMap["push"], [=]{
-      repository->push();
+      QtConcurrent::run([=]{
+        repository->push();
+      });
     });
 
     RECONNECT(_actionMap["pull"], &QAction::triggered, _actionMap["pull"], [=]{
-      repository->pull(true);
+      QtConcurrent::run([=]{
+        repository->pull(true);
+      });
     });
   });
 
   QObject::connect(_actionMap["push-all"], &QAction::triggered, _actionMap["push-all"], [=]{
     for (auto repo : mainWindow->repositories())
     {
-      repo->push();
+      QtConcurrent::run([=]{
+        repo->push();
+      });
     }
   });
 
   QObject::connect(_actionMap["pull-all"], &QAction::triggered, _actionMap["pull-all"], [=]{
     for (auto repo : mainWindow->repositories())
     {
-      repo->pull(true);
+      QtConcurrent::run([=]{
+        repo->pull(true);
+      });
     }
   });
 }

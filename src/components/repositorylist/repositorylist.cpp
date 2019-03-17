@@ -39,6 +39,28 @@ struct RepositoryListPrivate
         }
         _this->ui->treeWidget->resizeColumnToContents(1);
       });
+
+      _this->connect(newGitInterface, &GitInterface::pushStarted, _this, [=]{
+        auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchExactly);
+
+        if (!items.empty())
+        {
+          auto item = items.first();
+          item->setDisabled(true);
+          item->setText(1, _this->tr("Pushing..."));
+        }
+      });
+
+      _this->connect(newGitInterface, &GitInterface::pullStarted, _this, [=]{
+        auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchExactly);
+
+        if (!items.empty())
+        {
+          auto item = items.first();
+          item->setDisabled(true);
+          item->setText(1, _this->tr("Pulling..."));
+        }
+      });
     });
 
     _this->connect(_this->mainWindow(), &MainWindow::repositoryRemoved, _this, [=](GitInterface *newGitInterface){
@@ -67,57 +89,9 @@ struct RepositoryListPrivate
       }
     });
 
-    _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this->mainWindow(), &MainWindow::openRepository);
-    _this->connect(_this->ui->pushButton_2, &QPushButton::clicked, _this->mainWindow(), &MainWindow::closeCurrentRepository);
-
     _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
       gitInterface = newGitInterface;
     });
-
-    _this->ui->toolButton->addAction(_this->ui->actionPull_all_repositories);
-    _this->connect(_this->ui->toolButton, &QToolButton::clicked, _this, [=]{
-      startBackgroundAction(_this, gitInterface, false);
-    });
-    _this->connect(_this->ui->actionPull_all_repositories, &QAction::triggered, _this, [=]{
-      for (auto repo : _this->mainWindow()->repositories())
-      {
-        startBackgroundAction(_this, repo, false);
-      }
-    });
-
-    _this->ui->toolButton_2->addAction(_this->ui->actionPush_all_repositories);
-    _this->connect(_this->ui->toolButton_2, &QToolButton::clicked, _this, [=]{
-      startBackgroundAction(_this, gitInterface, true);
-    });
-    _this->connect(_this->ui->actionPush_all_repositories, &QAction::triggered, _this, [=]{
-      for (auto repo : _this->mainWindow()->repositories())
-      {
-        startBackgroundAction(_this, repo, true);
-      }
-    });
-  }
-
-  void startBackgroundAction(RepositoryList *_this, GitInterface *gitInterface, bool push)
-  {
-    auto items = _this->ui->treeWidget->findItems(gitInterface->path().split('/').last(), Qt::MatchExactly);
-
-    if (!items.empty())
-    {
-      auto item = items.first();
-      item->setDisabled(true);
-      item->setText(1, push ? _this->tr("Pushing...") : _this->tr("Pulling..."));
-      QtConcurrent::run([=]{
-        if (push)
-        {
-          gitInterface->push();
-        }
-        else
-        {
-          gitInterface->pull(true);
-        }
-        item->setDisabled(false);
-      });
-    }
   }
 };
 
