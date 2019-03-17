@@ -519,6 +519,21 @@ struct MainWindowPrivate
     _this->ui->tabWidget->addTab(history, _this->tr("History"));
 
     _this->ui->actionEdit_mode->setChecked(true);
+
+    for (auto toolbar : _this->findChildren<QToolBar*>())
+    {
+      _this->removeToolBar(toolbar);
+      toolbar->deleteLater();
+    }
+
+    auto toolbar = addToolbar(Qt::ToolBarArea::TopToolBarArea, _this);
+    toolbar->addAction(ToolBarActions::byId("pull"));
+    toolbar->addAction(ToolBarActions::byId("push"));
+    toolbar->addAction(ToolBarActions::byId("pull-all"));
+    toolbar->addAction(ToolBarActions::byId("push-all"));
+    toolbar->addAction(ToolBarActions::byId("new-branch"));
+    toolbar->addAction(ToolBarActions::byId("stash"));
+    toolbar->addAction(ToolBarActions::byId("unstash"));
   }
 
   void restoreSettings(MainWindow *_this)
