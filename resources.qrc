@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>deploy/git-qui.svg</file>
+        <file>deploy/icons/archive-insert.svg</file>
+        <file>deploy/icons/archive-remove.svg</file>
     </qresource>
 </RCC>

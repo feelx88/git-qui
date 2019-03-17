@@ -1,4 +1,4 @@
-QT += core gui widgets
+QT += core svg xml gui widgets
 
 CONFIG += c++1z
 
@@ -14,7 +14,9 @@ SOURCES += \
     src/gitdiffline.cpp \
     src/components/logview/logview.cpp \
     src/components/branchlist/branchlist.cpp \
-    src/qtreewidgetutils.cpp
+    src/qtreewidgetutils.cpp \
+    src/toolbareditor.cpp \
+    src/toolbaractions.cpp
 
 HEADERS += \
     src/gitinterface.hpp \
@@ -30,7 +32,10 @@ HEADERS += \
     src/qtreewidgetutils.hpp \
     src/components/repositorylist/repositorylist.hpp \
     src/components/diffview/diffview.hpp \
-    src/gitdiffline.hpp
+    src/gitdiffline.hpp \
+    src/toolbareditor.hpp \
+    src/toolbaractions.hpp \
+    src/qobjecthelpers.hpp
 
 OTHER_FILES += \
     .gitignore \
@@ -47,7 +52,8 @@ FORMS += \
     src/components/diffview/diffview.ui \
     src/components/repositorylist/repositorylist.ui \
     src/components/logview/logview.ui \
-    src/components/branchlist/branchlist.ui
+    src/components/branchlist/branchlist.ui \
+    src/toolbareditor.ui
 
 INCLUDEPATH += src/
 

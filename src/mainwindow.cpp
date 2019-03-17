@@ -20,6 +20,8 @@
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
+#include "toolbareditor.hpp"
+#include "toolbaractions.hpp"
 
 struct MainWindowPrivate
 {
@@ -143,20 +145,20 @@ struct MainWindowPrivate
   {
     QSettings settings;
 
-    _this->connect(_this->ui->actionTop, &QAction::triggered, _this, [_this]{
-      _this->addToolBar(Qt::TopToolBarArea, new QToolBar(_this));
+    _this->connect(_this->ui->actionTop, &QAction::triggered, _this, [=]{
+      addToolbar(Qt::TopToolBarArea, _this);
     });
 
-    _this->connect(_this->ui->actionBottom, &QAction::triggered, _this, [_this]{
-      _this->addToolBar(Qt::BottomToolBarArea, new QToolBar(_this));
+    _this->connect(_this->ui->actionBottom, &QAction::triggered, _this, [=]{
+      addToolbar(Qt::BottomToolBarArea, _this);
     });
 
-    _this->connect(_this->ui->actionLeft, &QAction::triggered, _this, [_this]{
-      _this->addToolBar(Qt::LeftToolBarArea, new QToolBar(_this));
+    _this->connect(_this->ui->actionLeft, &QAction::triggered, _this, [=]{
+      addToolbar(Qt::LeftToolBarArea, _this);
     });
 
-    _this->connect(_this->ui->actionRight, &QAction::triggered, _this, [_this]{
-      _this->addToolBar(Qt::RightToolBarArea, new QToolBar(_this));
+    _this->connect(_this->ui->actionRight, &QAction::triggered, _this, [=]{
+      addToolbar(Qt::RightToolBarArea, _this);
     });
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [this]{
@@ -331,6 +333,35 @@ struct MainWindowPrivate
     _this->connect(_this->ui->actionStash_pop, &QAction::triggered, _this, [=]{
       selectedGitInterface->stashPop();
     });
+  }
+
+  void addToolbar(Qt::ToolBarArea area, MainWindow *_this)
+  {
+    QToolBar *toolbar = new QToolBar(_this);
+    toolbar->setContextMenuPolicy(Qt::CustomContextMenu);
+    toolbar->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
+
+    _this->connect(toolbar, &QToolBar::customContextMenuRequested, _this, [=](const QPoint &pos){
+      QAction *configAction = new QAction(_this->tr("Configure toolbar..."), toolbar);
+      _this->connect(configAction, &QAction::triggered, _this, [=]{
+        (new ToolBarEditor(toolbar))->show();
+      });
+      QAction *removeAction = new QAction(_this->tr("Remove toolbar"), toolbar);
+      _this->connect(removeAction, &QAction::triggered, _this, [=]{
+        _this->removeToolBar(toolbar);
+      });
+
+      QMenu *menu = new QMenu(toolbar);
+
+      menu->addActions({
+        configAction,
+        removeAction,
+      });
+
+      menu->popup(toolbar->mapToGlobal(pos));
+    });
+
+    _this->addToolBar(area, toolbar);
   }
 
   void initAutoFetchTimer(MainWindow *_this)
@@ -582,12 +613,16 @@ struct MainWindowPrivate
   }
 };
 
+#include <QSvgWidget>
+
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
 ui(new Ui::MainWindow),
 _impl(new MainWindowPrivate)
 {
   ui->setupUi(this);
+
+  ToolBarActions::initialize(this);
 
   _impl->initGit(this);
   _impl->connectSignals(this);
