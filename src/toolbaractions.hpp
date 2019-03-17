@@ -16,6 +16,7 @@ public:
 
 private:
   static QMap<QString, QAction*> _actionMap;
+  static void addAction(QString id, QString icon, QString text);
 };
 
 #endif // TOOLBARACTIONS_HPP
