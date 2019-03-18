@@ -38,6 +38,7 @@ struct RepositoryListPrivate
           item->setText(1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
         }
         _this->ui->treeWidget->resizeColumnToContents(1);
+        item->setDisabled(false);
       });
 
       _this->connect(newGitInterface, &GitInterface::pushStarted, _this, [=]{
