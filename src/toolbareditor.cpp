@@ -26,9 +26,17 @@ _impl(new ToolBarEditorPrivate)
   ui->setupUi(this);
 
   connect(ui->treeWidget_2, &QTreeWidget::itemSelectionChanged, this, [=]{
-    ui->toolButtonUp->setEnabled(!ui->treeWidget_2->selectedItems().empty());
-    ui->toolButtonDown->setEnabled(!ui->treeWidget_2->selectedItems().empty());
-    ui->toolButtonLeft->setEnabled(!ui->treeWidget_2->selectedItems().empty());
+    auto items = ui->treeWidget_2->selectedItems();
+
+    ui->toolButtonLeft->setEnabled(!items.isEmpty());
+    ui->toolButtonUp->setEnabled(
+          !items.isEmpty() &&
+          ui->treeWidget_2->indexOfTopLevelItem(items.first()) > 0
+    );
+    ui->toolButtonDown->setEnabled(
+          !items.isEmpty() &&
+          ui->treeWidget_2->indexOfTopLevelItem(items.first()) < ui->treeWidget_2->topLevelItemCount() - 1
+    );
   });
 
   connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, this, [=]{
