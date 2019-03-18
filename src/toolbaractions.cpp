@@ -3,6 +3,7 @@
 #include <QAction>
 #include <QtConcurrent/QtConcurrent>
 #include <QInputDialog>
+#include <QMessageBox>
 
 #include "qobjecthelpers.hpp"
 #include "mainwindow.hpp"
@@ -37,7 +38,20 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     RECONNECT(_actionMap["push"], &QAction::triggered, _actionMap["push"], [=]{
       emit repository->pushStarted();
       QtConcurrent::run([=]{
-        repository->push();
+        QString branch = repository->activeBranch().name;
+        bool addUpstream = false;
+        if (repository->activeBranch().upstreamName.isEmpty())
+        {
+          addUpstream = QMessageBox::question(
+            mainWindow,
+            QObject::tr("No upstream branch configured"),
+            QObject::tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
+            QMessageBox::Yes,
+            QMessageBox::No
+          ) == QMessageBox::Yes;
+        }
+
+        repository->push("origin", branch, addUpstream);
       });
     });
 

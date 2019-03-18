@@ -29,7 +29,6 @@ struct MainWindowPrivate
   QMap<QString, GitInterface*> gitInterfaces;
   QList<QString> repositories;
   int currentRepository = 0;
-  QLabel *progressSpinner;
   QTimer *autoFetchTimer;
   bool editMode;
 
@@ -188,62 +187,6 @@ struct MainWindowPrivate
       process->startDetached();
     });
 
-    progressSpinner = new QLabel(_this);
-    QMovie *movie = new QMovie(QDir::currentPath() + "/loading.gif", QByteArray(), _this);
-    progressSpinner->hide();
-    movie->start();
-    progressSpinner->setMovie(movie);
-    _this->statusBar()->addPermanentWidget(progressSpinner);
-    _this->statusBar()->setSizeGripEnabled(false);
-    _this->statusBar()->hide();
-
-    _this->connect(_this->statusBar(), &QStatusBar::messageChanged, _this, [=](const QString &message){
-      if (message.isEmpty())
-      {
-        _this->statusBar()->hide();
-        progressSpinner->hide();
-      }
-    });
-
-    _this->connect(_this->ui->actionPush, &QAction::triggered, _this, [=]{
-
-      QString branch = selectedGitInterface->activeBranch().name;
-      bool addUpstream = false;
-      if (selectedGitInterface->activeBranch().upstreamName.isEmpty())
-      {
-        addUpstream = QMessageBox::question(
-          _this,
-          _this->tr("No upstream branch configured"),
-          _this->tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
-          QMessageBox::Yes,
-          QMessageBox::No
-        ) == QMessageBox::Yes;
-      }
-
-      progressSpinner->show();
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage("Pushing...");
-      QtConcurrent::run([=]{
-        selectedGitInterface->push("origin", branch, addUpstream);
-      });
-    });
-    _this->connect(_this->ui->actionPull, &QAction::triggered, _this, [=]{
-      progressSpinner->show();
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage("Pulling...");
-      QtConcurrent::run([=]{
-        selectedGitInterface->pull(false);
-      });
-    });
-    _this->connect(_this->ui->actionPull_Rebase, &QAction::triggered, _this, [=]{
-      progressSpinner->show();
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage("Pulling...");
-      QtConcurrent::run([=]{
-        selectedGitInterface->pull(true);
-      });
-    });
-
     _this->connect(_this->ui->actionQuick_cleanup, &QAction::triggered, _this, [=]{
       QList<QString> branches;
       for (auto branch : selectedGitInterface->branches({"--merged", "master"}))
@@ -284,6 +227,9 @@ struct MainWindowPrivate
         selectedGitInterface->reload();
       }
     });
+
+    _this->connect(_this->ui->actionPush, &QAction::triggered, ToolBarActions::byId("push"), &QAction::trigger);
+    _this->connect(_this->ui->actionPull_Rebase, &QAction::triggered, ToolBarActions::byId("pull"), &QAction::trigger);
 
     _this->connect(_this->ui->actionAbout_qt, &QAction::triggered, _this, QApplication::aboutQt);
 
@@ -393,22 +339,6 @@ struct MainWindowPrivate
   {
     _this->connect(gitInterface, &GitInterface::reloaded, _this, [=]{
       emit _this->repositoryAdded(gitInterfaces.value(gitInterface->path()));
-    });
-    _this->connect(gitInterface, &GitInterface::pushed, _this, [=]{
-      progressSpinner->hide();
-      _this->statusBar()->showMessage(_this->tr("Pushed succesfully"), 3000);
-      gitInterface->log();
-    });
-    _this->connect(gitInterface, &GitInterface::pulled, _this, [=]{
-      progressSpinner->hide();
-      _this->statusBar()->showMessage(_this->tr("Pulled succesfully"), 3000);
-      gitInterface->log();
-    });
-
-    _this->connect(gitInterface, &GitInterface::error, _this, [=](const QString& message){
-      progressSpinner->hide();
-      _this->statusBar()->show();
-      _this->statusBar()->showMessage(message, 3000);
     });
   }
 

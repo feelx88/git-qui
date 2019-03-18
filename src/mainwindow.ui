@@ -58,7 +58,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -114,7 +114,6 @@
     </property>
     <addaction name="actionReload_current_repository"/>
     <addaction name="actionPush"/>
-    <addaction name="actionPull"/>
     <addaction name="actionPull_Rebase"/>
     <addaction name="separator"/>
     <addaction name="actionStash_changes"/>
@@ -206,7 +205,7 @@
   </action>
   <action name="actionPull_Rebase">
    <property name="text">
-    <string>Pu&amp;ll (Rebase)</string>
+    <string>Pu&amp;ll (with Rebase)</string>
    </property>
   </action>
   <action name="actionAbout_qt">
