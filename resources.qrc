@@ -1,15 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>deploy/git-qui.svg</file>
-        <file>../breeze-icons/actions/24/acrobat.svg</file>
-        <file>../breeze-icons/actions/24/arrow-down.svg</file>
-        <file>../breeze-icons/actions/24/arrow-down-double.svg</file>
-        <file>../breeze-icons/actions/24/arrow-left.svg</file>
-        <file>../breeze-icons/actions/24/arrow-right.svg</file>
-        <file>../breeze-icons/actions/24/arrow-up.svg</file>
-        <file>../breeze-icons/actions/24/arrow-up-double.svg</file>
-        <file>../breeze-icons/actions/24/collapse-all.svg</file>
-        <file>../breeze-icons/actions/24/expand-all.svg</file>
         <file>deploy/icons/archive-insert.svg</file>
         <file>deploy/icons/archive-remove.svg</file>
         <file>deploy/icons/collapse-all.svg</file>

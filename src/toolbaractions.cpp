@@ -14,8 +14,8 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
 {
   addAction("stash", "archive-insert", "Stash changes");
   addAction("unstash", "archive-remove", "Unstash changes");
-  addAction("push", "collapse-all", "Push current repository");
-  addAction("pull", "expand-all", "Pull current repository (with rebase)");
+  addAction("push", "go-up", "Push current repository");
+  addAction("pull", "go-down", "Pull current repository (with rebase)");
   addAction("push-all", "go-top", "Push all repositories");
   addAction("pull-all", "go-bottom", "Pull all repositories (with rebase)");
   addAction("new-branch", "distribute-graph-directed", "Create new branch");
