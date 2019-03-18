@@ -277,13 +277,8 @@ struct MainWindowPrivate
       }
     });
 
-    _this->connect(_this->ui->actionStash_changes, &QAction::triggered, _this, [=]{
-      selectedGitInterface->stash();
-    });
-
-    _this->connect(_this->ui->actionStash_pop, &QAction::triggered, _this, [=]{
-      selectedGitInterface->stashPop();
-    });
+    _this->connect(_this->ui->actionStash_changes, &QAction::triggered, ToolBarActions::byId("stash"), &QAction::trigger);
+    _this->connect(_this->ui->actionStash_pop, &QAction::triggered, ToolBarActions::byId("unstash"), &QAction::trigger);
   }
 
   QToolBar *addToolbar(Qt::ToolBarArea area, MainWindow *_this)
