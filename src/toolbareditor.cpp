@@ -87,7 +87,7 @@ _impl(new ToolBarEditorPrivate)
     auto action = toolbar->actions().at(index);
     toolbar->removeAction(action);
     toolbar->insertAction(
-      index == ui->treeWidget_2->topLevelItemCount() - 2 ? nullptr : toolbar->actions().at(index),
+      index == ui->treeWidget_2->topLevelItemCount() - 2 ? nullptr : toolbar->actions().at(index + 1),
       action
     );
   });
