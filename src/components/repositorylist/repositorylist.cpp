@@ -39,6 +39,7 @@ struct RepositoryListPrivate
         }
         _this->ui->treeWidget->resizeColumnToContents(1);
         item->setDisabled(false);
+        item->setIcon(0, QIcon::fromTheme("state-ok"));
       });
 
       _this->connect(newGitInterface, &GitInterface::pushStarted, _this, [=]{
@@ -49,6 +50,7 @@ struct RepositoryListPrivate
           auto item = items.first();
           item->setDisabled(true);
           item->setText(1, _this->tr("Pushing..."));
+          item->setIcon(0, QIcon::fromTheme("state-sync"));
         }
       });
 
@@ -60,9 +62,15 @@ struct RepositoryListPrivate
           auto item = items.first();
           item->setDisabled(true);
           item->setText(1, _this->tr("Pulling..."));
+          item->setIcon(0, QIcon::fromTheme("state-sync"));
         }
       });
+
+      _this->connect(newGitInterface, &GitInterface::error, _this, [=]{
+        item->setIcon(0, QIcon::fromTheme("state-error"));
+      });
     });
+
 
     _this->connect(_this->mainWindow(), &MainWindow::repositoryRemoved, _this, [=](GitInterface *newGitInterface){
       auto items = _this->ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchCaseSensitive, 0);

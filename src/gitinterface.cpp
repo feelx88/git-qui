@@ -566,13 +566,13 @@ void GitInterface::push(const QString &remote, const QVariant& branch, bool setU
 
   auto process = _impl->git(args);
 
+  status();
+  emit pushed();
+
   if (process->exitCode() != 0)
   {
     emit error(tr("Push has failed"));
   }
-
-  status();
-  emit pushed();
 }
 
 void GitInterface::pull(bool rebase)
@@ -586,13 +586,14 @@ void GitInterface::pull(bool rebase)
   }
   auto process = _impl->git(arguments);
 
+  status();
+  emit pulled();
+
   if (process->exitCode() != 0)
   {
     emit error(tr("Pull has failed"));
   }
 
-  status();
-  emit pulled();
 }
 
 void GitInterface::setFullFileDiff(bool fullFileDiff)
