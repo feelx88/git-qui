@@ -35,6 +35,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     });
 
     RECONNECT(_actionMap["push"], &QAction::triggered, _actionMap["push"], [=]{
+      emit repository->pushStarted();
       QtConcurrent::run([=]{
         repository->push();
       });
@@ -42,6 +43,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
 
     RECONNECT(_actionMap["pull"], &QAction::triggered, _actionMap["pull"], [=]{
       QtConcurrent::run([=]{
+        emit repository->pullStarted();
         repository->pull(true);
       });
     });
@@ -58,6 +60,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   QObject::connect(_actionMap["push-all"], &QAction::triggered, _actionMap["push-all"], [=]{
     for (auto repo : mainWindow->repositories())
     {
+      emit repo->pushStarted();
       QtConcurrent::run([=]{
         repo->push();
       });
@@ -67,6 +70,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   QObject::connect(_actionMap["pull-all"], &QAction::triggered, _actionMap["pull-all"], [=]{
     for (auto repo : mainWindow->repositories())
     {
+      emit repo->pullStarted();
       QtConcurrent::run([=]{
         repo->pull(true);
       });
