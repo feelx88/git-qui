@@ -679,7 +679,7 @@ void GitInterface::setUpstream(const QString &remote, const QString &branch)
 
 void GitInterface::stash()
 {
-  _impl->git({"stash"});
+  _impl->git({"stash", "--include-untracked"});
   status();
 }
 
