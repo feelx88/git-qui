@@ -13,6 +13,7 @@ struct LogViewPrivate
   {
     _this->ui->treeWidget->setHeaderLabels({
       _this->tr("Id"),
+      _this->tr("Branches"),
       _this->tr("Message"),
       _this->tr("Author"),
       _this->tr("Date"),
@@ -29,9 +30,10 @@ struct LogViewPrivate
         {
           QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
           item->setText(0, commit.id);
-          item->setText(1, commit.branches.empty() ? commit.message : QString("[%1] %2").arg(commit.branches.join(", "), commit.message));
-          item->setText(2, commit.author);
-          item->setText(3, commit.date.toString());
+          item->setText(1, commit.branches.join(", "));
+          item->setText(2, commit.message);
+          item->setText(3, commit.author);
+          item->setText(4, commit.date.toString());
 
           _this->ui->treeWidget->addTopLevelItem(item);
         }
