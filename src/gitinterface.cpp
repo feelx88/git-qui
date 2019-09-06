@@ -639,7 +639,17 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
 
 void GitInterface::checkoutPath(const QString &path)
 {
-  _impl->git({"checkout", "--", path});
+  auto process = _impl->git({"status", "--porcelain=v1", path});
+  QString fileStatus = process->readAllStandardOutput();
+
+  if (fileStatus.startsWith("??"))
+  {
+    QFile::remove(_impl->repositoryPath.filePath(path));
+  }
+  else
+  {
+    _impl->git({"checkout", "--", path});
+  }
 
   status();
 }
