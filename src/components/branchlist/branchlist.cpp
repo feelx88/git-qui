@@ -90,12 +90,21 @@ struct BranchListPrivate
     QAction *copyAction2 = new QAction(_this->tr("Copy branch name"), _this);
     QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
     _this->connect(copyAction, &QAction::triggered, _this, [=]{
-      QApplication::clipboard()->setText(_this->ui->treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString());
+      if (!_this->ui->treeWidget->selectedItems().empty())
+      {
+        QApplication::clipboard()->setText(
+              _this->ui->treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString()
+        );
+      }
     });
     _this->connect(copyAction2, &QAction::triggered, _this, [=]{
-      QApplication::clipboard()->setText(
-        _this->ui->treeWidget_2->selectedItems().first()->data(0, Qt::UserRole).toString().replace(QRegExp(".+\\/"), "")
-      );
+      if (!_this->ui->treeWidget_2->selectedItems().empty())
+      {
+        QApplication::clipboard()->setText(
+          _this->ui->treeWidget_2->selectedItems().first()->data(0, Qt::UserRole).toString()
+              .replace(QRegularExpression(".+?\\/(.*)"), "\\1")
+        );
+      }
     });
     _this->connect(deleteAction, &QAction::triggered, _this, [=]{
       QString branch = _this->ui->treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString();
