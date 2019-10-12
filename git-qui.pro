@@ -14,7 +14,9 @@ SOURCES += \
     src/gitdiffline.cpp \
     src/components/logview/logview.cpp \
     src/components/branchlist/branchlist.cpp \
+    src/project.cpp \
     src/qtreewidgetutils.cpp \
+    src/repository.cpp \
     src/toolbareditor.cpp \
     src/toolbaractions.cpp
 
@@ -29,10 +31,12 @@ HEADERS += \
     src/components/logview/logview.hpp \
     src/components/branchlist/branchlist.hpp \
     src/gitbranch.hpp \
+    src/project.hpp \
     src/qtreewidgetutils.hpp \
     src/components/repositorylist/repositorylist.hpp \
     src/components/diffview/diffview.hpp \
     src/gitdiffline.hpp \
+    src/repository.hpp \
     src/toolbareditor.hpp \
     src/toolbaractions.hpp \
     src/qobjecthelpers.hpp
