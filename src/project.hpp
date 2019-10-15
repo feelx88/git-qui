@@ -3,12 +3,21 @@
 
 #include <QList>
 
+#include "repository.hpp"
+
 struct ProjectImpl;
 
-class Project
+class Project : public QObject
 {
+  Q_OBJECT
 public:
-  Project();
+  Project(const QString &name, QObject *parent = nullptr);
+
+  QString name() const;
+  QList<Repository> repositoryList() const;
+  void repositoryList(const QList<Repository> &repositoryList);
+
+  void addRepository(const Repository &repository);
 
 private:
   ProjectImpl *_impl;
