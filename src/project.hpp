@@ -11,7 +11,7 @@ class Project : public QObject
 {
   Q_OBJECT
 public:
-  Project(const QString &name, QObject *parent = nullptr);
+  Project(const QString &fileName, QObject *parent = nullptr);
 
   QString name() const;
   QList<Repository> repositoryList() const;

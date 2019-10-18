@@ -32,4 +32,5 @@ QList<Repository> Project::repositoryList() const
 void Project::addRepository(const Repository &repository)
 {
   _impl->settings->setValue("repositoryList", QVariant::fromValue(repositoryList() << repository));
+  _impl->settings->sync();
 }
