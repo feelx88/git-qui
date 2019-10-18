@@ -58,7 +58,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -68,6 +68,10 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionRecent_Projects"/>
+    <addaction name="separator"/>
     <addaction name="actionOpen_Repository"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -247,6 +251,21 @@
   <action name="actionStash_pop">
    <property name="text">
     <string>Stash pop</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project...</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="text">
+    <string>Open Project...</string>
+   </property>
+  </action>
+  <action name="actionRecent_Projects">
+   <property name="text">
+    <string>Recent Projects</string>
    </property>
   </action>
  </widget>

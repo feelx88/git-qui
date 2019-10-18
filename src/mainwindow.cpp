@@ -1,4 +1,5 @@
 #include "mainwindow.hpp"
+#include "project.hpp"
 #include "ui_mainwindow.h"
 
 #include <QToolBar>
@@ -31,6 +32,7 @@ struct MainWindowPrivate
   int currentRepository = 0;
   QTimer *autoFetchTimer;
   bool editMode;
+  Project *activeProject = nullptr;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -162,6 +164,24 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [this]{
       selectedGitInterface->reload();
+    });
+
+    QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [this,  _this]{
+      QString fileName = QFileDialog::getSaveFileName(_this, "Create new project");
+
+      if (!fileName.isEmpty())
+      {
+        activeProject = new Project(fileName, _this);
+      }
+    });
+
+    QObject::connect(_this->ui->actionOpen_Project, &QAction::triggered, _this, [this,  _this]{
+      QString fileName = QFileDialog::getOpenFileName(_this, "Select project to open");
+
+      if (!fileName.isEmpty())
+      {
+        activeProject = new Project(fileName, _this);
+      }
     });
 
     _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, _this, [=]{
