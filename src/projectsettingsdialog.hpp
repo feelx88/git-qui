@@ -21,10 +21,8 @@ public:
     EDIT
   };
 
-  explicit ProjectSettingsDialog(DialogMode dialogMode, QWidget *parent = nullptr);
+  explicit ProjectSettingsDialog(DialogMode dialogMode, Project *project, QWidget *parent = nullptr);
   ~ProjectSettingsDialog();
-
-  Project *project();
 
 private:
   Ui::ProjectSettingsDialog *ui;

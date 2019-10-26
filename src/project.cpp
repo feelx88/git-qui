@@ -5,7 +5,7 @@
 
 struct ProjectImpl
 {
-  QSettings *settings;
+  QSettings *settings = nullptr;
   QString name;
 
   void updateSettings()
@@ -31,7 +31,7 @@ Project::Project(QObject *parent)
 
 QString Project::fileName() const
 {
-  return _impl->settings->fileName();
+  return _impl->settings ? _impl->settings->fileName() : "";
 }
 
 void Project::repositoryList(const QList<Repository> &repositoryList)
@@ -41,12 +41,12 @@ void Project::repositoryList(const QList<Repository> &repositoryList)
 
 QString Project::name() const
 {
-  return _impl->settings->value("name").toString();
+  return _impl->settings ? _impl->settings->value("name").toString() : _impl->name;
 }
 
 QList<Repository> Project::repositoryList() const
 {
-  return qvariant_cast<QList<Repository>>(_impl->settings->value("repositoryList"));
+  return _impl->settings ? qvariant_cast<QList<Repository>>(_impl->settings->value("repositoryList")) : QList<Repository>();
 }
 
 void Project::addRepository()
@@ -80,5 +80,7 @@ void Project::setFileName(const QString &fileName)
   {
     _impl->settings = new QSettings(fileName, QSettings::IniFormat, this);
     _impl->updateSettings();
+
+    _impl->name = name();
   }
 }

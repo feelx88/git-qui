@@ -169,10 +169,11 @@ struct MainWindowPrivate
     });
 
     QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [this,  _this]{
-      auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, _this);
+      Project *project = new Project();
+      auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project, _this);
       if (settingsDialog->exec() == QDialog::Accepted)
       {
-        activeProject = settingsDialog->project();
+        activeProject = project;
       }
     });
 
@@ -183,6 +184,10 @@ struct MainWindowPrivate
       {
         activeProject = new Project(fileName, _this);
       }
+    });
+
+    QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [this,  _this]{
+      (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, activeProject, _this))->exec();
     });
 
     _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, _this, [=]{

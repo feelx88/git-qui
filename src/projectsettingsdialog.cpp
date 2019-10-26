@@ -11,14 +11,14 @@ struct ProjectSettingsDialogImpl
   Project *project;
 };
 
-ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode dialogMode, QWidget *parent)
+ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode dialogMode, Project *project, QWidget *parent)
   : QDialog(parent),
     ui(new Ui::ProjectSettingsDialog),
     _impl(new ProjectSettingsDialogImpl)
 {
   ui->setupUi(this);
 
-  _impl->project = new Project(parent);
+  _impl->project = project;
 
   if (dialogMode == DialogMode::CREATE)
   {
@@ -30,6 +30,15 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
   {
     ui->buttonBox->button(QDialogButtonBox::Ok)->hide();
     ui->buttonBox->button(QDialogButtonBox::Cancel)->hide();
+  }
+
+  ui->lineEdit->setText(_impl->project->name());
+  ui->lineEdit_2->setText(_impl->project->fileName());
+  for (Repository repository : _impl->project->repositoryList())
+  {
+    int row = ui->tableWidget->rowCount();
+    ui->tableWidget->insertRow(row);
+    ui->tableWidget->setItem(row, 1, new QTableWidgetItem(repository.path.path()));
   }
 
   connect(ui->toolButton, &QToolButton::clicked, this, [this]{
@@ -58,9 +67,4 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
 ProjectSettingsDialog::~ProjectSettingsDialog()
 {
   delete ui;
-}
-
-Project *ProjectSettingsDialog::project()
-{
-  return _impl->project;
 }

@@ -71,6 +71,7 @@
     <addaction name="actionNew_Project"/>
     <addaction name="actionOpen_Project"/>
     <addaction name="actionRecent_Projects"/>
+    <addaction name="actionProject_settings"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Repository"/>
     <addaction name="separator"/>
@@ -266,6 +267,11 @@
   <action name="actionRecent_Projects">
    <property name="text">
     <string>Recent Projects</string>
+   </property>
+  </action>
+  <action name="actionProject_settings">
+   <property name="text">
+    <string>Project settings...</string>
    </property>
   </action>
  </widget>
