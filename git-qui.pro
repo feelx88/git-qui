@@ -15,6 +15,7 @@ SOURCES += \
     src/components/logview/logview.cpp \
     src/components/branchlist/branchlist.cpp \
     src/project.cpp \
+    src/projectsettingsdialog.cpp \
     src/qtreewidgetutils.cpp \
     src/repository.cpp \
     src/toolbareditor.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     src/components/branchlist/branchlist.hpp \
     src/gitbranch.hpp \
     src/project.hpp \
+    src/projectsettingsdialog.hpp \
     src/qtreewidgetutils.hpp \
     src/components/repositorylist/repositorylist.hpp \
     src/components/diffview/diffview.hpp \
@@ -57,6 +59,7 @@ FORMS += \
     src/components/repositorylist/repositorylist.ui \
     src/components/logview/logview.ui \
     src/components/branchlist/branchlist.ui \
+    src/projectsettingsdialog.ui \
     src/toolbareditor.ui
 
 INCLUDEPATH += src/

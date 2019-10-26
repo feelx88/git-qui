@@ -23,6 +23,7 @@
 #include "toolbareditor.hpp"
 #include "toolbaractions.hpp"
 #include "project.hpp"
+#include "projectsettingsdialog.hpp"
 
 struct MainWindowPrivate
 {
@@ -168,17 +169,10 @@ struct MainWindowPrivate
     });
 
     QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [this,  _this]{
-      QString fileName = QFileDialog::getSaveFileName(_this, "Select project file");
-      QString projectName = QInputDialog::getText(
-        _this,
-        "Project name",
-        "Set the project name"
-      );
-
-      if (!fileName.isEmpty())
+      auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, _this);
+      if (settingsDialog->exec() == QDialog::Accepted)
       {
-        activeProject = new Project(fileName, _this);
-        activeProject->addRepository();
+        activeProject = settingsDialog->project();
       }
     });
 
