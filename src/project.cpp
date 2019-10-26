@@ -68,6 +68,13 @@ void Project::addRepository()
   }
 }
 
+void Project::removeRepository(const int &index)
+{
+  auto list = repositoryList();
+  list.removeAt(index);
+  repositoryList(list);
+}
+
 void Project::setName(const QString &name)
 {
   _impl->name = name;

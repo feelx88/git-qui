@@ -20,6 +20,7 @@ public:
   void repositoryList(const QList<Repository> &repositoryList);
 
   void addRepository();
+  void removeRepository(const int &index);
 
   void setName(const QString &name);
   void setFileName(const QString &fileName);

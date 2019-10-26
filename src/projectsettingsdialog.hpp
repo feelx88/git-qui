@@ -16,6 +16,8 @@ class ProjectSettingsDialog : public QDialog
   Q_OBJECT
 
 public:
+  friend class ProjectSettingsDialogImpl;
+
   enum class DialogMode {
     CREATE = 0,
     EDIT
