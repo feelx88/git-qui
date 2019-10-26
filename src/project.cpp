@@ -75,6 +75,13 @@ void Project::removeRepository(const int &index)
   repositoryList(list);
 }
 
+void Project::updateRepository(const int &index, const Repository &repository)
+{
+  auto list = repositoryList();
+  list.replace(index, repository);
+  repositoryList(list);
+}
+
 void Project::setName(const QString &name)
 {
   _impl->name = name;

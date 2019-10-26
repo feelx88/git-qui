@@ -21,6 +21,7 @@ public:
 
   void addRepository();
   void removeRepository(const int &index);
+  void updateRepository(const int &index, const Repository &repository);
 
   void setName(const QString &name);
   void setFileName(const QString &fileName);

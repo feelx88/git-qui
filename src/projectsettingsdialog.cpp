@@ -18,6 +18,7 @@ struct ProjectSettingsDialogImpl
     {
       int row = _this->ui->repositoryTable->rowCount();
       _this->ui->repositoryTable->insertRow(row);
+      _this->ui->repositoryTable->setItem(row, 0, new QTableWidgetItem(repository.name));
       _this->ui->repositoryTable->setItem(row, 1, new QTableWidgetItem(repository.path.path()));
     }
   }
@@ -41,7 +42,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
   {
     ui->buttonBox->button(QDialogButtonBox::Ok)->hide();
     ui->buttonBox->button(QDialogButtonBox::Cancel)->hide();
-    ui->projectPathChooseButton->setEnabled(true);
+    ui->addRepositoryButton->setEnabled(true);
   }
 
   ui->projectNameEdit->setText(_impl->project->name());
@@ -64,12 +65,26 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
     ui->removeRepositoryButton->setEnabled(ui->repositoryTable->currentRow() >= 0);
   });
 
+  connect(ui->repositoryTable->itemDelegate(), &QAbstractItemDelegate::commitData, this, [this](){
+    auto item = ui->repositoryTable->currentItem();
+    Repository repository = _impl->project->repositoryList().at(item->row());
+
+    switch (item->column())
+    {
+    case 0:
+      repository.name = item->text();
+      break;
+    case 1:
+      repository.path.setPath(item->text());
+      break;
+    }
+
+    _impl->project->updateRepository(item->row(), repository);
+  });
+
   connect(ui->addRepositoryButton, &QToolButton::clicked, this, [this]{
     _impl->project->addRepository();
-
-    int row = ui->repositoryTable->rowCount();
-    ui->repositoryTable->insertRow(row);
-    ui->repositoryTable->setItem(row, 1, new QTableWidgetItem(_impl->project->repositoryList().last().path.path()));
+    _impl->fillRepositoryList(this);
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
   });
