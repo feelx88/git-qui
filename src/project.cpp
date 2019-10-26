@@ -1,6 +1,7 @@
 #include "project.hpp"
 
 #include <QSettings>
+#include <qfiledialog.h>
 
 struct ProjectImpl
 {
@@ -29,8 +30,21 @@ QList<Repository> Project::repositoryList() const
   return qvariant_cast<QList<Repository>>(_impl->settings->value("repositoryList"));
 }
 
-void Project::addRepository(const Repository &repository)
+void Project::addRepository()
 {
-  _impl->settings->setValue("repositoryList", QVariant::fromValue(repositoryList() << repository));
-  _impl->settings->sync();
+  QString path = QFileDialog::getExistingDirectory(
+    nullptr,
+    "Select repository path",
+    QDir::current().path()
+  );
+
+  Repository repository;
+  repository.path.setPath(path);
+  repository.name = repository.path.dirName();
+
+  if (!path.isNull())
+  {
+    _impl->settings->setValue("repositoryList", QVariant::fromValue(repositoryList() << repository));
+    _impl->settings->sync();
+  }
 }

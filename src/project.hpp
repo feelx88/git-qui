@@ -17,7 +17,7 @@ public:
   QList<Repository> repositoryList() const;
   void repositoryList(const QList<Repository> &repositoryList);
 
-  void addRepository(const Repository &repository);
+  void addRepository();
 
 private:
   ProjectImpl *_impl;

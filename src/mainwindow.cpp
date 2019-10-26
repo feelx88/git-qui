@@ -1,5 +1,4 @@
 #include "mainwindow.hpp"
-#include "project.hpp"
 #include "ui_mainwindow.h"
 
 #include <QToolBar>
@@ -23,6 +22,7 @@
 #include "components/dockwidget.hpp"
 #include "toolbareditor.hpp"
 #include "toolbaractions.hpp"
+#include "project.hpp"
 
 struct MainWindowPrivate
 {
@@ -168,11 +168,17 @@ struct MainWindowPrivate
     });
 
     QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [this,  _this]{
-      QString fileName = QFileDialog::getSaveFileName(_this, "Create new project");
+      QString fileName = QFileDialog::getSaveFileName(_this, "Select project file");
+      QString projectName = QInputDialog::getText(
+        _this,
+        "Project name",
+        "Set the project name"
+      );
 
       if (!fileName.isEmpty())
       {
         activeProject = new Project(fileName, _this);
+        activeProject->addRepository();
       }
     });
 
