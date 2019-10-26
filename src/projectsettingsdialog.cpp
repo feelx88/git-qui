@@ -24,6 +24,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
   {
     ui->buttonBox->button(QDialogButtonBox::Save)->hide();
     ui->buttonBox->button(QDialogButtonBox::Close)->hide();
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
   }
   else
   {
@@ -49,6 +50,8 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
     int row = ui->tableWidget->rowCount();
     ui->tableWidget->insertRow(row);
     ui->tableWidget->setItem(row, 1, new QTableWidgetItem(_impl->project->repositoryList().last().path.path()));
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
   });
 }
 
