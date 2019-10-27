@@ -16,7 +16,7 @@ class ProjectSettingsDialog : public QDialog
   Q_OBJECT
 
 public:
-  friend class ProjectSettingsDialogImpl;
+  friend struct ProjectSettingsDialogImpl;
 
   enum class DialogMode {
     CREATE = 0,
