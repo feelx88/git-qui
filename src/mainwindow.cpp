@@ -160,6 +160,7 @@ struct MainWindowPrivate
         {
           emit _this->repositoryAdded(repository->gitInterface);
         }
+        emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
       }
     });
 
@@ -177,6 +178,7 @@ struct MainWindowPrivate
         {
           emit _this->repositoryAdded(repository->gitInterface);
         }
+        emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
       }
     });
 
