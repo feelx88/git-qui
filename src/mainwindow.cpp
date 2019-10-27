@@ -31,6 +31,7 @@ struct MainWindowPrivate
   QTimer *autoFetchTimer;
   bool editMode;
   Project *activeProject = nullptr;
+  QStringList recentProjects;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
@@ -42,6 +43,7 @@ struct MainWindowPrivate
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
   inline static const QString CONFIG_EDIT_MODE = "editMode";
   inline static const QString CONFIG_CURRENT_PROJECT_PATH = "currentProjectPath";
+  inline static const QString CONFIG_RECENT_PROJECTS = "recentProjects";
 
   void initProject(MainWindow *_this)
   {
@@ -122,6 +124,20 @@ struct MainWindowPrivate
     }
   }
 
+  void switchProject(MainWindow* _this, Project *project)
+  {
+    for (auto repository : activeProject->repositoryList())
+    {
+      emit _this->repositoryRemoved(repository->gitInterface);
+    }
+    activeProject = project;
+    for (auto repository : activeProject->repositoryList())
+    {
+      emit _this->repositoryAdded(repository->gitInterface);
+    }
+    emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
+  }
+
   void connectSignals(MainWindow *_this)
   {
     QSettings settings;
@@ -151,16 +167,10 @@ struct MainWindowPrivate
       auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project, _this);
       if (settingsDialog->exec() == QDialog::Accepted)
       {
-        for (auto repository : activeProject->repositoryList())
-        {
-          emit _this->repositoryRemoved(repository->gitInterface);
-        }
-        activeProject = project;
-        for (auto repository : activeProject->repositoryList())
-        {
-          emit _this->repositoryAdded(repository->gitInterface);
-        }
-        emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
+        switchProject(_this, project);
+
+        recentProjects.append(activeProject->fileName());
+        createRecentProjectsMenu(_this);
       }
     });
 
@@ -169,16 +179,10 @@ struct MainWindowPrivate
 
       if (!fileName.isEmpty())
       {
-        for (auto repository : activeProject->repositoryList())
-        {
-          emit _this->repositoryRemoved(repository->gitInterface);
-        }
-        activeProject = new Project(fileName, _this);
-        for (auto repository : activeProject->repositoryList())
-        {
-          emit _this->repositoryAdded(repository->gitInterface);
-        }
-        emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
+        switchProject(_this, new Project(fileName, _this));
+
+        recentProjects.append(activeProject->fileName());
+        createRecentProjectsMenu(_this);
       }
     });
 
@@ -305,6 +309,18 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionStash_changes, &QAction::triggered, ToolBarActions::byId("stash"), &QAction::trigger);
     _this->connect(_this->ui->actionStash_pop, &QAction::triggered, ToolBarActions::byId("unstash"), &QAction::trigger);
+  }
+
+  void createRecentProjectsMenu(MainWindow *_this)
+  {
+    _this->ui->menuRecent_Projects->clear();
+    for (auto path : recentProjects ) {
+      QAction *action = new QAction(path, _this);
+      _this->connect(action, &QAction::triggered, _this, [=] {
+        switchProject(_this, new Project(path, _this));
+      });
+      _this->ui->menuRecent_Projects->addAction(action);
+    }
   }
 
   QToolBar *addToolbar(Qt::ToolBarArea area, MainWindow *_this)
@@ -540,6 +556,9 @@ struct MainWindowPrivate
     }
 
     _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
+
+    recentProjects = qvariant_cast<QStringList>(settings.value(CONFIG_RECENT_PROJECTS));
+    createRecentProjectsMenu(_this);
   }
 
   void postInit()
@@ -563,6 +582,7 @@ struct MainWindowPrivate
     settings.setValue(CONFIG_STATE, _this->saveState());
     settings.setValue(CONFIG_EDIT_MODE, editMode);
     settings.setValue(CONFIG_CURRENT_PROJECT_PATH, activeProject->fileName());
+    settings.setValue(CONFIG_RECENT_PROJECTS, recentProjects);
 
     QMap<QString, QVariant> tabs;
 
