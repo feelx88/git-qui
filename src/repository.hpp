@@ -1,20 +1,26 @@
 #ifndef REPOSITORY_HPP
 #define REPOSITORY_HPP
 
+#include <QObject>
 #include <QString>
 #include <QDir>
 #include <QDataStream>
 
-class Repository
+struct RepositoryImpl;
+
+class Repository : public QObject
 {
+  Q_OBJECT
 public:
-  Repository();
+  explicit Repository(const QString &name = "", const QString &path = "", QObject *parent = nullptr);
+  explicit Repository(const Repository &other);
+  Repository &operator=(const Repository &other);
 
-  Q_PROPERTY(QDir name MEMBER name)
   QString name;
-
-  Q_PROPERTY(QDir path MEMBER path)
   QDir path;
+
+private:
+  RepositoryImpl *_impl;
 };
 
 Q_DECLARE_METATYPE(Repository)

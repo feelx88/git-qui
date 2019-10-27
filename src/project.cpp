@@ -93,10 +93,7 @@ void Project::addRepository()
 
       if(directoryValid)
       {
-        Repository repository;
-        repository.path.setPath(currentDir.absolutePath());
-        repository.name = currentDir.dirName();
-        list << repository;
+        list << Repository(currentDir.dirName(), currentDir.absolutePath(), this);
       }
     }
 

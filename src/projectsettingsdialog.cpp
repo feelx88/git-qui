@@ -14,7 +14,7 @@ struct ProjectSettingsDialogImpl
   {
     _this->ui->repositoryTable->clearContents();
     _this->ui->repositoryTable->setRowCount(0);
-    for (Repository repository : project->repositoryList())
+    for (Repository &repository : project->repositoryList())
     {
       int row = _this->ui->repositoryTable->rowCount();
       _this->ui->repositoryTable->insertRow(row);
@@ -67,7 +67,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
 
   connect(ui->repositoryTable->itemDelegate(), &QAbstractItemDelegate::commitData, this, [this](){
     auto item = ui->repositoryTable->currentItem();
-    Repository repository = _impl->project->repositoryList().at(item->row());
+    Repository repository(_impl->project->repositoryList().at(item->row()));
 
     switch (item->column())
     {
