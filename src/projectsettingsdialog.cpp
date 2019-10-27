@@ -50,7 +50,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
   _impl->fillRepositoryList(this);
 
   connect(ui->projectPathChooseButton, &QToolButton::clicked, this, [this]{
-    _impl->project->setFileName(QFileDialog::getOpenFileName(
+    _impl->project->setFileName(QFileDialog::getSaveFileName(
       this,
       "Select project file"
     ));
