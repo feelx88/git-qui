@@ -9,6 +9,7 @@ class MainWindow;
 
 struct MainWindowPrivate;
 class GitInterface;
+class Project;
 
 class MainWindow : public QMainWindow
 {
@@ -21,11 +22,7 @@ public:
   ~MainWindow();
 
   const QList<GitInterface*> repositories() const;
-
-public slots:
-  void openRepository();
-  void closeCurrentRepository();
-  void switchRepository(const QString &path);
+  Project *project();
 
 signals:
   void repositoryAdded(GitInterface *repository);

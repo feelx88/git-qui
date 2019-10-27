@@ -17,127 +17,125 @@
 #include <QInputDialog>
 #include <QTimer>
 #include <QDirIterator>
+#include <QSvgWidget>
 
 #include "gitinterface.hpp"
 #include "components/dockwidget.hpp"
 #include "toolbareditor.hpp"
 #include "toolbaractions.hpp"
+#include "project.hpp"
+#include "projectsettingsdialog.hpp"
 
 struct MainWindowPrivate
 {
-  GitInterface* selectedGitInterface;
-  QMap<QString, GitInterface*> gitInterfaces;
-  QList<QString> repositories;
-  int currentRepository = 0;
   QTimer *autoFetchTimer;
   bool editMode;
+  Project *activeProject = nullptr;
+  QStringList recentProjects;
 
   inline static const QString CONFIG_GEOMETRY = "geometry";
   inline static const QString CONFIG_STATE = "state";
   inline static const QString CONFIG_TABS = "tabs";
   inline static const QString CONFIG_TAB_NAME = "tabName";
   inline static const QString CONFIG_DOCK_WIDGETS = "dockWidgets";
-  inline static const QString CONFIG_REPOSITORIES = "repositories";
-  inline static const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
   inline static const QString CONFIG_DW_ID = "id";
   inline static const QString CONFIG_DW_CLASS = "class";
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
   inline static const QString CONFIG_EDIT_MODE = "editMode";
+  inline static const QString CONFIG_CURRENT_PROJECT_PATH = "currentProjectPath";
+  inline static const QString CONFIG_RECENT_PROJECTS = "recentProjects";
 
-  void initGit(MainWindow *_this)
+  void initProject(MainWindow *_this)
+  {
+    connectSignals(_this);
+    initAutoFetchTimer(_this);
+
+    for (auto repository : activeProject->repositoryList())
+    {
+      connectGitInterfaceSignals(_this, repository->gitInterface);
+    }
+
+    populateMenu(_this);
+    restoreSettings(_this);
+
+    for (auto repository : activeProject->repositoryList())
+    {
+      emit _this->repositoryAdded(repository->gitInterface);
+    }
+
+    postInit();
+    emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
+  }
+
+  void bootProject(MainWindow *_this)
   {
     QSettings settings;
-    repositories = settings.value(CONFIG_REPOSITORIES).toStringList();
+    QString projectPath = settings.value(CONFIG_CURRENT_PROJECT_PATH).toString();
 
-    if (repositories.empty() && !selectRepository(_this))
+    if (!QFile::exists(projectPath))
     {
-      QMessageBox message;
-      message.setText(_this->tr("No repository selected! Closing."));
-      message.setIcon(QMessageBox::Critical);
-      message.exec();
-      exit(EXIT_FAILURE);
-    }
-    else
-    {
-      for (auto repository : repositories)
-      {
-        gitInterfaces.insert(repository, new GitInterface(_this, repository));
-        addRepositoryMenuEntry(_this, repository);
-      }
-    }
-
-    currentRepository = std::min(settings.value(CONFIG_CURRENT_REPOSITORY, 0).toInt(), repositories.size() - 1);
-    selectedGitInterface = gitInterfaces.value(repositories.at(currentRepository), nullptr);
-  }
-
-  bool selectRepository(MainWindow *_this)
-  {
-    QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::DirectoryOnly);
-    dialog.setWindowTitle(dialog.tr("Select repository to open"));
-    dialog.exec();
-
-    if (dialog.result() == QFileDialog::Accepted)
-    {
-      QDirIterator iterator(
-        dialog.directory().absolutePath(),
-        {".git"},
-        QDir::Dirs | QDir::Hidden,
-        QDirIterator::Subdirectories
+      QMessageBox dialog(
+        QMessageBox::Question,
+        QObject::tr("No Project selected"),
+        QObject::tr("Would you like to create a new project? Alternatively, you could open an existing one."),
+        QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort
       );
+      dialog.setButtonText(QMessageBox::Yes, QObject::tr("Create new project"));
+      dialog.setButtonText(QMessageBox::Open, QObject::tr("Open existing project"));
 
-      while (iterator.hasNext())
+      switch (dialog.exec())
       {
-        QDir currentDir = QDir(iterator.next());
-        currentDir.cdUp();
-        QString path = currentDir.absolutePath();
-        if (repositories.indexOf(path) == -1)
+      case QMessageBox::Yes:
+      {
+        Project *project = new Project();
+        auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project, _this);
+        if (settingsDialog->exec() == QDialog::Accepted)
         {
-          auto inserted = gitInterfaces.insert(path, new GitInterface(_this, path));
-          repositories.append(path);
-          addRepositoryMenuEntry(_this, path);
-          emit _this->repositoryAdded(inserted.value());
+          activeProject = project;
         }
+        break;
       }
-      return true;
-    }
+      case QMessageBox::Open:
+      {
+        QString fileName = QFileDialog::getOpenFileName(_this, QObject::tr("Select project to open"));
 
-    return false;
-  }
+        if (!fileName.isEmpty())
+        {
+          activeProject = new Project(fileName, _this);
+        }
+        break;
+      }
+      default:
+        break;
+      }
 
-  void addRepositoryMenuEntry(MainWindow *_this, const QString &path)
-  {
-    _this->ui->menuRepositories->addAction(path, _this, [=]{
-      selectedGitInterface = gitInterfaces.value(path, nullptr);
-      currentRepository = repositories.indexOf(path);
-    });
-  }
-
-  void closeCurrentRepository(MainWindow *_this)
-  {
-    QString path = repositories.at(currentRepository);
-    _this->ui->menuRepositories->removeAction(_this->ui->menuRepositories->actions().at(currentRepository));
-    repositories.removeAt(currentRepository);
-    emit _this->repositoryRemoved(gitInterfaces.value(path, nullptr));
-    selectedGitInterface->disconnect(nullptr, _this);
-    gitInterfaces.remove(path);
-
-    if (repositories.empty())
-    {
-      if (!selectRepository(_this))
+      if (!activeProject)
       {
         QMessageBox message;
-        message.setText(_this->tr("No repository selected! Closing."));
+        message.setText(QObject::tr("No project selected! Closing."));
         message.setIcon(QMessageBox::Critical);
         message.exec();
-        saveSettings(_this);
         exit(EXIT_FAILURE);
       }
     }
+    else
+    {
+      activeProject = new Project(projectPath, _this);
+    }
+  }
 
-    currentRepository = 0;
-    selectedGitInterface = gitInterfaces.value(repositories.first(), nullptr);
-    emit _this->repositorySwitched(selectedGitInterface);
+  void switchProject(MainWindow* _this, Project *project)
+  {
+    for (auto repository : activeProject->repositoryList())
+    {
+      emit _this->repositoryRemoved(repository->gitInterface);
+    }
+    activeProject = project;
+    for (auto repository : activeProject->repositoryList())
+    {
+      emit _this->repositoryAdded(repository->gitInterface);
+    }
+    emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
   }
 
   void connectSignals(MainWindow *_this)
@@ -161,21 +159,54 @@ struct MainWindowPrivate
     });
 
     _this->connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [this]{
-      selectedGitInterface->reload();
+      activeProject->activeRepository()->gitInterface->reload();
     });
 
-    _this->connect(_this->ui->actionOpen_Repository, &QAction::triggered, _this, [=]{
-      selectRepository(_this);
+    QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [this,  _this]{
+      Project *project = new Project();
+      auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project, _this);
+      if (settingsDialog->exec() == QDialog::Accepted)
+      {
+        switchProject(_this, project);
+
+        recentProjects.append(activeProject->fileName());
+        createRecentProjectsMenu(_this);
+      }
     });
-    _this->connect(_this->ui->actionClose_current_repository, &QAction::triggered, _this, [=]{
-      closeCurrentRepository(_this);
+
+    QObject::connect(_this->ui->actionOpen_Project, &QAction::triggered, _this, [this,  _this]{
+      QString fileName = QFileDialog::getOpenFileName(_this, "Select project to open");
+
+      if (!fileName.isEmpty())
+      {
+        switchProject(_this, new Project(fileName, _this));
+
+        recentProjects.append(activeProject->fileName());
+        createRecentProjectsMenu(_this);
+      }
+    });
+
+    QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [this,  _this]{
+
+      auto repositories = activeProject->repositoryList();
+
+      (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, activeProject, _this))->exec();
+
+      for (auto repository : repositories)
+      {
+        emit _this->repositoryRemoved(repository->gitInterface);
+      }
+      for (auto repository : activeProject->repositoryList())
+      {
+        emit _this->repositoryAdded(repository->gitInterface);
+      }
     });
 
     _this->connect(_this->ui->actionStart_git_gui_for_current_repository, &QAction::triggered, _this, [=]{
       QProcess *process = new QProcess(_this);
       process->setProgram("git");
       process->setArguments({"gui"});
-      process->setWorkingDirectory(repositories.at(currentRepository));
+      process->setWorkingDirectory(activeProject->activeRepository()->path.path());
       process->startDetached();
     });
 
@@ -183,13 +214,13 @@ struct MainWindowPrivate
       QProcess *process = new QProcess(_this);
       process->setProgram("gitk");
       process->setArguments({"--all"});
-      process->setWorkingDirectory(repositories.at(currentRepository));
+      process->setWorkingDirectory(activeProject->activeRepository()->path.path());
       process->startDetached();
     });
 
     _this->connect(_this->ui->actionQuick_cleanup, &QAction::triggered, _this, [=]{
       QList<QString> branches;
-      for (auto branch : selectedGitInterface->branches({"--merged", "master"}))
+      for (auto branch : activeProject->activeRepository()->gitInterface->branches({"--merged", "master"}))
       {
         if (branch.name != "master")
         {
@@ -222,9 +253,9 @@ struct MainWindowPrivate
       {
         for (auto branch: branches)
         {
-          selectedGitInterface->deleteBranch(branch.remove(QRegExp("<[^>]*>")));
+          activeProject->activeRepository()->gitInterface->deleteBranch(branch.remove(QRegExp("<[^>]*>")));
         }
-        selectedGitInterface->reload();
+        activeProject->activeRepository()->gitInterface->reload();
       }
     });
 
@@ -255,8 +286,7 @@ struct MainWindowPrivate
       );
       if (!tabName.isNull())
       {
-        QMainWindow *tab = createTab(_this);
-        _this->ui->tabWidget->addTab(tab, tabName);
+        _this->ui->tabWidget->addTab(createTab(_this), tabName);
       }
     });
 
@@ -279,6 +309,18 @@ struct MainWindowPrivate
 
     _this->connect(_this->ui->actionStash_changes, &QAction::triggered, ToolBarActions::byId("stash"), &QAction::trigger);
     _this->connect(_this->ui->actionStash_pop, &QAction::triggered, ToolBarActions::byId("unstash"), &QAction::trigger);
+  }
+
+  void createRecentProjectsMenu(MainWindow *_this)
+  {
+    _this->ui->menuRecent_Projects->clear();
+    for (auto path : recentProjects ) {
+      QAction *action = new QAction(path, _this);
+      _this->connect(action, &QAction::triggered, _this, [=] {
+        switchProject(_this, new Project(path, _this));
+      });
+      _this->ui->menuRecent_Projects->addAction(action);
+    }
   }
 
   QToolBar *addToolbar(Qt::ToolBarArea area, MainWindow *_this)
@@ -318,10 +360,10 @@ struct MainWindowPrivate
     autoFetchTimer = new QTimer(_this);
     autoFetchTimer->setInterval(30000);
     auto timeout = [=]{
-      for (auto interface : gitInterfaces)
+      for (auto repository : activeProject->repositoryList())
       {
         QtConcurrent::run([=]{
-          interface->fetch();
+          repository->gitInterface->fetch();
         });
       }
     };
@@ -333,7 +375,7 @@ struct MainWindowPrivate
   void connectGitInterfaceSignals(MainWindow *_this, GitInterface *gitInterface)
   {
     _this->connect(gitInterface, &GitInterface::reloaded, _this, [=]{
-      emit _this->repositoryAdded(gitInterfaces.value(gitInterface->path()));
+      emit _this->repositoryAdded(gitInterface);
     });
   }
 
@@ -346,12 +388,12 @@ struct MainWindowPrivate
           entry->id,
           _this,
           static_cast<QMainWindow*>(_this->ui->tabWidget->currentWidget()),
-          selectedGitInterface
+          activeProject->activeRepository()->gitInterface
         );
-        emit _this->repositorySwitched(selectedGitInterface);
-        for (auto interface : gitInterfaces) {
-          emit _this->repositoryAdded(interface);
-          interface->reload();
+        emit _this->repositorySwitched(activeProject->activeRepository()->gitInterface);
+        for (auto repository : activeProject->repositoryList()) {
+          emit _this->repositoryAdded(repository->gitInterface);
+          repository->gitInterface->reload();
         }
         _this->ui->actionEdit_mode->setChecked(true);
       });
@@ -379,7 +421,7 @@ struct MainWindowPrivate
       "RepositoryFiles",
       _this,
       main,
-      selectedGitInterface,
+      activeProject->activeRepository()->gitInterface,
       QUuid::createUuid().toString(),
       unstagedConfig
     );
@@ -388,7 +430,7 @@ struct MainWindowPrivate
       "RepositoryFiles",
       _this,
       main,
-      selectedGitInterface,
+      activeProject->activeRepository()->gitInterface,
       QUuid::createUuid().toString(),
       stagedConfig
     );
@@ -396,25 +438,25 @@ struct MainWindowPrivate
       "DiffView",
       _this,
       main,
-      selectedGitInterface
+      activeProject->activeRepository()->gitInterface
     );
     DockWidget::create(
       "Commit",
       _this,
       main,
-      selectedGitInterface
+      activeProject->activeRepository()->gitInterface
     );
     DockWidget::create(
       "RepositoryList",
       _this,
       main,
-      selectedGitInterface
+      activeProject->activeRepository()->gitInterface
     );
     DockWidget::create(
       "BranchList",
       _this,
       main,
-      selectedGitInterface
+      activeProject->activeRepository()->gitInterface
     );
     main->splitDockWidget(
       static_cast<QDockWidget*>(main->children()[1]),
@@ -439,7 +481,7 @@ struct MainWindowPrivate
       "LogView",
       _this,
       history,
-      selectedGitInterface
+      activeProject->activeRepository()->gitInterface
     );
     _this->ui->tabWidget->addTab(history, _this->tr("History"));
 
@@ -490,7 +532,7 @@ struct MainWindowPrivate
           config.value(CONFIG_DW_CLASS).toString(),
           _this,
           page,
-          selectedGitInterface,
+          activeProject->activeRepository()->gitInterface,
           config.value(CONFIG_DW_ID).toString(),
           config.value(CONFIG_DW_CONFIGURATION)
         );
@@ -514,17 +556,20 @@ struct MainWindowPrivate
     }
 
     _this->ui->actionEdit_mode->setChecked(settings.value(CONFIG_EDIT_MODE, true).toBool());
+
+    recentProjects = qvariant_cast<QStringList>(settings.value(CONFIG_RECENT_PROJECTS));
+    createRecentProjectsMenu(_this);
   }
 
   void postInit()
   {
-    selectedGitInterface->reload();
+    activeProject->activeRepository()->gitInterface->reload();
 
-    for (auto interface : gitInterfaces)
+    for (auto repository : activeProject->repositoryList())
     {
-      if (interface != selectedGitInterface) {
-        QtConcurrent::run([interface]{
-          interface->reload();
+      if (repository != activeProject->activeRepository()) {
+        QtConcurrent::run([repository]{
+          repository->gitInterface->reload();
         });
       }
     }
@@ -535,9 +580,9 @@ struct MainWindowPrivate
     QSettings settings;
     settings.setValue(CONFIG_GEOMETRY, _this->saveGeometry());
     settings.setValue(CONFIG_STATE, _this->saveState());
-    settings.setValue(CONFIG_REPOSITORIES, QVariant(repositories));
-    settings.setValue(CONFIG_CURRENT_REPOSITORY, QVariant(currentRepository));
     settings.setValue(CONFIG_EDIT_MODE, editMode);
+    settings.setValue(CONFIG_CURRENT_PROJECT_PATH, activeProject->fileName());
+    settings.setValue(CONFIG_RECENT_PROJECTS, recentProjects);
 
     QMap<QString, QVariant> tabs;
 
@@ -591,8 +636,6 @@ struct MainWindowPrivate
   }
 };
 
-#include <QSvgWidget>
-
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
 ui(new Ui::MainWindow),
@@ -602,23 +645,8 @@ _impl(new MainWindowPrivate)
 
   ToolBarActions::initialize(this);
 
-  _impl->initGit(this);
-  _impl->connectSignals(this);
-  _impl->initAutoFetchTimer(this);
-
-  for (auto interface : _impl->gitInterfaces) {
-    _impl->connectGitInterfaceSignals(this, interface);
-  }
-
-  _impl->populateMenu(this);
-  _impl->restoreSettings(this);
-
-  for (auto interface : _impl->gitInterfaces) {
-    emit repositoryAdded(interface);
-  }
-
-  _impl->postInit();
-  emit repositorySwitched(_impl->selectedGitInterface);
+  _impl->bootProject(this);
+  _impl->initProject(this);
 }
 
 MainWindow::~MainWindow()
@@ -627,9 +655,9 @@ MainWindow::~MainWindow()
   QThreadPool::globalInstance()->clear();
   QThreadPool::globalInstance()->waitForDone();
 
-  for (auto interface : _impl->gitInterfaces)
+  for (auto repository : _impl->activeProject->repositoryList())
   {
-    interface->disconnect(nullptr, this);
+    repository->gitInterface->disconnect(nullptr, this);
   }
 
   delete ui;
@@ -637,27 +665,19 @@ MainWindow::~MainWindow()
 
 const QList<GitInterface*> MainWindow::repositories() const
 {
-  return _impl->gitInterfaces.values();
+  QList<GitInterface*> list;
+
+  for (auto repository : _impl->activeProject->repositoryList())
+  {
+    list << repository->gitInterface;
+  }
+
+  return list;
 }
 
-void MainWindow::openRepository()
+Project *MainWindow::project()
 {
-  _impl->selectRepository(this);
-}
-
-void MainWindow::closeCurrentRepository()
-{
-  _impl->closeCurrentRepository(this);
-}
-
-void MainWindow::switchRepository(const QString &path)
-{
-  _impl->currentRepository = _impl->repositories.indexOf(path);
-  _impl->selectedGitInterface = _impl->gitInterfaces.value(path, nullptr);
-  emit repositorySwitched(_impl->selectedGitInterface);
-  _impl->selectedGitInterface->reload();
-
-  setWindowTitle(QString("git-qui - %1").arg(path.split('/').last()));
+  return _impl->activeProject;
 }
 
 void MainWindow::changeEvent(QEvent *ev)

@@ -103,7 +103,7 @@ GitInterface::GitInterface(QObject *parent, const QString &path)
   : QObject(parent),
     _impl(new GitInterfacePrivate)
 {
-  _impl->repositoryPath = path;
+  _impl->repositoryPath.setPath(path);
   reload();
 }
 

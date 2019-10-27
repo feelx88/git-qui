@@ -58,7 +58,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -68,7 +68,17 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="actionOpen_Repository"/>
+    <widget class="QMenu" name="menuRecent_Projects">
+     <property name="title">
+      <string>Recent Projects</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionClear"/>
+    </widget>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="menuRecent_Projects"/>
+    <addaction name="actionProject_settings"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -96,11 +106,6 @@
     <addaction name="menuAdd_Toolbar"/>
     <addaction name="actionRestore_defaults"/>
    </widget>
-   <widget class="QMenu" name="menuRepositories">
-    <property name="title">
-     <string>Ope&amp;n repositories</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
      <string>&amp;Tools</string>
@@ -120,7 +125,6 @@
     <addaction name="actionStash_pop"/>
     <addaction name="separator"/>
     <addaction name="actionQuick_cleanup"/>
-    <addaction name="actionClose_current_repository"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -129,33 +133,14 @@
     <addaction name="actionAbout_qt"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuRepositories"/>
    <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionOpen_Repository">
-   <property name="text">
-    <string>&amp;Open repository...</string>
-   </property>
-  </action>
-  <action name="actionClose_current_repository">
-   <property name="text">
-    <string>&amp;Close</string>
-   </property>
-   <property name="iconText">
-    <string>Close</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="text">
     <string>&amp;Exit</string>
-   </property>
-  </action>
-  <action name="actionRepositoryFiles">
-   <property name="text">
-    <string>RepositoryFiles</string>
    </property>
   </action>
   <action name="actionTop">
@@ -247,6 +232,26 @@
   <action name="actionStash_pop">
    <property name="text">
     <string>Stash pop</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project...</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="text">
+    <string>Open Project...</string>
+   </property>
+  </action>
+  <action name="actionProject_settings">
+   <property name="text">
+    <string>Project settings...</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>
