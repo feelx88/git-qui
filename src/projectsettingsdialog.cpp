@@ -49,6 +49,10 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
   ui->projectPathEdit->setText(_impl->project->fileName());
   _impl->fillRepositoryList(this);
 
+  connect(ui->projectNameEdit, &QLineEdit::textChanged, this, [this](const QString &projectName){
+    _impl->project->setName(projectName);
+  });
+
   connect(ui->projectPathChooseButton, &QToolButton::clicked, this, [this]{
     _impl->project->setFileName(QFileDialog::getSaveFileName(
       this,
