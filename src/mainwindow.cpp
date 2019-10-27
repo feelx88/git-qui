@@ -55,14 +55,16 @@ struct MainWindowPrivate
 
     if (!QFile::exists(projectPath))
     {
-      auto response = QMessageBox::information(
-        _this,
+      QMessageBox dialog(
+        QMessageBox::Question,
         QObject::tr("No Project selected"),
         QObject::tr("Would you like to create a new project? Alternatively, you could open an existing one."),
         QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort
       );
+      dialog.setButtonText(QMessageBox::Yes, QObject::tr("Create new project"));
+      dialog.setButtonText(QMessageBox::Open, QObject::tr("Open existing project"));
 
-      switch (response)
+      switch (dialog.exec())
       {
       case QMessageBox::Yes:
       {
