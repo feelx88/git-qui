@@ -1,5 +1,7 @@
 #include "project.hpp"
 
+#include <QDirIterator>
+#include <QRegularExpression>
 #include <QSettings>
 #include <qfiledialog.h>
 
@@ -7,6 +9,10 @@ struct ProjectImpl
 {
   QSettings *settings = nullptr;
   QString name;
+  QList<QRegularExpression> ignoredSubdirectories = {
+    QRegularExpression("/.*vendor.*/"),
+    QRegularExpression("/.*node_modules.*/")
+  };
 
   void updateSettings()
   {
@@ -57,15 +63,47 @@ void Project::addRepository()
     QDir::current().path()
   );
 
-  Repository repository;
-  repository.path.setPath(path);
-  repository.name = repository.path.dirName();
+  auto list = repositoryList();
 
   if (!path.isNull())
   {
-    _impl->settings->setValue("repositoryList", QVariant::fromValue(repositoryList() << repository));
+    QDirIterator iterator(
+      path,
+      {".git"},
+      QDir::Dirs | QDir::Hidden,
+      QDirIterator::Subdirectories
+    );
+
+    auto regex = QRegularExpression();
+    while (iterator.hasNext())
+    {
+      QDir currentDir = QDir(iterator.next());
+      currentDir.cdUp();
+
+      bool directoryValid = true;
+
+      for (auto regex : _impl->ignoredSubdirectories)
+      {
+        if (regex.match(currentDir.path()).hasMatch())
+        {
+          directoryValid = false;
+          break;
+        }
+      }
+
+      if(directoryValid)
+      {
+        Repository repository;
+        repository.path.setPath(currentDir.absolutePath());
+        repository.name = currentDir.dirName();
+        list << repository;
+      }
+    }
+
+    _impl->settings->setValue("repositoryList", QVariant::fromValue(list));
     _impl->settings->sync();
   }
+
 }
 
 void Project::removeRepository(const int &index)
