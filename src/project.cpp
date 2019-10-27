@@ -3,22 +3,57 @@
 #include <QDirIterator>
 #include <QRegularExpression>
 #include <QSettings>
-#include <qfiledialog.h>
+#include <QFileDialog>
 
 struct ProjectImpl
 {
+  static inline const QString CONFIG_NAME = "name";
+  static inline const QString CONFIG_REPOSITORY_LIST = "repositoryList";
+
+  static inline const QString CONFIG_REPOSITORY_LIST_NAME = "name";
+  static inline const QString CONFIG_REPOSITORY_LIST_PATH = "path";
+
   QSettings *settings = nullptr;
   QString name;
+  QList<Repository*> repositories;
   QList<QRegularExpression> ignoredSubdirectories = {
     QRegularExpression("/.*vendor.*/"),
     QRegularExpression("/.*node_modules.*/")
   };
 
-  void updateSettings()
+  void loadSettings(Project *_this)
+  {
+    name = settings->value(CONFIG_NAME).toString();
+
+    QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(settings->value(CONFIG_REPOSITORY_LIST));
+
+    for (auto entry : list)
+    {
+      repositories.append(new Repository(
+        entry.value(CONFIG_REPOSITORY_LIST_NAME).toString(),
+        entry.value(CONFIG_REPOSITORY_LIST_PATH).toString(),
+        _this
+      ));
+    }
+  }
+
+  void writeSettings()
   {
     if (settings)
     {
-      settings->setValue("name", name);
+      settings->setValue(CONFIG_NAME, name);
+      QList<QVariantMap> list;
+
+      for (auto repository : repositories)
+      {
+        list << QVariantMap {
+          {CONFIG_REPOSITORY_LIST_NAME, repository->name},
+          {CONFIG_REPOSITORY_LIST_PATH, repository->path.path()}
+        };
+      }
+
+      settings->setValue(CONFIG_REPOSITORY_LIST, QVariant::fromValue(list));
+      settings->sync();
     }
   }
 };
@@ -40,26 +75,21 @@ QString Project::fileName() const
   return _impl->settings ? _impl->settings->fileName() : "";
 }
 
-void Project::repositoryList(const QList<Repository> &repositoryList)
-{
-  _impl->settings->setValue("repositoryList", QVariant::fromValue(repositoryList));
-}
-
 QString Project::name() const
 {
-  return _impl->settings ? _impl->settings->value("name").toString() : _impl->name;
+  return _impl->name;
 }
 
-QList<Repository> Project::repositoryList() const
+QList<Repository*> Project::repositoryList() const
 {
-  return _impl->settings ? qvariant_cast<QList<Repository>>(_impl->settings->value("repositoryList")) : QList<Repository>();
+  return _impl->repositories;
 }
 
 void Project::addRepository()
 {
   QString path = QFileDialog::getExistingDirectory(
     nullptr,
-    "Select repository path",
+    QObject::tr("Select repository path"),
     QDir::current().path()
   );
 
@@ -93,34 +123,31 @@ void Project::addRepository()
 
       if(directoryValid)
       {
-        list << Repository(currentDir.dirName(), currentDir.absolutePath(), this);
+        _impl->repositories.append(new Repository(currentDir.dirName(), currentDir.absolutePath(), this));
       }
     }
 
-    _impl->settings->setValue("repositoryList", QVariant::fromValue(list));
-    _impl->settings->sync();
+    _impl->writeSettings();
   }
 
 }
 
 void Project::removeRepository(const int &index)
 {
-  auto list = repositoryList();
-  list.removeAt(index);
-  repositoryList(list);
+  _impl->repositories.removeAt(index);
+  _impl->writeSettings();
 }
 
-void Project::updateRepository(const int &index, const Repository &repository)
+void Project::updateRepository(const int &index, Repository *repository)
 {
-  auto list = repositoryList();
-  list.replace(index, repository);
-  repositoryList(list);
+  _impl->repositories.replace(index, repository);
+  _impl->writeSettings();
 }
 
 void Project::setName(const QString &name)
 {
   _impl->name = name;
-  _impl->updateSettings();
+  _impl->writeSettings();
 }
 
 void Project::setFileName(const QString &fileName)
@@ -128,8 +155,7 @@ void Project::setFileName(const QString &fileName)
   if (!_impl->settings)
   {
     _impl->settings = new QSettings(fileName, QSettings::IniFormat, this);
-    _impl->updateSettings();
-
-    _impl->name = name();
+    _impl->loadSettings(this);
+    _impl->writeSettings();
   }
 }

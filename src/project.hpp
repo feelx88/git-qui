@@ -16,12 +16,11 @@ public:
 
   QString fileName() const;
   QString name() const;
-  QList<Repository> repositoryList() const;
-  void repositoryList(const QList<Repository> &repositoryList);
+  QList<Repository *> repositoryList() const;
 
   void addRepository();
   void removeRepository(const int &index);
-  void updateRepository(const int &index, const Repository &repository);
+  void updateRepository(const int &index, Repository *repository);
 
   void setName(const QString &name);
   void setFileName(const QString &fileName);

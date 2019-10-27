@@ -24,7 +24,5 @@ private:
 };
 
 Q_DECLARE_METATYPE(Repository)
-QDataStream &operator<<(QDataStream &out, const Repository &repository);
-QDataStream &operator>>(QDataStream &in, Repository &repository);
 
 #endif // REPOSITORY_HPP
