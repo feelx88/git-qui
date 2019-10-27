@@ -46,10 +46,62 @@ struct MainWindowPrivate
   inline static const QString CONFIG_DW_CLASS = "class";
   inline static const QString CONFIG_DW_CONFIGURATION = "configuration";
   inline static const QString CONFIG_EDIT_MODE = "editMode";
+  inline static const QString CONFIG_CURRENT_PROJECT_PATH = "currentProjectPath";
 
   void initGit(MainWindow *_this)
   {
     QSettings settings;
+    QString projectPath = settings.value(CONFIG_CURRENT_PROJECT_PATH).toString();
+
+    if (!QFile::exists(projectPath))
+    {
+      auto response = QMessageBox::information(
+        _this,
+        QObject::tr("No Project selected"),
+        QObject::tr("Would you like to create a new project? Alternatively, you could open an existing one."),
+        QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort
+      );
+
+      switch (response)
+      {
+      case QMessageBox::Yes:
+      {
+        Project *project = new Project();
+        auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project, _this);
+        if (settingsDialog->exec() == QDialog::Accepted)
+        {
+          activeProject = project;
+        }
+        break;
+      }
+      case QMessageBox::Open:
+      {
+        QString fileName = QFileDialog::getOpenFileName(_this, QObject::tr("Select project to open"));
+
+        if (!fileName.isEmpty())
+        {
+          activeProject = new Project(fileName, _this);
+        }
+        break;
+      }
+      default:
+        break;
+      }
+
+      if (!activeProject)
+      {
+        QMessageBox message;
+        message.setText(QObject::tr("No project selected! Closing."));
+        message.setIcon(QMessageBox::Critical);
+        message.exec();
+        exit(EXIT_FAILURE);
+      }
+    }
+    else
+    {
+      activeProject = new Project(projectPath, _this);
+    }
+
     repositories = settings.value(CONFIG_REPOSITORIES).toStringList();
 
     if (repositories.empty() && !selectRepository(_this))
@@ -564,6 +616,7 @@ struct MainWindowPrivate
     settings.setValue(CONFIG_REPOSITORIES, QVariant(repositories));
     settings.setValue(CONFIG_CURRENT_REPOSITORY, QVariant(currentRepository));
     settings.setValue(CONFIG_EDIT_MODE, editMode);
+    settings.setValue(CONFIG_CURRENT_PROJECT_PATH, activeProject->fileName());
 
     QMap<QString, QVariant> tabs;
 
