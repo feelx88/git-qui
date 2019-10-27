@@ -83,7 +83,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
       break;
     }
 
-    _impl->project->updateRepository(item->row(), repository);
+    _impl->project->save();
   });
 
   connect(ui->addRepositoryButton, &QToolButton::clicked, this, [this]{

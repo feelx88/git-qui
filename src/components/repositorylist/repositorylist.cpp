@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "mainwindow.hpp"
+#include "project.hpp"
 
 struct RepositoryListPrivate
 {
@@ -94,7 +95,7 @@ struct RepositoryListPrivate
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
       if (_this->ui->treeWidget->currentItem())
       {
-        _this->mainWindow()->switchRepository(_this->ui->treeWidget->currentItem()->data(0, Qt::UserRole).toString());
+        _this->mainWindow()->project()->setCurrentRepository(_this->ui->treeWidget->currentIndex().row());
       }
     });
 

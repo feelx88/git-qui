@@ -1,3 +1,4 @@
+#include "mainwindow.hpp"
 #include "project.hpp"
 
 #include <QDirIterator>
@@ -5,10 +6,13 @@
 #include <QSettings>
 #include <QFileDialog>
 
+#include "gitinterface.hpp"
+
 struct ProjectImpl
 {
   static inline const QString CONFIG_NAME = "name";
   static inline const QString CONFIG_REPOSITORY_LIST = "repositoryList";
+  static inline const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
 
   static inline const QString CONFIG_REPOSITORY_LIST_NAME = "name";
   static inline const QString CONFIG_REPOSITORY_LIST_PATH = "path";
@@ -16,6 +20,7 @@ struct ProjectImpl
   QSettings *settings = nullptr;
   QString name;
   QList<Repository*> repositories;
+  int currentRepository = 0;
   QList<QRegularExpression> ignoredSubdirectories = {
     QRegularExpression("/.*vendor.*/"),
     QRegularExpression("/.*node_modules.*/")
@@ -24,6 +29,7 @@ struct ProjectImpl
   void loadSettings(Project *_this)
   {
     name = settings->value(CONFIG_NAME).toString();
+    currentRepository = settings->value(CONFIG_CURRENT_REPOSITORY, 0).toInt();
 
     QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(settings->value(CONFIG_REPOSITORY_LIST));
 
@@ -42,6 +48,7 @@ struct ProjectImpl
     if (settings)
     {
       settings->setValue(CONFIG_NAME, name);
+      settings->setValue(CONFIG_CURRENT_REPOSITORY, currentRepository);
       QList<QVariantMap> list;
 
       for (auto repository : repositories)
@@ -83,6 +90,11 @@ QString Project::name() const
 QList<Repository*> Project::repositoryList() const
 {
   return _impl->repositories;
+}
+
+Repository *Project::activeRepository()
+{
+  return _impl->repositories.at(_impl->currentRepository);
 }
 
 void Project::addRepository()
@@ -138,10 +150,11 @@ void Project::removeRepository(const int &index)
   _impl->writeSettings();
 }
 
-void Project::updateRepository(const int &index, Repository *repository)
+void Project::setCurrentRepository(const int &index)
 {
-  _impl->repositories.replace(index, repository);
-  _impl->writeSettings();
+  _impl->currentRepository = index;
+  emit ((MainWindow*)parent())->repositorySwitched(_impl->repositories.at(index)->gitInterface);
+  _impl->repositories.at(index)->gitInterface->reload();
 }
 
 void Project::setName(const QString &name)
@@ -158,4 +171,9 @@ void Project::setFileName(const QString &fileName)
     _impl->loadSettings(this);
     _impl->writeSettings();
   }
+}
+
+void Project::save()
+{
+  _impl->writeSettings();
 }

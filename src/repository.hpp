@@ -6,6 +6,8 @@
 #include <QDir>
 #include <QDataStream>
 
+class GitInterface;
+
 struct RepositoryImpl;
 
 class Repository : public QObject
@@ -18,6 +20,7 @@ public:
 
   QString name;
   QDir path;
+  GitInterface *gitInterface;
 
 private:
   RepositoryImpl *_impl;

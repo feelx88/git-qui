@@ -73,8 +73,6 @@
     <addaction name="actionRecent_Projects"/>
     <addaction name="actionProject_settings"/>
     <addaction name="separator"/>
-    <addaction name="actionOpen_Repository"/>
-    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -101,11 +99,6 @@
     <addaction name="menuAdd_Toolbar"/>
     <addaction name="actionRestore_defaults"/>
    </widget>
-   <widget class="QMenu" name="menuRepositories">
-    <property name="title">
-     <string>Ope&amp;n repositories</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
      <string>&amp;Tools</string>
@@ -125,7 +118,6 @@
     <addaction name="actionStash_pop"/>
     <addaction name="separator"/>
     <addaction name="actionQuick_cleanup"/>
-    <addaction name="actionClose_current_repository"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -134,33 +126,14 @@
     <addaction name="actionAbout_qt"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuRepositories"/>
    <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionOpen_Repository">
-   <property name="text">
-    <string>&amp;Open repository...</string>
-   </property>
-  </action>
-  <action name="actionClose_current_repository">
-   <property name="text">
-    <string>&amp;Close</string>
-   </property>
-   <property name="iconText">
-    <string>Close</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="text">
     <string>&amp;Exit</string>
-   </property>
-  </action>
-  <action name="actionRepositoryFiles">
-   <property name="text">
-    <string>RepositoryFiles</string>
    </property>
   </action>
   <action name="actionTop">

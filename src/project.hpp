@@ -18,12 +18,17 @@ public:
   QString name() const;
   QList<Repository *> repositoryList() const;
 
+  Repository *activeRepository();
+
   void addRepository();
   void removeRepository(const int &index);
-  void updateRepository(const int &index, Repository *repository);
+
+  void setCurrentRepository(const int &index);
 
   void setName(const QString &name);
   void setFileName(const QString &fileName);
+
+  void save();
 
 private:
   ProjectImpl *_impl;
