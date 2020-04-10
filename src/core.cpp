@@ -4,8 +4,13 @@
 #include <QSettings>
 
 #include "project.hpp"
-#include "configurationkey.hpp"
 #include "mainwindow.hpp"
+
+struct ConfigurationKey
+{
+  static constexpr const char *CURRENT_PROJECT = "currentProject";
+  static constexpr const char *MAIN_WINDOWS = "mainWindows";
+};
 
 struct CoreImpl
 {

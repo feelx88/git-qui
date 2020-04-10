@@ -23,7 +23,6 @@ SOURCES += \
     src/toolbaractions.cpp
 
 HEADERS += \
-    src/configurationkey.hpp \
     src/core.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
