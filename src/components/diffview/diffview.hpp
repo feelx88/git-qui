@@ -16,10 +16,13 @@ class DiffView : public DockWidget
   friend struct DiffViewPrivate;
 
 public:
-  explicit DiffView(MainWindow *mainWindow, GitInterface *gitInterface);
+  explicit DiffView(MainWindow *mainWindow);
   virtual ~DiffView() override;
   virtual QVariant configuration() override;
   virtual void configure(const QVariant &configuration) override;
+
+protected:
+  virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
 
 private:
   Ui::DiffView *ui;

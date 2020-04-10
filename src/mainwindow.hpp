@@ -2,12 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QVariantMap>
 
 namespace Ui {
 class MainWindow;
 }
 
 struct MainWindowPrivate;
+class Core;
 class GitInterface;
 class Project;
 
@@ -18,16 +20,17 @@ class MainWindow : public QMainWindow
   friend struct MainWindowPrivate;
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(Core *core, const QVariantMap &configuration = QVariantMap());
   ~MainWindow();
 
-  const QList<GitInterface*> repositories() const;
-  Project *project();
+  Core *core();
 
-signals:
-  void repositoryAdded(GitInterface *repository);
-  void repositoryRemoved(GitInterface *repository);
-  void repositorySwitched(GitInterface *repository);
+  QVariant configuration() const;
+
+  QToolBar *addToolbar(Qt::ToolBarArea area);
+  QMainWindow *createTab(const QString &title);
+
+  void setEditMode(bool enabled);
 
 protected:
   void changeEvent(QEvent *);

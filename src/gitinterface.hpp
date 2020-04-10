@@ -18,13 +18,16 @@ class GitInterface : public QObject
 {
   Q_OBJECT
 public:
-  GitInterface(QObject *parent, const QString &path);
+  GitInterface(const QString &name, const QString &path, QObject *parent = nullptr);
   virtual ~GitInterface();
 
-  const QString path();
-  const GitBranch activeBranch();
+  const QString name() const;
+  void setName(const QString &name);
+  const QString path() const;
+  void setPath(const QString &path);
+  const GitBranch activeBranch() const;
 
-  const QList<GitBranch> branches(const QList<QString> &args);
+  const QList<GitBranch> branches(const QList<QString> &args) const;
 
 public slots:
   void reload();

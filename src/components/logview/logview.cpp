@@ -18,31 +18,6 @@ struct LogViewPrivate
       _this->tr("Author"),
       _this->tr("Date"),
     });
-
-    _this->connect(_this->mainWindow(), &MainWindow::repositorySwitched, _this, [=](GitInterface *newGitInterface){
-      _this->disconnect(gitInterface, &GitInterface::logChanged, _this, nullptr);
-
-      gitInterface = newGitInterface;
-
-      _this->connect(gitInterface, &GitInterface::logChanged, _this, [=](const QList<GitCommit> &commits){
-        _this->ui->treeWidget->clear();
-        for (GitCommit commit : commits)
-        {
-          QTreeWidgetItem *item = new QTreeWidgetItem(_this->ui->treeWidget);
-          item->setText(0, commit.id);
-          item->setText(1, commit.branches.join(", "));
-          item->setText(2, commit.message);
-          item->setText(3, commit.author);
-          item->setText(4, commit.date.toString());
-
-          _this->ui->treeWidget->addTopLevelItem(item);
-        }
-
-        _this->ui->treeWidget->resizeColumnToContents(0);
-        _this->ui->treeWidget->resizeColumnToContents(2);
-        _this->ui->treeWidget->resizeColumnToContents(3);
-      });
-    });
   }
 };
 
@@ -51,14 +26,13 @@ DOCK_WIDGET_IMPL(
     tr("Log view")
 )
 
-LogView::LogView(MainWindow *mainWindow, GitInterface *gitInterface) :
+LogView::LogView(MainWindow *mainWindow) :
 DockWidget(mainWindow),
 ui(new Ui::LogView),
 _impl(new LogViewPrivate)
 {
   ui->setupUi(this);
 
-  _impl->gitInterface = gitInterface;
   _impl->connectSignals(this);
 }
 
@@ -86,4 +60,30 @@ void LogView::configure(const QVariant &configuration)
   {
     ui->treeWidget->setColumnWidth(x, widths.at(x).toInt());
   }
+}
+
+void LogView::onRepositorySwitched(GitInterface *newGitInterface)
+{
+  disconnect(_impl->gitInterface, &GitInterface::logChanged, this, nullptr);
+
+  _impl->gitInterface = newGitInterface;
+
+  connect(_impl->gitInterface, &GitInterface::logChanged, this, [=](const QList<GitCommit> &commits){
+    ui->treeWidget->clear();
+    for (GitCommit commit : commits)
+    {
+      QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidget);
+      item->setText(0, commit.id);
+      item->setText(1, commit.branches.join(", "));
+      item->setText(2, commit.message);
+      item->setText(3, commit.author);
+      item->setText(4, commit.date.toString());
+
+      ui->treeWidget->addTopLevelItem(item);
+    }
+
+    ui->treeWidget->resizeColumnToContents(0);
+    ui->treeWidget->resizeColumnToContents(2);
+    ui->treeWidget->resizeColumnToContents(3);
+  });
 }

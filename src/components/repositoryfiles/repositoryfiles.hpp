@@ -19,11 +19,15 @@ class RepositoryFiles : public DockWidget
   friend struct RepositoryFilesPrivate;
 
 public:
-  explicit RepositoryFiles(MainWindow *mainWindow, GitInterface *gitInterface);
+  explicit RepositoryFiles(MainWindow *mainWindow);
   virtual ~RepositoryFiles() override;
 
   virtual QVariant configuration() override;
   virtual void configure(const QVariant &configuration) override;
+
+protected:
+  virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
+
 private:
   Ui::RepositoryFiles *ui;
   QScopedPointer<RepositoryFilesPrivate> _impl;

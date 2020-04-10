@@ -1,11 +1,11 @@
 #ifndef PROJECT_HPP
 #define PROJECT_HPP
 
+#include <QObject>
 #include <QList>
 
-#include "repository.hpp"
-
 struct ProjectImpl;
+class GitInterface;
 
 class Project : public QObject
 {
@@ -16,19 +16,26 @@ public:
 
   QString fileName() const;
   QString name() const;
-  QList<Repository *> repositoryList() const;
+  QList<GitInterface *> repositoryList() const;
 
-  Repository *activeRepository();
+  GitInterface *activeRepository();
 
   void addRepository();
   void removeRepository(const int &index);
 
   void setCurrentRepository(const int &index);
+  void setCurrentRepository(GitInterface *repository);
+  void setCurrentRepository(const QString &name);
 
   void setName(const QString &name);
   void setFileName(const QString &fileName);
 
   void save();
+
+signals:
+  void repositoryAdded(GitInterface *repository);
+  void repositorySwitched(GitInterface *repository);
+  void repositoryRemoved(GitInterface *repository);
 
 private:
   ProjectImpl *_impl;

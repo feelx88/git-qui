@@ -3,9 +3,9 @@
 #include <QApplication>
 #include <QSettings>
 
+#include "core.hpp"
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
-#include "repository.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -14,15 +14,13 @@ int main(int argc, char *argv[])
   qRegisterMetaType<QList<GitFile>>();
   qRegisterMetaType<QList<GitCommit>>();
   qRegisterMetaType<QList<GitBranch>>();
-  qRegisterMetaType<QList<Repository*>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
   QApplication app(argc, argv);
   app.setOrganizationName("feelx88");
   app.setOrganizationDomain("feelx88.de");
 
-  MainWindow w;
-  w.show();
+  Core core;
 
   return app.exec();
 }

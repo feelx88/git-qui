@@ -6,6 +6,8 @@
 #include <QMessageBox>
 
 #include "qobjecthelpers.hpp"
+#include "core.hpp"
+#include "project.hpp"
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
 
@@ -26,7 +28,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     action->setData(id);
   }
 
-  QObject::connect(mainWindow, &MainWindow::repositorySwitched, mainWindow, [=](GitInterface *repository){
+  QObject::connect(mainWindow->core()->project(), &Project::repositorySwitched, mainWindow, [=](GitInterface *repository){
     RECONNECT(_actionMap["stash"], &QAction::triggered, _actionMap["stash"], [=]{
       repository->stash();
     });
@@ -74,7 +76,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   });
 
   QObject::connect(_actionMap["push-all"], &QAction::triggered, _actionMap["push-all"], [=]{
-    for (auto repo : mainWindow->repositories())
+    for (auto repo : mainWindow->core()->project()->repositoryList())
     {
       emit repo->pushStarted();
       QtConcurrent::run([=]{
@@ -84,7 +86,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   });
 
   QObject::connect(_actionMap["pull-all"], &QAction::triggered, _actionMap["pull-all"], [=]{
-    for (auto repo : mainWindow->repositories())
+    for (auto repo : mainWindow->core()->project()->repositoryList())
     {
       emit repo->pullStarted();
       QtConcurrent::run([=]{

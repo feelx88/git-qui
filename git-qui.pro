@@ -3,6 +3,8 @@ QT += core svg xml gui widgets
 CONFIG += c++1z
 
 SOURCES += \
+    src/core.cpp \
+    src/initialwindowconfiguration.cpp \
     src/main.cpp \
     src/gitinterface.cpp \
     src/mainwindow.cpp \
@@ -17,14 +19,16 @@ SOURCES += \
     src/project.cpp \
     src/projectsettingsdialog.cpp \
     src/qtreewidgetutils.cpp \
-    src/repository.cpp \
     src/toolbareditor.cpp \
     src/toolbaractions.cpp
 
 HEADERS += \
+    src/configurationkey.hpp \
+    src/core.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
     src/gitfile.hpp \
+    src/initialwindowconfiguration.hpp \
     src/mainwindow.hpp \
     src/components/dockwidget.hpp \
     src/components/repositoryfiles/repositoryfiles.hpp \
@@ -38,7 +42,6 @@ HEADERS += \
     src/components/repositorylist/repositorylist.hpp \
     src/components/diffview/diffview.hpp \
     src/gitdiffline.hpp \
-    src/repository.hpp \
     src/toolbareditor.hpp \
     src/toolbaractions.hpp \
     src/qobjecthelpers.hpp

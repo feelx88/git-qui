@@ -17,16 +17,21 @@ struct ProjectImpl
   static inline const QString CONFIG_REPOSITORY_LIST_NAME = "name";
   static inline const QString CONFIG_REPOSITORY_LIST_PATH = "path";
 
+  Project *_this;
   QSettings *settings = nullptr;
   QString name;
-  QList<Repository*> repositories;
+  QList<GitInterface*> repositories;
   int currentRepository = 0;
   QList<QRegularExpression> ignoredSubdirectories = {
     QRegularExpression("/.*vendor.*/"),
     QRegularExpression("/.*node_modules.*/")
   };
 
-  void loadSettings(Project *_this)
+  ProjectImpl(Project *project)
+    :_this(project)
+  {}
+
+  void loadSettings()
   {
     name = settings->value(CONFIG_NAME).toString();
     currentRepository = settings->value(CONFIG_CURRENT_REPOSITORY, 0).toInt();
@@ -35,7 +40,7 @@ struct ProjectImpl
 
     for (auto entry : list)
     {
-      repositories.append(new Repository(
+      repositories.append(new GitInterface(
         entry.value(CONFIG_REPOSITORY_LIST_NAME).toString(),
         entry.value(CONFIG_REPOSITORY_LIST_PATH).toString(),
         _this
@@ -54,8 +59,8 @@ struct ProjectImpl
       for (auto repository : repositories)
       {
         list << QVariantMap {
-          {CONFIG_REPOSITORY_LIST_NAME, repository->name},
-          {CONFIG_REPOSITORY_LIST_PATH, repository->path.path()}
+          {CONFIG_REPOSITORY_LIST_NAME, repository->name()},
+          {CONFIG_REPOSITORY_LIST_PATH, repository->path()}
         };
       }
 
@@ -73,7 +78,7 @@ Project::Project(const QString &fileName, QObject *parent)
 
 Project::Project(QObject *parent)
 : QObject(parent),
-  _impl(new ProjectImpl)
+  _impl(new ProjectImpl(this))
 {
 }
 
@@ -87,12 +92,12 @@ QString Project::name() const
   return _impl->name;
 }
 
-QList<Repository*> Project::repositoryList() const
+QList<GitInterface*> Project::repositoryList() const
 {
   return _impl->repositories;
 }
 
-Repository *Project::activeRepository()
+GitInterface *Project::activeRepository()
 {
   return _impl->repositories.at(_impl->currentRepository);
 }
@@ -135,7 +140,7 @@ void Project::addRepository()
 
       if(directoryValid)
       {
-        _impl->repositories.append(new Repository(currentDir.dirName(), currentDir.absolutePath(), this));
+        _impl->repositories.append(new GitInterface(currentDir.dirName(), currentDir.absolutePath(), this));
       }
     }
 
@@ -153,8 +158,36 @@ void Project::removeRepository(const int &index)
 void Project::setCurrentRepository(const int &index)
 {
   _impl->currentRepository = index;
-  emit ((MainWindow*)parent())->repositorySwitched(_impl->repositories.at(index)->gitInterface);
-  _impl->repositories.at(index)->gitInterface->reload();
+  emit repositorySwitched(_impl->repositories.at(index));
+  _impl->repositories.at(index)->reload();
+}
+
+void Project::setCurrentRepository(GitInterface *repository)
+{
+  _impl->currentRepository = _impl->repositories.indexOf(repository);
+  emit repositorySwitched(_impl->repositories.at(_impl->currentRepository));
+  _impl->repositories.at(_impl->currentRepository)->reload();
+}
+
+void Project::setCurrentRepository(const QString &name)
+{
+  auto found = std::find_if(
+    _impl->repositories.begin(),
+    _impl->repositories.end(),
+    [name](GitInterface *repository)
+    {
+      return repository->name() == name;
+    }
+  );
+
+  if (found != _impl->repositories.end())
+  {
+    return;
+  }
+
+  _impl->currentRepository = _impl->repositories.indexOf(*found);
+  emit repositorySwitched(_impl->repositories.at(_impl->currentRepository));
+  _impl->repositories.at(_impl->currentRepository)->reload();
 }
 
 void Project::setName(const QString &name)
@@ -168,7 +201,7 @@ void Project::setFileName(const QString &fileName)
   if (!_impl->settings)
   {
     _impl->settings = new QSettings(fileName, QSettings::IniFormat, this);
-    _impl->loadSettings(this);
+    _impl->loadSettings();
     _impl->writeSettings();
   }
 }

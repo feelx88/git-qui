@@ -3,7 +3,6 @@
 
 #include <QFuture>
 #include <QMainWindow>
-#include <gitinterface.hpp>
 
 #define DOCK_WIDGET \
   private: \
@@ -17,7 +16,7 @@
   return new DockWidget::RegistryEntry { \
     name::staticMetaObject.className(), \
     displayName, \
-    [](MainWindow *mainWindow, GitInterface *gitInterface){return new name(mainWindow, gitInterface);} \
+    [](MainWindow *mainWindow){return new name(mainWindow);} \
   }; \
 }
 
@@ -26,6 +25,9 @@
 #include <QUuid>
 
 class MainWindow;
+class Core;
+class Project;
+class GitInterface;
 
 class DockWidget : public QDockWidget
 {
@@ -34,7 +36,7 @@ public:
   {
     QString id;
     QString name;
-    std::function<DockWidget*(MainWindow*, GitInterface*)> factory;
+    std::function<DockWidget*(MainWindow*)> factory;
   };
 
   virtual ~DockWidget() override;
@@ -43,7 +45,6 @@ public:
     QString className,
     MainWindow *mainWindow,
     QMainWindow *container,
-    GitInterface *gitInterface,
     const QString &id = QUuid::createUuid().toString(),
     const QVariant &configuration = QVariant()
   );
@@ -54,10 +55,24 @@ public:
   void setEditModeEnabled(bool enabled);
 
   MainWindow *mainWindow();
+  Core *core();
+  Project *project();
+
+  template <class T, class S>
+  QMetaObject::Connection connectMainWindowSignal(T signal, S slot);
+  template <class T, class S>
+  QMetaObject::Connection connectCoreSignal(T signal, S slot);
+  template <class T, class S>
+  QMetaObject::Connection connectProjectSignal(T signal, S slot);
 
 protected:
   DockWidget(MainWindow *mainWindow);
   static bool doRegister(RegistryEntry *entry);
+
+  virtual void onProjectSwitched(Project *);
+  virtual void onRepositoryAdded(GitInterface *);
+  virtual void onRepositorySwitched(GitInterface *);
+  virtual void onRepositoryRemoved(GitInterface *);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry*>> registry();

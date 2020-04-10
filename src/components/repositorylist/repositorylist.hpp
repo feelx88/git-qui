@@ -17,8 +17,13 @@ class RepositoryList : public DockWidget
   friend struct RepositoryListPrivate;
 
 public:
-  explicit RepositoryList(MainWindow *mainWindow, GitInterface *gitInterface);
+  explicit RepositoryList(MainWindow *mainWindow);
   virtual ~RepositoryList() override;
+
+protected:
+  virtual void onRepositoryAdded(GitInterface *newGitInterface) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
+  virtual void onRepositoryRemoved(GitInterface *newGitInterface) override;
 
 private:
   Ui::RepositoryList *ui;
