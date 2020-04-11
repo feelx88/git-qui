@@ -4,16 +4,16 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QApplication>
 
 #include "qobjecthelpers.hpp"
 #include "core.hpp"
 #include "project.hpp"
-#include "mainwindow.hpp"
 #include "gitinterface.hpp"
 
 QMap<QString, QAction*> ToolBarActions::_actionMap;
 
-void ToolBarActions::initialize(MainWindow *mainWindow)
+void ToolBarActions::initialize(Core *core)
 {
   addAction("stash", "archive-insert", "Stash changes");
   addAction("unstash", "archive-remove", "Unstash changes");
@@ -28,7 +28,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     action->setData(id);
   }
 
-  QObject::connect(mainWindow->core()->project(), &Project::repositorySwitched, mainWindow, [=](GitInterface *repository){
+  QObject::connect(core->project(), &Project::repositorySwitched, core, [=](GitInterface *repository){
     RECONNECT(_actionMap["stash"], &QAction::triggered, _actionMap["stash"], [=]{
       repository->stash();
     });
@@ -43,7 +43,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
       if (repository->activeBranch().upstreamName.isEmpty())
       {
         addUpstream = QMessageBox::question(
-          mainWindow,
+          QApplication::activeWindow(),
           QObject::tr("No upstream branch configured"),
           QObject::tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
           QMessageBox::Yes,
@@ -67,7 +67,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
     RECONNECT(_actionMap["new-branch"], &QAction::triggered, _actionMap["new-branch"], [=]{
       repository->createBranch(
         QInputDialog::getText(
-          mainWindow,
+          QApplication::activeWindow(),
           QObject::tr("Create new branch"),
           QObject::tr("New branch name")
         )
@@ -76,7 +76,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   });
 
   QObject::connect(_actionMap["push-all"], &QAction::triggered, _actionMap["push-all"], [=]{
-    for (auto repo : mainWindow->core()->project()->repositoryList())
+    for (auto repo : core->project()->repositoryList())
     {
       emit repo->pushStarted();
       QtConcurrent::run([=]{
@@ -86,7 +86,7 @@ void ToolBarActions::initialize(MainWindow *mainWindow)
   });
 
   QObject::connect(_actionMap["pull-all"], &QAction::triggered, _actionMap["pull-all"], [=]{
-    for (auto repo : mainWindow->core()->project()->repositoryList())
+    for (auto repo : core->project()->repositoryList())
     {
       emit repo->pullStarted();
       QtConcurrent::run([=]{

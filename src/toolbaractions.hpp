@@ -5,12 +5,12 @@
 #include <QMap>
 
 class QAction;
-class MainWindow;
+class Core;
 
 class ToolBarActions
 {
 public:
-  static void initialize(MainWindow *mainWindow);
+  static void initialize(Core *core);
   static const QMap<QString, QAction *> all();
   static QAction* byId(const QString &id);
 

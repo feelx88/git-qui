@@ -4,10 +4,8 @@
 #include <QToolBar>
 #include <QDir>
 #include <QDockWidget>
-#include <QDebug>
 #include <QSettings>
 #include <QStatusBar>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
 #include <QLabel>
@@ -193,8 +191,6 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration) :
   _impl(new MainWindowPrivate(this, core))
 {
   ui->setupUi(this);
-
-  ToolBarActions::initialize(this);
 
   _impl->configuration = configuration;
 }

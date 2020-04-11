@@ -15,6 +15,8 @@ public:
   explicit Core(QObject *parent = nullptr);
   virtual ~Core();
 
+  bool init();
+
   void changeProject(const QString &path);
   Project *project() const;
 
