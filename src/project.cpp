@@ -8,15 +8,17 @@
 
 #include "gitinterface.hpp"
 
+struct ConfigurationKeys
+{
+  static constexpr const char* NAME = "name";
+  static constexpr const char* REPOSITORY_LIST = "repositoryList";
+  static constexpr const char* CURRENT_REPOSITORY = "currentRepository";
+  static constexpr const char* REPOSITORY_LIST_NAME = "name";
+  static constexpr const char* REPOSITORY_LIST_PATH = "path";
+};
+
 struct ProjectImpl
 {
-  static inline const QString CONFIG_NAME = "name";
-  static inline const QString CONFIG_REPOSITORY_LIST = "repositoryList";
-  static inline const QString CONFIG_CURRENT_REPOSITORY = "currentRepository";
-
-  static inline const QString CONFIG_REPOSITORY_LIST_NAME = "name";
-  static inline const QString CONFIG_REPOSITORY_LIST_PATH = "path";
-
   Project *_this;
   QSettings *settings = nullptr;
   QString name;
@@ -33,16 +35,16 @@ struct ProjectImpl
 
   void loadSettings()
   {
-    name = settings->value(CONFIG_NAME).toString();
-    currentRepository = settings->value(CONFIG_CURRENT_REPOSITORY, 0).toInt();
+    name = settings->value(ConfigurationKeys::NAME).toString();
+    currentRepository = settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt();
 
-    QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(settings->value(CONFIG_REPOSITORY_LIST));
+    QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(settings->value(ConfigurationKeys::REPOSITORY_LIST));
 
     for (auto entry : list)
     {
       repositories.append(new GitInterface(
-        entry.value(CONFIG_REPOSITORY_LIST_NAME).toString(),
-        entry.value(CONFIG_REPOSITORY_LIST_PATH).toString(),
+        entry.value(ConfigurationKeys::REPOSITORY_LIST_NAME).toString(),
+        entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString(),
         _this
       ));
     }
@@ -52,19 +54,19 @@ struct ProjectImpl
   {
     if (settings)
     {
-      settings->setValue(CONFIG_NAME, name);
-      settings->setValue(CONFIG_CURRENT_REPOSITORY, currentRepository);
+      settings->setValue(ConfigurationKeys::NAME, name);
+      settings->setValue(ConfigurationKeys::CURRENT_REPOSITORY, currentRepository);
       QList<QVariantMap> list;
 
       for (auto repository : repositories)
       {
         list << QVariantMap {
-          {CONFIG_REPOSITORY_LIST_NAME, repository->name()},
-          {CONFIG_REPOSITORY_LIST_PATH, repository->path()}
+          {ConfigurationKeys::REPOSITORY_LIST_NAME, repository->name()},
+          {ConfigurationKeys::REPOSITORY_LIST_PATH, repository->path()}
         };
       }
 
-      settings->setValue(CONFIG_REPOSITORY_LIST, QVariant::fromValue(list));
+      settings->setValue(ConfigurationKeys::REPOSITORY_LIST, QVariant::fromValue(list));
       settings->sync();
     }
   }
