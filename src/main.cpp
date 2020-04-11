@@ -5,7 +5,6 @@
 #include <QSettings>
 
 #include "core.hpp"
-#include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "toolbaractions.hpp"
 
@@ -23,7 +22,6 @@ int main(int argc, char *argv[])
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
   Core core;
-
   if (!core.init())
   {
     return EXIT_FAILURE;

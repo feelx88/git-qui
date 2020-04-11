@@ -24,6 +24,13 @@ struct CoreImpl
   CoreImpl(Core *core)
     : _this(core)
   {}
+
+  void addWindow(const QVariant &configuration)
+  {
+    auto window = new MainWindow(_this, configuration.toMap());
+    window->show();
+    mainWindows.append(window);
+  }
 };
 
 Core::Core(QObject *parent)
@@ -49,8 +56,10 @@ Core::~Core()
 bool Core::init()
 {
   QSettings settings;
+  QString projectFileName = settings.value(ConfigurationKey::CURRENT_PROJECT).toString();
+  Project *project = nullptr;
 
-  if (!settings.contains(ConfigurationKey::CURRENT_PROJECT))
+  if (projectFileName.isEmpty())
   {
     QMessageBox dialog(
       QMessageBox::Question,
@@ -65,11 +74,12 @@ bool Core::init()
     {
     case QMessageBox::Yes:
     {
-      Project *project = new Project(this);
+      project = new Project(this);
       auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
-      if (settingsDialog->exec() == QDialog::Accepted)
+      if (settingsDialog->exec() != QDialog::Accepted)
       {
-        _impl->project = project;
+        QMessageBox::critical(nullptr, tr("Error"), tr("No project opened, closing."));
+        return false;
       }
       break;
     }
@@ -79,7 +89,7 @@ bool Core::init()
 
       if (!fileName.isEmpty())
       {
-        _impl->project = new Project(fileName, this);
+        project = new Project(fileName, this);
       }
       break;
     }
@@ -88,32 +98,34 @@ bool Core::init()
       return false;
     }
   }
+  else
+  {
+    project = new Project(projectFileName, this);
+  }
 
-  changeProject(settings.value(ConfigurationKey::CURRENT_PROJECT).toString());
+  changeProject(project);
 
   if (settings.contains(ConfigurationKey::MAIN_WINDOWS))
   {
     for (auto& windowConfiguration : settings.value(ConfigurationKey::MAIN_WINDOWS).toList())
     {
-      _impl->mainWindows.append(new MainWindow(this, windowConfiguration.toMap()));
+      _impl->addWindow(windowConfiguration);
     }
   }
   else
   {
-    auto window = new MainWindow(this);
-    window->show();
-    _impl->mainWindows.append(window);
+    _impl->addWindow({});
   }
 
   return true;
 }
 
-void Core::changeProject(const QString &path)
+void Core::changeProject(Project *project)
 {
-  _impl->project = new Project(path, this);
+  _impl->project = project;
 
   QSettings settings;
-  settings.setValue(ConfigurationKey::CURRENT_PROJECT, path);
+  settings.setValue(ConfigurationKey::CURRENT_PROJECT, project->fileName());
 
   emit projectChanged(_impl->project);
 }

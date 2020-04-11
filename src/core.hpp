@@ -17,7 +17,7 @@ public:
 
   bool init();
 
-  void changeProject(const QString &path);
+  void changeProject(Project *project);
   Project *project() const;
 
 signals:
