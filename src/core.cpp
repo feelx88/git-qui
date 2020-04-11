@@ -26,11 +26,11 @@ struct CoreImpl
     : _this(core)
   {}
 
-  void addWindow(const QVariant &configuration, bool defaultConfiguration = false)
+  void addWindow(const QVariant &configuration)
   {
     auto window = new MainWindow(_this, configuration.toMap());
 
-    if (defaultConfiguration)
+    if (configuration.isNull())
     {
       InitialWindowConfiguration::create(window);
     }
@@ -121,7 +121,7 @@ bool Core::init()
   }
   else
   {
-    _impl->addWindow({}, true);
+    _impl->addWindow(QVariant());
   }
 
   return true;
