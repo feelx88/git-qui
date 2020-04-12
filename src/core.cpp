@@ -8,6 +8,7 @@
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "projectsettingsdialog.hpp"
+#include "initialwindowconfiguration.hpp"
 
 struct ConfigurationKey
 {
@@ -25,9 +26,15 @@ struct CoreImpl
     : _this(core)
   {}
 
-  void addWindow(const QVariant &configuration)
+  void addWindow(const QVariant &configuration, bool defaultConfiguration = false)
   {
     auto window = new MainWindow(_this, configuration.toMap());
+
+    if (defaultConfiguration)
+    {
+      InitialWindowConfiguration::create(window);
+    }
+
     window->show();
     mainWindows.append(window);
   }
@@ -114,7 +121,7 @@ bool Core::init()
   }
   else
   {
-    _impl->addWindow({});
+    _impl->addWindow({}, true);
   }
 
   return true;
