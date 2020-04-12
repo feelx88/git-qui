@@ -14,7 +14,10 @@ QDockWidget(mainWindow)
   setAttribute(Qt::WA_DeleteOnClose);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
   setContextMenuPolicy(Qt::CustomContextMenu);
+}
 
+void DockWidget::init()
+{
   connectCoreSignal(&Core::projectChanged, &DockWidget::onProjectSwitched);
 
   onProjectSwitched(project());
@@ -49,6 +52,7 @@ void DockWidget::create(
   if (entry)
   {
     DockWidget *widget = entry->factory(mainWindow);
+    widget->init();
     container->addDockWidget(Qt::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);

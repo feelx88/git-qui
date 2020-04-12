@@ -67,6 +67,7 @@ public:
 
 protected:
   DockWidget(MainWindow *mainWindow);
+  void init();
   static bool doRegister(RegistryEntry *entry);
 
   virtual void onProjectSwitched(Project *);

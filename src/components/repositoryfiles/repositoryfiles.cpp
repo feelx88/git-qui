@@ -8,7 +8,7 @@
 
 struct RepositoryFilesPrivate
 {
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
   bool unstaged;
   QString selection;
 

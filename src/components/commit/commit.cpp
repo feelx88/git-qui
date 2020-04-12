@@ -10,7 +10,7 @@
 
 struct CommitPrivate
 {
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
   QList<GitFile> unstagedFiles, stagedFiles;
 
   void connectSignals(Commit *_this)

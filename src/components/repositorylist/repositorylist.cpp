@@ -44,6 +44,17 @@ RepositoryList::~RepositoryList()
   delete ui;
 }
 
+void RepositoryList::onProjectSwitched(Project *project)
+{
+  DockWidget::onProjectSwitched(project);
+  for (auto repository : project->repositoryList())
+  {
+    onRepositoryAdded(repository);
+  }
+
+  onRepositorySwitched(project->activeRepository());
+}
+
 void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
 {
   QString directory = newGitInterface->path().split('/').last();

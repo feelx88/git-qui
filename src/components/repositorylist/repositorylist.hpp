@@ -21,6 +21,7 @@ public:
   virtual ~RepositoryList() override;
 
 protected:
+  virtual void onProjectSwitched(Project *project) override;
   virtual void onRepositoryAdded(GitInterface *newGitInterface) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
   virtual void onRepositoryRemoved(GitInterface *newGitInterface) override;
