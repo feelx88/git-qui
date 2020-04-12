@@ -43,8 +43,7 @@ struct CoreImpl
 Core::Core(QObject *parent)
 : QObject(parent),
   _impl(new CoreImpl(this))
-{
-}
+{}
 
 Core::~Core()
 {
@@ -110,7 +109,7 @@ bool Core::init()
     project = new Project(projectFileName, this);
   }
 
-  changeProject(project);
+  _impl->project = project;
 
   if (settings.contains(ConfigurationKey::MAIN_WINDOWS))
   {
@@ -124,6 +123,8 @@ bool Core::init()
     _impl->addWindow(QVariant());
   }
 
+  _impl->project->activeRepository()->reload();
+
   return true;
 }
 
@@ -135,6 +136,8 @@ void Core::changeProject(Project *project)
   settings.setValue(ConfigurationKey::CURRENT_PROJECT, project->fileName());
 
   emit projectChanged(_impl->project);
+
+  project->activeRepository()->reload();
 }
 
 Project *Core::project() const

@@ -7,7 +7,7 @@
 
 struct LogViewPrivate
 {
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
 
   void connectSignals(LogView *_this)
   {

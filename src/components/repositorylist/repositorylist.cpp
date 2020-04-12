@@ -8,7 +8,7 @@
 
 struct RepositoryListPrivate
 {
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
   QString currentRepository;
 
   void connectSignals(RepositoryList *_this)

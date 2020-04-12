@@ -13,7 +13,7 @@
 struct DiffViewPrivate
 {
   DiffView *_this;
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
   bool unstaged = false;
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;

@@ -16,7 +16,7 @@
 struct BranchListPrivate
 {
   BranchList *_this;
-  GitInterface *gitInterface;
+  GitInterface *gitInterface = nullptr;
   QFont italicFont;
 
   BranchListPrivate(BranchList *branchList)
