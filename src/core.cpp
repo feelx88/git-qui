@@ -8,6 +8,7 @@
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "projectsettingsdialog.hpp"
+#include "toolbaractions.hpp"
 #include "initialwindowconfiguration.hpp"
 
 struct ConfigurationKey
@@ -112,6 +113,8 @@ bool Core::init()
   }
 
   _impl->project = project;
+
+  ToolBarActions::initialize(this);
 
   if (settings.contains(ConfigurationKey::MAIN_WINDOWS))
   {
