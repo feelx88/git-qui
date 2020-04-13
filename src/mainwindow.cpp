@@ -191,6 +191,7 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration) :
 {
   ui->setupUi(this);
   _impl->loadConfiguration(configuration);
+  _impl->connectSignals();
 }
 
 MainWindow::~MainWindow()
