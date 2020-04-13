@@ -47,8 +47,8 @@ struct CoreImpl
       case QMessageBox::Yes:
       {
         project = new Project(_this);
-        auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
-        if (settingsDialog->exec() != QDialog::Accepted)
+        auto settingsDialog = ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
+        if (settingsDialog.exec() != QDialog::Accepted)
         {
           QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
           return false;
