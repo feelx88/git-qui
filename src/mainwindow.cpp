@@ -30,13 +30,19 @@ struct ConfigurationKeys
 {
   static constexpr const char *GEOMETRY = "geometry";
   static constexpr const char *STATE = "state";
+  static constexpr const char *EDIT_MODE = "editMode";
+
   static constexpr const char *TABS = "tabs";
   static constexpr const char *TAB_NAME = "tabName";
+
   static constexpr const char *DOCK_WIDGETS = "dockWidgets";
-  static constexpr const char *DW_ID = "id";
-  static constexpr const char *DW_CLASS = "class";
-  static constexpr const char *DW_CONFIGURATION = "configuration";
-  static constexpr const char *EDIT_MODE = "editMode";
+  static constexpr const char *DOCKWIDGET_ID = "id";
+  static constexpr const char *DOCKWIDGET_CLASS = "class";
+  static constexpr const char *DOCKWIDGET_CONFIGURATION = "configuration";
+
+  static constexpr const char *TOOLBARS = "toolbars";
+  static constexpr const char *TOOLBAR_AREA = "area";
+  static constexpr const char *TOOLBAR_ACTIONS = "actions";
 };
 
 struct MainWindowPrivate
@@ -44,7 +50,6 @@ struct MainWindowPrivate
   MainWindow *_this;
   Core *core;
   bool editMode;
-  QVariantMap configuration;
 
   MainWindowPrivate(MainWindow *mainWindow, Core *core)
     : _this(mainWindow),
@@ -133,49 +138,43 @@ struct MainWindowPrivate
     }
   }
 
-  void restoreSettings(MainWindow *_this)
+  void loadConfiguration(const QVariantMap &configuration)
   {
-    if (!configuration.contains(ConfigurationKeys::GEOMETRY))
-    {
-      InitialWindowConfiguration::create(_this);
-      return;
-    }
-
     _this->restoreGeometry(configuration.value(ConfigurationKeys::GEOMETRY).toByteArray());
 
-    QMap<QString, QVariant> tabs =
+    QVariantMap tabs =
       configuration.value(ConfigurationKeys::TABS).toMap();
 
     for (auto tab : tabs.toStdMap())
     {
-      QMap<QString, QVariant> config = tab.second.toMap();
-      QList<QVariant> dockWidgetConfigurations = config.value(ConfigurationKeys::DOCK_WIDGETS).toList();
+      QVariantMap config = tab.second.toMap();
+      QVariantList dockWidgetConfigurations = config.value(ConfigurationKeys::DOCK_WIDGETS).toList();
 
       QMainWindow *page = _this->createTab(config.value(ConfigurationKeys::TAB_NAME).toString());
 
       for (QVariant dockWidgetConfiguration : dockWidgetConfigurations)
       {
-        QMap<QString, QVariant> config = dockWidgetConfiguration.toMap();
+        QVariantMap config = dockWidgetConfiguration.toMap();
         DockWidget::create(
-          config.value(ConfigurationKeys::DW_CLASS).toString(),
+          config.value(ConfigurationKeys::DOCKWIDGET_CLASS).toString(),
           _this,
           page,
-          config.value(ConfigurationKeys::DW_ID).toString(),
-          config.value(ConfigurationKeys::DW_CONFIGURATION)
+          config.value(ConfigurationKeys::DOCKWIDGET_ID).toString(),
+          config.value(ConfigurationKeys::DOCKWIDGET_CONFIGURATION)
         );
       }
       page->restoreState(config.value(ConfigurationKeys::STATE).toByteArray());
       page->restoreGeometry(config.value(ConfigurationKeys::GEOMETRY).toByteArray());
     }
 
-    QList<QVariant> toolbars = configuration.value("toolbars").toList();
+    QVariantList toolbars = configuration.value(ConfigurationKeys::TOOLBARS).toList();
     for (auto toolbarConfig: toolbars)
     {
-      QMap<QString, QVariant> config = toolbarConfig.toMap();
-      QToolBar *toolbar = _this->addToolbar(static_cast<Qt::ToolBarArea>(config.value("area").toInt()));
-      toolbar->restoreGeometry(config.value("geometry").toByteArray());
+      QVariantMap config = toolbarConfig.toMap();
+      QToolBar *toolbar = _this->addToolbar(static_cast<Qt::ToolBarArea>(config.value(ConfigurationKeys::TOOLBAR_AREA).toInt()));
+      toolbar->restoreGeometry(config.value(ConfigurationKeys::GEOMETRY).toByteArray());
 
-      for (auto action : config.value("actions").toList())
+      for (auto action : config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList())
       {
         toolbar->addAction(ToolBarActions::byId(action.toString()));
       }
@@ -191,8 +190,7 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration) :
   _impl(new MainWindowPrivate(this, core))
 {
   ui->setupUi(this);
-
-  _impl->configuration = configuration;
+  _impl->loadConfiguration(configuration);
 }
 
 MainWindow::~MainWindow()
@@ -207,7 +205,57 @@ Core *MainWindow::core()
 
 QVariant MainWindow::configuration() const
 {
-  return _impl->configuration;
+  QVariantMap configuration = {
+    {ConfigurationKeys::GEOMETRY, saveGeometry()},
+    {ConfigurationKeys::STATE, saveState()},
+    {ConfigurationKeys::EDIT_MODE, _impl->editMode}
+  };
+
+  QVariantMap tabs;
+
+  for (int x = 0; x < ui->tabWidget->count(); ++x)
+  {
+    QVariantMap config;
+    QVariantList dockWidgetConfigurations;
+    QMainWindow *tab = static_cast<QMainWindow*>(ui->tabWidget->widget(x));
+
+    for (auto dockWidget : tab->findChildren<DockWidget*>())
+    {
+      dockWidgetConfigurations.append(QVariantMap({
+        {ConfigurationKeys::DOCKWIDGET_CLASS, dockWidget->metaObject()->className()},
+        {ConfigurationKeys::DOCKWIDGET_ID, dockWidget->objectName()},
+        {ConfigurationKeys::DOCKWIDGET_CONFIGURATION, dockWidget->configuration()}
+      }));
+    }
+
+    tabs.insert(QString::number(x), QVariantMap({
+      {ConfigurationKeys::DOCK_WIDGETS, dockWidgetConfigurations},
+      {ConfigurationKeys::STATE, tab->saveState()},
+      {ConfigurationKeys::GEOMETRY, tab->saveGeometry()},
+      {ConfigurationKeys::TAB_NAME, ui->tabWidget->tabText(x)}
+    }));
+  }
+  configuration.insert(ConfigurationKeys::TABS, tabs);
+
+  QVariantList toolbars;
+  for (auto toolbar : findChildren<QToolBar*>())
+  {
+    QVariantList actions;
+    for (auto action: toolbar->actions())
+    {
+      actions.push_back(action->data());
+    }
+
+    QVariantMap config = {
+      {ConfigurationKeys::GEOMETRY, toolbar->geometry()},
+      {ConfigurationKeys::TOOLBAR_AREA, toolBarArea(toolbar)},
+      {ConfigurationKeys::TOOLBAR_ACTIONS, actions},
+    };
+    toolbars.append(config);
+  }
+  configuration.insert(ConfigurationKeys::TOOLBARS, toolbars);
+
+  return configuration;
 }
 
 QToolBar *MainWindow::addToolbar(Qt::ToolBarArea area)
@@ -266,4 +314,22 @@ void MainWindow::changeEvent(QEvent *ev)
   if (ev->type() == QEvent::ActivationChange && isActiveWindow())
   {
   }
+}
+
+DockWidget *MainWindow::addDockWidget(
+  const QString& className,
+  int tabIndex,
+  const QVariant &configuration,
+  const QString& uuid
+)
+{
+  tabIndex = tabIndex > 0 ? tabIndex : ui->tabWidget->currentIndex();
+
+  return DockWidget::create(
+    className,
+    this,
+    static_cast<QMainWindow*>(ui->tabWidget->widget(tabIndex)),
+    uuid,
+    configuration
+  );
 }

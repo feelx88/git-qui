@@ -49,6 +49,8 @@ Core::~Core()
 {
   QSettings settings;
 
+  settings.setValue(ConfigurationKey::CURRENT_PROJECT, _impl->project->fileName());
+
   QVariantList mainWindows;
   for (auto &window : _impl->mainWindows)
   {
@@ -131,9 +133,6 @@ bool Core::init()
 void Core::changeProject(Project *project)
 {
   _impl->project = project;
-
-  QSettings settings;
-  settings.setValue(ConfigurationKey::CURRENT_PROJECT, project->fileName());
 
   emit projectChanged(_impl->project);
 

@@ -13,21 +13,6 @@
 #include "components/branchlist/branchlist.hpp"
 #include "components/logview/logview.hpp"
 
-#define ADD_DOCK_WIDGET_WITH_CONFIG(name, target, config) DockWidget::create( \
-  #name, \
-  mainWindow, \
-  target, \
-  QUuid::createUuid().toString(), \
-  config \
-)
-
-#define ADD_DOCK_WIDGET(name, target) DockWidget::create( \
-  #name, \
-  mainWindow, \
-  target, \
-  QUuid::createUuid().toString() \
-)
-
 #define SPLIT_DOCK_WIDGET(target, direction, first, second) target->splitDockWidget( \
   static_cast<QDockWidget*>(main->children()[first]), \
   static_cast<QDockWidget*>(main->children()[second]), \
@@ -37,27 +22,21 @@
 void InitialWindowConfiguration::create(MainWindow *mainWindow)
 {
   QMainWindow *main = mainWindow->createTab(mainWindow->tr("main"));
-  ADD_DOCK_WIDGET_WITH_CONFIG(
-    RepositoryFiles,
-    main,
-    (QMap<QString, QVariant>({{"unstaged", true}}))
-  );
-  ADD_DOCK_WIDGET_WITH_CONFIG(
-    RepositoryFiles,
-    main,
-    (QMap<QString, QVariant>({{"unstaged", false}}))
-  );
-  ADD_DOCK_WIDGET(DiffView, main);
-  ADD_DOCK_WIDGET(Commit, main);
-  ADD_DOCK_WIDGET(RepositoryList, main);
-  ADD_DOCK_WIDGET(BranchList, main);
+
+  mainWindow->addDockWidget<RepositoryFiles>(0, QVariantMap({{"unstaged", true}}));
+  mainWindow->addDockWidget<RepositoryFiles>(0, QVariantMap({{"unstaged", false}}));
+  mainWindow->addDockWidget<DiffView>(0);
+  mainWindow->addDockWidget<Commit>(0);
+  mainWindow->addDockWidget<RepositoryList>(0);
+  mainWindow->addDockWidget<BranchList>(0);
 
   SPLIT_DOCK_WIDGET(main, Vertical, 1, 2);
   SPLIT_DOCK_WIDGET(main, Vertical, 3, 4);
   SPLIT_DOCK_WIDGET(main, Vertical, 5, 6);
 
-  QMainWindow *history = mainWindow->createTab(mainWindow->tr("History"));
-  ADD_DOCK_WIDGET(LogView, history);
+  mainWindow->createTab(mainWindow->tr("History"));
+
+  mainWindow->addDockWidget<LogView>(1);
 
   mainWindow->setEditMode(true);
 

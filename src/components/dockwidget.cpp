@@ -39,7 +39,7 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets()
   return registry()->values();
 }
 
-void DockWidget::create(
+DockWidget *DockWidget::create(
   QString className,
   MainWindow *mainWindow,
   QMainWindow *container,
@@ -56,7 +56,11 @@ void DockWidget::create(
     container->addDockWidget(Qt::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
+
+    return widget;
   }
+
+  return nullptr;
 }
 
 QVariant DockWidget::configuration()

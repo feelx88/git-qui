@@ -41,7 +41,7 @@ public:
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry*> registeredDockWidgets();
-  static void create(
+  static DockWidget *create(
     QString className,
     MainWindow *mainWindow,
     QMainWindow *container,
