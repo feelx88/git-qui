@@ -55,6 +55,9 @@ struct ProjectImpl
     if (settings)
     {
       settings->setValue(ConfigurationKeys::NAME, name);
+
+      currentRepository = currentRepository > repositories.size() ? 0 : currentRepository;
+
       settings->setValue(ConfigurationKeys::CURRENT_REPOSITORY, currentRepository);
       QList<QVariantMap> list;
 
