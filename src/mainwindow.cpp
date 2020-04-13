@@ -120,6 +120,10 @@ struct MainWindowPrivate
         InitialWindowConfiguration::create(_this);
       }
     });
+
+    QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [=]{
+      (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
+    });
   }
 
   void populateMenu()
