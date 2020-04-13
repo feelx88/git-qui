@@ -27,7 +27,7 @@ struct CoreImpl
     : _this(core)
   {}
 
-  Project *loadProject(const QSettings &settings)
+  bool loadProject(const QSettings &settings)
   {
     QString projectFileName = settings.value(ConfigurationKey::CURRENT_PROJECT).toString();
 
@@ -51,7 +51,7 @@ struct CoreImpl
         if (settingsDialog->exec() != QDialog::Accepted)
         {
           QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
-          return nullptr;
+          return false;
         }
         break;
       }
@@ -67,7 +67,7 @@ struct CoreImpl
       }
       default:
         QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
-        return nullptr;
+        return false;
       }
     }
     else
@@ -75,7 +75,7 @@ struct CoreImpl
       project = new Project(projectFileName, _this);
     }
 
-    return project;
+    return true;
   }
 
   void createWindows(const QSettings &settings)
