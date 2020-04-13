@@ -118,12 +118,15 @@ Core::~Core()
 
   settings.setValue(ConfigurationKey::CURRENT_PROJECT, _impl->project->fileName());
 
-  QVariantList mainWindows;
-  for (auto &window : _impl->mainWindows)
+  if (!_impl->mainWindows.isEmpty())
   {
-    mainWindows.append(window->configuration());
+    QVariantList mainWindows;
+    for (auto &window : _impl->mainWindows)
+    {
+      mainWindows.append(window->configuration());
+    }
+    settings.setValue(ConfigurationKey::MAIN_WINDOWS, mainWindows);
   }
-  settings.setValue(ConfigurationKey::MAIN_WINDOWS, mainWindows);
 
   settings.sync();
 }
