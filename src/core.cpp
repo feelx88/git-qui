@@ -20,12 +20,78 @@ struct ConfigurationKey
 struct CoreImpl
 {
   Core *_this;
-  Project *project;
+  Project *project = nullptr;
   QList<MainWindow*> mainWindows;
 
   CoreImpl(Core *core)
     : _this(core)
   {}
+
+  Project *loadProject(const QSettings &settings)
+  {
+    QString projectFileName = settings.value(ConfigurationKey::CURRENT_PROJECT).toString();
+
+    if (projectFileName.isEmpty())
+    {
+      QMessageBox dialog(
+        QMessageBox::Question,
+        QObject::tr("No Project selected"),
+        QObject::tr("Would you like to create a new project? Alternatively, you could open an existing one."),
+        QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort
+      );
+      dialog.setButtonText(QMessageBox::Yes, QObject::tr("Create new project"));
+      dialog.setButtonText(QMessageBox::Open, QObject::tr("Open existing project"));
+
+      switch (dialog.exec())
+      {
+      case QMessageBox::Yes:
+      {
+        project = new Project(_this);
+        auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
+        if (settingsDialog->exec() != QDialog::Accepted)
+        {
+          QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
+          return nullptr;
+        }
+        break;
+      }
+      case QMessageBox::Open:
+      {
+        QString fileName = QFileDialog::getOpenFileName(nullptr, QObject::tr("Select project to open"));
+
+        if (!fileName.isEmpty())
+        {
+          project = new Project(fileName, _this);
+        }
+        break;
+      }
+      default:
+        QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
+        return nullptr;
+      }
+    }
+    else
+    {
+      project = new Project(projectFileName, _this);
+    }
+
+    return project;
+  }
+
+  void createWindows(const QSettings &settings)
+  {
+    if (settings.contains(ConfigurationKey::MAIN_WINDOWS))
+    {
+      for (auto& windowConfiguration : settings.value(ConfigurationKey::MAIN_WINDOWS).toList())
+      {
+        addWindow(windowConfiguration);
+      }
+    }
+    else
+    {
+      addWindow(QVariant());
+    }
+  }
 
   void addWindow(const QVariant &configuration)
   {
@@ -65,68 +131,15 @@ Core::~Core()
 bool Core::init()
 {
   QSettings settings;
-  QString projectFileName = settings.value(ConfigurationKey::CURRENT_PROJECT).toString();
-  Project *project = nullptr;
 
-  if (projectFileName.isEmpty())
+  if(!_impl->loadProject(settings))
   {
-    QMessageBox dialog(
-      QMessageBox::Question,
-      tr("No Project selected"),
-      tr("Would you like to create a new project? Alternatively, you could open an existing one."),
-      QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort
-    );
-    dialog.setButtonText(QMessageBox::Yes, tr("Create new project"));
-    dialog.setButtonText(QMessageBox::Open, tr("Open existing project"));
-
-    switch (dialog.exec())
-    {
-    case QMessageBox::Yes:
-    {
-      project = new Project(this);
-      auto settingsDialog = new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
-      if (settingsDialog->exec() != QDialog::Accepted)
-      {
-        QMessageBox::critical(nullptr, tr("Error"), tr("No project opened, closing."));
-        return false;
-      }
-      break;
-    }
-    case QMessageBox::Open:
-    {
-      QString fileName = QFileDialog::getOpenFileName(nullptr, QObject::tr("Select project to open"));
-
-      if (!fileName.isEmpty())
-      {
-        project = new Project(fileName, this);
-      }
-      break;
-    }
-    default:
-      QMessageBox::critical(nullptr, tr("Error"), tr("No project opened, closing."));
-      return false;
-    }
+    return false;
   }
-  else
-  {
-    project = new Project(projectFileName, this);
-  }
-
-  _impl->project = project;
 
   ToolBarActions::initialize(this);
 
-  if (settings.contains(ConfigurationKey::MAIN_WINDOWS))
-  {
-    for (auto& windowConfiguration : settings.value(ConfigurationKey::MAIN_WINDOWS).toList())
-    {
-      _impl->addWindow(windowConfiguration);
-    }
-  }
-  else
-  {
-    _impl->addWindow(QVariant());
-  }
+  _impl->createWindows(settings);
 
   _impl->project->activeRepository()->reload();
 
