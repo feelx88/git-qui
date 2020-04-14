@@ -14,10 +14,10 @@ struct RepositoryListPrivate
   void connectSignals(RepositoryList *_this)
   {
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
-      QTreeWidgetItem *selection = _this->ui->treeWidget->selectedItems().first();
-      if (selection)
+      QList<QTreeWidgetItem*> selection = _this->ui->treeWidget->selectedItems();
+      if (!selection.isEmpty())
       {
-        _this->project()->setCurrentRepository(selection->text(0));
+        _this->project()->setCurrentRepository(selection.first()->text(0));
       }
     });
   }
@@ -47,8 +47,10 @@ RepositoryList::~RepositoryList()
 
 void RepositoryList::onProjectSwitched(Project *project)
 {
+  ui->treeWidget->clear();
+
   DockWidget::onProjectSwitched(project);
-  for (auto repository : project->repositoryList())
+  for (auto &repository : project->repositoryList())
   {
     onRepositoryAdded(repository);
   }
