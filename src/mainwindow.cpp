@@ -137,6 +137,22 @@ struct MainWindowPrivate
     QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [=]{
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
+
+    QObject::connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
+      QProcess *process = new QProcess(_this);
+      process->setProgram("gitk");
+      process->setArguments({"--all"});
+      process->setWorkingDirectory(_this->core()->project()->activeRepository()->path());
+      process->startDetached();
+    });
+
+    QObject::connect(_this->ui->actionStart_git_gui_for_current_repository, &QAction::triggered, _this, [=]{
+      QProcess *process = new QProcess(_this);
+      process->setProgram("git");
+      process->setArguments({"gui"});
+      process->setWorkingDirectory(_this->core()->project()->activeRepository()->path());
+      process->startDetached();
+    });
   }
 
   void populateAddViewMenu()
