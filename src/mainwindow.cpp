@@ -314,11 +314,21 @@ void MainWindow::setEditMode(bool enabled)
   ui->actionEdit_mode->setChecked(enabled);
 }
 
-void MainWindow::changeEvent(QEvent *ev)
+bool MainWindow::event(QEvent *ev)
 {
-  if (ev->type() == QEvent::ActivationChange && isActiveWindow())
-  {
+  switch(ev->type()) {
+  case QEvent::ActivationChange:
+    if (isActiveWindow())
+    {}
+    break;
+  case QEvent::Close:
+    qApp->quit();
+    return true;
+  default:
+    break;
   }
+
+  return QMainWindow::event(ev);
 }
 
 DockWidget *MainWindow::addDockWidget(

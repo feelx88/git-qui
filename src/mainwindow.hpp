@@ -44,7 +44,7 @@ public:
   void setEditMode(bool enabled);
 
 protected:
-  void changeEvent(QEvent *);
+  bool event(QEvent *);
 
 private:
   DockWidget *addDockWidget(
