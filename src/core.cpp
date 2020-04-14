@@ -144,7 +144,10 @@ bool Core::init()
 
   _impl->createWindows(settings);
 
-  _impl->project->activeRepository()->reload();
+  for (auto &repository : _impl->project->repositoryList())
+  {
+    repository->reload();
+  }
 
   return true;
 }
@@ -155,7 +158,10 @@ void Core::changeProject(Project *project)
 
   emit projectChanged(_impl->project);
 
-  project->activeRepository()->reload();
+  for (auto &repository : _impl->project->repositoryList())
+  {
+    repository->reload();
+  }
 }
 
 Project *Core::project() const
