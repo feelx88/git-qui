@@ -3,6 +3,8 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QTimer>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include "project.hpp"
 #include "mainwindow.hpp"
@@ -22,6 +24,7 @@ struct CoreImpl
   Core *_this;
   Project *project = nullptr;
   QList<MainWindow*> mainWindows;
+  QTimer *autoFetchTimer = nullptr;
 
   CoreImpl(Core *core)
     : _this(core)
@@ -105,6 +108,17 @@ struct CoreImpl
     window->show();
     mainWindows.append(window);
   }
+
+  void onAutoFetchTimerTimeout()
+  {
+    if (project)
+    {
+      for (auto &repository : project->repositoryList())
+      {
+        repository->fetch();
+      }
+    }
+  }
 };
 
 Core::Core(QObject *parent)
@@ -148,6 +162,13 @@ bool Core::init()
   {
     repository->reload();
   }
+
+  _impl->autoFetchTimer = new QTimer(this);
+  connect(_impl->autoFetchTimer, &QTimer::timeout, this, [=]{
+    QtConcurrent::run(std::bind(&CoreImpl::onAutoFetchTimerTimeout, _impl.get()));
+  });
+  _impl->autoFetchTimer->setInterval(std::chrono::seconds(30));
+  _impl->autoFetchTimer->start();
 
   return true;
 }
