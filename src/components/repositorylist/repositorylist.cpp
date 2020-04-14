@@ -14,9 +14,10 @@ struct RepositoryListPrivate
   void connectSignals(RepositoryList *_this)
   {
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
-      if (_this->ui->treeWidget->currentItem())
+      QTreeWidgetItem *selection = _this->ui->treeWidget->selectedItems().first();
+      if (selection)
       {
-        _this->project()->setCurrentRepository(_this->ui->treeWidget->currentIndex().row());
+        _this->project()->setCurrentRepository(selection->text(0));
       }
     });
   }
@@ -57,8 +58,7 @@ void RepositoryList::onProjectSwitched(Project *project)
 
 void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
 {
-  QString directory = newGitInterface->path().split('/').last();
-  auto items = ui->treeWidget->findItems(directory, Qt::MatchCaseSensitive, 0);
+  auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchCaseSensitive, 0);
 
   if (!items.isEmpty())
   {
@@ -67,7 +67,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
 
   QTreeWidgetItem *item = new QTreeWidgetItem;
   item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
-  item->setText(0, directory);
+  item->setText(0, newGitInterface->name());
   item->setData(0, Qt::UserRole, newGitInterface->path());
   item->setTextAlignment(1, Qt::AlignRight);
   ui->treeWidget->addTopLevelItem(item);
@@ -87,7 +87,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
   });
 
   connect(newGitInterface, &GitInterface::pushStarted, this, [=]{
-    auto items = ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchExactly);
+    auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
 
     if (!items.empty())
     {
@@ -99,7 +99,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
   });
 
   connect(newGitInterface, &GitInterface::pullStarted, this, [=]{
-    auto items = ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchExactly);
+    auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
 
     if (!items.empty())
     {
@@ -118,8 +118,8 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
 void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface)
 {
   _impl->gitInterface = newGitInterface;
-  _impl->currentRepository = newGitInterface->path().split('/').last();
-  auto items = ui->treeWidget->findItems(_impl->currentRepository, Qt::MatchCaseSensitive, 0);
+  _impl->currentRepository = newGitInterface->name();
+  auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchCaseSensitive, 0);
   if (!items.isEmpty())
   {
     ui->treeWidget->setCurrentItem(items.first());
@@ -128,7 +128,7 @@ void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface)
 
 void RepositoryList::onRepositoryRemoved(GitInterface *newGitInterface)
 {
-  auto items = ui->treeWidget->findItems(newGitInterface->path().split('/').last(), Qt::MatchCaseSensitive, 0);
+  auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchCaseSensitive, 0);
   if (!items.isEmpty())
   {
     delete items.first();
