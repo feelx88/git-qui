@@ -219,8 +219,8 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration) :
   _impl(new MainWindowPrivate(this, core))
 {
   ui->setupUi(this);
-  _impl->loadConfiguration(configuration);
   _impl->connectSignals();
+  _impl->loadConfiguration(configuration);
   _impl->populateAddViewMenu();
   _impl->populateRecentProjectsMenu();
 }
