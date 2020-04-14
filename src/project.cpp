@@ -185,7 +185,7 @@ void Project::setCurrentRepository(const QString &name)
     }
   );
 
-  if (found != _impl->repositories.end())
+  if (found == _impl->repositories.end())
   {
     return;
   }
