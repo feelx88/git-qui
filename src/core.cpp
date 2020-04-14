@@ -25,10 +25,17 @@ struct CoreImpl
   Project *project = nullptr;
   QList<MainWindow*> mainWindows;
   QTimer *autoFetchTimer = nullptr;
+  QFuture<void> autoFetchFuture;
 
   CoreImpl(Core *core)
     : _this(core)
   {}
+
+  ~CoreImpl()
+  {
+    autoFetchFuture.cancel();
+    autoFetchFuture.waitForFinished();
+  }
 
   bool loadProject(const QSettings &settings)
   {
@@ -111,12 +118,17 @@ struct CoreImpl
 
   void onAutoFetchTimerTimeout()
   {
-    if (project)
+    if (project && autoFetchFuture.isFinished())
     {
-      for (auto &repository : project->repositoryList())
-      {
-        repository->fetch();
-      }
+      autoFetchFuture = QtConcurrent::run([this]{
+        for (auto &repository : project->repositoryList())
+        {
+          if (!autoFetchFuture.isCanceled())
+          {
+            repository->fetch();
+          }
+        }
+      });
     }
   }
 };
@@ -164,9 +176,7 @@ bool Core::init()
   }
 
   _impl->autoFetchTimer = new QTimer(this);
-  connect(_impl->autoFetchTimer, &QTimer::timeout, this, [=]{
-    QtConcurrent::run(std::bind(&CoreImpl::onAutoFetchTimerTimeout, _impl.get()));
-  });
+  connect(_impl->autoFetchTimer, &QTimer::timeout, this, std::bind(&CoreImpl::onAutoFetchTimerTimeout, _impl.get()));
   _impl->autoFetchTimer->setInterval(std::chrono::seconds(30));
   _impl->autoFetchTimer->start();
 
