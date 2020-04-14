@@ -74,7 +74,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
   item->setTextAlignment(1, Qt::AlignRight);
   ui->treeWidget->addTopLevelItem(item);
 
-  connect(newGitInterface, &GitInterface::branchChanged, this, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
+  connect(newGitInterface, &GitInterface::branchChanged, newGitInterface, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
     if (hasUpstream)
     {
       item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
@@ -88,7 +88,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     item->setIcon(0, QIcon::fromTheme("state-ok", QIcon(":/deploy/icons/state-ok.svg")));
   });
 
-  connect(newGitInterface, &GitInterface::pushStarted, this, [=]{
+  connect(newGitInterface, &GitInterface::pushStarted, newGitInterface, [=]{
     auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
 
     if (!items.empty())
@@ -100,7 +100,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     }
   });
 
-  connect(newGitInterface, &GitInterface::pullStarted, this, [=]{
+  connect(newGitInterface, &GitInterface::pullStarted, newGitInterface, [=]{
     auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
 
     if (!items.empty())
@@ -112,7 +112,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     }
   });
 
-  connect(newGitInterface, &GitInterface::error, this, [=]{
+  connect(newGitInterface, &GitInterface::error, newGitInterface, [=]{
     item->setIcon(0, QIcon::fromTheme("state-error", QIcon(":/deploy/icons/state-error.svg")));
   });
 }
