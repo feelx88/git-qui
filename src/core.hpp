@@ -17,7 +17,7 @@ public:
 
   bool init();
 
-  void changeProject(Project *project);
+  void changeProject(Project *newProject);
   Project *project() const;
 
 signals:

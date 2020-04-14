@@ -215,3 +215,11 @@ void Project::save()
 {
   _impl->writeSettings();
 }
+
+void Project::reloadAllRepositories()
+{
+  for (auto &repository : repositoryList())
+  {
+    repository->reload();
+  }
+}

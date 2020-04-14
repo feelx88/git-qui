@@ -318,8 +318,7 @@ bool MainWindow::event(QEvent *ev)
 {
   switch(ev->type()) {
   case QEvent::ActivationChange:
-    if (isActiveWindow())
-    {}
+    core()->project()->reloadAllRepositories();
     break;
   case QEvent::Close:
     qApp->quit();

@@ -32,6 +32,8 @@ public:
 
   void save();
 
+  void reloadAllRepositories();
+
 signals:
   void repositoryAdded(GitInterface *repository);
   void repositorySwitched(GitInterface *repository);

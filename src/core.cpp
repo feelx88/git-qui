@@ -31,7 +31,7 @@ struct CoreImpl
     : _this(core)
   {}
 
-  ~CoreImpl()
+  virtual ~CoreImpl()
   {
     autoFetchFuture.cancel();
     autoFetchFuture.waitForFinished();
@@ -170,10 +170,7 @@ bool Core::init()
 
   _impl->createWindows(settings);
 
-  for (auto &repository : _impl->project->repositoryList())
-  {
-    repository->reload();
-  }
+  project()->reloadAllRepositories();
 
   _impl->autoFetchTimer = new QTimer(this);
   connect(_impl->autoFetchTimer, &QTimer::timeout, this, std::bind(&CoreImpl::onAutoFetchTimerTimeout, _impl.get()));
@@ -183,16 +180,13 @@ bool Core::init()
   return true;
 }
 
-void Core::changeProject(Project *project)
+void Core::changeProject(Project *newProject)
 {
-  _impl->project = project;
+  _impl->project = newProject;
 
   emit projectChanged(_impl->project);
 
-  for (auto &repository : _impl->project->repositoryList())
-  {
-    repository->reload();
-  }
+  project()->reloadAllRepositories();
 }
 
 Project *Core::project() const
