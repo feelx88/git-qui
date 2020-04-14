@@ -140,6 +140,11 @@ Core::Core(QObject *parent)
 
 Core::~Core()
 {
+  if(project())
+  {
+    project()->save();
+  }
+
   QSettings settings;
 
   settings.setValue(ConfigurationKey::CURRENT_PROJECT, _impl->project->fileName());
