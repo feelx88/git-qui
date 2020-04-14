@@ -20,6 +20,8 @@ public:
   void changeProject(Project *newProject);
   Project *project() const;
 
+  QStringList recentProjects() const;
+
 signals:
   void projectChanged(Project *project);
 

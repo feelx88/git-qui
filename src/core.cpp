@@ -16,6 +16,7 @@
 struct ConfigurationKey
 {
   static constexpr const char *CURRENT_PROJECT = "currentProject";
+  static constexpr const char *RECENT_PROJECTS = "recentProjects";
   static constexpr const char *MAIN_WINDOWS = "mainWindows";
 };
 
@@ -23,6 +24,7 @@ struct CoreImpl
 {
   Core *_this;
   Project *project = nullptr;
+  QSet<QString> recentProjects;
   QList<MainWindow*> mainWindows;
   QTimer *autoFetchTimer = nullptr;
   QFuture<void> autoFetchFuture;
@@ -159,6 +161,8 @@ Core::~Core()
     settings.setValue(ConfigurationKey::MAIN_WINDOWS, mainWindows);
   }
 
+  settings.setValue(ConfigurationKey::RECENT_PROJECTS, QStringList(_impl->recentProjects.begin(), _impl->recentProjects.end()));
+
   settings.sync();
 }
 
@@ -169,6 +173,10 @@ bool Core::init()
   if(!_impl->loadProject(settings))
   {
     return false;
+  }
+  {
+    auto list = settings.value(ConfigurationKey::RECENT_PROJECTS).toStringList();
+    _impl->recentProjects = QSet<QString>(list.begin(), list.end());
   }
 
   ToolBarActions::initialize(this);
@@ -188,6 +196,7 @@ bool Core::init()
 void Core::changeProject(Project *newProject)
 {
   _impl->project = newProject;
+  _impl->recentProjects.insert(newProject->fileName());
 
   emit projectChanged(_impl->project);
 
@@ -197,4 +206,9 @@ void Core::changeProject(Project *newProject)
 Project *Core::project() const
 {
   return _impl->project;
+}
+
+QStringList Core::recentProjects() const
+{
+  return QStringList(_impl->recentProjects.begin(), _impl->recentProjects.end());
 }

@@ -16,6 +16,7 @@
 #include <QTimer>
 #include <QDirIterator>
 #include <QSvgWidget>
+#include <QFileDialog>
 
 #include "core.hpp"
 #include "gitinterface.hpp"
@@ -121,12 +122,24 @@ struct MainWindowPrivate
       }
     });
 
+    QObject::connect(_this->ui->actionOpen_Project, &QAction::triggered, _this, [=]{
+      auto fileName = QFileDialog::getOpenFileName(_this, QObject::tr("Open Project"));
+
+      if (!fileName.isNull())
+      {
+        _this->core()->project()->save();
+        _this->core()->changeProject(new Project(fileName, _this->core()));
+      }
+
+      populateRecentProjectsMenu();
+    });
+
     QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [=]{
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
   }
 
-  void populateMenu()
+  void populateAddViewMenu()
   {
     for (DockWidget::RegistryEntry *entry : DockWidget::registeredDockWidgets())
     {
@@ -139,6 +152,18 @@ struct MainWindowPrivate
         _this->ui->actionEdit_mode->setChecked(true);
       });
       action->setData(entry->id);
+    }
+  }
+
+  void populateRecentProjectsMenu()
+  {
+    _this->ui->menuRecent_Projects->clear();
+    for (auto &recentProject : _this->core()->recentProjects())
+    {
+      _this->ui->menuRecent_Projects->addAction(recentProject, [=]{
+        _this->core()->project()->save();
+        _this->core()->changeProject(new Project(recentProject, _this->core()));
+      });
     }
   }
 
@@ -196,6 +221,8 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration) :
   ui->setupUi(this);
   _impl->loadConfiguration(configuration);
   _impl->connectSignals();
+  _impl->populateAddViewMenu();
+  _impl->populateRecentProjectsMenu();
 }
 
 MainWindow::~MainWindow()
