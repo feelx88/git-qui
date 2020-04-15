@@ -12,6 +12,7 @@ struct RepositoryFilesPrivate
   GitInterface *gitInterface = nullptr;
   bool unstaged;
   QString selection;
+  QString hash;
 
   void connectSignals(RepositoryFiles *_this)
   {
@@ -199,6 +200,19 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
     _impl->unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged,
     this,
     [=](const QList<GitFile> &files){
+
+      QString hash = QString(_impl->unstaged ? "unstaged" : "staged").append(newGitInterface->path());
+      for(auto file: files)
+      {
+        hash.append(file.path);
+      }
+
+      if (hash == _impl->hash)
+      {
+        return;
+      }
+
+      _impl->hash = hash;
       ui->listWidget->clear();
       ui->treeWidget->clear();
       for(auto file: files)
