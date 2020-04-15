@@ -125,8 +125,8 @@ void DiffView::configure(const QVariant &configuration)
 
 void DiffView::onProjectSwitched(Project *newProject)
 {
-  DockWidget::onProjectSwitched(newProject);
   _impl->gitInterface = nullptr;
+  DockWidget::onProjectSwitched(newProject);
 }
 
 void DiffView::onRepositorySwitched(GitInterface *newGitInterface)

@@ -179,8 +179,8 @@ void RepositoryFiles::configure(const QVariant &configuration)
 
 void RepositoryFiles::onProjectSwitched(Project *newProject)
 {
-  DockWidget::onProjectSwitched(newProject);
   _impl->gitInterface = nullptr;
+  DockWidget::onProjectSwitched(newProject);
 }
 
 void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)

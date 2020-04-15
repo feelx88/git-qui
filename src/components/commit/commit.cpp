@@ -74,8 +74,8 @@ void Commit::configure(const QVariant &configuration)
 
 void Commit::onProjectSwitched(Project *newProject)
 {
-  DockWidget::onProjectSwitched(newProject);
   _impl->gitInterface = nullptr;
+  DockWidget::onProjectSwitched(newProject);
 }
 
 void Commit::onRepositorySwitched(GitInterface *newGitInterface)

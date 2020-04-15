@@ -100,11 +100,13 @@ bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
   return true;
 }
 
-void DockWidget::onProjectSwitched(Project *)
+void DockWidget::onProjectSwitched(Project *newProject)
 {
   connectProjectSignal(&Project::repositoryAdded, &DockWidget::onRepositoryAdded);
   connectProjectSignal(&Project::repositorySwitched, &DockWidget::onRepositorySwitched);
   connectProjectSignal(&Project::repositoryRemoved, &DockWidget::onRepositoryRemoved);
+
+  onRepositorySwitched(newProject->activeRepository());
 }
 
 void DockWidget::onRepositoryAdded(GitInterface *)

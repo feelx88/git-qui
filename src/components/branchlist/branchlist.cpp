@@ -94,8 +94,8 @@ BranchList::~BranchList()
 
 void BranchList::onProjectSwitched(Project *newProject)
 {
-  DockWidget::onProjectSwitched(newProject);
   _impl->gitInterface = nullptr;
+  DockWidget::onProjectSwitched(newProject);
 }
 
 void BranchList::onRepositorySwitched(GitInterface *newGitInterface)

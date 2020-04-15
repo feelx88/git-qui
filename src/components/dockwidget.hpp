@@ -70,7 +70,7 @@ protected:
   void init();
   static bool doRegister(RegistryEntry *entry);
 
-  virtual void onProjectSwitched(Project *);
+  virtual void onProjectSwitched(Project *newProject);
   virtual void onRepositoryAdded(GitInterface *);
   virtual void onRepositorySwitched(GitInterface *);
   virtual void onRepositoryRemoved(GitInterface *);
