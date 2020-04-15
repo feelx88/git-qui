@@ -216,7 +216,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
 
         if (!topLevelItem)
         {
-          topLevelItem = new TreeWidgetItem(ui->treeWidget);
+          topLevelItem = new TreeWidgetItem(ui->treeWidget, nullptr);
           topLevelItem->setText(0, parts.at(0));
           topLevelItem->setData(0, Qt::UserRole, parts.at(0));
           index = 1;
@@ -225,7 +225,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
 
         for (; index < parts.size(); ++index)
         {
-          TreeWidgetItem *child = new TreeWidgetItem(topLevelItem);
+          TreeWidgetItem *child = new TreeWidgetItem(topLevelItem, nullptr);
           child->setText(0, parts.at(index));
 
           child->setData(0, Qt::UserRole, index == parts.size() ? parts.at(index) : parts.mid(0, index + 1).join('/'));
