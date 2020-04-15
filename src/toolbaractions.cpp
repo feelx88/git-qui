@@ -28,71 +28,73 @@ void ToolBarActions::initialize(Core *core)
     action->setData(id);
   }
 
-  QObject::connect(core->project(), &Project::repositorySwitched, core, [=](GitInterface *repository){
-    RECONNECT(_actionMap["stash"], &QAction::triggered, _actionMap["stash"], [=]{
-      repository->stash();
+  QObject::connect(core, &Core::projectChanged, core, [=](Project *project){
+    QObject::connect(project, &Project::repositorySwitched, project, [=](GitInterface *repository){
+      QObject::connect(_actionMap["stash"], &QAction::triggered, project, [=]{
+        repository->stash();
+      });
+
+      QObject::connect(_actionMap["unstash"], &QAction::triggered, project, [=]{
+        repository->stashPop();
+      });
+
+      QObject::connect(_actionMap["push"], &QAction::triggered, project, [=]{
+        QString branch = repository->activeBranch().name;
+        bool addUpstream = false;
+        if (repository->activeBranch().upstreamName.isEmpty())
+        {
+          addUpstream = QMessageBox::question(
+            QApplication::activeWindow(),
+            QObject::tr("No upstream branch configured"),
+            QObject::tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
+            QMessageBox::Yes,
+            QMessageBox::No
+          ) == QMessageBox::Yes;
+        }
+
+        QtConcurrent::run([=]{
+          emit repository->pushStarted();
+          repository->push("origin", branch, addUpstream);
+        });
+      });
+
+      QObject::connect(_actionMap["pull"], &QAction::triggered, project, [=]{
+        QtConcurrent::run([=]{
+          emit repository->pullStarted();
+          repository->pull(true);
+        });
+      });
+
+      QObject::connect(_actionMap["new-branch"], &QAction::triggered, project, [=]{
+        repository->createBranch(
+          QInputDialog::getText(
+            QApplication::activeWindow(),
+            QObject::tr("Create new branch"),
+            QObject::tr("New branch name")
+          )
+        );
+      });
     });
 
-    RECONNECT(_actionMap["unstash"], &QAction::triggered, _actionMap["unstash"], [=]{
-      repository->stashPop();
-    });
-
-    RECONNECT(_actionMap["push"], &QAction::triggered, _actionMap["push"], [=]{
-      QString branch = repository->activeBranch().name;
-      bool addUpstream = false;
-      if (repository->activeBranch().upstreamName.isEmpty())
+    QObject::connect(_actionMap["push-all"], &QAction::triggered, project, [=]{
+      for (auto repo : project->repositoryList())
       {
-        addUpstream = QMessageBox::question(
-          QApplication::activeWindow(),
-          QObject::tr("No upstream branch configured"),
-          QObject::tr("Would you like to set the default upstream branch to origin/%1?").arg(branch),
-          QMessageBox::Yes,
-          QMessageBox::No
-        ) == QMessageBox::Yes;
+        emit repo->pushStarted();
+        QtConcurrent::run([=]{
+          repo->push();
+        });
       }
-
-      QtConcurrent::run([=]{
-        emit repository->pushStarted();
-        repository->push("origin", branch, addUpstream);
-      });
     });
 
-    RECONNECT(_actionMap["pull"], &QAction::triggered, _actionMap["pull"], [=]{
-      QtConcurrent::run([=]{
-        emit repository->pullStarted();
-        repository->pull(true);
-      });
+    QObject::connect(_actionMap["pull-all"], &QAction::triggered, project, [=]{
+      for (auto repo : project->repositoryList())
+      {
+        emit repo->pullStarted();
+        QtConcurrent::run([=]{
+          repo->pull(true);
+        });
+      }
     });
-
-    RECONNECT(_actionMap["new-branch"], &QAction::triggered, _actionMap["new-branch"], [=]{
-      repository->createBranch(
-        QInputDialog::getText(
-          QApplication::activeWindow(),
-          QObject::tr("Create new branch"),
-          QObject::tr("New branch name")
-        )
-      );
-    });
-  });
-
-  QObject::connect(_actionMap["push-all"], &QAction::triggered, _actionMap["push-all"], [=]{
-    for (auto repo : core->project()->repositoryList())
-    {
-      emit repo->pushStarted();
-      QtConcurrent::run([=]{
-        repo->push();
-      });
-    }
-  });
-
-  QObject::connect(_actionMap["pull-all"], &QAction::triggered, _actionMap["pull-all"], [=]{
-    for (auto repo : core->project()->repositoryList())
-    {
-      emit repo->pullStarted();
-      QtConcurrent::run([=]{
-        repo->pull(true);
-      });
-    }
   });
 }
 
