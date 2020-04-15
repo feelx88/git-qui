@@ -20,7 +20,8 @@ SOURCES += \
     src/projectsettingsdialog.cpp \
     src/qtreewidgetutils.cpp \
     src/toolbareditor.cpp \
-    src/toolbaractions.cpp
+    src/toolbaractions.cpp \
+    src/treewidgetitem.cpp
 
 HEADERS += \
     src/core.hpp \
@@ -43,7 +44,8 @@ HEADERS += \
     src/gitdiffline.hpp \
     src/toolbareditor.hpp \
     src/toolbaractions.hpp \
-    src/qobjecthelpers.hpp
+    src/qobjecthelpers.hpp \
+    src/treewidgetitem.hpp
 
 OTHER_FILES += \
     .gitignore \

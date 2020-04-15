@@ -9,6 +9,7 @@
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "gitdiffline.hpp"
+#include "treewidgetitem.hpp"
 
 struct DiffViewPrivate
 {
@@ -153,7 +154,7 @@ void DiffView::onRepositorySwitched(GitInterface *newGitInterface)
         continue;
       }
 
-      QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidget);
+      TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
       item->setFont(2, font);
       item->setData(2, Qt::UserRole, QVariant::fromValue(line));
 

@@ -4,6 +4,7 @@
 #include "mainwindow.hpp"
 #include "gitinterface.hpp"
 #include "gitcommit.hpp"
+#include "treewidgetitem.hpp"
 
 struct LogViewPrivate
 {
@@ -72,7 +73,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface)
     ui->treeWidget->clear();
     for (GitCommit commit : commits)
     {
-      QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidget);
+      TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
       item->setText(0, commit.id);
       item->setText(1, commit.branches.join(", "));
       item->setText(2, commit.message);

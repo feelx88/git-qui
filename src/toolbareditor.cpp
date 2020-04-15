@@ -6,12 +6,13 @@
 #include <QDebug>
 
 #include "toolbaractions.hpp"
+#include "treewidgetitem.hpp"
 
 struct ToolBarEditorPrivate
 {
   void createItem(QTreeWidget *widget, QAction *action)
   {
-    auto item = new QTreeWidgetItem({action->text()});
+    auto item = new TreeWidgetItem(widget, {action->text()});
     item->setData(0, Qt::UserRole, action->data().toString());
     item->setIcon(0, action->icon());
     widget->addTopLevelItem(item);

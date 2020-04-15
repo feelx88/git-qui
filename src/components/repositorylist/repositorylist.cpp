@@ -5,6 +5,7 @@
 
 #include "mainwindow.hpp"
 #include "project.hpp"
+#include "treewidgetitem.hpp"
 
 struct RepositoryListPrivate
 {
@@ -67,14 +68,14 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     return;
   }
 
-  QTreeWidgetItem *item = new QTreeWidgetItem;
+  TreeWidgetItem *item = new TreeWidgetItem(this);
   item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
   item->setText(0, newGitInterface->name());
   item->setData(0, Qt::UserRole, newGitInterface->path());
   item->setTextAlignment(1, Qt::AlignRight);
   ui->treeWidget->addTopLevelItem(item);
 
-  connect(newGitInterface, &GitInterface::branchChanged, newGitInterface, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
+  connect(newGitInterface, &GitInterface::branchChanged, item, [=](const QString &branch, bool hasChanges, bool hasUpstream, int commitsAhead, int commitsBehind){
     if (hasUpstream)
     {
       item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
@@ -88,31 +89,19 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     item->setIcon(0, QIcon::fromTheme("state-ok", QIcon(":/deploy/icons/state-ok.svg")));
   });
 
-  connect(newGitInterface, &GitInterface::pushStarted, newGitInterface, [=]{
-    auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
-
-    if (!items.empty())
-    {
-      auto item = items.first();
-      item->setDisabled(true);
-      item->setText(1, tr("Pushing..."));
-      item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
-    }
+  connect(newGitInterface, &GitInterface::pushStarted, item, [=]{
+    item->setDisabled(true);
+    item->setText(1, tr("Pushing..."));
+    item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
   });
 
-  connect(newGitInterface, &GitInterface::pullStarted, newGitInterface, [=]{
-    auto items = ui->treeWidget->findItems(newGitInterface->name(), Qt::MatchExactly);
-
-    if (!items.empty())
-    {
-      auto item = items.first();
-      item->setDisabled(true);
-      item->setText(1, tr("Pulling..."));
-      item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
-    }
+  connect(newGitInterface, &GitInterface::pullStarted, item, [=]{
+    item->setDisabled(true);
+    item->setText(1, tr("Pulling..."));
+    item->setIcon(0, QIcon::fromTheme("state-sync", QIcon(":/deploy/icons/state-sync.svg")));
   });
 
-  connect(newGitInterface, &GitInterface::error, newGitInterface, [=]{
+  connect(newGitInterface, &GitInterface::error, item, [=]{
     item->setIcon(0, QIcon::fromTheme("state-error", QIcon(":/deploy/icons/state-error.svg")));
   });
 }

@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QInputDialog>
+#include <treewidgetitem.hpp>
 
 #include "mainwindow.hpp"
 
@@ -201,13 +202,13 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
         QList<QString> parts = file.path.split('/');
 
         int index = parts.size() - 1;
-        QTreeWidgetItem *topLevelItem = nullptr;
+        TreeWidgetItem *topLevelItem = nullptr;
         for (; index >= 0; --index)
         {
           QList<QTreeWidgetItem*> result = ui->treeWidget->findItems(parts.at(index), Qt::MatchCaseSensitive | Qt::MatchRecursive);
           if (!result.empty())
           {
-            topLevelItem = result.first();
+            topLevelItem = static_cast<TreeWidgetItem*>(result.first());
             index++;
             break;
           }
@@ -215,7 +216,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
 
         if (!topLevelItem)
         {
-          topLevelItem = new QTreeWidgetItem(ui->treeWidget);
+          topLevelItem = new TreeWidgetItem(ui->treeWidget);
           topLevelItem->setText(0, parts.at(0));
           topLevelItem->setData(0, Qt::UserRole, parts.at(0));
           index = 1;
@@ -224,7 +225,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
 
         for (; index < parts.size(); ++index)
         {
-          QTreeWidgetItem *child = new QTreeWidgetItem(topLevelItem);
+          TreeWidgetItem *child = new TreeWidgetItem(topLevelItem);
           child->setText(0, parts.at(index));
 
           child->setData(0, Qt::UserRole, index == parts.size() ? parts.at(index) : parts.mid(0, index + 1).join('/'));
