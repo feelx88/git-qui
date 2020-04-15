@@ -3,6 +3,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+#include "core.hpp"
 #include "mainwindow.hpp"
 #include "project.hpp"
 #include "treewidgetitem.hpp"
@@ -14,12 +15,14 @@ struct RepositoryListPrivate
 
   void connectSignals(RepositoryList *_this)
   {
-    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this, [=]{
-      QList<QTreeWidgetItem*> selection = _this->ui->treeWidget->selectedItems();
-      if (!selection.isEmpty())
-      {
-        _this->project()->setCurrentRepository(selection.first()->text(0));
-      }
+    QObject::connect(_this->core(), &Core::projectChanged, _this, [=](Project *newProject){
+      _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=]{
+        QList<QTreeWidgetItem*> selection = _this->ui->treeWidget->selectedItems();
+        if (!selection.isEmpty())
+        {
+          newProject->setCurrentRepository(selection.first()->text(0));
+        }
+      });
     });
   }
 };
