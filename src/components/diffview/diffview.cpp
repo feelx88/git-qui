@@ -83,7 +83,7 @@ struct DiffViewPrivate
     bool stillUnstaged = lines.count() == nonTrivialLines ? !unstaged : unstaged;
     gitInterface->addLines(lines, unstaged);
 
-    emit gitInterface->fileSelected(stillUnstaged, currentPath);
+    gitInterface->selectFile(stillUnstaged, currentPath);
   }
 };
 
