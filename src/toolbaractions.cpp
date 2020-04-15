@@ -28,17 +28,22 @@ void ToolBarActions::initialize(Core *core)
     action->setData(id);
   }
 
-  QObject::connect(core, &Core::projectChanged, core, [=](Project *project){
-    QObject::connect(project, &Project::repositorySwitched, project, [=](GitInterface *repository){
-      QObject::connect(_actionMap["stash"], &QAction::triggered, project, [=]{
+  auto projectChanged = [=](Project *newProject){
+    auto repositoryChanged = [=](GitInterface *repository){
+      for (auto &[id, action]: _actionMap.toStdMap())
+      {
+        QObject::disconnect(action, &QAction::triggered, nullptr, nullptr);
+      }
+
+      QObject::connect(_actionMap["stash"], &QAction::triggered, newProject, [=]{
         repository->stash();
       });
 
-      QObject::connect(_actionMap["unstash"], &QAction::triggered, project, [=]{
+      QObject::connect(_actionMap["unstash"], &QAction::triggered, newProject, [=]{
         repository->stashPop();
       });
 
-      QObject::connect(_actionMap["push"], &QAction::triggered, project, [=]{
+      QObject::connect(_actionMap["push"], &QAction::triggered, newProject, [=]{
         QString branch = repository->activeBranch().name;
         bool addUpstream = false;
         if (repository->activeBranch().upstreamName.isEmpty())
@@ -58,14 +63,14 @@ void ToolBarActions::initialize(Core *core)
         });
       });
 
-      QObject::connect(_actionMap["pull"], &QAction::triggered, project, [=]{
+      QObject::connect(_actionMap["pull"], &QAction::triggered, newProject, [=]{
         QtConcurrent::run([=]{
           emit repository->pullStarted();
           repository->pull(true);
         });
       });
 
-      QObject::connect(_actionMap["new-branch"], &QAction::triggered, project, [=]{
+      QObject::connect(_actionMap["new-branch"], &QAction::triggered, newProject, [=]{
         repository->createBranch(
           QInputDialog::getText(
             QApplication::activeWindow(),
@@ -74,10 +79,12 @@ void ToolBarActions::initialize(Core *core)
           )
         );
       });
-    });
+    };
 
-    QObject::connect(_actionMap["push-all"], &QAction::triggered, project, [=]{
-      for (auto repo : project->repositoryList())
+    QObject::connect(newProject, &Project::repositorySwitched, newProject, repositoryChanged);
+
+    QObject::connect(_actionMap["push-all"], &QAction::triggered, newProject, [=]{
+      for (auto repo : newProject->repositoryList())
       {
         emit repo->pushStarted();
         QtConcurrent::run([=]{
@@ -86,8 +93,8 @@ void ToolBarActions::initialize(Core *core)
       }
     });
 
-    QObject::connect(_actionMap["pull-all"], &QAction::triggered, project, [=]{
-      for (auto repo : project->repositoryList())
+    QObject::connect(_actionMap["pull-all"], &QAction::triggered, newProject, [=]{
+      for (auto repo : newProject->repositoryList())
       {
         emit repo->pullStarted();
         QtConcurrent::run([=]{
@@ -95,7 +102,12 @@ void ToolBarActions::initialize(Core *core)
         });
       }
     });
-  });
+
+    repositoryChanged(core->project()->activeRepository());
+  };
+
+  QObject::connect(core, &Core::projectChanged, core, projectChanged);
+  projectChanged(core->project());
 }
 
 const QMap<QString, QAction*> ToolBarActions::all()
