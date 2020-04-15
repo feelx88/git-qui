@@ -195,6 +195,8 @@ bool Core::init()
 
 void Core::changeProject(Project *newProject)
 {
+  delete _impl->project;
+
   _impl->project = newProject;
   _impl->recentProjects.insert(newProject->fileName());
 
