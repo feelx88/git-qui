@@ -7,24 +7,11 @@
 #include "mainwindow.hpp"
 #include "project.hpp"
 #include "treewidgetitem.hpp"
-
+#include <iostream>
 struct RepositoryListPrivate
 {
   GitInterface *gitInterface = nullptr;
   QString currentRepository;
-
-  void connectSignals(RepositoryList *_this)
-  {
-    QObject::connect(_this->core(), &Core::projectChanged, _this, [=](Project *newProject){
-      _this->connect(_this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=]{
-        QList<QTreeWidgetItem*> selection = _this->ui->treeWidget->selectedItems();
-        if (!selection.isEmpty())
-        {
-          newProject->setCurrentRepository(selection.first()->text(0));
-        }
-      });
-    });
-  }
 };
 
 DOCK_WIDGET_IMPL(
@@ -38,9 +25,6 @@ RepositoryList::RepositoryList(MainWindow *mainWindow) :
   _impl(new RepositoryListPrivate)
 {
   ui->setupUi(this);
-
-  _impl->connectSignals(this);
-
   ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
@@ -49,17 +33,25 @@ RepositoryList::~RepositoryList()
   delete ui;
 }
 
-void RepositoryList::onProjectSwitched(Project *project)
+void RepositoryList::onProjectSwitched(Project *newProject)
 {
   ui->treeWidget->clear();
 
-  DockWidget::onProjectSwitched(project);
-  for (auto &repository : project->repositoryList())
+  DockWidget::onProjectSwitched(newProject);
+  for (auto &repository : newProject->repositoryList())
   {
     onRepositoryAdded(repository);
   }
 
-  onRepositorySwitched(project->activeRepository());
+  onRepositorySwitched(newProject->activeRepository());
+
+  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=]{
+    QList<QTreeWidgetItem*> selection = ui->treeWidget->selectedItems();
+    if (!selection.isEmpty())
+    {
+      newProject->setCurrentRepository(selection.first()->text(0));
+    }
+  });
 }
 
 void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
