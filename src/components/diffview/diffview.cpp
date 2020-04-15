@@ -19,7 +19,7 @@ struct DiffViewPrivate
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
   int nonTrivialLines;
-  QString hash;
+  QString hash = "###";
 
   DiffViewPrivate(DiffView *diffView)
     : _this(diffView)

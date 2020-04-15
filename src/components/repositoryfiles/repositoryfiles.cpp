@@ -12,7 +12,7 @@ struct RepositoryFilesPrivate
   GitInterface *gitInterface = nullptr;
   bool unstaged;
   QString selection;
-  QString hash;
+  QString hash = "###";
 
   void connectSignals(RepositoryFiles *_this)
   {
