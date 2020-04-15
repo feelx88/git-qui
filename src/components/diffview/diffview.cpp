@@ -19,6 +19,7 @@ struct DiffViewPrivate
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
   int nonTrivialLines;
+  QString hash;
 
   DiffViewPrivate(DiffView *diffView)
     : _this(diffView)
@@ -140,6 +141,18 @@ void DiffView::onRepositorySwitched(GitInterface *newGitInterface)
     _impl->resetSelected->setVisible(true);
     _impl->resetSelected->setEnabled(unstaged);
 
+    QString hash = path;
+    for (auto &line : lines)
+    {
+      hash.append(line.header).append(line.content);
+    }
+
+    if (hash == _impl->hash)
+    {
+      return;
+    }
+
+    _impl->hash = hash;
     _impl->currentPath = path;
     _impl->unstaged = unstaged;
     setWindowTitle(path);
