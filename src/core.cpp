@@ -195,6 +195,8 @@ bool Core::init()
 
 void Core::changeProject(Project *newProject)
 {
+  _impl->autoFetchFuture.cancel();
+  _impl->autoFetchFuture.waitForFinished();
   delete _impl->project;
 
   _impl->project = newProject;
