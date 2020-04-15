@@ -123,8 +123,8 @@ void BranchList::onRepositorySwitched(GitInterface *newGitInterface)
         localBranches.append(branch.name);
       }
     }
-    ui->treeWidget->addTopLevelItems(QTreeWidgetUtils::createItems(ui->treeWidget, localBranches));
-    ui->treeWidget_2->addTopLevelItems(QTreeWidgetUtils::createItems(ui->treeWidget_2, remoteBranches));
+    ui->treeWidget->addTopLevelItems(TreeWidgetUtils::createItems(ui->treeWidget, localBranches));
+    ui->treeWidget_2->addTopLevelItems(TreeWidgetUtils::createItems(ui->treeWidget_2, remoteBranches));
     QTreeWidgetItemIterator it(ui->treeWidget);
     while (*it)
     {

@@ -1,7 +1,7 @@
 #include "qtreewidgetutils.hpp"
 #include "treewidgetitem.hpp"
 
-QList<QTreeWidgetItem*> QTreeWidgetUtils::createItems(QTreeWidget *parentWidget, const QList<QString> &itemLabels, const QString &separator, QObject *parent)
+QList<QTreeWidgetItem*> TreeWidgetUtils::createItems(QTreeWidget *parentWidget, const QList<QString> &itemLabels, const QString &separator, QObject *parent)
 {
   QList<QTreeWidgetItem*> items;
   QMap<QString, QTreeWidgetItem*> itemMap;
