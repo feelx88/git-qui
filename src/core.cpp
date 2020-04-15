@@ -199,7 +199,7 @@ void Core::changeProject(Project *newProject)
   delete _impl->project;
 
   _impl->project = newProject;
-  _impl->recentProjects.insert(newProject->name(), newProject->fileName());
+  _impl->recentProjects.insert(newProject->fileName(), newProject->name());
 
   emit projectChanged(_impl->project);
 

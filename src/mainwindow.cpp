@@ -174,16 +174,16 @@ struct MainWindowPrivate
   void populateRecentProjectsMenu()
   {
     _this->ui->menuRecent_Projects->clear();
-    for (auto &[name, path]: _this->core()->recentProjects().toStdMap())
+    for (auto &[path, name]: _this->core()->recentProjects().toStdMap())
     {
-      _this->ui->menuRecent_Projects->addAction(QString("%1 (%2)").arg(name).arg(path.toString()), [=, path = path]{
+      _this->ui->menuRecent_Projects->addAction(QString("%1 (%2)").arg(name.toString()).arg(path), [=, path = path]{
         if (!QFile::exists(path))
         {
           QMessageBox::critical(_this, QObject::tr("File not found"), QObject::tr("File %1 does not exist!").arg(path));
           return;
         }
         _this->core()->project()->save();
-        _this->core()->changeProject(new Project(path.toString(), _this->core()));
+        _this->core()->changeProject(new Project(path, _this->core()));
       });
     }
   }
