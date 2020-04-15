@@ -174,11 +174,11 @@ struct MainWindowPrivate
   void populateRecentProjectsMenu()
   {
     _this->ui->menuRecent_Projects->clear();
-    for (auto &recentProject : _this->core()->recentProjects())
+    for (auto &[name, path]: _this->core()->recentProjects().toStdMap())
     {
-      _this->ui->menuRecent_Projects->addAction(recentProject, [=]{
+      _this->ui->menuRecent_Projects->addAction(QString("%1 (%2)").arg(name).arg(path.toString()), [=, path = path]{
         _this->core()->project()->save();
-        _this->core()->changeProject(new Project(recentProject, _this->core()));
+        _this->core()->changeProject(new Project(path.toString(), _this->core()));
       });
     }
   }
