@@ -52,10 +52,10 @@ DockWidget *DockWidget::create(
   if (entry)
   {
     DockWidget *widget = entry->factory(mainWindow);
-    widget->init();
     container->addDockWidget(Qt::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
+    widget->init();
 
     return widget;
   }
