@@ -176,6 +176,12 @@ void RepositoryFiles::configure(const QVariant &configuration)
   setWindowTitle(_impl->unstaged ? tr("Unstaged files") : tr("Staged files"));
 }
 
+void RepositoryFiles::onProjectSwitched(Project *newProject)
+{
+  DockWidget::onProjectSwitched(newProject);
+  _impl->gitInterface = nullptr;
+}
+
 void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
 {
   disconnect(

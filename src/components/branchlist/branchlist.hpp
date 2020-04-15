@@ -20,6 +20,7 @@ public:
   virtual ~BranchList() override;
 
 protected:
+  virtual void onProjectSwitched(Project *newProject) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
 
 private:

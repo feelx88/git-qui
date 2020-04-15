@@ -63,6 +63,12 @@ void LogView::configure(const QVariant &configuration)
   }
 }
 
+void LogView::onProjectSwitched(Project *newProject)
+{
+  DockWidget::onProjectSwitched(newProject);
+  _impl->gitInterface = nullptr;
+}
+
 void LogView::onRepositorySwitched(GitInterface *newGitInterface)
 {
   disconnect(_impl->gitInterface, &GitInterface::logChanged, this, nullptr);

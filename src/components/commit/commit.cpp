@@ -72,6 +72,12 @@ void Commit::configure(const QVariant &configuration)
   ui->plainTextEdit->setPlainText(configuration.toString());
 }
 
+void Commit::onProjectSwitched(Project *newProject)
+{
+  DockWidget::onProjectSwitched(newProject);
+  _impl->gitInterface = nullptr;
+}
+
 void Commit::onRepositorySwitched(GitInterface *newGitInterface)
 {
   disconnect(ui->pushButton_2, &QPushButton::clicked, this, nullptr);

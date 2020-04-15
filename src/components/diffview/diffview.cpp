@@ -122,6 +122,12 @@ void DiffView::configure(const QVariant &configuration)
   _impl->fullFileDiffAction->setChecked(map.value("fullFileDiff", false).toBool());
 }
 
+void DiffView::onProjectSwitched(Project *newProject)
+{
+  DockWidget::onProjectSwitched(newProject);
+  _impl->gitInterface = nullptr;
+}
+
 void DiffView::onRepositorySwitched(GitInterface *newGitInterface)
 {
   _impl->clear();

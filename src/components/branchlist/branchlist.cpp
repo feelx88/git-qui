@@ -92,6 +92,12 @@ BranchList::~BranchList()
   delete ui;
 }
 
+void BranchList::onProjectSwitched(Project *newProject)
+{
+  DockWidget::onProjectSwitched(newProject);
+  _impl->gitInterface = nullptr;
+}
+
 void BranchList::onRepositorySwitched(GitInterface *newGitInterface)
 {
   DockWidget::onRepositorySwitched(newGitInterface);

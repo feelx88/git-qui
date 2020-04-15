@@ -26,6 +26,7 @@ public:
   virtual void configure(const QVariant &configuration) override;
 
 protected:
+  virtual void onProjectSwitched(Project *newProject) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
 
 private:
