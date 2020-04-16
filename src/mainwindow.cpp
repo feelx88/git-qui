@@ -138,11 +138,11 @@ struct MainWindowPrivate
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
 
-    QObject::connect(_this->ui->actionPush, &QAction::triggered, ToolBarActions::byId(ToolBarActions::ActionID::PUSH), &QAction::trigger);
-    QObject::connect(_this->ui->actionPull, &QAction::triggered, ToolBarActions::byId(ToolBarActions::ActionID::PULL), &QAction::trigger);
-    QObject::connect(_this->ui->actionStash_changes, &QAction::triggered, ToolBarActions::byId(ToolBarActions::ActionID::STASH), &QAction::trigger);
-    QObject::connect(_this->ui->actionStash_pop, &QAction::triggered, ToolBarActions::byId(ToolBarActions::ActionID::UNSTASH), &QAction::trigger);
-    QObject::connect(_this->ui->actionClean_up_project, &QAction::triggered, ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP), &QAction::trigger);
+    connectMenuToToolbarAction(_this->ui->actionPush, ToolBarActions::ActionID::PUSH);
+    connectMenuToToolbarAction(_this->ui->actionPull, ToolBarActions::ActionID::PULL);
+    connectMenuToToolbarAction(_this->ui->actionStash_changes, ToolBarActions::ActionID::STASH);
+    connectMenuToToolbarAction(_this->ui->actionStash_pop, ToolBarActions::ActionID::UNSTASH);
+    connectMenuToToolbarAction(_this->ui->actionClean_up_project, ToolBarActions::ActionID::CLEANUP);
 
     QObject::connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
       QProcess *process = new QProcess(_this);
@@ -159,6 +159,11 @@ struct MainWindowPrivate
       process->setWorkingDirectory(_this->core()->project()->activeRepository()->path());
       process->startDetached();
     });
+  }
+
+  inline void connectMenuToToolbarAction(QAction *entry, const QString &action)
+  {
+    QObject::connect(entry, &QAction::triggered, ToolBarActions::byId(action), &QAction::trigger);
   }
 
   void populateAddViewMenu()
