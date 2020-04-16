@@ -134,6 +134,10 @@ struct MainWindowPrivate
       populateRecentProjectsMenu();
     });
 
+    QObject::connect(_this->ui->actionNew_Project, &QAction::triggered, _this, [=]{
+      (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, new Project(_this->core()), _this))->exec();
+    });
+
     QObject::connect(_this->ui->actionProject_settings, &QAction::triggered, _this, [=]{
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
