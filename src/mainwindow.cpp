@@ -138,6 +138,10 @@ struct MainWindowPrivate
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
 
+    QObject::connect(_this->ui->actionReload_current_repository, &QAction::triggered, _this, [=]{
+      _this->core()->project()->activeRepository()->reload();
+    });
+
     connectMenuToToolbarAction(_this->ui->actionPush, ToolBarActions::ActionID::PUSH);
     connectMenuToToolbarAction(_this->ui->actionPull, ToolBarActions::ActionID::PULL);
     connectMenuToToolbarAction(_this->ui->actionStash_changes, ToolBarActions::ActionID::STASH);
