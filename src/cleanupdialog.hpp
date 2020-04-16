@@ -16,7 +16,7 @@ class CleanUpDialog : public QDialog
 
 public:
   explicit CleanUpDialog(Core* core, QWidget *parent = nullptr);
-  ~CleanUpDialog();
+  virtual ~CleanUpDialog();
 
 private:
   Ui::CleanUpDialog *ui;
