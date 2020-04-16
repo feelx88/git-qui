@@ -19,6 +19,7 @@ public:
   QList<GitInterface *> repositoryList() const;
 
   GitInterface *activeRepository();
+  GitInterface *repositoryByName(const QString &name) const;
 
   void addRepository();
   void removeRepository(const int &index);

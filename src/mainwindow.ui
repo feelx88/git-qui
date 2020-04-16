@@ -58,7 +58,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -110,6 +110,8 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
+    <addaction name="actionClean_up_project"/>
+    <addaction name="separator"/>
     <addaction name="actionStart_git_gui_for_current_repository"/>
     <addaction name="actionStart_gitk_for_current_repository"/>
    </widget>
@@ -123,8 +125,6 @@
     <addaction name="separator"/>
     <addaction name="actionStash_changes"/>
     <addaction name="actionStash_pop"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuick_cleanup"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -252,6 +252,11 @@
   <action name="actionClear">
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionClean_up_project">
+   <property name="text">
+    <string>&amp;Clean up project</string>
    </property>
   </action>
  </widget>

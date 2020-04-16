@@ -15,5 +15,6 @@
         <file>deploy/icons/state-error.svg</file>
         <file>deploy/icons/state-ok.svg</file>
         <file>deploy/icons/state-sync.svg</file>
+        <file>deploy/icons/edit-clear-history.svg</file>
     </qresource>
 </RCC>

@@ -107,6 +107,19 @@ GitInterface *Project::activeRepository()
   return _impl->repositories.at(_impl->currentRepository);
 }
 
+GitInterface* Project::repositoryByName(const QString& name) const
+{
+  auto it = std::find_if(_impl->repositories.begin(), _impl->repositories.end(), [=](GitInterface *repository){
+    return repository->name() == name;
+  });
+
+  if (it != _impl->repositories.end())
+  {
+    return *it;
+  }
+  return nullptr;
+}
+
 void Project::addRepository()
 {
   QString path = QFileDialog::getExistingDirectory(

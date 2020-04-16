@@ -3,6 +3,7 @@ QT += core svg xml gui widgets
 CONFIG += c++1z
 
 SOURCES += \
+    src/cleanupdialog.cpp \
     src/core.cpp \
     src/initialwindowconfiguration.cpp \
     src/main.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     src/treewidgetitem.cpp
 
 HEADERS += \
+    src/cleanupdialog.hpp \
     src/core.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
@@ -56,6 +58,7 @@ OTHER_FILES += \
     deploy/git-qui.desktop
 
 FORMS += \
+    src/cleanupdialog.ui \
     src/mainwindow.ui \
     src/components/repositoryfiles/repositoryfiles.ui \
     src/components/commit/commit.ui \

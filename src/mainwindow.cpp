@@ -138,6 +138,10 @@ struct MainWindowPrivate
       (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT, _this->core()->project(), _this))->exec();
     });
 
+    QObject::connect(_this->ui->actionClean_up_project, &QAction::triggered, _this, [=]{
+      ToolBarActions::byId("cleanup")->trigger();
+    });
+
     QObject::connect(_this->ui->actionStart_gitk_for_current_repository, &QAction::triggered, _this, [=]{
       QProcess *process = new QProcess(_this);
       process->setProgram("gitk");

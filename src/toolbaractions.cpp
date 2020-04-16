@@ -10,6 +10,7 @@
 #include "core.hpp"
 #include "project.hpp"
 #include "gitinterface.hpp"
+#include "cleanupdialog.hpp"
 
 QMap<QString, QAction*> ToolBarActions::_actionMap;
 
@@ -22,6 +23,7 @@ void ToolBarActions::initialize(Core *core)
   addAction("push-all", "go-top", "Push all repositories");
   addAction("pull-all", "go-bottom", "Pull all repositories (with rebase)");
   addAction("new-branch", "distribute-graph-directed", "Create new branch");
+  addAction("cleanup", "edit-clear-history", "Clean up repository");
 
   for (auto &[id, action]: _actionMap.toStdMap())
   {
@@ -30,11 +32,6 @@ void ToolBarActions::initialize(Core *core)
 
   auto projectChanged = [=](Project *newProject){
     auto repositoryChanged = [=](GitInterface *repository){
-      for (auto &[id, action]: _actionMap.toStdMap())
-      {
-        QObject::disconnect(action, &QAction::triggered, nullptr, nullptr);
-      }
-
       QObject::connect(_actionMap["stash"], &QAction::triggered, newProject, [=]{
         repository->stash();
       });
@@ -108,6 +105,10 @@ void ToolBarActions::initialize(Core *core)
 
   QObject::connect(core, &Core::projectChanged, core, projectChanged);
   projectChanged(core->project());
+
+  QObject::connect(_actionMap["cleanup"], &QAction::triggered, core, [=]{
+    (new CleanUpDialog(core, qApp->activeWindow()))->exec();
+  });
 }
 
 const QMap<QString, QAction*> ToolBarActions::all()
