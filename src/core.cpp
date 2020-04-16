@@ -20,7 +20,7 @@ struct ConfigurationKey
   static constexpr const char *MAIN_WINDOWS = "mainWindows";
 };
 
-struct CoreImpl
+struct CorePrivate
 {
   Core *_this;
   Project *project = nullptr;
@@ -29,11 +29,11 @@ struct CoreImpl
   QTimer *autoFetchTimer = nullptr;
   QFuture<void> autoFetchFuture;
 
-  CoreImpl(Core *core)
+  CorePrivate(Core *core)
     : _this(core)
   {}
 
-  virtual ~CoreImpl()
+  virtual ~CorePrivate()
   {
     autoFetchFuture.cancel();
     autoFetchFuture.waitForFinished();
@@ -137,7 +137,7 @@ struct CoreImpl
 
 Core::Core(QObject *parent)
 : QObject(parent),
-  _impl(new CoreImpl(this))
+  _impl(new CorePrivate(this))
 {}
 
 Core::~Core()
@@ -185,7 +185,7 @@ bool Core::init()
   project()->reloadAllRepositories();
 
   _impl->autoFetchTimer = new QTimer(this);
-  connect(_impl->autoFetchTimer, &QTimer::timeout, this, std::bind(&CoreImpl::onAutoFetchTimerTimeout, _impl.get()));
+  connect(_impl->autoFetchTimer, &QTimer::timeout, this, std::bind(&CorePrivate::onAutoFetchTimerTimeout, _impl.get()));
   _impl->autoFetchTimer->setInterval(std::chrono::seconds(30));
   _impl->autoFetchTimer->start();
 

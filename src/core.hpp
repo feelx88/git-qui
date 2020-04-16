@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-struct CoreImpl;
+struct CorePrivate;
 class Project;
 class GitInterface;
 
@@ -11,7 +11,7 @@ class Core : public QObject
 {
   Q_OBJECT
 public:
-  friend struct CoreImpl;
+  friend struct CorePrivate;
   explicit Core(QObject *parent = nullptr);
   virtual ~Core();
 
@@ -29,7 +29,7 @@ signals:
   void projectChanged(Project *project);
 
 private:
-  QScopedPointer<CoreImpl> _impl;
+  QScopedPointer<CorePrivate> _impl;
 };
 
 #endif // CORE_HPP

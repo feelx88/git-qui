@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QList>
 
-struct ProjectImpl;
+struct ProjectPrivate;
 class GitInterface;
 
 class Project : public QObject
@@ -42,7 +42,7 @@ signals:
   void repositoryRemoved(GitInterface *repository);
 
 private:
-  ProjectImpl *_impl;
+  ProjectPrivate *_impl;
 };
 
 #endif // PROJECT_HPP

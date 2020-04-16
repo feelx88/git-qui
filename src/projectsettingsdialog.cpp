@@ -7,7 +7,7 @@
 #include "project.hpp"
 #include "gitinterface.hpp"
 
-struct ProjectSettingsDialogImpl
+struct ProjectSettingsDialogPrivate
 {
   Project *project;
 
@@ -28,7 +28,7 @@ struct ProjectSettingsDialogImpl
 ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode dialogMode, Project *project, QWidget *parent)
   : QDialog(parent),
     ui(new Ui::ProjectSettingsDialog),
-    _impl(new ProjectSettingsDialogImpl)
+    _impl(new ProjectSettingsDialogPrivate)
 {
   ui->setupUi(this);
 

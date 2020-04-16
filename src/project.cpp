@@ -17,7 +17,7 @@ struct ConfigurationKeys
   static constexpr const char* REPOSITORY_LIST_PATH = "path";
 };
 
-struct ProjectImpl
+struct ProjectPrivate
 {
   Project *_this;
   QSettings *settings = nullptr;
@@ -30,7 +30,7 @@ struct ProjectImpl
   };
   QScopedPointer<QObject> currentRepositoryContext = QScopedPointer<QObject>(new QObject);
 
-  ProjectImpl(Project *project)
+  ProjectPrivate(Project *project)
     :_this(project)
   {}
 
@@ -92,7 +92,7 @@ Project::Project(const QString &fileName, QObject *parent)
 
 Project::Project(QObject *parent)
 : QObject(parent),
-  _impl(new ProjectImpl(this))
+  _impl(new ProjectPrivate(this))
 {
 }
 
