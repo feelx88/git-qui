@@ -72,7 +72,7 @@ protected:
 
   virtual void onProjectSwitched(Project *newProject);
   virtual void onRepositoryAdded(GitInterface *);
-  virtual void onRepositorySwitched(GitInterface *);
+  virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *);
 
 private:

@@ -23,7 +23,7 @@ public:
 
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext) override;
 
 private:
   Ui::DiffView *ui;

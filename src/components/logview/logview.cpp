@@ -69,13 +69,11 @@ void LogView::onProjectSwitched(Project *newProject)
   DockWidget::onProjectSwitched(newProject);
 }
 
-void LogView::onRepositorySwitched(GitInterface *newGitInterface)
+void LogView::onRepositorySwitched(GitInterface *newGitInterface, QObject* activeRepositoryContext)
 {
-  disconnect(_impl->gitInterface, &GitInterface::logChanged, this, nullptr);
-
   _impl->gitInterface = newGitInterface;
 
-  connect(_impl->gitInterface, &GitInterface::logChanged, this, [=](const QList<GitCommit> &commits){
+  connect(newGitInterface, &GitInterface::logChanged, activeRepositoryContext, [=](const QList<GitCommit> &commits){
     ui->treeWidget->clear();
     for (GitCommit commit : commits)
     {

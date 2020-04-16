@@ -28,6 +28,7 @@ struct ProjectImpl
     QRegularExpression("/.*vendor.*/"),
     QRegularExpression("/.*node_modules.*/")
   };
+  QScopedPointer<QObject> currentRepositoryContext = QScopedPointer<QObject>(new QObject);
 
   ProjectImpl(Project *project)
     :_this(project)
@@ -73,6 +74,14 @@ struct ProjectImpl
       settings->sync();
     }
   }
+
+  void changeRepository()
+  {
+    currentRepositoryContext.reset(new QObject);
+    auto repo = repositories.at(currentRepository);
+    emit _this->repositorySwitched(repo, currentRepositoryContext.get());
+    repo->reload();
+  }
 };
 
 Project::Project(const QString &fileName, QObject *parent)
@@ -102,9 +111,14 @@ QList<GitInterface*> Project::repositoryList() const
   return _impl->repositories;
 }
 
-GitInterface *Project::activeRepository()
+GitInterface *Project::activeRepository() const
 {
   return _impl->repositories.at(_impl->currentRepository);
+}
+
+QObject* Project::activeRepositoryContext() const
+{
+  return _impl->currentRepositoryContext.get();
 }
 
 GitInterface* Project::repositoryByName(const QString& name) const
@@ -176,15 +190,13 @@ void Project::removeRepository(const int &index)
 void Project::setCurrentRepository(const int &index)
 {
   _impl->currentRepository = index;
-  emit repositorySwitched(_impl->repositories.at(index));
-  _impl->repositories.at(index)->reload();
+  _impl->changeRepository();
 }
 
 void Project::setCurrentRepository(GitInterface *repository)
 {
   _impl->currentRepository = _impl->repositories.indexOf(repository);
-  emit repositorySwitched(_impl->repositories.at(_impl->currentRepository));
-  _impl->repositories.at(_impl->currentRepository)->reload();
+  _impl->changeRepository();
 }
 
 void Project::setCurrentRepository(const QString &name)
@@ -204,8 +216,7 @@ void Project::setCurrentRepository(const QString &name)
   }
 
   _impl->currentRepository = _impl->repositories.indexOf(*found);
-  emit repositorySwitched(_impl->repositories.at(_impl->currentRepository));
-  _impl->repositories.at(_impl->currentRepository)->reload();
+  _impl->changeRepository();
 }
 
 void Project::setName(const QString &name)

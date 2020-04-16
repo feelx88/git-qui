@@ -18,7 +18,8 @@ public:
   QString name() const;
   QList<GitInterface *> repositoryList() const;
 
-  GitInterface *activeRepository();
+  GitInterface *activeRepository() const;
+  QObject *activeRepositoryContext() const;
   GitInterface *repositoryByName(const QString &name) const;
 
   void addRepository();
@@ -37,7 +38,7 @@ public:
 
 signals:
   void repositoryAdded(GitInterface *repository);
-  void repositorySwitched(GitInterface *repository);
+  void repositorySwitched(GitInterface *repository, QObject *activeRepositoryContext);
   void repositoryRemoved(GitInterface *repository);
 
 private:

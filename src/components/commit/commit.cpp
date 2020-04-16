@@ -78,34 +78,28 @@ void Commit::onProjectSwitched(Project *newProject)
   DockWidget::onProjectSwitched(newProject);
 }
 
-void Commit::onRepositorySwitched(GitInterface *newGitInterface)
+void Commit::onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext)
 {
-  disconnect(ui->pushButton_2, &QPushButton::clicked, this, nullptr);
-  disconnect(_impl->gitInterface, &GitInterface::lastCommitReverted, this, nullptr);
-  disconnect(_impl->gitInterface, &GitInterface::commited, this, nullptr);
-  disconnect(_impl->gitInterface, &GitInterface::stagingAreaChanged, this, nullptr);
-  disconnect(_impl->gitInterface, &GitInterface::nonStagingAreaChanged, this, nullptr);
-
   _impl->gitInterface = newGitInterface;
 
-  connect(ui->pushButton_2, &QPushButton::clicked, this, [=]{
-    _impl->gitInterface->revertLastCommit();
+  connect(ui->pushButton_2, &QPushButton::clicked, activeRepositoryContext, [=]{
+    newGitInterface->revertLastCommit();
   });
 
-  connect(_impl->gitInterface, &GitInterface::lastCommitReverted, this, [=](const QString &message){
+  connect(_impl->gitInterface, &GitInterface::lastCommitReverted, activeRepositoryContext, [=](const QString &message){
     ui->plainTextEdit->setPlainText(message);
     ui->pushButton_2->setDisabled(true);
   });
 
-  connect(_impl->gitInterface, &GitInterface::commited, this, [=]{
+  connect(_impl->gitInterface, &GitInterface::commited, activeRepositoryContext, [=]{
     ui->plainTextEdit->clear();
   });
 
-  connect(_impl->gitInterface, &GitInterface::stagingAreaChanged, this, [=](const QList<GitFile> &list){
+  connect(_impl->gitInterface, &GitInterface::stagingAreaChanged, activeRepositoryContext, [=](const QList<GitFile> &list){
     _impl->stagedFiles = list;
   });
 
-  connect(_impl->gitInterface, &GitInterface::nonStagingAreaChanged, this, [=](const QList<GitFile> &list){
+  connect(_impl->gitInterface, &GitInterface::nonStagingAreaChanged, activeRepositoryContext, [=](const QList<GitFile> &list){
     _impl->unstagedFiles = list;
   });
 }

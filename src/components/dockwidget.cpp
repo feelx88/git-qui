@@ -27,7 +27,7 @@ void DockWidget::init()
     onRepositoryAdded(repository);
   }
 
-  onRepositorySwitched(project()->activeRepository());
+  onRepositorySwitched(project()->activeRepository(), project()->activeRepositoryContext());
 }
 
 DockWidget::~DockWidget()
@@ -106,14 +106,14 @@ void DockWidget::onProjectSwitched(Project *newProject)
   connectProjectSignal(&Project::repositorySwitched, &DockWidget::onRepositorySwitched);
   connectProjectSignal(&Project::repositoryRemoved, &DockWidget::onRepositoryRemoved);
 
-  onRepositorySwitched(newProject->activeRepository());
+  onRepositorySwitched(newProject->activeRepository(), project()->activeRepositoryContext());
 }
 
 void DockWidget::onRepositoryAdded(GitInterface *)
 {
 }
 
-void DockWidget::onRepositorySwitched(GitInterface *)
+void DockWidget::onRepositorySwitched(GitInterface *, QObject*)
 {
 }
 

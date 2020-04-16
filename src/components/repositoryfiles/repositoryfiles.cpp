@@ -183,22 +183,14 @@ void RepositoryFiles::onProjectSwitched(Project *newProject)
   DockWidget::onProjectSwitched(newProject);
 }
 
-void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
+void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface, QObject* activeRepositoryContext)
 {
-  disconnect(
-    _impl->gitInterface,
-    _impl->unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged,
-    this,
-    nullptr
-  );
-  disconnect(_impl->gitInterface, &GitInterface::fileSelected, this, nullptr);
-
   _impl->gitInterface = newGitInterface;
 
   connect(
-    _impl->gitInterface,
+    newGitInterface,
     _impl->unstaged ? &GitInterface::nonStagingAreaChanged : &GitInterface::stagingAreaChanged,
-    this,
+    activeRepositoryContext,
     [=](const QList<GitFile> &files){
 
       QString hash = QString(_impl->unstaged ? "unstaged" : "staged").append(newGitInterface->path());
@@ -258,7 +250,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface)
       ui->treeWidget->expandAll();
   });
 
-  connect(_impl->gitInterface, &GitInterface::fileSelected, this, [=](bool unstaged, const QString &path){
+  connect(newGitInterface, &GitInterface::fileSelected, activeRepositoryContext, [=](bool unstaged, const QString &path){
     if (unstaged != _impl->unstaged)
     {
       ui->listWidget->setCurrentItem(nullptr);

@@ -43,7 +43,7 @@ void RepositoryList::onProjectSwitched(Project *newProject)
     onRepositoryAdded(repository);
   }
 
-  onRepositorySwitched(newProject->activeRepository());
+  onRepositorySwitched(newProject->activeRepository(), newProject->activeRepositoryContext());
 
   connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=]{
     QList<QTreeWidgetItem*> selection = ui->treeWidget->selectedItems();
@@ -101,7 +101,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
   });
 }
 
-void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface)
+void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface, QObject*)
 {
   _impl->gitInterface = newGitInterface;
   _impl->currentRepository = newGitInterface->name();

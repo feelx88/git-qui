@@ -98,15 +98,13 @@ void BranchList::onProjectSwitched(Project *newProject)
   DockWidget::onProjectSwitched(newProject);
 }
 
-void BranchList::onRepositorySwitched(GitInterface *newGitInterface)
+void BranchList::onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext)
 {
-  DockWidget::onRepositorySwitched(newGitInterface);
-
-  _impl->gitInterface->disconnect(_impl->gitInterface, &GitInterface::branchesChanged, this, nullptr);
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
 
   _impl->gitInterface = newGitInterface;
 
-  _impl->gitInterface->connect(_impl->gitInterface, &GitInterface::branchesChanged, this, [=](const QList<GitBranch> &branches){
+  connect(newGitInterface, &GitInterface::branchesChanged, activeRepositoryContext, [=](const QList<GitBranch> &branches){
     ui->treeWidget->clear();
     ui->treeWidget_2->clear();
 
