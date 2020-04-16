@@ -65,7 +65,7 @@ struct BranchListPrivate
         gitInterface->deleteBranch(branch);
       }
     });
-    _this->ui->treeWidget->addAction(ToolBarActions::byId("new-branch"));
+    _this->ui->treeWidget->addAction(ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
     _this->ui->treeWidget->addAction(copyAction);
     _this->ui->treeWidget->addAction(deleteAction);
     _this->ui->treeWidget_2->addAction(copyAction);
