@@ -121,7 +121,6 @@
     </property>
     <addaction name="actionReload_current_repository"/>
     <addaction name="actionPush"/>
-    <addaction name="actionPull_Rebase"/>
     <addaction name="separator"/>
     <addaction name="actionStash_changes"/>
     <addaction name="actionStash_pop"/>
