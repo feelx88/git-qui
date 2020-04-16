@@ -215,3 +215,8 @@ QVariantMap Core::recentProjects() const
 {
   return _impl->recentProjects;
 }
+
+void Core::clearRecentProjects()
+{
+  _impl->recentProjects.clear();
+}

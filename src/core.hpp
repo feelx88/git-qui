@@ -22,6 +22,9 @@ public:
 
   QVariantMap recentProjects() const;
 
+public slots:
+  void clearRecentProjects();
+
 signals:
   void projectChanged(Project *project);
 

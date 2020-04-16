@@ -201,6 +201,20 @@ struct MainWindowPrivate
         _this->core()->changeProject(new Project(path, _this->core()));
       });
     }
+
+    if (!_this->core()->recentProjects().isEmpty())
+    {
+      _this->ui->menuRecent_Projects->addAction(QObject::tr("Clear"), [=]{
+        _this->core()->clearRecentProjects();
+        populateRecentProjectsMenu();
+      });
+    }
+    else
+    {
+      auto action = new QAction(QObject::tr("No recent projects"));
+      action->setEnabled(false);
+      _this->ui->menuRecent_Projects->addAction(action);
+    }
   }
 
   void loadConfiguration(const QVariantMap &configuration)
