@@ -47,11 +47,12 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow)
   }
 
   auto toolbar = mainWindow->addToolbar(Qt::ToolBarArea::TopToolBarArea);
-  toolbar->addAction(ToolBarActions::byId("pull"));
-  toolbar->addAction(ToolBarActions::byId("push"));
-  toolbar->addAction(ToolBarActions::byId("pull-all"));
-  toolbar->addAction(ToolBarActions::byId("push-all"));
-  toolbar->addAction(ToolBarActions::byId("new-branch"));
-  toolbar->addAction(ToolBarActions::byId("stash"));
-  toolbar->addAction(ToolBarActions::byId("unstash"));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PUSH));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL_ALL));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PUSH_ALL));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::STASH));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::UNSTASH));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));
 }

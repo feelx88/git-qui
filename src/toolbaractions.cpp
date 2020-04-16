@@ -16,14 +16,14 @@ QMap<QString, QAction*> ToolBarActions::_actionMap;
 
 void ToolBarActions::initialize(Core *core)
 {
-  addAction("stash", "archive-insert", "Stash changes");
-  addAction("unstash", "archive-remove", "Unstash changes");
-  addAction("push", "go-up", "Push current repository");
-  addAction("pull", "go-down", "Pull current repository (with rebase)");
-  addAction("push-all", "go-top", "Push all repositories");
-  addAction("pull-all", "go-bottom", "Pull all repositories (with rebase)");
-  addAction("new-branch", "distribute-graph-directed", "Create new branch");
-  addAction("cleanup", "edit-clear-history", "Clean up repository");
+  addAction(ActionID::STASH, "archive-insert", "Stash changes");
+  addAction(ActionID::UNSTASH, "archive-remove", "Unstash changes");
+  addAction(ActionID::PUSH, "go-up", "Push current repository");
+  addAction(ActionID::PULL, "go-down", "Pull current repository (with rebase)");
+  addAction(ActionID::PUSH_ALL, "go-top", "Push all repositories");
+  addAction(ActionID::PULL_ALL, "go-bottom", "Pull all repositories (with rebase)");
+  addAction(ActionID::NEW_BRANCH, "distribute-graph-directed", "Create new branch");
+  addAction(ActionID::CLEANUP, "edit-clear-history", "Clean up repository");
 
   for (auto &[id, action]: _actionMap.toStdMap())
   {
@@ -32,15 +32,15 @@ void ToolBarActions::initialize(Core *core)
 
   auto projectChanged = [=](Project *newProject){
     auto repositoryChanged = [=](GitInterface *repository){
-      QObject::connect(_actionMap["stash"], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered, newProject, [=]{
         repository->stash();
       });
 
-      QObject::connect(_actionMap["unstash"], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered, newProject, [=]{
         repository->stashPop();
       });
 
-      QObject::connect(_actionMap["push"], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::PUSH], &QAction::triggered, newProject, [=]{
         QString branch = repository->activeBranch().name;
         bool addUpstream = false;
         if (repository->activeBranch().upstreamName.isEmpty())
@@ -60,14 +60,14 @@ void ToolBarActions::initialize(Core *core)
         });
       });
 
-      QObject::connect(_actionMap["pull"], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::PULL], &QAction::triggered, newProject, [=]{
         QtConcurrent::run([=]{
           emit repository->pullStarted();
           repository->pull(true);
         });
       });
 
-      QObject::connect(_actionMap["new-branch"], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered, newProject, [=]{
         repository->createBranch(
           QInputDialog::getText(
             QApplication::activeWindow(),
@@ -80,7 +80,7 @@ void ToolBarActions::initialize(Core *core)
 
     QObject::connect(newProject, &Project::repositorySwitched, newProject, repositoryChanged);
 
-    QObject::connect(_actionMap["push-all"], &QAction::triggered, newProject, [=]{
+    QObject::connect(_actionMap[ActionID::PUSH_ALL], &QAction::triggered, newProject, [=]{
       for (auto repo : newProject->repositoryList())
       {
         emit repo->pushStarted();
@@ -90,7 +90,7 @@ void ToolBarActions::initialize(Core *core)
       }
     });
 
-    QObject::connect(_actionMap["pull-all"], &QAction::triggered, newProject, [=]{
+    QObject::connect(_actionMap[ActionID::PULL_ALL], &QAction::triggered, newProject, [=]{
       for (auto repo : newProject->repositoryList())
       {
         emit repo->pullStarted();
@@ -106,7 +106,7 @@ void ToolBarActions::initialize(Core *core)
   QObject::connect(core, &Core::projectChanged, core, projectChanged);
   projectChanged(core->project());
 
-  QObject::connect(_actionMap["cleanup"], &QAction::triggered, core, [=]{
+  QObject::connect(_actionMap[ActionID::CLEANUP], &QAction::triggered, core, [=]{
     (new CleanUpDialog(core, qApp->activeWindow()))->exec();
   });
 }
