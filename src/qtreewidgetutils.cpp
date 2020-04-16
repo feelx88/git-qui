@@ -1,10 +1,10 @@
 #include "qtreewidgetutils.hpp"
+#include "treewidgetitem.hpp"
 
-QList<QTreeWidgetItem*> QTreeWidgetUtils::createItems(QTreeWidget *parent, const QList<QString> &itemLabels, const QString &separator)
+QList<QTreeWidgetItem*> TreeWidgetUtils::createItems(QTreeWidget *parentWidget, const QList<QString> &itemLabels, const QString &separator, QObject *parent)
 {
   QList<QTreeWidgetItem*> items;
   QMap<QString, QTreeWidgetItem*> itemMap;
-
 
   for (auto label : itemLabels)
   {
@@ -21,7 +21,7 @@ QList<QTreeWidgetItem*> QTreeWidgetUtils::createItems(QTreeWidget *parent, const
 
     if (!rootItem)
     {
-      rootItem = new QTreeWidgetItem(parent, {parts[0]});
+      rootItem = new TreeWidgetItem(parentWidget, {parts[0]}, parent);
     }
 
     QTreeWidgetItem *item = rootItem;
@@ -35,7 +35,7 @@ QList<QTreeWidgetItem*> QTreeWidgetUtils::createItems(QTreeWidget *parent, const
       }
       else
       {
-        item = new QTreeWidgetItem(item, {parts[x]});
+        item = new TreeWidgetItem(item, {parts[x]}, parent);
         itemMap.insert(parts[x], item);
       }
     }

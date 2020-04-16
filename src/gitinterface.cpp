@@ -8,6 +8,7 @@
 class GitInterfacePrivate
 {
 public:
+  QString name;
   QDir repositoryPath;
   bool readyForCommit = false;
   bool fullFileDiff = false;
@@ -99,10 +100,11 @@ public:
   }
 };
 
-GitInterface::GitInterface(QObject *parent, const QString &path)
+GitInterface::GitInterface(const QString &name, const QString &path, QObject *parent)
   : QObject(parent),
     _impl(new GitInterfacePrivate)
 {
+  _impl->name = name;
   _impl->repositoryPath.setPath(path);
   reload();
 }
@@ -111,17 +113,32 @@ GitInterface::~GitInterface()
 {
 }
 
-const QString GitInterface::path()
+const QString GitInterface::name() const
+{
+  return _impl->name;
+}
+
+void GitInterface::setName(const QString &name)
+{
+  _impl->name = name;
+}
+
+const QString GitInterface::path() const
 {
   return _impl->repositoryPath.path();
 }
 
-const GitBranch GitInterface::activeBranch()
+void GitInterface::setPath(const QString &path)
+{
+  _impl->repositoryPath.setPath(path);
+}
+
+const GitBranch GitInterface::activeBranch() const
 {
   return _impl->activeBranch;
 }
 
-const QList<GitBranch> GitInterface::branches(const QList<QString> &args)
+const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
 {
   auto process = _impl->git({"remote"});
   QList<QByteArray> remotes = process->readAll().split('\n');

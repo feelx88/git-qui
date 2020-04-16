@@ -16,8 +16,12 @@ class BranchList : public DockWidget
   friend struct BranchListPrivate;
 
 public:
-  explicit BranchList(MainWindow *mainWindow, GitInterface *gitInterface);
+  explicit BranchList(MainWindow *mainWindow);
   virtual ~BranchList() override;
+
+protected:
+  virtual void onProjectSwitched(Project *newProject) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext) override;
 
 private:
   Ui::BranchList *ui;

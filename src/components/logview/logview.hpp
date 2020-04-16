@@ -16,10 +16,14 @@ class LogView : public DockWidget
   friend struct LogViewPrivate;
 
 public:
-  explicit LogView(MainWindow *mainWindow, GitInterface *gitInterface);
+  explicit LogView(MainWindow *mainWindow);
   virtual ~LogView() override;
   virtual QVariant configuration() override;
   virtual void configure(const QVariant &configuration) override;
+
+protected:
+  virtual void onProjectSwitched(Project *newProject) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject* activeRepositoryContext) override;
 
 private:
   Ui::LogView *ui;

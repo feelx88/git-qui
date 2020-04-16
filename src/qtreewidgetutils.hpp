@@ -1,11 +1,15 @@
 #ifndef QTREEWIDGETUTILS_HPP
 #define QTREEWIDGETUTILS_HPP
 
-#include <QTreeWidgetItem>
+#include <QString>
 
-struct QTreeWidgetUtils
+class QObject;
+class QTreeWidget;
+class QTreeWidgetItem;
+
+namespace TreeWidgetUtils
 {
-  static QList<QTreeWidgetItem*> createItems(QTreeWidget *parent, const QList<QString> &itemLabels, const QString &separator = "/");
+QList<QTreeWidgetItem*> createItems(QTreeWidget *parentWidget, const QList<QString> &itemLabels, const QString &separator = "/", QObject *parent = nullptr);
 };
 
 #endif // QTREEWIDGETUTILS_HPP

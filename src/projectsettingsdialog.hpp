@@ -7,7 +7,7 @@ namespace Ui {
 class ProjectSettingsDialog;
 }
 
-struct ProjectSettingsDialogImpl;
+struct ProjectSettingsDialogPrivate;
 
 class Project;
 
@@ -16,7 +16,7 @@ class ProjectSettingsDialog : public QDialog
   Q_OBJECT
 
 public:
-  friend struct ProjectSettingsDialogImpl;
+  friend struct ProjectSettingsDialogPrivate;
 
   enum class DialogMode {
     CREATE = 0,
@@ -28,7 +28,7 @@ public:
 
 private:
   Ui::ProjectSettingsDialog *ui;
-  ProjectSettingsDialogImpl *_impl;
+  ProjectSettingsDialogPrivate *_impl;
 };
 
 #endif // PROJECTSETTINGSDIALOG_HPP

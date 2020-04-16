@@ -5,8 +5,9 @@
 #include <QFileDialog>
 
 #include "project.hpp"
+#include "gitinterface.hpp"
 
-struct ProjectSettingsDialogImpl
+struct ProjectSettingsDialogPrivate
 {
   Project *project;
 
@@ -18,8 +19,8 @@ struct ProjectSettingsDialogImpl
     {
       int row = _this->ui->repositoryTable->rowCount();
       _this->ui->repositoryTable->insertRow(row);
-      _this->ui->repositoryTable->setItem(row, 0, new QTableWidgetItem(repository->name));
-      _this->ui->repositoryTable->setItem(row, 1, new QTableWidgetItem(repository->path.path()));
+      _this->ui->repositoryTable->setItem(row, 0, new QTableWidgetItem(repository->name()));
+      _this->ui->repositoryTable->setItem(row, 1, new QTableWidgetItem(repository->path()));
     }
   }
 };
@@ -27,7 +28,7 @@ struct ProjectSettingsDialogImpl
 ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode dialogMode, Project *project, QWidget *parent)
   : QDialog(parent),
     ui(new Ui::ProjectSettingsDialog),
-    _impl(new ProjectSettingsDialogImpl)
+    _impl(new ProjectSettingsDialogPrivate)
 {
   ui->setupUi(this);
 
@@ -71,15 +72,15 @@ ProjectSettingsDialog::ProjectSettingsDialog(ProjectSettingsDialog::DialogMode d
 
   connect(ui->repositoryTable->itemDelegate(), &QAbstractItemDelegate::commitData, this, [this](){
     auto item = ui->repositoryTable->currentItem();
-    Repository *repository = _impl->project->repositoryList().at(item->row());
+    GitInterface *repository = _impl->project->repositoryList().at(item->row());
 
     switch (item->column())
     {
     case 0:
-      repository->name = item->text();
+      repository->setName(item->text());
       break;
     case 1:
-      repository->path.setPath(item->text());
+      repository->setPath(item->text());
       break;
     }
 
