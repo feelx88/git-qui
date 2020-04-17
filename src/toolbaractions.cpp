@@ -31,16 +31,16 @@ void ToolBarActions::initialize(Core *core)
   }
 
   auto projectChanged = [=](Project *newProject){
-    auto repositoryChanged = [=](GitInterface *repository){
-      QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered, newProject, [=]{
+    auto repositoryChanged = [=](GitInterface *repository, QObject *activeRepositoryContext){
+      QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered, activeRepositoryContext, [=]{
         repository->stash();
       });
 
-      QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered, activeRepositoryContext, [=]{
         repository->stashPop();
       });
 
-      QObject::connect(_actionMap[ActionID::PUSH], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::PUSH], &QAction::triggered, activeRepositoryContext, [=]{
         QString branch = repository->activeBranch().name;
         bool addUpstream = false;
         if (repository->activeBranch().upstreamName.isEmpty())
@@ -60,14 +60,14 @@ void ToolBarActions::initialize(Core *core)
         });
       });
 
-      QObject::connect(_actionMap[ActionID::PULL], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::PULL], &QAction::triggered, activeRepositoryContext, [=]{
         QtConcurrent::run([=]{
           emit repository->pullStarted();
           repository->pull(true);
         });
       });
 
-      QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered, newProject, [=]{
+      QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered, activeRepositoryContext, [=]{
         repository->createBranch(
           QInputDialog::getText(
             QApplication::activeWindow(),
@@ -100,7 +100,7 @@ void ToolBarActions::initialize(Core *core)
       }
     });
 
-    repositoryChanged(core->project()->activeRepository());
+    repositoryChanged(core->project()->activeRepository(), core->project()->activeRepositoryContext());
   };
 
   QObject::connect(core, &Core::projectChanged, core, projectChanged);
