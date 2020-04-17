@@ -49,12 +49,10 @@ struct BranchListPrivate
     QAction *copyAction = new QAction(_this->tr("Copy branch name"), _this);
     QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
     _this->connect(copyAction, &QAction::triggered, _this, [=]{
-      QAction *action = static_cast<QAction*>(_this->sender());
-      QTreeWidget *treeWidget = static_cast<QTreeWidget*>(action->parentWidget());
-      if (!treeWidget->selectedItems().empty())
+      if (!_this->ui->treeWidget->selectedItems().empty())
       {
         QApplication::clipboard()->setText(
-              treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString()
+              _this->ui->treeWidget->selectedItems().first()->data(0, Qt::UserRole).toString()
         );
       }
     });
