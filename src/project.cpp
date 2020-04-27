@@ -28,7 +28,7 @@ struct ProjectPrivate
     QRegularExpression("/.*vendor.*/"),
     QRegularExpression("/.*node_modules.*/")
   };
-  QScopedPointer<QObject> currentRepositoryContext = QScopedPointer<QObject>(new QObject);
+  QScopedPointer<QObject> currentRepositoryContext = QScopedPointer<QObject>(new QObject(_this));
 
   ProjectPrivate(Project *project)
     :_this(project)
@@ -77,7 +77,7 @@ struct ProjectPrivate
 
   void changeRepository()
   {
-    currentRepositoryContext.reset(new QObject);
+    currentRepositoryContext.reset(new QObject(_this));
     auto repo = repositories.at(currentRepository);
     emit _this->repositorySwitched(repo, currentRepositoryContext.get());
     repo->reload();
