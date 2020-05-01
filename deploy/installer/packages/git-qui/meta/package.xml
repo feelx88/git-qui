@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>git-qui</DisplayName>
+    <Description>The main git-qui tool.</Description>
+    <Version>0.3.2-alpha</Version>
+    <ReleaseDate>2020-04-27</ReleaseDate>
+    <Licenses>
+        <License name="GPLv3" file="LICENSE" />
+    </Licenses>
+    <Default>script</Default>
+    <ForcedInstallation>true</ForcedInstallation>
+</Package>
