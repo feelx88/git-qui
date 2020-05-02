@@ -55,7 +55,11 @@ OTHER_FILES += \
     README.md \
     LICENSE \
     deploy/git-qui.svg \
-    deploy/git-qui.desktop
+    deploy/git-qui.desktop \
+    deploy/installer/config-linux.xml \
+    deploy/installer/config-mac.xml \
+    deploy/installer/packages/git-qui/LICENSE \
+    deploy/installer/packages/git-qui/package.xml
 
 FORMS += \
     src/cleanupdialog.ui \
