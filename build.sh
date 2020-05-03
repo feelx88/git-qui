@@ -28,7 +28,7 @@ elif [[ $GIT_QUI_OS = "mac" ]]; then
   macdeployqt git-qui.app
 fi
 
-archivegen git-qui .
+archivegen git-qui.7z .
 
 cd ..
 cp -r ../deploy/installer/* installer
