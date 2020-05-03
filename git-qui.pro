@@ -58,8 +58,8 @@ OTHER_FILES += \
     deploy/git-qui.desktop \
     deploy/installer/config-linux.xml \
     deploy/installer/config-mac.xml \
-    deploy/installer/packages/git-qui/LICENSE \
-    deploy/installer/packages/git-qui/package.xml
+    deploy/installer/packages/git-qui/meta/LICENSE \
+    deploy/installer/packages/git-qui/meta/package.xml
 
 FORMS += \
     src/cleanupdialog.ui \
@@ -102,3 +102,6 @@ RESOURCES += \
 
 # qpm dependencies
 # include(vendor/vendor.pri)
+
+DISTFILES += \
+  build.sh

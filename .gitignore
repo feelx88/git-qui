@@ -76,3 +76,6 @@ Thumbs.db
 # qpm
 vendor/
 
+# Custom
+dist/
+
