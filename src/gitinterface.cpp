@@ -13,6 +13,7 @@ public:
   bool readyForCommit = false;
   bool fullFileDiff = false;
   GitBranch activeBranch;
+  QList<GitFile> files;
 
   QSharedPointer<QProcess> git(const QList<QString> &params, const QString &writeData = "")
   {
@@ -179,6 +180,11 @@ const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
   return branches;
 }
 
+const QList<GitFile> GitInterface::files() const
+{
+  return _impl->files;
+}
+
 void GitInterface::reload()
 {
   status();
@@ -273,6 +279,9 @@ void GitInterface::status()
 
   emit nonStagingAreaChanged(unstaged);
   emit stagingAreaChanged(staged);
+
+  _impl->files.clear();
+  _impl->files << unstaged << staged;
 
   QList<GitBranch> branches = this->branches({"--all"});
 

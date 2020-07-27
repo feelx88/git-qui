@@ -61,9 +61,30 @@ void ToolBarActions::initialize(Core *core)
       });
 
       QObject::connect(_actionMap[ActionID::PULL], &QAction::triggered, activeRepositoryContext, [=]{
+        bool stash = false;
+
+        if (!repository->files().empty())
+        {
+            stash = QMessageBox::question(
+              QApplication::activeWindow(),
+              QObject::tr("There are open changes"),
+              QObject::tr("There are open changes in this repository. Would you like to stash your changes before pushing and unstash them afterwards?"),
+              QMessageBox::Yes,
+              QMessageBox::No
+            ) == QMessageBox::Yes;
+        }
+
         QtConcurrent::run([=]{
           emit repository->pullStarted();
+          if (stash)
+          {
+            repository->stash();
+          }
           repository->pull(true);
+          if (stash)
+          {
+            repository->stashPop();
+          }
         });
       });
 

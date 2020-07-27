@@ -29,6 +29,8 @@ public:
 
   const QList<GitBranch> branches(const QList<QString> &args) const;
 
+  const QList<GitFile> files() const;
+
 public slots:
   void reload();
   void status();
