@@ -27,7 +27,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_3">
         <property name="text">
-         <string>Previous messages...</string>
+         <string>Previous messages</string>
         </property>
         <property name="flat">
          <bool>false</bool>
