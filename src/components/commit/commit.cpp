@@ -3,6 +3,7 @@
 
 #include <QShortcut>
 #include <QMessageBox>
+#include <QMenu>
 
 #include "project.hpp"
 #include "mainwindow.hpp"
@@ -12,6 +13,8 @@ struct CommitPrivate
 {
   GitInterface *gitInterface = nullptr;
   QList<GitFile> unstagedFiles, stagedFiles;
+  QList<QString> messageHistory;
+  QMenu *messageMenu;
 
   void connectSignals(Commit *_this)
   {
@@ -31,14 +34,34 @@ struct CommitPrivate
             gitInterface->stageFile(unstagedFile.path);
           }
         }
+        else
+        {
+          return;
+        }
       }
-      gitInterface->commit(_this->ui->plainTextEdit->toPlainText());
+      QString message = _this->ui->plainTextEdit->toPlainText();
+      gitInterface->commit(message);
       emit gitInterface->fileDiffed("", {}, false);
       _this->ui->pushButton_2->setEnabled(true);
+
+      addHistoryEntry(_this, message);
     });
 
     QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);
     _this->connect(shortcut, &QShortcut::activated, _this->ui->pushButton, &QPushButton::click);
+
+    _this->ui->pushButton_3->setEnabled(!messageHistory.empty());
+    messageMenu = new QMenu(_this);
+    _this->ui->pushButton_3->setMenu(messageMenu);
+  }
+
+  void addHistoryEntry(Commit *_this, const QString &message)
+  {
+    messageHistory.push_front(message);
+    messageMenu->addAction(message, messageMenu, [=]{
+      _this->ui->plainTextEdit->setPlainText(message);
+    });
+    _this->ui->pushButton_3->setEnabled(true);
   }
 };
 
@@ -64,12 +87,21 @@ Commit::~Commit()
 
 QVariant Commit::configuration()
 {
-  return QVariant(ui->plainTextEdit->toPlainText());
+  return QVariantMap({
+   {"messageHistory", QVariant(_impl->messageHistory.mid(0, 100))},
+   {"message", QVariant(ui->plainTextEdit->toPlainText())}
+  });
 }
-
+#include <QDebug>
 void Commit::configure(const QVariant &configuration)
 {
-  ui->plainTextEdit->setPlainText(configuration.toString());
+  qDebug() << configuration;
+  QVariantMap config = configuration.toMap();
+  for (const QString &message : config.value("messageHistory").toStringList())
+  {
+    _impl->addHistoryEntry(this, message);
+  }
+  ui->plainTextEdit->setPlainText(config.value("currentMessage").toString());
 }
 
 void Commit::onProjectSwitched(Project *newProject)
