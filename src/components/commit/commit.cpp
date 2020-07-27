@@ -57,10 +57,22 @@ struct CommitPrivate
 
   void addHistoryEntry(Commit *_this, const QString &message)
   {
-    messageHistory.push_front(message);
-    messageMenu->addAction(message, messageMenu, [=]{
-      _this->ui->plainTextEdit->setPlainText(message);
-    });
+    if (message.isEmpty())
+    {
+      return;
+    }
+
+    messageHistory.removeAll(message);
+    messageHistory.push_back(message);
+
+    messageMenu->clear();
+    for (const QString &message: messageHistory)
+    {
+      messageMenu->addAction(message, messageMenu, [=]{
+        _this->ui->plainTextEdit->setPlainText(message);
+      });
+    }
+
     _this->ui->pushButton_3->setEnabled(true);
   }
 };
