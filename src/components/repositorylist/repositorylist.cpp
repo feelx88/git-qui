@@ -74,6 +74,10 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface)
     if (hasUpstream)
     {
       item->setText(1, QString("%1%2 %3↑ %4↓").arg(branch).arg(hasChanges ? "*" : "").arg(commitsAhead).arg(commitsBehind));
+
+      QFont font = item->font(1);
+      font.setBold(commitsAhead > 0 || commitsBehind > 0);
+      item->setFont(1, font);
     }
     else
     {
