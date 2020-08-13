@@ -55,12 +55,14 @@ struct CommitPrivate
     _this->ui->pushButton_3->setMenu(messageMenu);
   }
 
-  void addHistoryEntry(Commit *_this, const QString &message)
+  void addHistoryEntry(Commit *_this, QString message)
   {
     if (message.isEmpty())
     {
       return;
     }
+
+    message.replace("\n", " ");
 
     messageHistory.removeAll(message);
     messageHistory.push_back(message);
@@ -68,6 +70,13 @@ struct CommitPrivate
     messageMenu->clear();
     for (const QString &message: messageHistory)
     {
+      auto truncatedMessage = message;
+
+      if (truncatedMessage.length() > 100)
+      {
+        truncatedMessage.truncate(100);
+        truncatedMessage.append("...");
+      }
       messageMenu->addAction(message, messageMenu, [=]{
         _this->ui->plainTextEdit->setPlainText(message);
       });
@@ -100,7 +109,7 @@ Commit::~Commit()
 QVariant Commit::configuration()
 {
   return QVariantMap({
-   {"messageHistory", QVariant(_impl->messageHistory.mid(0, 100))},
+   {"messageHistory", QVariant(_impl->messageHistory.mid(0, 20))},
    {"message", QVariant(ui->plainTextEdit->toPlainText())}
   });
 }
