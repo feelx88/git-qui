@@ -77,6 +77,7 @@ struct CommitPrivate
         truncatedMessage.truncate(100);
         truncatedMessage.append("...");
       }
+
       messageMenu->addAction(truncatedMessage, messageMenu, [=]{
         _this->ui->plainTextEdit->setPlainText(message);
       });
