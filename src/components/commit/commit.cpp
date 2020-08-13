@@ -114,7 +114,7 @@ QVariant Commit::configuration()
    {"message", QVariant(ui->plainTextEdit->toPlainText())}
   });
 }
-#include <QDebug>
+
 void Commit::configure(const QVariant &configuration)
 {
   qDebug() << configuration;
