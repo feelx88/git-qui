@@ -110,7 +110,7 @@ Commit::~Commit()
 QVariant Commit::configuration()
 {
   return QVariantMap({
-   {"messageHistory", QVariant(_impl->messageHistory.mid(0, 20))},
+   {"messageHistory", QVariant(_impl->messageHistory.mid(_impl->messageHistory.length() - 20))},
    {"message", QVariant(ui->plainTextEdit->toPlainText())}
   });
 }
