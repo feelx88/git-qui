@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QProcess>
+#include <QStandardPaths>
 #include <QDebug>
 
 struct GitProcess
@@ -22,10 +23,13 @@ public:
   bool fullFileDiff = false;
   GitBranch activeBranch;
   QList<GitFile> files;
+  QSharedPointer<QFile> errorLog;
 
   GitInterfacePrivate(GitInterface *_this)
     : _this(_this)
   {
+    errorLog.reset(new QFile(GitInterface::errorLogFileName()));
+    errorLog->open(QFile::Append);
   }
 
   GitProcess git(const QList<QString> &params, const QString &writeData = "")
@@ -51,8 +55,12 @@ public:
 
     if (!gitProcess.standardErrorOutput.isEmpty())
     {
-      qDebug().noquote() << gitProcess.standardErrorOutput;
-      emit _this->error(gitProcess.standardErrorOutput, ErrorTag::NO_TAG, true);
+      QString output = QString("[%1] %2").arg(
+        QDateTime::currentDateTime().toString(Qt::ISODate),
+        gitProcess.standardErrorOutput
+      );
+      errorLog->write(output.toLocal8Bit());
+      emit _this->error(output, ErrorTag::STDERR, true);
     }
 
     return gitProcess;
@@ -202,6 +210,11 @@ const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
 const QList<GitFile> GitInterface::files() const
 {
   return _impl->files;
+}
+
+QString GitInterface::errorLogFileName()
+{
+  return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "-error.log";
 }
 
 void GitInterface::reload()

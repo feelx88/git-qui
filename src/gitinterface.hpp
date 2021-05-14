@@ -32,6 +32,8 @@ public:
 
   const QList<GitFile> files() const;
 
+  static QString errorLogFileName();
+
 public slots:
   void reload();
   void status();

@@ -7,6 +7,7 @@
 enum ErrorTag
 {
   NO_TAG = 0,
+  STDERR,
   GIT_STATUS,
   GIT_LOG,
   GIT_FETCH,
