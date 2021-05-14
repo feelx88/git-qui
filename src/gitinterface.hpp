@@ -8,6 +8,7 @@
 #include "gitdiffline.hpp"
 #include "gitcommit.hpp"
 #include "gitbranch.hpp"
+#include "errortag.hpp"
 
 class QDir;
 class QFile;
@@ -36,7 +37,7 @@ public slots:
   void status();
   void log();
   void fetch();
-  void commit(const QString &message);
+  bool commit(const QString &message);
   void stageFile(const QString &path);
   void unstageFile(const QString &path);
   void selectFile(bool unstaged, const QString &path);
@@ -71,7 +72,7 @@ signals:
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 
-  void error(const QString &message);
+  void error(const QString &message, ErrorTag tag, bool consoleOutput = false);
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;

@@ -27,6 +27,7 @@ SOURCES += \
 HEADERS += \
     src/cleanupdialog.hpp \
     src/core.hpp \
+    src/errortag.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
     src/gitfile.hpp \

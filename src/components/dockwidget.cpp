@@ -121,6 +121,10 @@ void DockWidget::onRepositoryRemoved(GitInterface *)
 {
 }
 
+void DockWidget::onError(GitInterface *gitInterface, const QString &message, ErrorTag tag)
+{
+}
+
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *> > DockWidget::registry()
 {
   if (_registry.isNull())

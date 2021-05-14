@@ -23,6 +23,7 @@
 #include <QDockWidget>
 #include <QList>
 #include <QUuid>
+#include "errortag.hpp"
 
 class MainWindow;
 class Core;
@@ -74,6 +75,7 @@ protected:
   virtual void onRepositoryAdded(GitInterface *);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *);
+  virtual void onError(GitInterface *, const QString &message, ErrorTag tag);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry*>> registry();

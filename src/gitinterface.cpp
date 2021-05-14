@@ -8,12 +8,18 @@
 class GitInterfacePrivate
 {
 public:
+  GitInterface *_this;
   QString name;
   QDir repositoryPath;
   bool readyForCommit = false;
   bool fullFileDiff = false;
   GitBranch activeBranch;
   QList<GitFile> files;
+
+  GitInterfacePrivate(GitInterface *_this)
+    : _this(_this)
+  {
+  }
 
   QSharedPointer<QProcess> git(const QList<QString> &params, const QString &writeData = "")
   {
@@ -34,6 +40,7 @@ public:
     if (!output.isEmpty())
     {
       qDebug().noquote() << output;
+      emit _this->error(output, ErrorTag::NO_TAG, true);
     }
 
     return process;
@@ -348,20 +355,28 @@ void GitInterface::fetch()
   reload();
 }
 
-void GitInterface::commit(const QString &message)
+bool GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)
   {
-    emit error(tr("There are no files to commit"));
-    return;
+    emit error(tr("There are no files to commit"), ErrorTag::GIT_COMMIT);
+    return false;
   }
 
   auto process = _impl->git({"commit",
                              "--message",
                              message,
                             });
+
+  if (process->exitStatus() != QProcess::NormalExit)
+  {
+    emit error(process->readAllStandardError(), ErrorTag::GIT_COMMIT);
+    return false;
+  }
+
   reload();
   emit commited();
+  return true;
 }
 
 void GitInterface::stageFile(const QString &path)
@@ -597,7 +612,7 @@ void GitInterface::push(const QString &remote, const QVariant& branch, bool setU
 
   if (process->exitCode() != 0)
   {
-    emit error(tr("Push has failed"));
+    emit error(tr("Push has failed"), ErrorTag::GIT_PUSH);
   }
 }
 
@@ -617,7 +632,7 @@ void GitInterface::pull(bool rebase)
 
   if (process->exitCode() != 0)
   {
-    emit error(tr("Pull has failed"));
+    emit error(tr("Pull has failed"), ErrorTag::GIT_PULL);
   }
 
 }
