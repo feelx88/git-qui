@@ -26,6 +26,7 @@ public:
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext) override;
+  virtual void onError(const QString &message, ErrorTag tag) override;
 
 private:
   Ui::Commit *ui;
