@@ -47,7 +47,7 @@ public:
     hunks.append(QList<GitDiffLine>());
     int lastindex = first.index;
 
-    for(auto line : lines)
+    for(auto &line : lines)
     {
       if(!(line.index - lastindex <= 1))
       {
@@ -63,7 +63,7 @@ public:
       int newCount = 0, oldCount = 0;
       GitDiffLine first = hunk.first();
 
-      for (GitDiffLine line : hunk)
+      for (GitDiffLine &line : hunk)
       {
         if(line.type == GitDiffLine::diffType::ADD)
         {
@@ -83,7 +83,7 @@ public:
 
       patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first.oldLine, oldCount, first.oldLine, newCount));
 
-      for (GitDiffLine line : hunk)
+      for (GitDiffLine &line : hunk)
       {
         if(line.type == GitDiffLine::diffType::ADD)
         {
@@ -103,7 +103,7 @@ public:
 
 GitInterface::GitInterface(const QString &name, const QString &path, QObject *parent)
   : QObject(parent),
-    _impl(new GitInterfacePrivate)
+    _impl(new GitInterfacePrivate(this))
 {
   _impl->name = name;
   _impl->repositoryPath.setPath(path);
@@ -157,7 +157,7 @@ const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
 
   QList<GitBranch> branches;
 
-  for (auto line : process->readAll().split('\n'))
+  for (auto &line : process->readAll().split('\n'))
   {
     if (!line.isEmpty())
     {
@@ -207,7 +207,7 @@ void GitInterface::status()
   bool hasUpstream = false;
   int commitsAhead = 0, commitsBehind = 0;
 
-  for(auto output : process->readAll().split('\0'))
+  for(auto &output : process->readAll().split('\0'))
   {
     if(output.isEmpty() || !output.contains(' '))
     {
@@ -285,7 +285,7 @@ void GitInterface::status()
 
   QList<GitBranch> branches = this->branches({"--all"});
 
-  for (auto branch : branches)
+  for (auto &branch : branches)
   {
     if (branch.active)
     {
@@ -318,7 +318,7 @@ void GitInterface::log()
 
   QList<GitCommit> list;
 
-  for (auto line : QString(process->readAllStandardOutput()).split('\n'))
+  for (auto &line : QString(process->readAllStandardOutput()).split('\n'))
   {
     if (line.isEmpty())
     {
@@ -334,7 +334,7 @@ void GitInterface::log()
       commit.message = parts.at(2);
       commit.author = parts.at(3);
       commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-      commit.branches = parts.at(5).split(", ", QString::SkipEmptyParts);
+      commit.branches = parts.at(5).split(", ", Qt::SkipEmptyParts);
     }
     list.append(commit);
   }
@@ -709,7 +709,7 @@ void GitInterface::setUpstream(const QString &remote, const QString &branch)
 {
   _impl->git({
     "branch",
-    QString("--set-upstream-to=%1/%2").arg(remote).arg(branch)
+    QString("--set-upstream-to=%1/%2").arg(remote, branch)
   });
 }
 
