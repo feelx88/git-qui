@@ -5,6 +5,13 @@
 #include <QProcess>
 #include <QDebug>
 
+struct GitProcess
+{
+  int exitCode;
+  QByteArray standardOutOutput, standardErrorOutput;
+  QSharedPointer<QProcess> process;
+};
+
 class GitInterfacePrivate
 {
 public:
@@ -21,7 +28,7 @@ public:
   {
   }
 
-  QSharedPointer<QProcess> git(const QList<QString> &params, const QString &writeData = "")
+  GitProcess git(const QList<QString> &params, const QString &writeData = "")
   {
     QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
     std::string stdWriteData = writeData.toStdString();
@@ -36,14 +43,19 @@ public:
     process->closeWriteChannel();
     process->waitForFinished();
 
-    auto output = process->readAllStandardError();
-    if (!output.isEmpty())
+    GitProcess gitProcess;
+    gitProcess.exitCode = process->exitCode();
+    gitProcess.standardOutOutput = process->readAllStandardOutput();
+    gitProcess.standardErrorOutput = process->readAllStandardError();
+    gitProcess.process = process;
+
+    if (!gitProcess.standardErrorOutput.isEmpty())
     {
-      qDebug().noquote() << output;
-      emit _this->error(output, ErrorTag::NO_TAG, true);
+      qDebug().noquote() << gitProcess.standardErrorOutput;
+      emit _this->error(gitProcess.standardErrorOutput, ErrorTag::NO_TAG, true);
     }
 
-    return process;
+    return gitProcess;
   }
 
   QString createPatch(const QList<GitDiffLine> &lines)
@@ -149,7 +161,7 @@ const GitBranch GitInterface::activeBranch() const
 const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
 {
   auto process = _impl->git({"remote"});
-  QList<QByteArray> remotes = process->readAll().split('\n');
+  QList<QByteArray> remotes = process.standardOutOutput.split('\n');
   remotes.pop_back();
 
   process = _impl->git(QList<QString>{
@@ -164,7 +176,7 @@ const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
 
   QList<GitBranch> branches;
 
-  for (auto &line : process->readAll().split('\n'))
+  for (auto &line : process.standardOutOutput.split('\n'))
   {
     if (!line.isEmpty())
     {
@@ -198,7 +210,7 @@ void GitInterface::reload()
   log();
   emit reloaded();
 }
-
+#include <iostream>
 void GitInterface::status()
 {
   auto process = _impl->git({
@@ -214,7 +226,9 @@ void GitInterface::status()
   bool hasUpstream = false;
   int commitsAhead = 0, commitsBehind = 0;
 
-  for(auto &output : process->readAll().split('\0'))
+  std::cout << process.standardOutOutput.toStdString() << std::endl;
+
+  for(auto &output : process.standardOutOutput.split('\0'))
   {
     if(output.isEmpty() || !output.contains(' '))
     {
@@ -325,7 +339,7 @@ void GitInterface::log()
 
   QList<GitCommit> list;
 
-  for (auto &line : QString(process->readAllStandardOutput()).split('\n'))
+  for (auto &line : QString(process.standardOutOutput).split('\n'))
   {
     if (line.isEmpty())
     {
@@ -354,7 +368,7 @@ void GitInterface::fetch()
   _impl->git({"fetch", "--all", "--prune"});
   reload();
 }
-
+#include <iostream>
 bool GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)
@@ -368,9 +382,9 @@ bool GitInterface::commit(const QString &message)
                              message,
                             });
 
-  if (process->exitStatus() != QProcess::NormalExit)
+  if (process.exitCode != EXIT_SUCCESS)
   {
-    emit error(process->readAllStandardError(), ErrorTag::GIT_COMMIT);
+    emit error(process.standardErrorOutput, ErrorTag::GIT_COMMIT);
     return false;
   }
 
@@ -428,7 +442,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   }
 
   QList<GitDiffLine> list;
-  QSharedPointer<QProcess> process;
+  GitProcess process;
 
   if(unstaged)
   {
@@ -451,7 +465,9 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
                          });
   }
 
-  QByteArray output = process->readLine();
+  QTextStream stream(&process.standardOutOutput);
+
+  QString output = stream.readLine();
   QRegExp regex("@* \\-(\\d+),.* \\+(\\d+),.*");
   QStringList lineNos;
   int index = 0;
@@ -459,8 +475,8 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   int lineNoOld = -1;
   int lineNoNew = -1;
 
-  auto readLine = std::function<QByteArray()>([&] {
-    return process->readLine();
+  auto readLine = std::function<QString()>([&] {
+    return stream.readLine();
   });
 
   if(output.length() == 0)
@@ -527,7 +543,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
       else
       {
         line.header = header;
-        switch(output.at(0))
+        switch(output.at(0).toLatin1())
         {
         case '@':
           line.type = GitDiffLine::diffType::HEADER;
@@ -610,7 +626,7 @@ void GitInterface::push(const QString &remote, const QVariant& branch, bool setU
   status();
   emit pushed();
 
-  if (process->exitCode() != 0)
+  if (process.exitCode != EXIT_SUCCESS)
   {
     emit error(tr("Push has failed"), ErrorTag::GIT_PUSH);
   }
@@ -630,7 +646,7 @@ void GitInterface::pull(bool rebase)
   status();
   emit pulled();
 
-  if (process->exitCode() != 0)
+  if (process.exitCode != EXIT_SUCCESS)
   {
     emit error(tr("Pull has failed"), ErrorTag::GIT_PULL);
   }
@@ -651,7 +667,7 @@ void GitInterface::revertLastCommit()
                               "%s"
                             });
 
-  QString message = process->readAllStandardOutput();
+  QString message = process.standardOutOutput;
 
   _impl->git({
                "reset",
@@ -681,7 +697,7 @@ void GitInterface::resetLines(const QList<GitDiffLine> &lines)
 void GitInterface::checkoutPath(const QString &path)
 {
   auto process = _impl->git({"status", "--porcelain=v1", path});
-  QString fileStatus = process->readAllStandardOutput();
+  QString fileStatus = process.standardOutOutput;
 
   if (fileStatus.startsWith("??"))
   {
