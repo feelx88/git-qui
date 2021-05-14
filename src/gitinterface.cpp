@@ -226,8 +226,6 @@ void GitInterface::status()
   bool hasUpstream = false;
   int commitsAhead = 0, commitsBehind = 0;
 
-  std::cout << process.standardOutOutput.toStdString() << std::endl;
-
   for(auto &output : process.standardOutOutput.split('\0'))
   {
     if(output.isEmpty() || !output.contains(' '))
@@ -368,7 +366,7 @@ void GitInterface::fetch()
   _impl->git({"fetch", "--all", "--prune"});
   reload();
 }
-#include <iostream>
+
 bool GitInterface::commit(const QString &message)
 {
   if (!_impl->readyForCommit)
