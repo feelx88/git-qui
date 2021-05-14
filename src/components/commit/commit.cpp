@@ -119,7 +119,6 @@ QVariant Commit::configuration()
 
 void Commit::configure(const QVariant &configuration)
 {
-  qDebug() << configuration;
   QVariantMap config = configuration.toMap();
   for (const QString &message : config.value("messageHistory").toStringList())
   {
