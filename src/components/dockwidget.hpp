@@ -72,10 +72,10 @@ protected:
   static bool doRegister(RegistryEntry *entry);
 
   virtual void onProjectSwitched(Project *newProject);
-  virtual void onRepositoryAdded(GitInterface *);
+  virtual void onRepositoryAdded(GitInterface *gitInterface);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
-  virtual void onRepositoryRemoved(GitInterface *);
-  virtual void onError(GitInterface *, const QString &message, ErrorTag tag);
+  virtual void onRepositoryRemoved(GitInterface *gitInterface);
+  virtual void onError(const QString &, ErrorTag);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry*>> registry();

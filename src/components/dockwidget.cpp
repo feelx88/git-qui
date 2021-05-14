@@ -109,19 +109,21 @@ void DockWidget::onProjectSwitched(Project *newProject)
   onRepositorySwitched(newProject->activeRepository(), project()->activeRepositoryContext());
 }
 
-void DockWidget::onRepositoryAdded(GitInterface *)
+void DockWidget::onRepositoryAdded(GitInterface *gitInterface)
 {
+  connect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
 void DockWidget::onRepositorySwitched(GitInterface *, QObject*)
 {
 }
 
-void DockWidget::onRepositoryRemoved(GitInterface *)
+void DockWidget::onRepositoryRemoved(GitInterface *gitInterface)
 {
+  disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onError(GitInterface *gitInterface, const QString &message, ErrorTag tag)
+void DockWidget::onError(const QString &, ErrorTag)
 {
 }
 
