@@ -12,6 +12,7 @@
 #include "components/repositorylist/repositorylist.hpp"
 #include "components/branchlist/branchlist.hpp"
 #include "components/logview/logview.hpp"
+#include "components/errorlog/errorlog.hpp"
 
 #define SPLIT_DOCK_WIDGET(target, direction, first, second) target->splitDockWidget( \
   static_cast<QDockWidget*>(main->children()[first]), \
@@ -21,6 +22,7 @@
 
 void InitialWindowConfiguration::create(MainWindow *mainWindow)
 {
+  // Main tab
   QMainWindow *main = mainWindow->createTab(mainWindow->tr("main"));
 
   mainWindow->addDockWidget<RepositoryFiles>(0, QVariantMap({{"unstaged", true}}));
@@ -34,12 +36,20 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow)
   SPLIT_DOCK_WIDGET(main, Vertical, 3, 4);
   SPLIT_DOCK_WIDGET(main, Vertical, 5, 6);
 
+  // History tab
   mainWindow->createTab(mainWindow->tr("History"));
 
   mainWindow->addDockWidget<LogView>(1);
 
+  // Error log tab
+  mainWindow->createTab(mainWindow->tr("Error log"));
+
+  mainWindow->addDockWidget<ErrorLog>(2);
+
+  // Enable edit mode
   mainWindow->setEditMode(true);
 
+  // Add default toolbars
   for (auto toolbar : mainWindow->findChildren<QToolBar*>())
   {
     mainWindow->removeToolBar(toolbar);
