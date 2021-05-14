@@ -4,6 +4,7 @@ CONFIG += c++1z
 
 SOURCES += \
     src/cleanupdialog.cpp \
+    src/components/errorlog/errorlog.cpp \
     src/core.cpp \
     src/initialwindowconfiguration.cpp \
     src/main.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 
 HEADERS += \
     src/cleanupdialog.hpp \
+    src/components/errorlog/errorlog.hpp \
     src/core.hpp \
     src/errortag.hpp \
     src/gitinterface.hpp \
@@ -64,6 +66,7 @@ OTHER_FILES += \
 
 FORMS += \
     src/cleanupdialog.ui \
+    src/components/errorlog/errorlog.ui \
     src/mainwindow.ui \
     src/components/repositoryfiles/repositoryfiles.ui \
     src/components/commit/commit.ui \
