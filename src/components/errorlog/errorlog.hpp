@@ -19,6 +19,9 @@ public:
   void configure(const QVariant &) override;
   void onError(const QString &message, ErrorTag) override;
 
+private slots:
+  void on_pushButton_clicked();
+
 private:
   Ui::ErrorLog *ui;
 };
