@@ -7,10 +7,14 @@ namespace Ui {
 class ErrorLog;
 }
 
+struct ErrorLogImpl;
+
 class ErrorLog : public DockWidget
 {
   Q_OBJECT
   DOCK_WIDGET
+
+  friend struct ErrorLogImpl;
 
 public:
   explicit ErrorLog(MainWindow *mainWindow);
@@ -24,6 +28,7 @@ private slots:
 
 private:
   Ui::ErrorLog *ui;
+  QScopedPointer<ErrorLogImpl> _impl;
 };
 
 #endif // ERRORLOG_HPP
