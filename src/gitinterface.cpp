@@ -127,6 +127,170 @@ public:
 
     return patch;
   }
+
+  void reload()
+  {
+    status();
+    log();
+    emit _this->reloaded();
+  }
+
+  void status()
+  {
+    auto process = git({
+      "status",
+      "--untracked=all",
+      "--porcelain=v1",
+      "-b",
+      "-z",
+    });
+
+    QList<GitFile> unstaged, staged;
+    QString branchName;
+    bool hasUpstream = false;
+    int commitsAhead = 0, commitsBehind = 0;
+
+    for(auto &output : process.standardOutOutput.split('\0'))
+    {
+      if(output.isEmpty() || !output.contains(' '))
+      {
+        continue;
+      }
+
+      if (output.startsWith("##"))
+      {
+        QRegExp branchRegex("## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
+        hasUpstream = branchRegex.indexIn(output) > -1;
+        branchName = hasUpstream ? branchRegex.cap(1) : output.split(' ').at(1);
+        commitsAhead = branchRegex.cap(2).toInt();
+        commitsBehind = branchRegex.cap(3).toInt();
+        continue;
+      }
+
+      GitFile file;
+
+      char firstByte = output.at(0);
+      char secondByte = output.at(1);
+
+      file.staged = (firstByte != ' ' && firstByte != '?');
+      file.unstaged = (secondByte != ' ');
+      file.path = output.right(output.length() - 3).trimmed();
+
+      switch(firstByte)
+      {
+      case 'M':
+        file.modified = true;
+        break;
+      case 'D':
+        file.deleted = true;
+        break;
+      case 'A':
+        file.added = true;
+        break;
+      case 'R':
+      case 'C':
+      default:
+        break;
+      }
+
+      switch(secondByte)
+      {
+      case 'M':
+        file.modified = true;
+        break;
+      case 'D':
+        file.deleted = true;
+        break;
+      case 'R':
+      case 'C':
+      default:
+        break;
+      }
+
+      if (file.unstaged)
+      {
+        unstaged.append(file);
+      }
+
+      if (file.staged)
+      {
+        staged.append(file);
+      }
+    }
+
+    readyForCommit = !staged.empty();
+
+    emit _this->nonStagingAreaChanged(unstaged);
+    emit _this->stagingAreaChanged(staged);
+
+    files.clear();
+    files << unstaged << staged;
+
+    QList<GitBranch> branches = _this->branches({"--all"});
+
+    for (auto &branch : branches)
+    {
+      if (branch.active)
+      {
+        activeBranch = branch;
+        break;
+      }
+    }
+
+    emit _this->branchesChanged(branches);
+    emit _this->branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
+  }
+
+  void log()
+  {
+    auto process = git({
+      "log",
+      "--all",
+      "--full-history",
+      "--pretty="
+      "%x0c"
+      "%h"
+      "%x0c"
+      "%s"
+      "%x0c"
+      "%an"
+      "%x0c"
+      "%ct"
+      "%x0c"
+      "%D"
+    });
+
+    QList<GitCommit> list;
+
+    for (auto &line : QString(process.standardOutOutput).split('\n'))
+    {
+      if (line.isEmpty())
+      {
+        continue;
+      }
+
+      QList<QString> parts = line.split('\f');
+
+      GitCommit commit;
+      if (parts.length() > 1)
+      {
+        commit.id = parts.at(1);
+        commit.message = parts.at(2);
+        commit.author = parts.at(3);
+        commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
+        commit.branches = parts.at(5).split(", ", Qt::SkipEmptyParts);
+      }
+      list.append(commit);
+    }
+
+    emit _this->logChanged(list);
+  }
+
+  void fetch()
+  {
+    git({"fetch", "--all", "--prune"});
+    _this->reload();
+  }
 };
 
 GitInterface::GitInterface(const QString &name, const QString &path, QObject *parent)
@@ -220,165 +384,22 @@ QString GitInterface::errorLogFileName()
 
 void GitInterface::reload()
 {
-  status();
-  log();
-  emit reloaded();
+  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::reload);
 }
 
 void GitInterface::status()
 {
-  auto process = _impl->git({
-                              "status",
-                              "--untracked=all",
-                              "--porcelain=v1",
-                              "-b",
-                              "-z",
-                            });
-
-  QList<GitFile> unstaged, staged;
-  QString branchName;
-  bool hasUpstream = false;
-  int commitsAhead = 0, commitsBehind = 0;
-
-  for(auto &output : process.standardOutOutput.split('\0'))
-  {
-    if(output.isEmpty() || !output.contains(' '))
-    {
-      continue;
-    }
-
-    if (output.startsWith("##"))
-    {
-      QRegExp branchRegex("## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
-      hasUpstream = branchRegex.indexIn(output) > -1;
-      branchName = hasUpstream ? branchRegex.cap(1) : output.split(' ').at(1);
-      commitsAhead = branchRegex.cap(2).toInt();
-      commitsBehind = branchRegex.cap(3).toInt();
-      continue;
-    }
-
-    GitFile file;
-
-    char firstByte = output.at(0);
-    char secondByte = output.at(1);
-
-    file.staged = (firstByte != ' ' && firstByte != '?');
-    file.unstaged = (secondByte != ' ');
-    file.path = output.right(output.length() - 3).trimmed();
-
-    switch(firstByte)
-    {
-    case 'M':
-      file.modified = true;
-      break;
-    case 'D':
-      file.deleted = true;
-      break;
-    case 'A':
-      file.added = true;
-      break;
-    case 'R':
-    case 'C':
-    default:
-      break;
-    }
-
-    switch(secondByte)
-    {
-    case 'M':
-      file.modified = true;
-      break;
-    case 'D':
-      file.deleted = true;
-      break;
-    case 'R':
-    case 'C':
-    default:
-      break;
-    }
-
-    if (file.unstaged)
-    {
-      unstaged.append(file);
-    }
-
-    if (file.staged)
-    {
-      staged.append(file);
-    }
-  }
-
-  _impl->readyForCommit = !staged.empty();
-
-  emit nonStagingAreaChanged(unstaged);
-  emit stagingAreaChanged(staged);
-
-  _impl->files.clear();
-  _impl->files << unstaged << staged;
-
-  QList<GitBranch> branches = this->branches({"--all"});
-
-  for (auto &branch : branches)
-  {
-    if (branch.active)
-    {
-      _impl->activeBranch = branch;
-      break;
-    }
-  }
-
-  emit branchesChanged(branches);
-  emit branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
+  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status);
 }
 
 void GitInterface::log()
 {
-  auto process = _impl->git({"log",
-                             "--all",
-                             "--full-history",
-                             "--pretty="
-                             "%x0c"
-                             "%h"
-                             "%x0c"
-                             "%s"
-                             "%x0c"
-                             "%an"
-                             "%x0c"
-                             "%ct"
-                             "%x0c"
-                             "%D"
-                            });
-
-  QList<GitCommit> list;
-
-  for (auto &line : QString(process.standardOutOutput).split('\n'))
-  {
-    if (line.isEmpty())
-    {
-      continue;
-    }
-
-    QList<QString> parts = line.split('\f');
-
-    GitCommit commit;
-    if (parts.length() > 1)
-    {
-      commit.id = parts.at(1);
-      commit.message = parts.at(2);
-      commit.author = parts.at(3);
-      commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-      commit.branches = parts.at(5).split(", ", Qt::SkipEmptyParts);
-    }
-    list.append(commit);
-  }
-
-  emit logChanged(list);
+  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log);
 }
 
 void GitInterface::fetch()
 {
-  _impl->git({"fetch", "--all", "--prune"});
-  reload();
+  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch);
 }
 
 bool GitInterface::commit(const QString &message)
