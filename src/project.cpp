@@ -5,6 +5,7 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QFileDialog>
+#include <algorithm>
 
 #include "gitinterface.hpp"
 
@@ -37,9 +38,12 @@ struct ProjectPrivate
   void loadSettings()
   {
     name = settings->value(ConfigurationKeys::NAME).toString();
-    currentRepository = settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt();
-
     QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(settings->value(ConfigurationKeys::REPOSITORY_LIST));
+    currentRepository = std::min(
+      settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
+      list.size() - 1
+    );
+
 
     for (auto entry : list)
     {
