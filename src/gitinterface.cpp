@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QDebug>
+#include <QtConcurrent/QtConcurrent>
 
 struct GitProcess
 {
@@ -223,7 +224,7 @@ void GitInterface::reload()
   log();
   emit reloaded();
 }
-#include <iostream>
+
 void GitInterface::status()
 {
   auto process = _impl->git({
