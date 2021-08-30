@@ -22,8 +22,6 @@ int main(int argc, char *argv[])
   qRegisterMetaType<QList<GitBranch>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
-  QThreadPool::globalInstance()->setMaxThreadCount(128);
-
   Core core;
   if (!core.init())
   {
