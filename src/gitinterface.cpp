@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
+#include <QFuture>
 
 struct GitProcess
 {
@@ -384,7 +385,7 @@ QString GitInterface::errorLogFileName()
 
 void GitInterface::reload()
 {
-  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::reload);
+  _impl->reload();
 }
 
 void GitInterface::status()
