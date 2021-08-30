@@ -23,7 +23,7 @@ struct ConfigurationKey
 struct CorePrivate
 {
   Core *_this;
-  Project *project = nullptr;
+  QSharedPointer<Project> project = nullptr;
   QVariantMap recentProjects;
   QList<MainWindow*> mainWindows;
   QTimer *autoFetchTimer = nullptr;
@@ -58,8 +58,8 @@ struct CorePrivate
       {
       case QMessageBox::Yes:
       {
-        project = new Project(_this);
-        auto settingsDialog = ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project);
+        project.reset(new Project(_this));
+        auto settingsDialog = ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE, project.get());
         if (settingsDialog.exec() != QDialog::Accepted)
         {
           QMessageBox::critical(nullptr, QObject::tr("Error"), QObject::tr("No project opened, closing."));
@@ -73,7 +73,7 @@ struct CorePrivate
 
         if (!fileName.isEmpty())
         {
-          project = new Project(fileName, _this);
+          project.reset(new Project(fileName, _this));
         }
         break;
       }
@@ -84,7 +84,7 @@ struct CorePrivate
     }
     else
     {
-      project = new Project(projectFileName, _this);
+      project.reset(new Project(projectFileName, _this));
     }
 
     return true;
@@ -196,19 +196,18 @@ void Core::changeProject(Project *newProject)
 {
   _impl->autoFetchFuture.cancel();
   _impl->autoFetchFuture.waitForFinished();
-  delete _impl->project;
 
-  _impl->project = newProject;
+  _impl->project.reset(newProject);
   _impl->recentProjects.insert(newProject->fileName(), newProject->name());
 
-  emit projectChanged(_impl->project);
+  emit projectChanged(_impl->project.get());
 
   project()->reloadAllRepositories();
 }
 
 Project *Core::project() const
 {
-  return _impl->project;
+  return _impl->project.get();
 }
 
 QVariantMap Core::recentProjects() const
