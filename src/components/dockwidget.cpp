@@ -7,10 +7,6 @@
 
 #include <QApplication>
 
-#include <QtConcurrent/QtConcurrent>
-#include <QThreadPool>
-#include <iostream>
-
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry*>> DockWidget::_registry;
 
 DockWidget::DockWidget(MainWindow *mainWindow) :
