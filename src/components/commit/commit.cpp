@@ -40,6 +40,17 @@ struct CommitPrivate
         }
       }
       QString message = _this->ui->plainTextEdit->toPlainText();
+
+      if (_this->ui->checkBoxPrefix->isChecked())
+      {
+        message.prepend(_this->ui->lineEditPrefix->text() + " ");
+      }
+
+      if (_this->ui->checkBoxSuffix->isChecked())
+      {
+        message.append(QString(" ") + _this->ui->lineEditSuffix->text());
+      }
+
       if (gitInterface->commit(message))
       {
         emit gitInterface->fileDiffed("", {}, false);
