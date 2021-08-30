@@ -24,7 +24,10 @@ public:
   virtual void configure(const QVariant &configuration) override;
 
 protected:
+  virtual QVariantMap getProjectSpecificConfiguration() override;
+
   virtual void onProjectSwitched(Project *newProject) override;
+  virtual void onProjectSpecificConfigurationLoaded(const QVariantMap &configuration) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext) override;
   virtual void onError(const QString &message, ErrorTag tag) override;
 

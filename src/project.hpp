@@ -22,6 +22,9 @@ public:
   QObject *activeRepositoryContext() const;
   GitInterface *repositoryByName(const QString &name) const;
 
+  QVariantMap dockWidgetConfiguration() const;
+  void setDockWidgetConfigurationEntry(const QString& key, QVariant value);
+
   void addRepository();
   void removeRepository(const int &index);
 

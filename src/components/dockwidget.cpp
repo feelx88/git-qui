@@ -5,6 +5,12 @@
 #include "project.hpp"
 #include "gitinterface.hpp"
 
+#include <QApplication>
+
+#include <QtConcurrent/QtConcurrent>
+#include <QThreadPool>
+#include <iostream>
+
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry*>> DockWidget::_registry;
 
 DockWidget::DockWidget(MainWindow *mainWindow) :
@@ -18,7 +24,15 @@ QDockWidget(mainWindow)
 
 void DockWidget::init()
 {
+  connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
+    oldProject->setDockWidgetConfigurationEntry(widgetName(), getProjectSpecificConfiguration());
+  });
+
   connectCoreSignal(&Core::projectChanged, &DockWidget::onProjectSwitched);
+
+  connect(qApp, &QApplication::aboutToQuit, this, [&] {
+    project()->setDockWidgetConfigurationEntry(widgetName(), getProjectSpecificConfiguration());
+  });
 
   onProjectSwitched(project());
 
@@ -100,6 +114,11 @@ bool DockWidget::doRegister(DockWidget::RegistryEntry *entry)
   return true;
 }
 
+QVariantMap DockWidget::getProjectSpecificConfiguration()
+{
+  return QVariantMap();
+}
+
 void DockWidget::onProjectSwitched(Project *newProject)
 {
   connectProjectSignal(&Project::repositoryAdded, &DockWidget::onRepositoryAdded);
@@ -107,6 +126,12 @@ void DockWidget::onProjectSwitched(Project *newProject)
   connectProjectSignal(&Project::repositoryRemoved, &DockWidget::onRepositoryRemoved);
 
   onRepositorySwitched(newProject->activeRepository(), project()->activeRepositoryContext());
+
+  onProjectSpecificConfigurationLoaded(newProject->dockWidgetConfiguration().value(widgetName()).toMap());
+}
+
+void DockWidget::onProjectSpecificConfigurationLoaded(const QVariantMap &configuration)
+{
 }
 
 void DockWidget::onRepositoryAdded(GitInterface *gitInterface)

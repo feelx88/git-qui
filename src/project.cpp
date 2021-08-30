@@ -16,6 +16,7 @@ struct ConfigurationKeys
   static constexpr const char* CURRENT_REPOSITORY = "currentRepository";
   static constexpr const char* REPOSITORY_LIST_NAME = "name";
   static constexpr const char* REPOSITORY_LIST_PATH = "path";
+  static constexpr const char* DOCK_WIDGET_CONFIGURATION = "dockWidgetConfiguration";
 };
 
 struct ProjectPrivate
@@ -136,6 +137,18 @@ GitInterface* Project::repositoryByName(const QString& name) const
     return *it;
   }
   return nullptr;
+}
+
+QVariantMap Project::dockWidgetConfiguration() const
+{
+  return _impl->settings->value(ConfigurationKeys::DOCK_WIDGET_CONFIGURATION, QVariantMap()).toMap();
+}
+
+void Project::setDockWidgetConfigurationEntry(const QString &key, QVariant value)
+{
+  QVariantMap config = dockWidgetConfiguration();
+  config.insert(key, value);
+  _impl->settings->setValue(ConfigurationKeys::DOCK_WIDGET_CONFIGURATION, config);
 }
 
 void Project::addRepository()

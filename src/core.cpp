@@ -194,6 +194,8 @@ bool Core::init()
 
 void Core::changeProject(Project *newProject)
 {
+  emit beforeProjectChanged(_impl->project.get());
+
   _impl->autoFetchFuture.cancel();
   _impl->autoFetchFuture.waitForFinished();
 

@@ -5,12 +5,18 @@
 #include <QMainWindow>
 
 #define DOCK_WIDGET \
+  protected: \
+    virtual QString widgetName() const override; \
   private: \
     static bool __registryHelper; \
-    static DockWidget::RegistryEntry* registryEntry();
+    static DockWidget::RegistryEntry* registryEntry(); \
 
 #define DOCK_WIDGET_IMPL(name, displayName) \
   bool name::__registryHelper = DockWidget::doRegister(name::registryEntry()); \
+  QString name::widgetName() const \
+  { \
+    return name::staticMetaObject.className(); \
+  } \
   DockWidget::RegistryEntry *name::registryEntry() \
   { \
   return new DockWidget::RegistryEntry { \
@@ -71,7 +77,12 @@ protected:
   void init();
   static bool doRegister(RegistryEntry *entry);
 
+  virtual QString widgetName() const = 0;
+
+  virtual QVariantMap getProjectSpecificConfiguration();
+
   virtual void onProjectSwitched(Project *newProject);
+  virtual void onProjectSpecificConfigurationLoaded(const QVariantMap& configuration);
   virtual void onRepositoryAdded(GitInterface *gitInterface);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);

@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
+#include <QThreadPool>
 
 #include "core.hpp"
 #include "gitinterface.hpp"
@@ -20,6 +21,8 @@ int main(int argc, char *argv[])
   qRegisterMetaType<QList<GitCommit>>();
   qRegisterMetaType<QList<GitBranch>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
+
+  QThreadPool::globalInstance()->setMaxThreadCount(128);
 
   Core core;
   if (!core.init())

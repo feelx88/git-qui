@@ -26,6 +26,7 @@ public slots:
   void clearRecentProjects();
 
 signals:
+  void beforeProjectChanged(Project *oldProject);
   void projectChanged(Project *project);
 
 private:

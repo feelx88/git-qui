@@ -39,6 +39,7 @@ struct CommitPrivate
           return;
         }
       }
+
       QString message = _this->ui->plainTextEdit->toPlainText();
 
       if (_this->ui->checkBoxPrefix->isChecked())
@@ -138,10 +139,30 @@ void Commit::configure(const QVariant &configuration)
   ui->plainTextEdit->setPlainText(config.value("currentMessage").toString());
 }
 
+QVariantMap Commit::getProjectSpecificConfiguration()
+{
+  return QVariantMap {
+    { "prependPrefix", ui->checkBoxPrefix->isChecked() },
+    { "appendSuffix", ui->checkBoxSuffix->isChecked() },
+    { "prefix", ui->lineEditPrefix->text() },
+    { "suffix", ui->lineEditSuffix->text() },
+    { "message", ui->plainTextEdit->toPlainText() },
+  };
+}
+
 void Commit::onProjectSwitched(Project *newProject)
 {
   _impl->gitInterface = nullptr;
   DockWidget::onProjectSwitched(newProject);
+}
+
+void Commit::onProjectSpecificConfigurationLoaded(const QVariantMap &configuration)
+{
+  ui->checkBoxPrefix->setChecked(configuration.value("prependPrefix", false).toBool());
+  ui->checkBoxSuffix->setChecked(configuration.value("appendSuffix", false).toBool());
+  ui->lineEditPrefix->setText(configuration.value("prefix", "").toString());
+  ui->lineEditSuffix->setText(configuration.value("suffix", "").toString());
+  ui->plainTextEdit->setPlainText(configuration.value("message", "").toString());
 }
 
 void Commit::onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext)
