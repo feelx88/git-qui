@@ -11,7 +11,6 @@
 #include <QLabel>
 #include <QMovie>
 #include <QMap>
-#include <QtConcurrent/QtConcurrent>
 #include <QInputDialog>
 #include <QTimer>
 #include <QDirIterator>

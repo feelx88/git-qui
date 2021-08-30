@@ -1,8 +1,6 @@
 #include "repositorylist.hpp"
 #include "ui_repositorylist.h"
 
-#include <QtConcurrent/QtConcurrent>
-
 #include "core.hpp"
 #include "mainwindow.hpp"
 #include "project.hpp"
