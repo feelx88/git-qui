@@ -4,8 +4,7 @@
 /**
  * @brief enum for tagging error signals from GitInterface.
  */
-enum ErrorTag
-{
+enum ErrorTag {
   NO_TAG = 0,
   STDERR,
   GIT_STATUS,

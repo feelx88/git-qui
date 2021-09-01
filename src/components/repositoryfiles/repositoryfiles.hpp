@@ -12,8 +12,7 @@ class RepositoryFiles;
 
 struct RepositoryFilesPrivate;
 
-class RepositoryFiles : public DockWidget
-{
+class RepositoryFiles : public DockWidget {
   Q_OBJECT
   DOCK_WIDGET
   friend struct RepositoryFilesPrivate;
@@ -27,7 +26,8 @@ public:
 
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject* activeRepositoryContext) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *activeRepositoryContext) override;
 
 private:
   Ui::RepositoryFiles *ui;

@@ -1,22 +1,20 @@
 #include "gitinterface.hpp"
 
+#include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QFuture>
 #include <QProcess>
 #include <QStandardPaths>
-#include <QDebug>
 #include <QtConcurrent/QtConcurrent>
-#include <QFuture>
 
-struct GitProcess
-{
+struct GitProcess {
   int exitCode;
   QByteArray standardOutOutput, standardErrorOutput;
   QSharedPointer<QProcess> process;
 };
 
-class GitInterfacePrivate
-{
+class GitInterfacePrivate {
 public:
   GitInterface *_this;
   QString name;
@@ -27,15 +25,12 @@ public:
   QList<GitFile> files;
   QSharedPointer<QFile> errorLog;
 
-  GitInterfacePrivate(GitInterface *_this)
-    : _this(_this)
-  {
+  GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
     errorLog->open(QFile::Append);
   }
 
-  GitProcess git(const QList<QString> &params, const QString &writeData = "")
-  {
+  GitProcess git(const QList<QString> &params, const QString &writeData = "") {
     QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
     std::string stdWriteData = writeData.toStdString();
 
@@ -44,7 +39,8 @@ public:
     process->setArguments(params);
     process->start();
     process->waitForStarted();
-    process->write(stdWriteData.data(), static_cast<qint64>(stdWriteData.length()));
+    process->write(stdWriteData.data(),
+                   static_cast<qint64>(stdWriteData.length()));
     process->waitForBytesWritten();
     process->closeWriteChannel();
     process->waitForFinished();
@@ -55,12 +51,10 @@ public:
     gitProcess.standardErrorOutput = process->readAllStandardError();
     gitProcess.process = process;
 
-    if (!gitProcess.standardErrorOutput.isEmpty())
-    {
+    if (!gitProcess.standardErrorOutput.isEmpty()) {
       QString output = QString("[%1] %2").arg(
-        QDateTime::currentDateTime().toString(Qt::ISODate),
-        gitProcess.standardErrorOutput
-      );
+          QDateTime::currentDateTime().toString(Qt::ISODate),
+          gitProcess.standardErrorOutput);
       errorLog->write(output.toLocal8Bit());
       emit _this->error(output, ErrorTag::STDERR, true);
     }
@@ -68,18 +62,15 @@ public:
     return gitProcess;
   }
 
-  QString createPatch(const QList<GitDiffLine> &lines)
-  {
+  QString createPatch(const QList<GitDiffLine> &lines) {
     GitDiffLine first = lines.first();
     QString patch = first.header;
     QList<QList<GitDiffLine>> hunks;
     hunks.append(QList<GitDiffLine>());
     int lastindex = first.index;
 
-    for(auto &line : lines)
-    {
-      if(!(line.index - lastindex <= 1))
-      {
+    for (auto &line : lines) {
+      if (!(line.index - lastindex <= 1)) {
         hunks.append(QList<GitDiffLine>());
       }
 
@@ -87,39 +78,30 @@ public:
       lastindex = line.index;
     }
 
-    for(auto hunk : hunks)
-    {
+    for (auto hunk : hunks) {
       int newCount = 0, oldCount = 0;
       GitDiffLine first = hunk.first();
 
-      for (GitDiffLine &line : hunk)
-      {
-        if(line.type == GitDiffLine::diffType::ADD)
-        {
+      for (GitDiffLine &line : hunk) {
+        if (line.type == GitDiffLine::diffType::ADD) {
           ++newCount;
-        }
-        else if(line.type == GitDiffLine::diffType::REMOVE
-                || line.type == GitDiffLine::diffType::CONTEXT)
-        {
+        } else if (line.type == GitDiffLine::diffType::REMOVE ||
+                   line.type == GitDiffLine::diffType::CONTEXT) {
           ++oldCount;
         }
       }
 
-      if(first.oldLine < 0)
-      {
+      if (first.oldLine < 0) {
         first.oldLine = first.newLine;
       }
 
-      patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first.oldLine, oldCount, first.oldLine, newCount));
+      patch.append(QString::asprintf("@@ -%i,%i +%i,%i @@\n", first.oldLine,
+                                     oldCount, first.oldLine, newCount));
 
-      for (GitDiffLine &line : hunk)
-      {
-        if(line.type == GitDiffLine::diffType::ADD)
-        {
+      for (GitDiffLine &line : hunk) {
+        if (line.type == GitDiffLine::diffType::ADD) {
           patch += "+";
-        }
-        else if(line.type == GitDiffLine::diffType::REMOVE)
-        {
+        } else if (line.type == GitDiffLine::diffType::REMOVE) {
           patch += "-";
         }
         patch += line.content.remove('\n') + '\n';
@@ -129,21 +111,19 @@ public:
     return patch;
   }
 
-  void reload()
-  {
+  void reload() {
     status();
     log();
     emit _this->reloaded();
   }
 
-  void status()
-  {
+  void status() {
     auto process = git({
-      "status",
-      "--untracked=all",
-      "--porcelain=v1",
-      "-b",
-      "-z",
+        "status",
+        "--untracked=all",
+        "--porcelain=v1",
+        "-b",
+        "-z",
     });
 
     QList<GitFile> unstaged, staged;
@@ -151,16 +131,14 @@ public:
     bool hasUpstream = false;
     int commitsAhead = 0, commitsBehind = 0;
 
-    for(auto &output : process.standardOutOutput.split('\0'))
-    {
-      if(output.isEmpty() || !output.contains(' '))
-      {
+    for (auto &output : process.standardOutOutput.split('\0')) {
+      if (output.isEmpty() || !output.contains(' ')) {
         continue;
       }
 
-      if (output.startsWith("##"))
-      {
-        QRegExp branchRegex("## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
+      if (output.startsWith("##")) {
+        QRegExp branchRegex(
+            "## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
         hasUpstream = branchRegex.indexIn(output) > -1;
         branchName = hasUpstream ? branchRegex.cap(1) : output.split(' ').at(1);
         commitsAhead = branchRegex.cap(2).toInt();
@@ -177,8 +155,7 @@ public:
       file.unstaged = (secondByte != ' ');
       file.path = output.right(output.length() - 3).trimmed();
 
-      switch(firstByte)
-      {
+      switch (firstByte) {
       case 'M':
         file.modified = true;
         break;
@@ -194,8 +171,7 @@ public:
         break;
       }
 
-      switch(secondByte)
-      {
+      switch (secondByte) {
       case 'M':
         file.modified = true;
         break;
@@ -208,13 +184,11 @@ public:
         break;
       }
 
-      if (file.unstaged)
-      {
+      if (file.unstaged) {
         unstaged.append(file);
       }
 
-      if (file.staged)
-      {
+      if (file.staged) {
         staged.append(file);
       }
     }
@@ -229,52 +203,43 @@ public:
 
     QList<GitBranch> branches = _this->branches({"--all"});
 
-    for (auto &branch : branches)
-    {
-      if (branch.active)
-      {
+    for (auto &branch : branches) {
+      if (branch.active) {
         activeBranch = branch;
         break;
       }
     }
 
     emit _this->branchesChanged(branches);
-    emit _this->branchChanged(branchName, !(unstaged.empty() && staged.empty()), hasUpstream, commitsAhead, commitsBehind);
+    emit _this->branchChanged(branchName, !(unstaged.empty() && staged.empty()),
+                              hasUpstream, commitsAhead, commitsBehind);
   }
 
-  void log()
-  {
-    auto process = git({
-      "log",
-      "--all",
-      "--full-history",
-      "--pretty="
-      "%x0c"
-      "%h"
-      "%x0c"
-      "%s"
-      "%x0c"
-      "%an"
-      "%x0c"
-      "%ct"
-      "%x0c"
-      "%D"
-    });
+  void log() {
+    auto process = git({"log", "--all", "--full-history",
+                        "--pretty="
+                        "%x0c"
+                        "%h"
+                        "%x0c"
+                        "%s"
+                        "%x0c"
+                        "%an"
+                        "%x0c"
+                        "%ct"
+                        "%x0c"
+                        "%D"});
 
     QList<GitCommit> list;
 
-    for (auto &line : QString(process.standardOutOutput).split('\n'))
-    {
-      if (line.isEmpty())
-      {
+    for (auto &line : QString(process.standardOutOutput).split('\n')) {
+      if (line.isEmpty()) {
         continue;
       }
 
       QList<QString> parts = line.split('\f');
 
       GitCommit commit;
-      if (parts.length() > 1)
-      {
+      if (parts.length() > 1) {
         commit.id = parts.at(1);
         commit.message = parts.at(2);
         commit.author = parts.at(3);
@@ -287,137 +252,104 @@ public:
     emit _this->logChanged(list);
   }
 
-  void fetch()
-  {
+  void fetch() {
     git({"fetch", "--all", "--prune"});
     _this->reload();
   }
 };
 
-GitInterface::GitInterface(const QString &name, const QString &path, QObject *parent)
-  : QObject(parent),
-    _impl(new GitInterfacePrivate(this))
-{
+GitInterface::GitInterface(const QString &name, const QString &path,
+                           QObject *parent)
+    : QObject(parent), _impl(new GitInterfacePrivate(this)) {
   _impl->name = name;
   _impl->repositoryPath.setPath(path);
   reload();
 }
 
-GitInterface::~GitInterface()
-{
-}
+GitInterface::~GitInterface() {}
 
-const QString GitInterface::name() const
-{
-  return _impl->name;
-}
+const QString GitInterface::name() const { return _impl->name; }
 
-void GitInterface::setName(const QString &name)
-{
-  _impl->name = name;
-}
+void GitInterface::setName(const QString &name) { _impl->name = name; }
 
-const QString GitInterface::path() const
-{
+const QString GitInterface::path() const {
   return _impl->repositoryPath.path();
 }
 
-void GitInterface::setPath(const QString &path)
-{
+void GitInterface::setPath(const QString &path) {
   _impl->repositoryPath.setPath(path);
 }
 
-const GitBranch GitInterface::activeBranch() const
-{
+const GitBranch GitInterface::activeBranch() const {
   return _impl->activeBranch;
 }
 
-const QList<GitBranch> GitInterface::branches(const QList<QString> &args) const
-{
+const QList<GitBranch>
+GitInterface::branches(const QList<QString> &args) const {
   auto process = _impl->git({"remote"});
   QList<QByteArray> remotes = process.standardOutOutput.split('\n');
   remotes.pop_back();
 
-  process = _impl->git(QList<QString>{
-    "branch",
-    "--format="
-    "%(HEAD)"
-    "#"
-    "%(refname:short)"
-    "#"
-    "%(upstream:short)"
-  } << args);
+  process = _impl->git(QList<QString>{"branch", "--format="
+                                                "%(HEAD)"
+                                                "#"
+                                                "%(refname:short)"
+                                                "#"
+                                                "%(upstream:short)"}
+                       << args);
 
   QList<GitBranch> branches;
 
-  for (auto &line : process.standardOutOutput.split('\n'))
-  {
-    if (!line.isEmpty())
-    {
+  for (auto &line : process.standardOutOutput.split('\n')) {
+    if (!line.isEmpty()) {
       auto parts = line.split('#');
 
-      if (parts.at(1).endsWith("HEAD"))
-      {
+      if (parts.at(1).endsWith("HEAD")) {
         continue;
       }
 
-      branches.append({
-        parts[0] == "*",
-        parts[1],
-        parts[2],
-        remotes.indexOf(parts[1].split('/')[0]) > -1
-      });
+      branches.append({parts[0] == "*", parts[1], parts[2],
+                       remotes.indexOf(parts[1].split('/')[0]) > -1});
     }
   }
 
   return branches;
 }
 
-const QList<GitFile> GitInterface::files() const
-{
-  return _impl->files;
+const QList<GitFile> GitInterface::files() const { return _impl->files; }
+
+QString GitInterface::errorLogFileName() {
+  return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
+         "-error.log";
 }
 
-QString GitInterface::errorLogFileName()
-{
-  return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "-error.log";
-}
+void GitInterface::reload() { _impl->reload(); }
 
-void GitInterface::reload()
-{
-  _impl->reload();
-}
-
-void GitInterface::status()
-{
+void GitInterface::status() {
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status);
 }
 
-void GitInterface::log()
-{
+void GitInterface::log() {
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log);
 }
 
-void GitInterface::fetch()
-{
+void GitInterface::fetch() {
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch);
 }
 
-bool GitInterface::commit(const QString &message)
-{
-  if (!_impl->readyForCommit)
-  {
+bool GitInterface::commit(const QString &message) {
+  if (!_impl->readyForCommit) {
     emit error(tr("There are no files to commit"), ErrorTag::GIT_COMMIT);
     return false;
   }
 
-  auto process = _impl->git({"commit",
-                             "--message",
-                             message,
-                            });
+  auto process = _impl->git({
+      "commit",
+      "--message",
+      message,
+  });
 
-  if (process.exitCode != EXIT_SUCCESS)
-  {
+  if (process.exitCode != EXIT_SUCCESS) {
     emit error(process.standardErrorOutput, ErrorTag::GIT_COMMIT);
     return false;
   }
@@ -427,31 +359,26 @@ bool GitInterface::commit(const QString &message)
   return true;
 }
 
-void GitInterface::stageFile(const QString &path)
-{
+void GitInterface::stageFile(const QString &path) {
   _impl->git({"add", path});
   status();
 }
 
-void GitInterface::unstageFile(const QString &path)
-{
+void GitInterface::unstageFile(const QString &path) {
   _impl->git({"reset", "HEAD", path});
   status();
 }
 
-void GitInterface::selectFile(bool unstaged, const QString &path)
-{
+void GitInterface::selectFile(bool unstaged, const QString &path) {
   emit fileSelected(unstaged, path);
 
   diffFile(unstaged, path);
 }
 
-void GitInterface::diffFile(bool unstaged, const QString &path)
-{
+void GitInterface::diffFile(bool unstaged, const QString &path) {
   QString absolutePath = _impl->repositoryPath.absolutePath() + "/" + path;
 
-  if (path.isEmpty() || !QFileInfo(absolutePath).isFile())
-  {
+  if (path.isEmpty() || !QFileInfo(absolutePath).isFile()) {
     return;
   }
 
@@ -461,16 +388,12 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   QFile *file = new QFile(absolutePath, this);
   file->open(QIODevice::ReadOnly);
 
-  QByteArray tmp = file->read(1024 * 512); //512kiB
-  if(tmp.size() > 0 && tmp.contains('\0'))
-  {
+  QByteArray tmp = file->read(1024 * 512); // 512kiB
+  if (tmp.size() > 0 && tmp.contains('\0')) {
     binary = true;
-  }
-  else
-  {
+  } else {
     file->reset();
-    while(!file->readLine(0).isEmpty())
-    {
+    while (!file->readLine(0).isEmpty()) {
       ++lineCount;
     }
   }
@@ -478,25 +401,14 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   QList<GitDiffLine> list;
   GitProcess process;
 
-  if(unstaged)
-  {
-    process = _impl->git({
-                           "diff",
-                           _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
-                           "--",
-                           path
-                         });
-  }
-  else
-  {
-    process = _impl->git({
-                           "diff",
-                           _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
-                           "HEAD",
-                           "--cached",
-                           "--",
-                           path
-                         });
+  if (unstaged) {
+    process = _impl->git(
+        {"diff", _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+         "--", path});
+  } else {
+    process = _impl->git(
+        {"diff", _impl->fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+         "HEAD", "--cached", "--", path});
   }
 
   QTextStream stream(&process.standardOutOutput);
@@ -509,12 +421,9 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   int lineNoOld = -1;
   int lineNoNew = -1;
 
-  auto readLine = std::function<QString()>([&] {
-    return stream.readLine();
-  });
+  auto readLine = std::function<QString()>([&] { return stream.readLine(); });
 
-  if(output.length() == 0)
-  {
+  if (output.length() == 0) {
     lineNoOld = -1;
     lineNoNew = 1;
 
@@ -528,8 +437,7 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
 
     readLine = std::function<QByteArray()>([&] {
       QByteArray arr(file->readLine());
-      if (arr.size() > 0)
-      {
+      if (arr.size() > 0) {
         arr.prepend("+ ");
       }
       return arr;
@@ -540,45 +448,35 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
 
   QString header;
 
-  if(binary)
-  {
+  if (binary) {
     GitDiffLine line;
     line.type = GitDiffLine::diffType::HEADER;
     line.content = "binary file";
     list.append(line);
-  }
-  else
-  {
-    while(output.length() > 0)
-    {
+  } else {
+    while (output.length() > 0) {
       GitDiffLine line;
       line.oldLine = lineNoOld;
       line.newLine = lineNoNew;
       line.index = index++;
 
-      while(output.length() > 2 && (output.endsWith(' ') || output.endsWith('\n') || output.endsWith('\t')))
-      {
+      while (output.length() > 2 &&
+             (output.endsWith(' ') || output.endsWith('\n') ||
+              output.endsWith('\t'))) {
         output.chop(1);
       }
       line.content = output;
 
       line.type = GitDiffLine::diffType::FILE_HEADER;
 
-      if(output.startsWith("index")
-         || output.startsWith("diff")
-         || output.startsWith("+++")
-         || output.startsWith("---")
-         || output.startsWith("new file")
-         || output.startsWith("old file"))
-      {
+      if (output.startsWith("index") || output.startsWith("diff") ||
+          output.startsWith("+++") || output.startsWith("---") ||
+          output.startsWith("new file") || output.startsWith("old file")) {
         line.type = GitDiffLine::diffType::HEADER;
         header += output + '\n';
-      }
-      else
-      {
+      } else {
         line.header = header;
-        switch(output.at(0).toLatin1())
-        {
+        switch (output.at(0).toLatin1()) {
         case '@':
           line.type = GitDiffLine::diffType::HEADER;
           line.oldLine = -1;
@@ -617,41 +515,38 @@ void GitInterface::diffFile(bool unstaged, const QString &path)
   emit fileDiffed(path, list, unstaged);
 }
 
-void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage)
-{
-  if (lines.isEmpty())
-  {
+void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage) {
+  if (lines.isEmpty()) {
     return;
   }
 
-  QString patch =_impl->createPatch(lines);
+  QString patch = _impl->createPatch(lines);
   qDebug().noquote() << patch;
 
-  if(unstage)
-  {
-    _impl->git({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"}, patch);
-  }
-  else
-  {
-    _impl->git({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "--reverse", "-"}, patch);
+  if (unstage) {
+    _impl->git(
+        {"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn", "-"},
+        patch);
+  } else {
+    _impl->git({"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn",
+                "--reverse", "-"},
+               patch);
   }
 
   status();
 }
 
-void GitInterface::push(const QString &remote, const QVariant& branch, bool setUpstream)
-{
+void GitInterface::push(const QString &remote, const QVariant &branch,
+                        bool setUpstream) {
   emit pushStarted();
 
   QList<QString> args = {"push", remote};
 
-  if (setUpstream)
-  {
+  if (setUpstream) {
     args << "--set-upstream";
   }
 
-  if (!branch.isNull())
-  {
+  if (!branch.isNull()) {
     args << branch.toString();
   }
 
@@ -660,19 +555,16 @@ void GitInterface::push(const QString &remote, const QVariant& branch, bool setU
   status();
   emit pushed();
 
-  if (process.exitCode != EXIT_SUCCESS)
-  {
+  if (process.exitCode != EXIT_SUCCESS) {
     emit error(tr("Push has failed"), ErrorTag::GIT_PUSH);
   }
 }
 
-void GitInterface::pull(bool rebase)
-{
+void GitInterface::pull(bool rebase) {
   emit pullStarted();
 
   QList<QString> arguments = {"pull"};
-  if (rebase)
-  {
+  if (rebase) {
     arguments << "--rebase";
   }
   auto process = _impl->git(arguments);
@@ -680,112 +572,87 @@ void GitInterface::pull(bool rebase)
   status();
   emit pulled();
 
-  if (process.exitCode != EXIT_SUCCESS)
-  {
+  if (process.exitCode != EXIT_SUCCESS) {
     emit error(tr("Pull has failed"), ErrorTag::GIT_PULL);
   }
-
 }
 
-void GitInterface::setFullFileDiff(bool fullFileDiff)
-{
+void GitInterface::setFullFileDiff(bool fullFileDiff) {
   _impl->fullFileDiff = fullFileDiff;
 }
 
-void GitInterface::revertLastCommit()
-{
-  auto process = _impl->git({
-                              "log",
-                              "--max-count=1",
-                              "--pretty="
-                              "%s"
-                            });
+void GitInterface::revertLastCommit() {
+  auto process = _impl->git({"log", "--max-count=1",
+                             "--pretty="
+                             "%s"});
 
   QString message = process.standardOutOutput;
 
-  _impl->git({
-               "reset",
-               "--soft",
-               "HEAD^"
-             });
+  _impl->git({"reset", "--soft", "HEAD^"});
 
   reload();
   emit lastCommitReverted(message);
 }
 
-void GitInterface::resetLines(const QList<GitDiffLine> &lines)
-{
-  if (lines.empty())
-  {
+void GitInterface::resetLines(const QList<GitDiffLine> &lines) {
+  if (lines.empty()) {
     return;
   }
 
   QString patch = _impl->createPatch(lines);
   qDebug().noquote() << patch;
 
-  _impl->git({"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"}, patch);
+  _impl->git(
+      {"apply", "--reverse", "--unidiff-zero", "--whitespace=nowarn", "-"},
+      patch);
 
   status();
 }
 
-void GitInterface::checkoutPath(const QString &path)
-{
+void GitInterface::checkoutPath(const QString &path) {
   auto process = _impl->git({"status", "--porcelain=v1", path});
   QString fileStatus = process.standardOutOutput;
 
-  if (fileStatus.startsWith("??"))
-  {
+  if (fileStatus.startsWith("??")) {
     QFile::remove(_impl->repositoryPath.filePath(path));
-  }
-  else
-  {
+  } else {
     _impl->git({"checkout", "--", path});
   }
 
   status();
 }
 
-void GitInterface::changeBranch(const QString &branchName, const QString &upstreamBranchName)
-{
-  if (upstreamBranchName.isEmpty())
-  {
+void GitInterface::changeBranch(const QString &branchName,
+                                const QString &upstreamBranchName) {
+  if (upstreamBranchName.isEmpty()) {
     _impl->git({"checkout", branchName});
-  }
-  else
-  {
+  } else {
     _impl->git({"checkout", "-b", branchName, upstreamBranchName});
   }
   reload();
 }
 
-void GitInterface::createBranch(const QString &name)
-{
+void GitInterface::createBranch(const QString &name) {
   _impl->git({"branch", name});
   status();
 }
 
-void GitInterface::deleteBranch(const QString &name)
-{
+void GitInterface::deleteBranch(const QString &name) {
   _impl->git({"branch", "-d", name});
   status();
 }
 
-void GitInterface::setUpstream(const QString &remote, const QString &branch)
-{
-  _impl->git({
-    "branch",
-    QString("--set-upstream-to=%1/%2").arg(remote, branch)
-  });
+void GitInterface::setUpstream(const QString &remote, const QString &branch) {
+  _impl->git(
+      {"branch", QString("--set-upstream-to=%1/%2").arg(remote, branch)});
 }
 
-void GitInterface::stash()
-{
+void GitInterface::stash() {
   _impl->git({"stash", "--include-untracked"});
   status();
 }
 
-void GitInterface::stashPop()
-{
+void GitInterface::stashPop() {
   _impl->git({"stash", "pop"});
   status();
 }

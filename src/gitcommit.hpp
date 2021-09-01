@@ -1,11 +1,10 @@
 #ifndef GITCOMMIT_H
 #define GITCOMMIT_H
 
-#include <QList>
 #include <QDateTime>
+#include <QList>
 
-struct GitCommit
-{
+struct GitCommit {
 public:
   QString id, message, author;
   QDateTime date;

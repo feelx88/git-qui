@@ -3,8 +3,7 @@
 
 class MainWindow;
 
-class InitialWindowConfiguration
-{
+class InitialWindowConfiguration {
 public:
   static void create(MainWindow *mainWindow);
 };

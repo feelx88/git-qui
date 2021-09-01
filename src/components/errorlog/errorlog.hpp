@@ -9,8 +9,7 @@ class ErrorLog;
 
 struct ErrorLogImpl;
 
-class ErrorLog : public DockWidget
-{
+class ErrorLog : public DockWidget {
   Q_OBJECT
   DOCK_WIDGET
 

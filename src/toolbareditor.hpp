@@ -1,8 +1,8 @@
 #ifndef TOOLBAREDITOR_HPP
 #define TOOLBAREDITOR_HPP
 
-#include <QWidget>
 #include <QSharedPointer>
+#include <QWidget>
 
 namespace Ui {
 class ToolBarEditor;
@@ -11,8 +11,7 @@ class ToolBarEditor;
 class QToolBar;
 struct ToolBarEditorPrivate;
 
-class ToolBarEditor : public QWidget
-{
+class ToolBarEditor : public QWidget {
   Q_OBJECT
   friend struct ToolBarEditorPrivate;
 

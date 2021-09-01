@@ -9,8 +9,7 @@
 #include "gitinterface.hpp"
 #include "toolbaractions.hpp"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   app.setOrganizationName("feelx88");
   app.setOrganizationDomain("feelx88.de");
@@ -22,11 +21,8 @@ int main(int argc, char *argv[])
   qRegisterMetaType<QList<GitBranch>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
-  QThreadPool::globalInstance()->setMaxThreadCount(128);
-
   Core core;
-  if (!core.init())
-  {
+  if (!core.init()) {
     return EXIT_FAILURE;
   }
 
