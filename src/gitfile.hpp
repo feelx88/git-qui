@@ -1,11 +1,10 @@
 #ifndef GITFILE_HPP
 #define GITFILE_HPP
 
-#include <QString>
 #include <QMetaType>
+#include <QString>
 
-struct GitFile
-{
+struct GitFile {
   bool staged, unstaged, added, modified, deleted;
   QString path;
 };

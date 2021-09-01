@@ -4,57 +4,49 @@
 #include <QFuture>
 #include <QMainWindow>
 
-#define DOCK_WIDGET \
-  protected: \
-    virtual QString widgetName() const override; \
-  private: \
-    static bool __registryHelper; \
-    static DockWidget::RegistryEntry* registryEntry(); \
+#define DOCK_WIDGET                                                            \
+protected:                                                                     \
+  virtual QString widgetName() const override;                                 \
+                                                                               \
+private:                                                                       \
+  static bool __registryHelper;                                                \
+  static DockWidget::RegistryEntry *registryEntry();
 
-#define DOCK_WIDGET_IMPL(name, displayName) \
+#define DOCK_WIDGET_IMPL(name, displayName)                                    \
   bool name::__registryHelper = DockWidget::doRegister(name::registryEntry()); \
-  QString name::widgetName() const \
-  { \
-    return name::staticMetaObject.className(); \
-  } \
-  DockWidget::RegistryEntry *name::registryEntry() \
-  { \
-  return new DockWidget::RegistryEntry { \
-    name::staticMetaObject.className(), \
-    displayName, \
-    [](MainWindow *mainWindow){return new name(mainWindow);} \
-  }; \
-}
+  QString name::widgetName() const {                                           \
+    return name::staticMetaObject.className();                                 \
+  }                                                                            \
+  DockWidget::RegistryEntry *name::registryEntry() {                           \
+    return new DockWidget::RegistryEntry{                                      \
+        name::staticMetaObject.className(), displayName,                       \
+        [](MainWindow *mainWindow) { return new name(mainWindow); }};          \
+  }
 
+#include "errortag.hpp"
 #include <QDockWidget>
 #include <QList>
 #include <QUuid>
-#include "errortag.hpp"
 
 class MainWindow;
 class Core;
 class Project;
 class GitInterface;
 
-class DockWidget : public QDockWidget
-{
+class DockWidget : public QDockWidget {
 public:
-  struct RegistryEntry
-  {
+  struct RegistryEntry {
     QString id;
     QString name;
-    std::function<DockWidget*(MainWindow*)> factory;
+    std::function<DockWidget *(MainWindow *)> factory;
   };
 
   virtual ~DockWidget() override;
-  static QList<RegistryEntry*> registeredDockWidgets();
-  static DockWidget *create(
-    QString className,
-    MainWindow *mainWindow,
-    QMainWindow *container,
-    const QString &id = QUuid::createUuid().toString(),
-    const QVariant &configuration = QVariant()
-  );
+  static QList<RegistryEntry *> registeredDockWidgets();
+  static DockWidget *create(QString className, MainWindow *mainWindow,
+                            QMainWindow *container,
+                            const QString &id = QUuid::createUuid().toString(),
+                            const QVariant &configuration = QVariant());
 
   virtual QVariant configuration();
   virtual void configure(const QVariant &configuration);
@@ -82,15 +74,16 @@ protected:
   virtual QVariantMap getProjectSpecificConfiguration();
 
   virtual void onProjectSwitched(Project *newProject);
-  virtual void onProjectSpecificConfigurationLoaded(const QVariantMap& configuration);
+  virtual void
+  onProjectSpecificConfigurationLoaded(const QVariantMap &configuration);
   virtual void onRepositoryAdded(GitInterface *gitInterface);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
   virtual void onError(const QString &, ErrorTag);
 
 private:
-  static QSharedPointer<QMap<QString, RegistryEntry*>> registry();
-  static QSharedPointer<QMap<QString, RegistryEntry*>> _registry;
+  static QSharedPointer<QMap<QString, RegistryEntry *>> registry();
+  static QSharedPointer<QMap<QString, RegistryEntry *>> _registry;
 
   MainWindow *_mainWindow;
 };

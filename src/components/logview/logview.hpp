@@ -9,8 +9,7 @@ class LogView;
 
 struct LogViewPrivate;
 
-class LogView : public DockWidget
-{
+class LogView : public DockWidget {
   Q_OBJECT
   DOCK_WIDGET
   friend struct LogViewPrivate;
@@ -23,12 +22,12 @@ public:
 
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject* activeRepositoryContext) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *activeRepositoryContext) override;
 
 private:
   Ui::LogView *ui;
   QScopedPointer<LogViewPrivate> _impl;
-
 };
 
 #endif // LOGVIEW_HPP

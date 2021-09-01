@@ -10,8 +10,7 @@ class RepositoryList;
 
 struct RepositoryListPrivate;
 
-class RepositoryList : public DockWidget
-{
+class RepositoryList : public DockWidget {
   Q_OBJECT
   DOCK_WIDGET
   friend struct RepositoryListPrivate;
@@ -23,7 +22,8 @@ public:
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
   virtual void onRepositoryAdded(GitInterface *newGitInterface) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject*) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *) override;
   virtual void onRepositoryRemoved(GitInterface *newGitInterface) override;
 
 private:

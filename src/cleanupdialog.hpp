@@ -10,12 +10,11 @@ class CleanUpDialog;
 struct CleanUpDialogPrivate;
 class Core;
 
-class CleanUpDialog : public QDialog
-{
+class CleanUpDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit CleanUpDialog(Core* core, QWidget *parent = nullptr);
+  explicit CleanUpDialog(Core *core, QWidget *parent = nullptr);
   virtual ~CleanUpDialog();
 
 private:

@@ -7,8 +7,7 @@ struct CorePrivate;
 class Project;
 class GitInterface;
 
-class Core : public QObject
-{
+class Core : public QObject {
   Q_OBJECT
 public:
   friend struct CorePrivate;

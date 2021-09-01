@@ -4,10 +4,8 @@
 #include <QMetaType>
 #include <QString>
 
-struct GitDiffLine
-{
-  enum class diffType
-  {
+struct GitDiffLine {
+  enum class diffType {
     NONE = 0,
     FILE_HEADER,
     FILE_FOOTER,

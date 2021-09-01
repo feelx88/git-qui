@@ -11,8 +11,7 @@ class Commit;
 
 struct CommitPrivate;
 
-class Commit : public DockWidget
-{
+class Commit : public DockWidget {
   Q_OBJECT
   DOCK_WIDGET
   friend struct CommitPrivate;
@@ -27,8 +26,10 @@ protected:
   virtual QVariantMap getProjectSpecificConfiguration() override;
 
   virtual void onProjectSwitched(Project *newProject) override;
-  virtual void onProjectSpecificConfigurationLoaded(const QVariantMap &configuration) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface, QObject *activeRepositoryContext) override;
+  virtual void onProjectSpecificConfigurationLoaded(
+      const QVariantMap &configuration) override;
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *activeRepositoryContext) override;
   virtual void onError(const QString &message, ErrorTag tag) override;
 
 private:

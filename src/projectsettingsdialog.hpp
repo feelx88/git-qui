@@ -11,19 +11,16 @@ struct ProjectSettingsDialogPrivate;
 
 class Project;
 
-class ProjectSettingsDialog : public QDialog
-{
+class ProjectSettingsDialog : public QDialog {
   Q_OBJECT
 
 public:
   friend struct ProjectSettingsDialogPrivate;
 
-  enum class DialogMode {
-    CREATE = 0,
-    EDIT
-  };
+  enum class DialogMode { CREATE = 0, EDIT };
 
-  explicit ProjectSettingsDialog(DialogMode dialogMode, Project *project, QWidget *parent = nullptr);
+  explicit ProjectSettingsDialog(DialogMode dialogMode, Project *project,
+                                 QWidget *parent = nullptr);
   ~ProjectSettingsDialog();
 
 private:

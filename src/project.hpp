@@ -1,14 +1,13 @@
 #ifndef PROJECT_HPP
 #define PROJECT_HPP
 
-#include <QObject>
 #include <QList>
+#include <QObject>
 
 struct ProjectPrivate;
 class GitInterface;
 
-class Project : public QObject
-{
+class Project : public QObject {
   Q_OBJECT
 public:
   Project(const QString &fileName, QObject *parent = nullptr);
@@ -23,7 +22,7 @@ public:
   GitInterface *repositoryByName(const QString &name) const;
 
   QVariantMap dockWidgetConfiguration() const;
-  void setDockWidgetConfigurationEntry(const QString& key, QVariant value);
+  void setDockWidgetConfigurationEntry(const QString &key, QVariant value);
 
   void addRepository();
   void removeRepository(const int &index);
@@ -41,7 +40,8 @@ public:
 
 signals:
   void repositoryAdded(GitInterface *repository);
-  void repositorySwitched(GitInterface *repository, QObject *activeRepositoryContext);
+  void repositorySwitched(GitInterface *repository,
+                          QObject *activeRepositoryContext);
   void repositoryRemoved(GitInterface *repository);
 
 private:

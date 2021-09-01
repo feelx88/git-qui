@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QVariantMap>
 #include <QUuid>
+#include <QVariantMap>
 
 namespace Ui {
 class MainWindow;
@@ -15,14 +15,14 @@ class GitInterface;
 class Project;
 class DockWidget;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
   Q_OBJECT
 
   friend struct MainWindowPrivate;
 
 public:
-  explicit MainWindow(Core *core, const QVariantMap &configuration = QVariantMap());
+  explicit MainWindow(Core *core,
+                      const QVariantMap &configuration = QVariantMap());
   ~MainWindow();
 
   Core *core();
@@ -30,13 +30,11 @@ public:
   QVariant configuration() const;
 
   template <class T>
-  DockWidget *addDockWidget(
-    int tabIndex = -1,
-    const QVariant& configuration = {},
-    const QString& uuid = QUuid::createUuid().toString()
-  )
-  {
-    return addDockWidget(T::staticMetaObject.className(), tabIndex, configuration, uuid);
+  DockWidget *
+  addDockWidget(int tabIndex = -1, const QVariant &configuration = {},
+                const QString &uuid = QUuid::createUuid().toString()) {
+    return addDockWidget(T::staticMetaObject.className(), tabIndex,
+                         configuration, uuid);
   }
   QToolBar *addToolbar(Qt::ToolBarArea area);
   QMainWindow *createTab(const QString &title);
@@ -47,12 +45,10 @@ protected:
   bool event(QEvent *);
 
 private:
-  DockWidget *addDockWidget(
-    const QString &className,
-    int tabIndex = -1,
-    const QVariant& configuration = {},
-    const QString& uuid = QUuid::createUuid().toString()
-  );
+  DockWidget *
+  addDockWidget(const QString &className, int tabIndex = -1,
+                const QVariant &configuration = {},
+                const QString &uuid = QUuid::createUuid().toString());
 
   Ui::MainWindow *ui;
 

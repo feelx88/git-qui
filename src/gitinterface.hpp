@@ -4,22 +4,22 @@
 #include <QObject>
 #include <QVariant>
 
-#include "gitfile.hpp"
-#include "gitdiffline.hpp"
-#include "gitcommit.hpp"
-#include "gitbranch.hpp"
 #include "errortag.hpp"
+#include "gitbranch.hpp"
+#include "gitcommit.hpp"
+#include "gitdiffline.hpp"
+#include "gitfile.hpp"
 
 class QDir;
 class QFile;
 
 class GitInterfacePrivate;
 
-class GitInterface : public QObject
-{
+class GitInterface : public QObject {
   Q_OBJECT
 public:
-  GitInterface(const QString &name, const QString &path, QObject *parent = nullptr);
+  GitInterface(const QString &name, const QString &path,
+               QObject *parent = nullptr);
   virtual ~GitInterface();
 
   const QString name() const;
@@ -45,28 +45,31 @@ public slots:
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);
   void addLines(const QList<GitDiffLine> &lines, bool unstage);
-  void push(const QString& remote = "origin", const QVariant& branch = QVariant(), bool setUpstream = false);
+  void push(const QString &remote = "origin",
+            const QVariant &branch = QVariant(), bool setUpstream = false);
   void pull(bool rebase);
   void setFullFileDiff(bool fullFileDiff);
   void revertLastCommit();
   void resetLines(const QList<GitDiffLine> &lines);
   void checkoutPath(const QString &path);
-  void changeBranch(const QString &branchName, const QString &upstreamBranchName = "");
+  void changeBranch(const QString &branchName,
+                    const QString &upstreamBranchName = "");
   void createBranch(const QString &name);
   void deleteBranch(const QString &name);
   void setUpstream(const QString &remote, const QString &branch);
   void stash();
   void stashPop();
 signals:
-  void fileChanged(const QFile& fileName);
-  void nonStagingAreaChanged(const QList<GitFile>&);
-  void stagingAreaChanged(const QList<GitFile>&);
+  void fileChanged(const QFile &fileName);
+  void nonStagingAreaChanged(const QList<GitFile> &);
+  void stagingAreaChanged(const QList<GitFile> &);
   void logChanged(const QList<GitCommit> &logs);
   void commited();
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
   void reloaded();
-  void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream, int behindRemote, int aheadRemote);
+  void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream,
+                     int behindRemote, int aheadRemote);
   void pushStarted();
   void pushed();
   void pullStarted();
