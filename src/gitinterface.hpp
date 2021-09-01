@@ -77,6 +77,9 @@ signals:
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 
+  void actionStarted(ActionTag action);
+  void actionFinished(ActionTag action);
+
   void error(const QString &message, ActionTag tag, bool consoleOutput = false);
 
 private:
