@@ -31,8 +31,8 @@ void ErrorLog::configure(const QVariant &) {
   }
 }
 
-void ErrorLog::onError(const QString &message, ErrorTag tag) {
-  if (tag == ErrorTag::STDERR) {
+void ErrorLog::onError(const QString &message, ActionTag tag) {
+  if (tag == ActionTag::STDERR) {
     this->ui->plainTextEdit->moveCursor(QTextCursor::End);
     this->ui->plainTextEdit->insertPlainText(message);
     this->ui->plainTextEdit->moveCursor(QTextCursor::End);

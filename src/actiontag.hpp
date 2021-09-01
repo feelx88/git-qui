@@ -1,10 +1,10 @@
-#ifndef ERRORTAG_HPP
-#define ERRORTAG_HPP
+#ifndef ACTIONTAG_H
+#define ACTIONTAG_H
 
 /**
- * @brief enum for tagging error signals from GitInterface.
+ * @brief enum for tagging action signals from GitInterface.
  */
-enum ErrorTag {
+enum ActionTag {
   NO_TAG = 0,
   STDERR,
   GIT_STATUS,
@@ -21,4 +21,4 @@ enum ErrorTag {
   GIT_STASH
 };
 
-#endif // ERRORTAG_HPP
+#endif // ACTIONTAG_H

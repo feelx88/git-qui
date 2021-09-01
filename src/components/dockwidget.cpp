@@ -103,8 +103,7 @@ void DockWidget::onProjectSwitched(Project *newProject) {
       newProject->dockWidgetConfiguration().value(widgetName()).toMap());
 }
 
-void DockWidget::onProjectSpecificConfigurationLoaded(
-    const QVariantMap &configuration) {}
+void DockWidget::onProjectSpecificConfigurationLoaded(const QVariantMap &) {}
 
 void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
   connect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
@@ -116,7 +115,7 @@ void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
   disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onError(const QString &, ErrorTag) {}
+void DockWidget::onError(const QString &, ActionTag) {}
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::registry() {

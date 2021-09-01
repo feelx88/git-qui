@@ -30,7 +30,7 @@ protected:
       const QVariantMap &configuration) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface,
                                     QObject *activeRepositoryContext) override;
-  virtual void onError(const QString &message, ErrorTag tag) override;
+  virtual void onError(const QString &message, ActionTag tag) override;
 
 private:
   Ui::Commit *ui;

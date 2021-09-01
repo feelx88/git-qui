@@ -20,7 +20,7 @@ public:
   ~ErrorLog();
 
   void configure(const QVariant &) override;
-  void onError(const QString &message, ErrorTag) override;
+  void onError(const QString &message, ActionTag) override;
 
 private slots:
   void on_pushButton_clicked();

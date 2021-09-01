@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVariant>
 
-#include "errortag.hpp"
+#include "actiontag.hpp"
 #include "gitbranch.hpp"
 #include "gitcommit.hpp"
 #include "gitdiffline.hpp"
@@ -77,7 +77,7 @@ signals:
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 
-  void error(const QString &message, ErrorTag tag, bool consoleOutput = false);
+  void error(const QString &message, ActionTag tag, bool consoleOutput = false);
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;

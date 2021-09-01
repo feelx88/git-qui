@@ -56,7 +56,7 @@ public:
           QDateTime::currentDateTime().toString(Qt::ISODate),
           gitProcess.standardErrorOutput);
       errorLog->write(output.toLocal8Bit());
-      emit _this->error(output, ErrorTag::STDERR, true);
+      emit _this->error(output, ActionTag::STDERR, true);
     }
 
     return gitProcess;
@@ -339,7 +339,7 @@ void GitInterface::fetch() {
 
 bool GitInterface::commit(const QString &message) {
   if (!_impl->readyForCommit) {
-    emit error(tr("There are no files to commit"), ErrorTag::GIT_COMMIT);
+    emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT);
     return false;
   }
 
@@ -350,7 +350,7 @@ bool GitInterface::commit(const QString &message) {
   });
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(process.standardErrorOutput, ErrorTag::GIT_COMMIT);
+    emit error(process.standardErrorOutput, ActionTag::GIT_COMMIT);
     return false;
   }
 
@@ -556,7 +556,7 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
   emit pushed();
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(tr("Push has failed"), ErrorTag::GIT_PUSH);
+    emit error(tr("Push has failed"), ActionTag::GIT_PUSH);
   }
 }
 
@@ -573,7 +573,7 @@ void GitInterface::pull(bool rebase) {
   emit pulled();
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(tr("Pull has failed"), ErrorTag::GIT_PULL);
+    emit error(tr("Pull has failed"), ActionTag::GIT_PULL);
   }
 }
 

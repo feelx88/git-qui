@@ -23,7 +23,7 @@ private:                                                                       \
         [](MainWindow *mainWindow) { return new name(mainWindow); }};          \
   }
 
-#include "errortag.hpp"
+#include "actiontag.hpp"
 #include <QDockWidget>
 #include <QList>
 #include <QUuid>
@@ -79,7 +79,7 @@ protected:
   virtual void onRepositoryAdded(GitInterface *gitInterface);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
-  virtual void onError(const QString &, ErrorTag);
+  virtual void onError(const QString &, ActionTag);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> registry();
