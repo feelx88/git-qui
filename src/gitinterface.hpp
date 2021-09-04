@@ -13,6 +13,8 @@
 class QDir;
 class QFile;
 
+enum class ErrorType;
+
 class GitInterfacePrivate;
 
 class GitInterface : public QObject {
@@ -80,7 +82,8 @@ signals:
   void actionStarted(ActionTag action);
   void actionFinished(ActionTag action);
 
-  void error(const QString &message, ActionTag tag, bool consoleOutput = false);
+  void error(const QString &message, ActionTag tag, ErrorType type,
+             bool consoleOutput = false);
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;

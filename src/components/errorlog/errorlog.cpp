@@ -3,6 +3,8 @@
 
 #include <QStandardPaths>
 
+#include "errortype.hpp"
+
 struct ErrorLogImpl {
   QSharedPointer<QFile> getLogFile() {
     auto fileName =
@@ -31,8 +33,8 @@ void ErrorLog::configure(const QVariant &) {
   }
 }
 
-void ErrorLog::onError(const QString &message, ActionTag tag) {
-  if (tag == ActionTag::STDERR) {
+void ErrorLog::onError(const QString &message, ActionTag, ErrorType type) {
+  if (type == ErrorType::STDERR) {
     this->ui->plainTextEdit->moveCursor(QTextCursor::End);
     this->ui->plainTextEdit->insertPlainText(message);
     this->ui->plainTextEdit->moveCursor(QTextCursor::End);

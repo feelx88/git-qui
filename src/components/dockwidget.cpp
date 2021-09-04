@@ -115,7 +115,7 @@ void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
   disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onError(const QString &, ActionTag) {}
+void DockWidget::onError(const QString &, ActionTag, ErrorType) {}
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::registry() {

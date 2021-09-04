@@ -32,6 +32,7 @@ class MainWindow;
 class Core;
 class Project;
 class GitInterface;
+enum class ErrorType;
 
 class DockWidget : public QDockWidget {
 public:
@@ -79,7 +80,7 @@ protected:
   virtual void onRepositoryAdded(GitInterface *gitInterface);
   virtual void onRepositorySwitched(GitInterface *, QObject *);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
-  virtual void onError(const QString &, ActionTag);
+  virtual void onError(const QString &, ActionTag, ErrorType);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> registry();

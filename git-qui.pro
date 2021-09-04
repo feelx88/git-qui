@@ -30,6 +30,7 @@ HEADERS += \
     src/cleanupdialog.hpp \
     src/components/errorlog/errorlog.hpp \
     src/core.hpp \
+    src/errortype.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
     src/gitfile.hpp \

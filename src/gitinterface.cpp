@@ -8,6 +8,8 @@
 #include <QStandardPaths>
 #include <QtConcurrent/QtConcurrent>
 
+#include "errortype.hpp"
+
 struct GitProcess {
   int exitCode;
   QByteArray standardOutOutput, standardErrorOutput;
@@ -24,6 +26,7 @@ public:
   GitBranch activeBranch;
   QList<GitFile> files;
   QSharedPointer<QFile> errorLog;
+  bool actionRunning = false;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -56,7 +59,7 @@ public:
           QDateTime::currentDateTime().toString(Qt::ISODate),
           gitProcess.standardErrorOutput);
       errorLog->write(output.toLocal8Bit());
-      emit _this->error(output, ActionTag::STDERR, true);
+      emit _this->error(output, ActionTag::NO_TAG, ErrorType::STDERR, true);
     }
 
     return gitProcess;
@@ -339,7 +342,8 @@ void GitInterface::fetch() {
 
 bool GitInterface::commit(const QString &message) {
   if (!_impl->readyForCommit) {
-    emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT);
+    emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT,
+               ErrorType::GENERIC);
     return false;
   }
 
@@ -350,7 +354,8 @@ bool GitInterface::commit(const QString &message) {
   });
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(process.standardErrorOutput, ActionTag::GIT_COMMIT);
+    emit error(process.standardErrorOutput, ActionTag::GIT_COMMIT,
+               ErrorType::GENERIC);
     return false;
   }
 
@@ -556,7 +561,7 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
   emit pushed();
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(tr("Push has failed"), ActionTag::GIT_PUSH);
+    emit error(tr("Push has failed"), ActionTag::GIT_PUSH, ErrorType::GENERIC);
   }
 }
 
@@ -573,7 +578,7 @@ void GitInterface::pull(bool rebase) {
   emit pulled();
 
   if (process.exitCode != EXIT_SUCCESS) {
-    emit error(tr("Pull has failed"), ActionTag::GIT_PULL);
+    emit error(tr("Pull has failed"), ActionTag::GIT_PULL, ErrorType::GENERIC);
   }
 }
 

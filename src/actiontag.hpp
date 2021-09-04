@@ -4,9 +4,11 @@
 /**
  * @brief enum for tagging action signals from GitInterface.
  */
-enum ActionTag {
+enum class ActionTag {
+  /** General **/
   NO_TAG = 0,
-  STDERR,
+
+  /** git actions **/
   GIT_STATUS,
   GIT_LOG,
   GIT_FETCH,
