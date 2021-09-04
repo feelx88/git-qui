@@ -1,6 +1,8 @@
 #ifndef ACTIONTAG_H
 #define ACTIONTAG_H
 
+#include <QMetaType>
+
 /**
  * @brief enum for tagging action signals from GitInterface.
  */
@@ -22,5 +24,6 @@ enum class ActionTag {
   GIT_BRANCH,
   GIT_STASH
 };
+Q_DECLARE_METATYPE(ActionTag);
 
 #endif // ACTIONTAG_H
