@@ -109,7 +109,18 @@ void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
   connect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onRepositorySwitched(GitInterface *, QObject *) {}
+void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
+                                      QObject *activeRepositoryContext) {
+  connect(newGitInterface, &GitInterface::actionStarted,
+          activeRepositoryContext,
+          std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
+                    this, true));
+
+  connect(newGitInterface, &GitInterface::actionFinished,
+          activeRepositoryContext,
+          std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
+                    this, false));
+}
 
 void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
   disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
@@ -123,6 +134,14 @@ DockWidget::registry() {
     _registry.reset(new QMap<QString, RegistryEntry *>);
   }
   return _registry;
+}
+
+void DockWidget::setChildWidgetsDisabledState(bool disabled) {
+  for (const auto &child : findChildren<QWidget *>()) {
+    if (child->property(CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME).toBool()) {
+      child->setDisabled(disabled);
+    }
+  }
 }
 
 template <class T, class S>

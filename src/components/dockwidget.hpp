@@ -42,6 +42,9 @@ public:
     std::function<DockWidget *(MainWindow *)> factory;
   };
 
+  inline static const char *CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME =
+      "disableDuringRepositoryAction";
+
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();
   static DockWidget *create(QString className, MainWindow *mainWindow,
@@ -78,7 +81,8 @@ protected:
   virtual void
   onProjectSpecificConfigurationLoaded(const QVariantMap &configuration);
   virtual void onRepositoryAdded(GitInterface *gitInterface);
-  virtual void onRepositorySwitched(GitInterface *, QObject *);
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *activeRepositoryContext);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
   virtual void onError(const QString &, ActionTag, ErrorType);
 
@@ -87,6 +91,8 @@ private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> _registry;
 
   MainWindow *_mainWindow;
+
+  void setChildWidgetsDisabledState(bool disabled);
 };
 
 #endif // DOCKWIDGET_HPP
