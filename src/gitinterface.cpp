@@ -5,10 +5,29 @@
 #include <QFile>
 #include <QFuture>
 #include <QProcess>
+#include <QScopeGuard>
 #include <QStandardPaths>
 #include <QtConcurrent/QtConcurrent>
 
 #include "errortype.hpp"
+
+#define RUN_ONLY_ONCE(actionTag)                                               \
+  auto tag = actionTag;                                                        \
+  if (!_impl->runOnceCheck(actionTag)) {                                       \
+    return;                                                                    \
+  }                                                                            \
+  QScopeGuard __scopeGuard(                                                    \
+      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
+                std::cref(tag)));
+
+#define RUN_ONLY_ONCE_RETURN(actionTag, returnValue)                           \
+  auto tag = actionTag;                                                        \
+  if (!_impl->runOnceCheck(actionTag)) {                                       \
+    return returnValue;                                                        \
+  }                                                                            \
+  QScopeGuard __scopeGuard(                                                    \
+      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
+                std::cref(tag)));
 
 struct GitProcess {
   int exitCode;
@@ -112,6 +131,22 @@ public:
     }
 
     return patch;
+  }
+
+  bool runOnceCheck(const ActionTag &actionTag) {
+    if (actionRunning) {
+      emit _this->error(QObject::tr("Already running"), actionTag,
+                        ErrorType::ALREADY_RUNNING);
+      return false;
+    }
+    actionRunning = true;
+    emit _this->actionStarted((int)actionTag);
+    return true;
+  }
+
+  void finishAction(const ActionTag &actionTag) {
+    actionRunning = false;
+    emit _this->actionFinished((int)actionTag);
   }
 
   void reload() {
@@ -329,18 +364,22 @@ QString GitInterface::errorLogFileName() {
 void GitInterface::reload() { _impl->reload(); }
 
 void GitInterface::status() {
+  RUN_ONLY_ONCE(ActionTag::GIT_STATUS);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status);
 }
 
 void GitInterface::log() {
+  RUN_ONLY_ONCE(ActionTag::GIT_LOG);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log);
 }
 
 void GitInterface::fetch() {
+  RUN_ONLY_ONCE(ActionTag::GIT_FETCH);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch);
 }
 
 bool GitInterface::commit(const QString &message) {
+  RUN_ONLY_ONCE_RETURN(ActionTag::GIT_COMMIT, false);
   if (!_impl->readyForCommit) {
     emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT,
                ErrorType::GENERIC);
@@ -543,6 +582,7 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage) {
 
 void GitInterface::push(const QString &remote, const QVariant &branch,
                         bool setUpstream) {
+  RUN_ONLY_ONCE(ActionTag::GIT_PUSH);
   emit pushStarted();
 
   QList<QString> args = {"push", remote};
@@ -566,6 +606,7 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
 }
 
 void GitInterface::pull(bool rebase) {
+  RUN_ONLY_ONCE(ActionTag::GIT_PULL);
   emit pullStarted();
 
   QList<QString> arguments = {"pull"};
