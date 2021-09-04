@@ -31,7 +31,7 @@ protected:
   virtual void onRepositorySwitched(GitInterface *newGitInterface,
                                     QObject *activeRepositoryContext) override;
   virtual void onError(const QString &message, ActionTag tag,
-                       ErrorType) override;
+                       ErrorType type) override;
 
 private:
   Ui::Commit *ui;

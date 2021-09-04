@@ -145,6 +145,8 @@ void Commit::onProjectSpecificConfigurationLoaded(
 
 void Commit::onRepositorySwitched(GitInterface *newGitInterface,
                                   QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
+
   _impl->gitInterface = newGitInterface;
 
   connect(ui->pushButton_2, &QPushButton::clicked, activeRepositoryContext,
