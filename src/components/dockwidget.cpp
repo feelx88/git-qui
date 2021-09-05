@@ -7,8 +7,6 @@
 
 #include <QApplication>
 
-#include <iostream>
-
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
     DockWidget::_registry;
 
@@ -115,8 +113,6 @@ void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
                                       QObject *activeRepositoryContext) {
   setChildWidgetsDisabledState(newGitInterface->actionRunning());
 
-  connect(newGitInterface, &GitInterface::actionStarted,
-          activeRepositoryContext, [] { std::cout << "start" << std::endl; });
   connect(newGitInterface, &GitInterface::actionStarted,
           activeRepositoryContext,
           std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
