@@ -14,34 +14,15 @@
     return;                                                                    \
   }
 
-#define RUN_ONCE_CHECK_RETURN(returnValue)                                     \
+#define RUN_ONCE_CHECK_RETURN(actionTag, returnValue)                          \
   if (!_impl->runOnceCheck(actionTag)) {                                       \
     return returnValue;                                                        \
   }
 
-#define ACTION_SIGNAL_GUARD                                                    \
+#define ACTION_SIGNAL_GUARD(actionTag)                                         \
   emit _this->actionStarted(actionTag);                                        \
-  QScopeGuard __scopeGuard(                                                    \
-      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
-                std::cref(tag)));
-
-#define RUN_ONLY_ONCE(actionTag)                                               \
-  auto tag = actionTag;                                                        \
-  if (!_impl->runOnceCheck(actionTag)) {                                       \
-    return;                                                                    \
-  }                                                                            \
-  QScopeGuard __scopeGuard(                                                    \
-      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
-                std::cref(tag)));
-
-#define RUN_ONLY_ONCE_RETURN(actionTag, returnValue)                           \
-  auto tag = actionTag;                                                        \
-  if (!_impl->runOnceCheck(actionTag)) {                                       \
-    return returnValue;                                                        \
-  }                                                                            \
-  QScopeGuard __scopeGuard(                                                    \
-      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
-                std::cref(tag)));
+  QScopeGuard __scopeGuard(std::bind(                                          \
+      std::mem_fn(&GitInterfacePrivate::finishAction), this, actionTag));
 
 struct GitProcess {
   int exitCode;
@@ -308,6 +289,25 @@ public:
     git({"fetch", "--all", "--prune"});
     _this->reload();
   }
+
+  void pull(bool rebase) {
+    ACTION_SIGNAL_GUARD( // clazy:exclude=incorrect-emit
+        GitInterface::ActionTag::GIT_PULL);
+
+    QList<QString> arguments = {"pull"};
+    if (rebase) {
+      arguments << "--rebase";
+    }
+    auto process = git(arguments);
+
+    status();
+
+    if (process.exitCode != EXIT_SUCCESS) {
+      emit _this->error(QObject::tr("Pull has failed"),
+                        GitInterface::ActionTag::GIT_PULL,
+                        GitInterface::ErrorType::GENERIC);
+    }
+  }
 };
 
 GitInterface::GitInterface(const QString &name, const QString &path,
@@ -380,22 +380,22 @@ QString GitInterface::errorLogFileName() {
 void GitInterface::reload() { _impl->reload(); }
 
 void GitInterface::status() {
-  RUN_ONLY_ONCE(ActionTag::GIT_STATUS);
+  RUN_ONCE_CHECK(ActionTag::GIT_STATUS);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status);
 }
 
 void GitInterface::log() {
-  RUN_ONLY_ONCE(ActionTag::GIT_LOG);
+  RUN_ONCE_CHECK(ActionTag::GIT_LOG);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log);
 }
 
 void GitInterface::fetch() {
-  RUN_ONLY_ONCE(ActionTag::GIT_FETCH);
+  RUN_ONCE_CHECK(ActionTag::GIT_FETCH);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch);
 }
 
 bool GitInterface::commit(const QString &message) {
-  RUN_ONLY_ONCE_RETURN(ActionTag::GIT_COMMIT, false);
+  RUN_ONCE_CHECK_RETURN(ActionTag::GIT_COMMIT, false);
   if (!_impl->readyForCommit) {
     emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT,
                ErrorType::GENERIC);
@@ -598,7 +598,7 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage) {
 
 void GitInterface::push(const QString &remote, const QVariant &branch,
                         bool setUpstream) {
-  RUN_ONLY_ONCE(ActionTag::GIT_PUSH);
+  RUN_ONCE_CHECK(ActionTag::GIT_PUSH);
   emit pushStarted();
 
   QList<QString> args = {"push", remote};
@@ -622,27 +622,8 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
 }
 
 void GitInterface::pull(bool rebase) {
-  auto tag = GitInterface::ActionTag::GIT_PULL;
-  RUN_ONCE_CHECK(tag);
-  emit actionStarted(GitInterface::ActionTag::GIT_PULL);
-  QScopeGuard __scopeGuard(
-      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),
-                std::cref(tag)));
-
-  emit pullStarted();
-
-  QList<QString> arguments = {"pull"};
-  if (rebase) {
-    arguments << "--rebase";
-  }
-  auto process = _impl->git(arguments);
-
-  status();
-  emit pulled();
-
-  if (process.exitCode != EXIT_SUCCESS) {
-    emit error(tr("Pull has failed"), ActionTag::GIT_PULL, ErrorType::GENERIC);
-  }
+  RUN_ONCE_CHECK(ActionTag::GIT_PULL);
+  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::pull, rebase);
 }
 
 void GitInterface::setFullFileDiff(bool fullFileDiff) {
