@@ -1,6 +1,7 @@
 #ifndef GITINTERFACE_H
 #define GITINTERFACE_H
 
+#include <QFuture>
 #include <QObject>
 #include <QVariant>
 
@@ -53,7 +54,7 @@ public:
   const GitBranch activeBranch() const;
   bool actionRunning() const;
 
-  const QList<GitBranch> branches(const QList<QString> &args) const;
+  QFuture<QList<GitBranch>> branches(const QList<QString> &args);
 
   const QList<GitFile> files() const;
 

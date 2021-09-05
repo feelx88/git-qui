@@ -3,27 +3,36 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QFuture>
+#include <QFutureWatcher>
 #include <QProcess>
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QtConcurrent/QtConcurrent>
 
-#define RUN_ONCE_CHECK(actionTag)                                              \
-  if (!_impl->runOnceCheck(actionTag)) {                                       \
+#include <iostream>
+
+#define RUN_ONCE_IMPL(actionTag, type, runCall)                                \
+  QFutureWatcher<type> *__watcher =                                            \
+      new QFutureWatcher<type>(static_cast<QObject *>(this));                  \
+  connect(__watcher, &QFutureWatcher<type>::finished, __watcher,               \
+          &QFutureWatcher<type>::deleteLater);                                 \
+  connect(__watcher, &QFutureWatcher<type>::finished, this,                    \
+          std::bind(std::mem_fn(&GitInterfacePrivate::finishAction),           \
+                    _impl.get(), actionTag));                                  \
+  QFuture<type> __future = (runCall);                                          \
+  __watcher->setFuture(__future);
+
+#define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
+  if (!_impl->startAction(actionTag)) {                                        \
+    return QFuture<type>();                                                    \
+  }                                                                            \
+  RUN_ONCE_IMPL(actionTag, type, runCall)
+
+#define RUN_ONCE(actionTag, runCall)                                           \
+  if (!_impl->startAction(actionTag)) {                                        \
     return;                                                                    \
-  }
-
-#define RUN_ONCE_CHECK_RETURN(actionTag, returnValue)                          \
-  if (!_impl->runOnceCheck(actionTag)) {                                       \
-    return returnValue;                                                        \
-  }
-
-#define ACTION_SIGNAL_GUARD(actionTag)                                         \
-  actionRunning = true;                                                        \
-  emit _this->actionStarted(actionTag);                                        \
-  QScopeGuard __scopeGuard(std::bind(                                          \
-      std::mem_fn(&GitInterfacePrivate::finishAction), this, actionTag));
+  }                                                                            \
+  RUN_ONCE_IMPL(actionTag, void, runCall)
 
 struct GitProcess {
   int exitCode;
@@ -130,18 +139,51 @@ public:
     return patch;
   }
 
-  bool runOnceCheck(const GitInterface::ActionTag &actionTag) {
+  bool startAction(const GitInterface::ActionTag &actionTag) {
     if (actionRunning) {
       emit _this->error(QObject::tr("Already running"), actionTag,
                         GitInterface::ErrorType::ALREADY_RUNNING);
       return false;
     }
+    actionRunning = true;
+    emit _this->actionStarted(actionTag);
     return true;
   }
 
   void finishAction(const GitInterface::ActionTag &actionTag) {
     actionRunning = false;
     emit _this->actionFinished(actionTag);
+  }
+
+  QList<GitBranch> branches(const QStringList &args) {
+    auto process = git({"remote"});
+    QList<QByteArray> remotes = process.standardOutOutput.split('\n');
+    remotes.pop_back();
+
+    process = git(QList<QString>{"branch", "--format="
+                                           "%(HEAD)"
+                                           "#"
+                                           "%(refname:short)"
+                                           "#"
+                                           "%(upstream:short)"}
+                  << args);
+
+    QList<GitBranch> branches;
+
+    for (auto &line : process.standardOutOutput.split('\n')) {
+      if (!line.isEmpty()) {
+        auto parts = line.split('#');
+
+        if (parts.at(1).endsWith("HEAD")) {
+          continue;
+        }
+
+        branches.append({parts[0] == "*", parts[1], parts[2],
+                         remotes.indexOf(parts[1].split('/')[0]) > -1});
+      }
+    }
+
+    return branches;
   }
 
   void reload() {
@@ -234,7 +276,7 @@ public:
     files.clear();
     files << unstaged << staged;
 
-    QList<GitBranch> branches = _this->branches({"--all"});
+    QList<GitBranch> branches = this->branches({"--all"});
 
     for (auto &branch : branches) {
       if (branch.active) {
@@ -291,9 +333,6 @@ public:
   }
 
   void pull(bool rebase) {
-    ACTION_SIGNAL_GUARD( // clazy:exclude=incorrect-emit
-        GitInterface::ActionTag::GIT_PULL);
-
     QList<QString> arguments = {"pull"};
     if (rebase) {
       arguments << "--rebase";
@@ -338,36 +377,12 @@ const GitBranch GitInterface::activeBranch() const {
 
 bool GitInterface::actionRunning() const { return _impl->actionRunning; }
 
-const QList<GitBranch>
-GitInterface::branches(const QList<QString> &args) const {
-  auto process = _impl->git({"remote"});
-  QList<QByteArray> remotes = process.standardOutOutput.split('\n');
-  remotes.pop_back();
+QFuture<QList<GitBranch>> GitInterface::branches(const QList<QString> &args) {
+  RUN_ONCE_TYPED(
+      ActionTag::GIT_BRANCH, QList<GitBranch>,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::branches, args));
 
-  process = _impl->git(QList<QString>{"branch", "--format="
-                                                "%(HEAD)"
-                                                "#"
-                                                "%(refname:short)"
-                                                "#"
-                                                "%(upstream:short)"}
-                       << args);
-
-  QList<GitBranch> branches;
-
-  for (auto &line : process.standardOutOutput.split('\n')) {
-    if (!line.isEmpty()) {
-      auto parts = line.split('#');
-
-      if (parts.at(1).endsWith("HEAD")) {
-        continue;
-      }
-
-      branches.append({parts[0] == "*", parts[1], parts[2],
-                       remotes.indexOf(parts[1].split('/')[0]) > -1});
-    }
-  }
-
-  return branches;
+  return __future;
 }
 
 const QList<GitFile> GitInterface::files() const { return _impl->files; }
@@ -380,22 +395,18 @@ QString GitInterface::errorLogFileName() {
 void GitInterface::reload() { _impl->reload(); }
 
 void GitInterface::status() {
-  RUN_ONCE_CHECK(ActionTag::GIT_STATUS);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status);
 }
 
 void GitInterface::log() {
-  RUN_ONCE_CHECK(ActionTag::GIT_LOG);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log);
 }
 
 void GitInterface::fetch() {
-  RUN_ONCE_CHECK(ActionTag::GIT_FETCH);
   QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch);
 }
 
 bool GitInterface::commit(const QString &message) {
-  RUN_ONCE_CHECK_RETURN(ActionTag::GIT_COMMIT, false);
   if (!_impl->readyForCommit) {
     emit error(tr("There are no files to commit"), ActionTag::GIT_COMMIT,
                ErrorType::GENERIC);
@@ -598,7 +609,6 @@ void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage) {
 
 void GitInterface::push(const QString &remote, const QVariant &branch,
                         bool setUpstream) {
-  RUN_ONCE_CHECK(ActionTag::GIT_PUSH);
   emit pushStarted();
 
   QList<QString> args = {"push", remote};
@@ -622,8 +632,8 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
 }
 
 void GitInterface::pull(bool rebase) {
-  RUN_ONCE_CHECK(ActionTag::GIT_PULL);
-  QtConcurrent::run(_impl.get(), &GitInterfacePrivate::pull, rebase);
+  RUN_ONCE(ActionTag::GIT_PULL,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::pull, rebase));
 }
 
 void GitInterface::setFullFileDiff(bool fullFileDiff) {
