@@ -1,16 +1,15 @@
 #include "toolbaractions.hpp"
 
-#include <QAction>
-#include <QApplication>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QtConcurrent/QtConcurrent>
-
 #include "cleanupdialog.hpp"
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
 #include "qobjecthelpers.hpp"
+
+#include <QAction>
+#include <QApplication>
+#include <QInputDialog>
+#include <QMessageBox>
 
 QMap<QString, QAction *> ToolBarActions::_actionMap;
 
@@ -56,10 +55,7 @@ void ToolBarActions::initialize(Core *core) {
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
 
-            QtConcurrent::run([=] {
-              emit repository->pushStarted();
-              repository->push("origin", branch, addUpstream);
-            });
+            repository->push("origin", branch, addUpstream);
           });
 
       QObject::connect(
@@ -78,16 +74,13 @@ void ToolBarActions::initialize(Core *core) {
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
 
-            QtConcurrent::run([=] {
-              emit repository->pullStarted();
-              if (stash) {
-                repository->stash();
-              }
-              repository->pull(true);
-              if (stash) {
-                repository->stashPop();
-              }
-            });
+            if (stash) {
+              repository->stash();
+            }
+            repository->pull(true);
+            if (stash) {
+              repository->stashPop();
+            }
           });
 
       QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
@@ -106,15 +99,14 @@ void ToolBarActions::initialize(Core *core) {
                      newProject, [=] {
                        for (auto repo : newProject->repositoryList()) {
                          emit repo->pushStarted();
-                         QtConcurrent::run([=] { repo->push(); });
+                         repo->push();
                        }
                      });
 
     QObject::connect(_actionMap[ActionID::PULL_ALL], &QAction::triggered,
                      newProject, [=] {
                        for (auto repo : newProject->repositoryList()) {
-                         emit repo->pullStarted();
-                         QtConcurrent::run([=] { repo->pull(true); });
+                         repo->pull(true);
                        }
                      });
 
