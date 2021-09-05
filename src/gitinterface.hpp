@@ -23,6 +23,7 @@ public:
   enum class ActionTag {
     /** General **/
     NO_TAG = 0,
+    RELOAD,
 
     /** git actions **/
     GIT_STATUS,
@@ -36,7 +37,9 @@ public:
     GIT_PULL,
     GIT_RESET,
     GIT_BRANCH,
-    GIT_STASH
+    GIT_STASH,
+    GIT_CHECKOUT,
+    GIT_REMOTE
   };
   Q_ENUM(ActionTag);
 
@@ -65,7 +68,7 @@ public slots:
   void status();
   void log();
   void fetch();
-  bool commit(const QString &message);
+  QFuture<bool> commit(const QString &message);
   void stageFile(const QString &path);
   void unstageFile(const QString &path);
   void selectFile(bool unstaged, const QString &path);
@@ -90,16 +93,10 @@ signals:
   void nonStagingAreaChanged(const QList<GitFile> &);
   void stagingAreaChanged(const QList<GitFile> &);
   void logChanged(const QList<GitCommit> &logs);
-  void commited();
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
-  void reloaded();
   void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream,
                      int behindRemote, int aheadRemote);
-  void pushStarted();
-  void pushed();
-  void pullStarted();
-  void pulled();
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 

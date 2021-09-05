@@ -158,8 +158,13 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
             ui->pushButton_2->setDisabled(true);
           });
 
-  connect(_impl->gitInterface, &GitInterface::commited, activeRepositoryContext,
-          [=] { ui->plainTextEdit->clear(); });
+  connect(_impl->gitInterface, &GitInterface::actionFinished,
+          activeRepositoryContext,
+          [=](const GitInterface::ActionTag &actionTag) {
+            if (actionTag == GitInterface::ActionTag::GIT_COMMIT) {
+              ui->plainTextEdit->clear();
+            }
+          });
 
   connect(_impl->gitInterface, &GitInterface::stagingAreaChanged,
           activeRepositoryContext,

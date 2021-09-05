@@ -98,7 +98,6 @@ void ToolBarActions::initialize(Core *core) {
     QObject::connect(_actionMap[ActionID::PUSH_ALL], &QAction::triggered,
                      newProject, [=] {
                        for (auto repo : newProject->repositoryList()) {
-                         emit repo->pushStarted();
                          repo->push();
                        }
                      });

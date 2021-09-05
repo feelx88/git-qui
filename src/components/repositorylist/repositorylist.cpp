@@ -80,24 +80,37 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
                                     QIcon(":/deploy/icons/state-ok.svg")));
           });
 
-  connect(newGitInterface, &GitInterface::pushStarted, item, [=] {
-    item->setDisabled(true);
-    item->setText(1, tr("Pushing..."));
-    item->setIcon(0, QIcon::fromTheme("state-sync",
+  connect(newGitInterface, &GitInterface::actionStarted, item,
+          [=](const GitInterface::ActionTag &actionTag) {
+            if (actionTag == GitInterface::ActionTag::GIT_PUSH) {
+              item->setDisabled(true);
+              item->setText(1, tr("Pushing..."));
+              item->setIcon(
+                  0, QIcon::fromTheme("state-sync",
                                       QIcon(":/deploy/icons/state-sync.svg")));
-  });
+            }
+          });
 
-  connect(newGitInterface, &GitInterface::pullStarted, item, [=] {
-    item->setDisabled(true);
-    item->setText(1, tr("Pulling..."));
-    item->setIcon(0, QIcon::fromTheme("state-sync",
+  connect(newGitInterface, &GitInterface::actionStarted, item,
+          [=](const GitInterface::ActionTag &actionTag) {
+            if (actionTag == GitInterface::ActionTag::GIT_PULL) {
+              item->setDisabled(true);
+              item->setText(1, tr("Pulling..."));
+              item->setIcon(
+                  0, QIcon::fromTheme("state-sync",
                                       QIcon(":/deploy/icons/state-sync.svg")));
-  });
+            }
+          });
 
-  connect(newGitInterface, &GitInterface::error, item, [=] {
-    item->setIcon(0, QIcon::fromTheme("state-error",
+  connect(newGitInterface, &GitInterface::error, item,
+          [=](const QString &, GitInterface::ActionTag,
+              GitInterface::ErrorType type) {
+            if (type != GitInterface::ErrorType::ALREADY_RUNNING) {
+              item->setIcon(
+                  0, QIcon::fromTheme("state-error",
                                       QIcon(":/deploy/icons/state-error.svg")));
-  });
+            }
+          });
 }
 
 void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface,
