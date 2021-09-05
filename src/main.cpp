@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   qRegisterMetaType<QList<GitFile>>();
   qRegisterMetaType<QList<GitCommit>>();
   qRegisterMetaType<QList<GitBranch>>();
+  qRegisterMetaType<QList<GitDiffLine>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
   qRegisterMetaType<GitInterface::ActionTag>();
