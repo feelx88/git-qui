@@ -4,7 +4,6 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
-#include <QtConcurrent/QtConcurrentRun>
 
 #include "gitinterface.hpp"
 #include "initialwindowconfiguration.hpp"
