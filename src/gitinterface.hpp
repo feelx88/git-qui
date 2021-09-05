@@ -29,6 +29,7 @@ public:
   const QString path() const;
   void setPath(const QString &path);
   const GitBranch activeBranch() const;
+  bool actionRunning() const;
 
   const QList<GitBranch> branches(const QList<QString> &args) const;
 

@@ -322,6 +322,8 @@ const GitBranch GitInterface::activeBranch() const {
   return _impl->activeBranch;
 }
 
+bool GitInterface::actionRunning() const { return _impl->actionRunning; }
+
 const QList<GitBranch>
 GitInterface::branches(const QList<QString> &args) const {
   auto process = _impl->git({"remote"});

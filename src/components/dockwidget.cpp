@@ -111,6 +111,8 @@ void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
 
 void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
                                       QObject *activeRepositoryContext) {
+  setChildWidgetsDisabledState(newGitInterface->actionRunning());
+
   connect(newGitInterface, &GitInterface::actionStarted,
           activeRepositoryContext,
           std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
