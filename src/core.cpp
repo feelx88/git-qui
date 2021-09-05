@@ -25,14 +25,8 @@ struct CorePrivate {
   QVariantMap recentProjects;
   QList<MainWindow *> mainWindows;
   QTimer *autoFetchTimer = nullptr;
-  QFuture<void> autoFetchFuture;
 
   CorePrivate(Core *core) : _this(core) {}
-
-  virtual ~CorePrivate() {
-    autoFetchFuture.cancel();
-    autoFetchFuture.waitForFinished();
-  }
 
   bool loadProject(const QSettings &settings) {
     QString projectFileName =
@@ -104,14 +98,8 @@ struct CorePrivate {
   }
 
   void onAutoFetchTimerTimeout() {
-    if (project && autoFetchFuture.isFinished()) {
-      autoFetchFuture = QtConcurrent::run([this] {
-        for (auto &repository : project->repositoryList()) {
-          if (!autoFetchFuture.isCanceled()) {
-            repository->fetch();
-          }
-        }
-      });
+    for (auto &repository : project->repositoryList()) {
+      repository->fetch();
     }
   }
 };
@@ -169,9 +157,6 @@ bool Core::init() {
 
 void Core::changeProject(Project *newProject) {
   emit beforeProjectChanged(_impl->project.get());
-
-  _impl->autoFetchFuture.cancel();
-  _impl->autoFetchFuture.waitForFinished();
 
   _impl->project.reset(newProject);
   _impl->recentProjects.insert(newProject->fileName(), newProject->name());
