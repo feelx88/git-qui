@@ -708,7 +708,7 @@ void GitInterface::fetch() {
 
 QFuture<bool> GitInterface::commit(const QString &message) {
   RUN_ONCE_TYPED(
-      ActionTag::GIT_BRANCH, bool,
+      ActionTag::GIT_COMMIT, bool,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::commit, message));
 }
 
