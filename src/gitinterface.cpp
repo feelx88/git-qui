@@ -438,6 +438,8 @@ public:
       output = readLine();
     }
 
+    file->deleteLater();
+
     QString header;
 
     if (binary) {
