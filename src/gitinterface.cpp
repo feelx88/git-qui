@@ -20,6 +20,7 @@
   }
 
 #define ACTION_SIGNAL_GUARD(actionTag)                                         \
+  actionRunning = true;                                                        \
   emit _this->actionStarted(actionTag);                                        \
   QScopeGuard __scopeGuard(std::bind(                                          \
       std::mem_fn(&GitInterfacePrivate::finishAction), this, actionTag));
@@ -135,7 +136,6 @@ public:
                         GitInterface::ErrorType::ALREADY_RUNNING);
       return false;
     }
-    actionRunning = true;
     return true;
   }
 
