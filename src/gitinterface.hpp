@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QVariant>
 
-#include "actiontag.hpp"
 #include "gitbranch.hpp"
 #include "gitcommit.hpp"
 #include "gitdiffline.hpp"
@@ -20,6 +19,29 @@ class GitInterfacePrivate;
 class GitInterface : public QObject {
   Q_OBJECT
 public:
+  enum class ActionTag {
+    /** General **/
+    NO_TAG = 0,
+
+    /** git actions **/
+    GIT_STATUS,
+    GIT_LOG,
+    GIT_FETCH,
+    GIT_COMMIT,
+    GIT_ADD,
+    GIT_REMOVE,
+    GIT_DIFF,
+    GIT_PUSH,
+    GIT_PULL,
+    GIT_RESET,
+    GIT_BRANCH,
+    GIT_STASH
+  };
+  Q_ENUM(ActionTag);
+
+  enum class ErrorType { GENERIC = 0, STDERR, ALREADY_RUNNING };
+  Q_ENUM(ErrorType);
+
   GitInterface(const QString &name, const QString &path,
                QObject *parent = nullptr);
   virtual ~GitInterface();
@@ -80,11 +102,11 @@ signals:
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 
-  void actionStarted(const int &action);
-  void actionFinished(const int &action);
+  void actionStarted(const GitInterface::ActionTag &action);
+  void actionFinished(const GitInterface::ActionTag &action);
 
-  void error(const QString &message, ActionTag tag, ErrorType type,
-             bool consoleOutput = false);
+  void error(const QString &message, GitInterface::ActionTag tag,
+             GitInterface::ErrorType type, bool consoleOutput = false);
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;

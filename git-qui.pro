@@ -26,11 +26,9 @@ SOURCES += \
     src/treewidgetitem.cpp
 
 HEADERS += \
-    src/actiontag.hpp \
     src/cleanupdialog.hpp \
     src/components/errorlog/errorlog.hpp \
     src/core.hpp \
-    src/errortype.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
     src/gitfile.hpp \

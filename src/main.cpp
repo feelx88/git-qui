@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
@@ -20,6 +18,9 @@ int main(int argc, char *argv[]) {
   qRegisterMetaType<QList<GitCommit>>();
   qRegisterMetaType<QList<GitBranch>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
+
+  qRegisterMetaType<GitInterface::ActionTag>();
+  qRegisterMetaType<GitInterface::ErrorType>();
 
   Core core;
   if (!core.init()) {

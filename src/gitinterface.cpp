@@ -9,7 +9,21 @@
 #include <QStandardPaths>
 #include <QtConcurrent/QtConcurrent>
 
-#include "errortype.hpp"
+#define RUN_ONCE_CHECK(actionTag)                                              \
+  if (!_impl->runOnceCheck(actionTag)) {                                       \
+    return;                                                                    \
+  }
+
+#define RUN_ONCE_CHECK_RETURN(returnValue)                                     \
+  if (!_impl->runOnceCheck(actionTag)) {                                       \
+    return returnValue;                                                        \
+  }
+
+#define ACTION_SIGNAL_GUARD                                                    \
+  emit _this->actionStarted(actionTag);                                        \
+  QScopeGuard __scopeGuard(                                                    \
+      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),  \
+                std::cref(tag)));
 
 #define RUN_ONLY_ONCE(actionTag)                                               \
   auto tag = actionTag;                                                        \
@@ -78,7 +92,8 @@ public:
           QDateTime::currentDateTime().toString(Qt::ISODate),
           gitProcess.standardErrorOutput);
       errorLog->write(output.toLocal8Bit());
-      emit _this->error(output, ActionTag::NO_TAG, ErrorType::STDERR, true);
+      emit _this->error(output, GitInterface::ActionTag::NO_TAG,
+                        GitInterface::ErrorType::STDERR, true);
     }
 
     return gitProcess;
@@ -133,20 +148,19 @@ public:
     return patch;
   }
 
-  bool runOnceCheck(const ActionTag &actionTag) {
+  bool runOnceCheck(const GitInterface::ActionTag &actionTag) {
     if (actionRunning) {
       emit _this->error(QObject::tr("Already running"), actionTag,
-                        ErrorType::ALREADY_RUNNING);
+                        GitInterface::ErrorType::ALREADY_RUNNING);
       return false;
     }
     actionRunning = true;
-    emit _this->actionStarted((int)actionTag);
     return true;
   }
 
-  void finishAction(const ActionTag &actionTag) {
+  void finishAction(const GitInterface::ActionTag &actionTag) {
     actionRunning = false;
-    emit _this->actionFinished((int)actionTag);
+    emit _this->actionFinished(actionTag);
   }
 
   void reload() {
@@ -608,7 +622,13 @@ void GitInterface::push(const QString &remote, const QVariant &branch,
 }
 
 void GitInterface::pull(bool rebase) {
-  RUN_ONLY_ONCE(ActionTag::GIT_PULL);
+  auto tag = GitInterface::ActionTag::GIT_PULL;
+  RUN_ONCE_CHECK(tag);
+  emit actionStarted(GitInterface::ActionTag::GIT_PULL);
+  QScopeGuard __scopeGuard(
+      std::bind(std::mem_fn(&GitInterfacePrivate::finishAction), _impl.get(),
+                std::cref(tag)));
+
   emit pullStarted();
 
   QList<QString> arguments = {"pull"};

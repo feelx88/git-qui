@@ -170,8 +170,9 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
           [=](const QList<GitFile> &list) { _impl->unstagedFiles = list; });
 }
 
-void Commit::onError(const QString &message, ActionTag tag, ErrorType) {
-  if (tag != ActionTag::GIT_COMMIT) {
+void Commit::onError(const QString &message, GitInterface::ActionTag tag,
+                     GitInterface::ErrorType) {
+  if (tag != GitInterface::ActionTag::GIT_COMMIT) {
     return;
   }
 

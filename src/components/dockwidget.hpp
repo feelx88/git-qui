@@ -1,8 +1,12 @@
 #ifndef DOCKWIDGET_HPP
 #define DOCKWIDGET_HPP
 
+#include "gitinterface.hpp"
+#include <QDockWidget>
 #include <QFuture>
+#include <QList>
 #include <QMainWindow>
+#include <QUuid>
 
 #define DOCK_WIDGET                                                            \
 protected:                                                                     \
@@ -23,16 +27,9 @@ private:                                                                       \
         [](MainWindow *mainWindow) { return new name(mainWindow); }};          \
   }
 
-#include "actiontag.hpp"
-#include <QDockWidget>
-#include <QList>
-#include <QUuid>
-
 class MainWindow;
 class Core;
 class Project;
-class GitInterface;
-enum class ErrorType;
 
 class DockWidget : public QDockWidget {
 public:
@@ -84,7 +81,8 @@ protected:
   virtual void onRepositorySwitched(GitInterface *newGitInterface,
                                     QObject *activeRepositoryContext);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
-  virtual void onError(const QString &, ActionTag, ErrorType);
+  virtual void onError(const QString &, GitInterface::ActionTag,
+                       GitInterface::ErrorType);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> registry();

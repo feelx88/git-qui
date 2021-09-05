@@ -20,7 +20,8 @@ public:
   ~ErrorLog();
 
   void configure(const QVariant &) override;
-  void onError(const QString &message, ActionTag, ErrorType type) override;
+  void onError(const QString &message, GitInterface::ActionTag,
+               GitInterface::ErrorType type) override;
 
 private slots:
   void on_pushButton_clicked();
