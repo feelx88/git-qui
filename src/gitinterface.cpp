@@ -22,8 +22,8 @@
   connect(__watcher, &QFutureWatcher<type>::finished, this,                    \
           std::bind(std::mem_fn(&GitInterfacePrivate::finishAction),           \
                     _impl.get(), actionTag));                                  \
-  QFuture<type> __future = (runCall);                                          \
-  _impl->actionFuture = __future;                                              \
+  QFuture<type> __future;                                                      \
+  _impl->actionFuture = __future = (runCall);                                  \
   __watcher->setFuture(__future);                                              \
   return __future;
 
@@ -136,7 +136,7 @@ public:
   }
 
   bool startAction(const GitInterface::ActionTag &actionTag) {
-    if (actionRunning) {
+    if (actionFuture.isRunning()) {
       emit _this->error(QObject::tr("Already running"), actionTag,
                         GitInterface::ErrorType::ALREADY_RUNNING);
       return false;

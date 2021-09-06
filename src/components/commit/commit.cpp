@@ -30,7 +30,7 @@ struct CommitPrivate {
           for (auto &file : unstagedFiles) {
             paths << file.path;
           }
-          gitInterface->stageFiles(paths);
+          gitInterface->stageFiles(paths).waitForFinished();
         } else {
           return;
         }
@@ -46,7 +46,8 @@ struct CommitPrivate {
         message.append(QString(" ") + _this->ui->lineEditSuffix->text());
       }
 
-      if (gitInterface->commit(message)) {
+      auto commit = gitInterface->commit(message);
+      if (!commit.isCanceled() && commit.result()) {
         emit gitInterface->fileDiffed("", {}, false);
         _this->ui->pushButton_2->setEnabled(true);
 
