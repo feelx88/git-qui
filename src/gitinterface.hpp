@@ -71,6 +71,7 @@ public slots:
   void fetch();
   QFuture<bool> commit(const QString &message);
   void stageFile(const QString &path);
+  void stageFiles(const QStringList &paths);
   void unstageFile(const QString &path);
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);

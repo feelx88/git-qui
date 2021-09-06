@@ -359,8 +359,10 @@ public:
     return true;
   }
 
-  void stageFile(const QString &path) {
-    git({"add", path});
+  void stageFiles(const QStringList &paths) {
+    for (auto &path : paths) {
+      git({"add", path});
+    }
     status();
   }
 
@@ -718,9 +720,15 @@ QFuture<bool> GitInterface::commit(const QString &message) {
 }
 
 void GitInterface::stageFile(const QString &path) {
+  RUN_ONCE(ActionTag::GIT_ADD,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stageFiles,
+                             (QStringList() << path)));
+}
+
+void GitInterface::stageFiles(const QStringList &paths) {
   RUN_ONCE(
       ActionTag::GIT_ADD,
-      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stageFile, path));
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stageFiles, paths));
 }
 
 void GitInterface::unstageFile(const QString &path) {

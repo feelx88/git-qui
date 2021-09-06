@@ -23,7 +23,7 @@ protected:
   virtual void onProjectSwitched(Project *newProject) override;
   virtual void onRepositoryAdded(GitInterface *newGitInterface) override;
   virtual void onRepositorySwitched(GitInterface *newGitInterface,
-                                    QObject *) override;
+                                    QObject *activeRepositoryContext) override;
   virtual void onRepositoryRemoved(GitInterface *newGitInterface) override;
 
 private:

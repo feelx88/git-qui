@@ -55,6 +55,7 @@ void LogView::onProjectSwitched(Project *newProject) {
 
 void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                                    QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
 
   connect(newGitInterface, &GitInterface::logChanged, activeRepositoryContext,

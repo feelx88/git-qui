@@ -38,6 +38,9 @@
       <property name="columnCount">
        <number>3</number>
       </property>
+      <property name="disableDuringRepositoryAction" stdset="0">
+       <bool>true</bool>
+      </property>
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>

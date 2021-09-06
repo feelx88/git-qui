@@ -160,6 +160,7 @@ void RepositoryFiles::onProjectSwitched(Project *newProject) {
 
 void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
                                            QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
 
   connect(

@@ -128,7 +128,8 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
 }
 
 void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface,
-                                          QObject *) {
+                                          QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   _impl->currentRepository = newGitInterface->name();
   auto items = ui->treeWidget->findItems(newGitInterface->name(),

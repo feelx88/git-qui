@@ -113,6 +113,7 @@ void DiffView::onProjectSwitched(Project *newProject) {
 
 void DiffView::onRepositorySwitched(GitInterface *newGitInterface,
                                     QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->clear();
   _impl->gitInterface = newGitInterface;
 

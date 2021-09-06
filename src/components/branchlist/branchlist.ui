@@ -30,6 +30,9 @@
       <property name="columnCount">
        <number>1</number>
       </property>
+      <property name="disableDuringRepositoryAction" stdset="0">
+       <bool>true</bool>
+      </property>
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>
@@ -53,6 +56,9 @@
        <enum>Qt::ActionsContextMenu</enum>
       </property>
       <property name="rootIsDecorated">
+       <bool>true</bool>
+      </property>
+      <property name="disableDuringRepositoryAction" stdset="0">
        <bool>true</bool>
       </property>
       <attribute name="headerVisible">

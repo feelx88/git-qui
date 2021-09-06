@@ -26,9 +26,11 @@ struct CommitPrivate {
         dlg.setDefaultButton(QMessageBox::Yes);
 
         if (dlg.exec() == QMessageBox::Yes) {
-          for (auto &unstagedFile : QList<GitFile>(unstagedFiles)) {
-            gitInterface->stageFile(unstagedFile.path);
+          QStringList paths;
+          for (auto &file : unstagedFiles) {
+            paths << file.path;
           }
+          gitInterface->stageFiles(paths);
         } else {
           return;
         }
