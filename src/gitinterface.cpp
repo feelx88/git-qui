@@ -52,6 +52,23 @@ public:
     errorLog->open(QFile::Append);
   }
 
+  bool startAction(const GitInterface::ActionTag &actionTag) {
+    if (actionFuture.isRunning()) {
+      emit _this->error(QObject::tr("Already running"), actionTag,
+                        GitInterface::ErrorType::ALREADY_RUNNING);
+      return false;
+    }
+    emit _this->actionStarted(actionTag);
+    return true;
+  }
+
+  void finishAction(const GitInterface::ActionTag &actionTag) {
+    emit _this->actionFinished(actionTag);
+    if (!callQueue.isEmpty()) {
+      callQueue.takeFirst()();
+    }
+  }
+
   GitProcess git(const QList<QString> &params, const QString &writeData = "") {
     QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
     std::string stdWriteData = writeData.toStdString();
@@ -132,20 +149,6 @@ public:
     }
 
     return patch;
-  }
-
-  bool startAction(const GitInterface::ActionTag &actionTag) {
-    if (actionFuture.isRunning()) {
-      emit _this->error(QObject::tr("Already running"), actionTag,
-                        GitInterface::ErrorType::ALREADY_RUNNING);
-      return false;
-    }
-    emit _this->actionStarted(actionTag);
-    return true;
-  }
-
-  void finishAction(const GitInterface::ActionTag &actionTag) {
-    emit _this->actionFinished(actionTag);
   }
 
   QList<GitBranch> branches(const QStringList &args) {
