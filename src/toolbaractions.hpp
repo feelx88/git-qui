@@ -18,6 +18,7 @@ public:
     static constexpr const char *PULL_ALL = "pull-all";
     static constexpr const char *NEW_BRANCH = "new-branch";
     static constexpr const char *CLEANUP = "cleanup";
+    static constexpr const char *FETCH = "fetch";
   };
 
   static void initialize(Core *core);

@@ -16,6 +16,7 @@ QMap<QString, QAction *> ToolBarActions::_actionMap;
 void ToolBarActions::initialize(Core *core) {
   addAction(ActionID::STASH, "archive-insert", "Stash changes");
   addAction(ActionID::UNSTASH, "archive-remove", "Unstash changes");
+  addAction(ActionID::FETCH, "edit-download", "Fetch data from default remote");
   addAction(ActionID::PUSH, "go-up", "Push current repository");
   addAction(ActionID::PULL, "go-down", "Pull current repository (with rebase)");
   addAction(ActionID::PUSH_ALL, "go-top", "Push all repositories");
@@ -32,6 +33,9 @@ void ToolBarActions::initialize(Core *core) {
   auto projectChanged = [=](Project *newProject) {
     auto repositoryChanged = [=](GitInterface *repository,
                                  QObject *activeRepositoryContext) {
+      QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
+                       activeRepositoryContext, [=] { repository->fetch(); });
+
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
                        activeRepositoryContext, [=] { repository->stash(); });
 

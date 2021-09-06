@@ -56,6 +56,7 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   }
 
   auto toolbar = mainWindow->addToolbar(Qt::ToolBarArea::TopToolBarArea);
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::FETCH));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PUSH));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL_ALL));
