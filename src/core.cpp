@@ -97,6 +97,12 @@ struct CorePrivate {
   }
 
   void onAutoFetchTimerTimeout() {
+    for (const auto &window : qAsConst(mainWindows)) {
+      if (window->isActiveWindow()) {
+        return;
+      }
+    }
+
     for (auto &repository : project->repositoryList()) {
       repository->fetchNonBlocking();
     }
