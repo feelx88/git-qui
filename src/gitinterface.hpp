@@ -65,31 +65,32 @@ public:
   static QString errorLogFileName();
 
 public slots:
-  void reload();
-  void status();
-  void log();
-  void fetch();
+  QFuture<void> reload();
+  QFuture<void> status();
+  QFuture<void> log();
+  QFuture<void> fetch();
   QFuture<bool> commit(const QString &message);
-  void stageFile(const QString &path);
-  void stageFiles(const QStringList &paths);
-  void unstageFile(const QString &path);
-  void selectFile(bool unstaged, const QString &path);
-  void diffFile(bool unstaged, const QString &path);
-  void addLines(const QList<GitDiffLine> &lines, bool unstage);
-  void push(const QString &remote = "origin",
-            const QVariant &branch = QVariant(), bool setUpstream = false);
-  void pull(bool rebase);
+  QFuture<void> stageFile(const QString &path);
+  QFuture<void> stageFiles(const QStringList &paths);
+  QFuture<void> unstageFile(const QString &path);
+  QFuture<void> selectFile(bool unstaged, const QString &path);
+  QFuture<void> diffFile(bool unstaged, const QString &path);
+  QFuture<void> addLines(const QList<GitDiffLine> &lines, bool unstage);
+  QFuture<void> push(const QString &remote = "origin",
+                     const QVariant &branch = QVariant(),
+                     bool setUpstream = false);
+  QFuture<void> pull(bool rebase);
   void setFullFileDiff(bool fullFileDiff);
-  void revertLastCommit();
-  void resetLines(const QList<GitDiffLine> &lines);
-  void checkoutPath(const QString &path);
-  void changeBranch(const QString &branchName,
-                    const QString &upstreamBranchName = "");
-  void createBranch(const QString &name);
-  void deleteBranch(const QString &name);
-  void setUpstream(const QString &remote, const QString &branch);
-  void stash();
-  void stashPop();
+  QFuture<void> revertLastCommit();
+  QFuture<void> resetLines(const QList<GitDiffLine> &lines);
+  QFuture<void> checkoutPath(const QString &path);
+  QFuture<void> changeBranch(const QString &branchName,
+                             const QString &upstreamBranchName = "");
+  QFuture<void> createBranch(const QString &name);
+  QFuture<void> deleteBranch(const QString &name);
+  QFuture<void> setUpstream(const QString &remote, const QString &branch);
+  QFuture<void> stash();
+  QFuture<void> stashPop();
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);

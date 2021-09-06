@@ -11,7 +11,10 @@
 
 #include <iostream>
 
-#define RUN_ONCE_IMPL(actionTag, type, runCall)                                \
+#define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
+  if (!_impl->startAction(actionTag)) {                                        \
+    return QFuture<type>();                                                    \
+  }                                                                            \
   QFutureWatcher<type> *__watcher =                                            \
       new QFutureWatcher<type>(static_cast<QObject *>(this));                  \
   connect(__watcher, &QFutureWatcher<type>::finished, __watcher,               \
@@ -21,20 +24,10 @@
                     _impl.get(), actionTag));                                  \
   QFuture<type> __future = (runCall);                                          \
   _impl->actionFuture = __future;                                              \
-  __watcher->setFuture(__future);
-
-#define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
-  if (!_impl->startAction(actionTag)) {                                        \
-    return QFuture<type>();                                                    \
-  }                                                                            \
-  RUN_ONCE_IMPL(actionTag, type, runCall)                                      \
+  __watcher->setFuture(__future);                                              \
   return __future;
 
-#define RUN_ONCE(actionTag, runCall)                                           \
-  if (!_impl->startAction(actionTag)) {                                        \
-    return;                                                                    \
-  }                                                                            \
-  RUN_ONCE_IMPL(actionTag, void, runCall)
+#define RUN_ONCE(actionTag, runCall) RUN_ONCE_TYPED(actionTag, void, runCall)
 
 struct GitProcess {
   int exitCode;
@@ -693,22 +686,22 @@ void GitInterface::setFullFileDiff(bool fullFileDiff) {
   _impl->fullFileDiff = fullFileDiff;
 }
 
-void GitInterface::reload() {
+QFuture<void> GitInterface::reload() {
   RUN_ONCE(ActionTag::RELOAD,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::reload));
 }
 
-void GitInterface::status() {
+QFuture<void> GitInterface::status() {
   RUN_ONCE(ActionTag::GIT_STATUS,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status));
 }
 
-void GitInterface::log() {
+QFuture<void> GitInterface::log() {
   RUN_ONCE(ActionTag::GIT_LOG,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log));
 }
 
-void GitInterface::fetch() {
+QFuture<void> GitInterface::fetch() {
   RUN_ONCE(ActionTag::GIT_FETCH,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch));
 }
@@ -719,103 +712,104 @@ QFuture<bool> GitInterface::commit(const QString &message) {
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::commit, message));
 }
 
-void GitInterface::stageFile(const QString &path) {
+QFuture<void> GitInterface::stageFile(const QString &path) {
   RUN_ONCE(ActionTag::GIT_ADD,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stageFiles,
                              (QStringList() << path)));
 }
 
-void GitInterface::stageFiles(const QStringList &paths) {
+QFuture<void> GitInterface::stageFiles(const QStringList &paths) {
   RUN_ONCE(
       ActionTag::GIT_ADD,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stageFiles, paths));
 }
 
-void GitInterface::unstageFile(const QString &path) {
+QFuture<void> GitInterface::unstageFile(const QString &path) {
   RUN_ONCE(
       ActionTag::GIT_RESET,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::unstageFile, path));
 }
 
-void GitInterface::selectFile(bool unstaged, const QString &path) {
+QFuture<void> GitInterface::selectFile(bool unstaged, const QString &path) {
   emit fileSelected(unstaged, path);
-
-  diffFile(unstaged, path);
+  return diffFile(unstaged, path);
 }
 
-void GitInterface::diffFile(bool unstaged, const QString &path) {
+QFuture<void> GitInterface::diffFile(bool unstaged, const QString &path) {
   RUN_ONCE(ActionTag::GIT_DIFF,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::diffFile,
                              unstaged, path));
 }
 
-void GitInterface::addLines(const QList<GitDiffLine> &lines, bool unstage) {
+QFuture<void> GitInterface::addLines(const QList<GitDiffLine> &lines,
+                                     bool unstage) {
   RUN_ONCE(unstage ? ActionTag::GIT_RESET : ActionTag::GIT_ADD,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::addLines, lines,
                              unstage));
 }
 
-void GitInterface::push(const QString &remote, const QVariant &branch,
-                        bool setUpstream) {
+QFuture<void> GitInterface::push(const QString &remote, const QVariant &branch,
+                                 bool setUpstream) {
   RUN_ONCE(ActionTag::GIT_PUSH,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::push, remote,
                              branch, setUpstream));
 }
 
-void GitInterface::pull(bool rebase) {
+QFuture<void> GitInterface::pull(bool rebase) {
   RUN_ONCE(ActionTag::GIT_PULL,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::pull, rebase));
 }
 
-void GitInterface::revertLastCommit() {
+QFuture<void> GitInterface::revertLastCommit() {
   RUN_ONCE(
       ActionTag::GIT_RESET,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::revertLastCommit));
 }
 
-void GitInterface::resetLines(const QList<GitDiffLine> &lines) {
+QFuture<void> GitInterface::resetLines(const QList<GitDiffLine> &lines) {
   RUN_ONCE(
       ActionTag::GIT_CHECKOUT,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::resetLines, lines));
 }
 
-void GitInterface::checkoutPath(const QString &path) {
+QFuture<void> GitInterface::checkoutPath(const QString &path) {
   RUN_ONCE(
       ActionTag::GIT_CHECKOUT,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::checkoutPath, path));
 }
 
-void GitInterface::changeBranch(const QString &branchName,
-                                const QString &upstreamBranchName) {
+QFuture<void> GitInterface::changeBranch(const QString &branchName,
+                                         const QString &upstreamBranchName) {
   RUN_ONCE(ActionTag::GIT_CHECKOUT,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::changeBranch,
                              branchName, upstreamBranchName));
 }
 
-void GitInterface::createBranch(const QString &name) {
+QFuture<void> GitInterface::createBranch(const QString &name) {
   RUN_ONCE(
       ActionTag::GIT_BRANCH,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createBranch, name));
 }
 
-void GitInterface::deleteBranch(const QString &name) {
+QFuture<void> GitInterface::deleteBranch(const QString &name) {
   RUN_ONCE(
       ActionTag::GIT_BRANCH,
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::deleteBranch, name));
 }
 
-void GitInterface::setUpstream(const QString &remote, const QString &branch) {
+QFuture<void> GitInterface::setUpstream(const QString &remote,
+                                        const QString &branch) {
   RUN_ONCE(ActionTag::GIT_REMOTE,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::setUpstream,
                              remote, branch));
 }
 
-void GitInterface::stash() {
+QFuture<void> GitInterface::stash() {
   RUN_ONCE(ActionTag::GIT_STASH,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stash));
 }
 
-void GitInterface::stashPop() {
+QFuture<void> GitInterface::stashPop() {
   RUN_ONCE(ActionTag::GIT_STASH_APPLY,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stashPop));
 }
