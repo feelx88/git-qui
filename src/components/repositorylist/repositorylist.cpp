@@ -5,7 +5,7 @@
 #include "mainwindow.hpp"
 #include "project.hpp"
 #include "treewidgetitem.hpp"
-#include <iostream>
+
 struct RepositoryListPrivate {
   GitInterface *gitInterface = nullptr;
   QString currentRepository;
