@@ -31,8 +31,12 @@ class MainWindow;
 class Core;
 class Project;
 
+struct DockWidgetPrivate;
+
 class DockWidget : public QDockWidget {
 public:
+  friend struct DockWidgetPrivate;
+
   struct RegistryEntry {
     QString id;
     QString name;
@@ -41,6 +45,7 @@ public:
 
   inline static const char *CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME =
       "disableDuringRepositoryAction";
+  inline static int CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME = 500;
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();
@@ -89,8 +94,7 @@ private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> _registry;
 
   MainWindow *_mainWindow;
-
-  void setChildWidgetsDisabledState(bool disabled);
+  QScopedPointer<DockWidgetPrivate> _impl;
 };
 
 #endif // DOCKWIDGET_HPP

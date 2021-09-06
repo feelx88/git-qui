@@ -6,11 +6,43 @@
 #include "project.hpp"
 
 #include <QApplication>
+#include <QTimer>
+
+struct DockWidgetPrivate {
+  QTimer *uiLockTimer;
+  DockWidget *_this;
+
+  DockWidgetPrivate(DockWidget *_this) : _this(_this) {
+    uiLockTimer = new QTimer(_this);
+    uiLockTimer->setSingleShot(true);
+    uiLockTimer->setInterval(
+        DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
+
+    QObject::connect(
+        uiLockTimer, &QTimer::timeout, _this,
+        std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
+                  this, true));
+  }
+
+  void setChildWidgetsDisabledState(bool disabled) {
+    if (!disabled) {
+      uiLockTimer->stop();
+    }
+
+    for (const auto &child : _this->findChildren<QWidget *>()) {
+      if (child->property(DockWidget::CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME)
+              .toBool()) {
+        child->setDisabled(disabled);
+      }
+    }
+  }
+};
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
     DockWidget::_registry;
 
-DockWidget::DockWidget(MainWindow *mainWindow) : QDockWidget(mainWindow) {
+DockWidget::DockWidget(MainWindow *mainWindow)
+    : QDockWidget(mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
   setAttribute(Qt::WA_DeleteOnClose);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
@@ -111,17 +143,15 @@ void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
 
 void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
                                       QObject *activeRepositoryContext) {
-  setChildWidgetsDisabledState(newGitInterface->actionRunning());
+  _impl->setChildWidgetsDisabledState(newGitInterface->actionRunning());
 
   connect(newGitInterface, &GitInterface::actionStarted,
-          activeRepositoryContext,
-          std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
-                    this, true));
+          activeRepositoryContext, [&] { _impl->uiLockTimer->start(); });
 
-  connect(newGitInterface, &GitInterface::actionFinished,
-          activeRepositoryContext,
-          std::bind(std::mem_fn(&DockWidget::setChildWidgetsDisabledState),
-                    this, false));
+  connect(
+      newGitInterface, &GitInterface::actionFinished, activeRepositoryContext,
+      std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
+                _impl.get(), false));
 }
 
 void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
@@ -137,14 +167,6 @@ DockWidget::registry() {
     _registry.reset(new QMap<QString, RegistryEntry *>);
   }
   return _registry;
-}
-
-void DockWidget::setChildWidgetsDisabledState(bool disabled) {
-  for (const auto &child : findChildren<QWidget *>()) {
-    if (child->property(CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME).toBool()) {
-      child->setDisabled(disabled);
-    }
-  }
 }
 
 template <class T, class S>
