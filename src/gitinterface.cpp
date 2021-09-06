@@ -45,7 +45,6 @@ public:
   GitBranch activeBranch;
   QList<GitFile> files;
   QSharedPointer<QFile> errorLog;
-  bool actionRunning = false;
   QFuture<void> actionFuture;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
@@ -141,13 +140,11 @@ public:
                         GitInterface::ErrorType::ALREADY_RUNNING);
       return false;
     }
-    actionRunning = true;
     emit _this->actionStarted(actionTag);
     return true;
   }
 
   void finishAction(const GitInterface::ActionTag &actionTag) {
-    actionRunning = false;
     emit _this->actionFinished(actionTag);
   }
 
@@ -667,7 +664,9 @@ const GitBranch GitInterface::activeBranch() const {
   return _impl->activeBranch;
 }
 
-bool GitInterface::actionRunning() const { return _impl->actionRunning; }
+bool GitInterface::actionRunning() const {
+  return _impl->actionFuture.isRunning();
+}
 
 QFuture<QList<GitBranch>> GitInterface::branches(const QList<QString> &args) {
   RUN_ONCE_TYPED(
