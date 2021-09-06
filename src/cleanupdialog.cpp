@@ -24,6 +24,11 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
         static_cast<QTreeWidget *>(nullptr), {repository->name()}, this);
     repoItem->setDisabled(true);
     auto branchFuture = repository->branches({"--merged", "master"});
+
+    if (branchFuture.isCanceled()) {
+      return;
+    }
+
     auto watcher = new QFutureWatcher<QList<GitBranch>>(this);
     connect(watcher, &QFutureWatcher<QList<GitBranch>>::finished, this, [=] {
       for (auto &branch : watcher->future().result()) {
