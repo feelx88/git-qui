@@ -29,7 +29,8 @@ struct DockWidgetPrivate {
       uiLockTimer->stop();
     }
 
-    for (const auto &child : _this->findChildren<QWidget *>()) {
+    auto children = _this->findChildren<QWidget *>();
+    for (const auto &child : children) {
       if (child->property(DockWidget::CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME)
               .toBool()) {
         child->setDisabled(disabled);
