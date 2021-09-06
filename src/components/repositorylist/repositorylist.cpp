@@ -36,9 +36,13 @@ struct RepositoryListPrivate {
       return;
     }
 
+    auto font = item->font(0);
+    font.setItalic(true);
+
     item->setText(1, text);
     item->setIcon(0, QIcon::fromTheme("state-sync",
                                       QIcon(":/deploy/icons/state-sync.svg")));
+    item->setFont(1, font);
     item->setForeground(1, QBrush(item->treeWidget()->palette().color(
                                QPalette::Disabled, QPalette::Text)));
   }
