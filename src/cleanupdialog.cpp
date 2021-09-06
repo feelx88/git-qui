@@ -46,15 +46,16 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
         repoItem->setText(1, tr("%1 branch(es)").arg(repoItem->childCount()));
         ui->treeWidget->addTopLevelItem(repoItem);
         _impl->items.append(repoItem);
+        repoItem->setExpanded(true);
       }
       repoItem->setDisabled(false);
+      ui->treeWidget->resizeColumnToContents(0);
     });
     connect(watcher, &QFutureWatcher<QList<GitBranch>>::finished, watcher,
             &QFutureWatcher<QList<GitBranch>>::deleteLater);
     watcher->setFuture(branchFuture);
   }
 
-  ui->treeWidget->resizeColumnToContents(0);
   ui->treeWidget->setHeaderLabels({tr(""), tr("Count")});
 
   connect(ui->treeWidget, &QTreeWidget::itemChanged, this,
