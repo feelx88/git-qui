@@ -38,6 +38,7 @@ public:
     GIT_RESET,
     GIT_BRANCH,
     GIT_STASH,
+    GIT_STASH_APPLY,
     GIT_CHECKOUT,
     GIT_REMOTE
   };

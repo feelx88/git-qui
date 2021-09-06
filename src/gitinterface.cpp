@@ -798,11 +798,11 @@ void GitInterface::setUpstream(const QString &remote, const QString &branch) {
 }
 
 void GitInterface::stash() {
-  RUN_ONCE(ActionTag::GIT_PULL,
+  RUN_ONCE(ActionTag::GIT_STASH,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stash));
 }
 
 void GitInterface::stashPop() {
-  RUN_ONCE(ActionTag::GIT_PULL,
+  RUN_ONCE(ActionTag::GIT_STASH_APPLY,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stashPop));
 }
