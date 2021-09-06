@@ -11,10 +11,7 @@
 
 #include <iostream>
 
-#define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
-  if (!_impl->startAction(actionTag)) {                                        \
-    return QFuture<type>();                                                    \
-  }                                                                            \
+#define WATCH_ASYNC_METHOD_CALL_TYPED(actionTag, type, runCall)                \
   QFutureWatcher<type> *__watcher =                                            \
       new QFutureWatcher<type>(static_cast<QObject *>(this));                  \
   connect(__watcher, &QFutureWatcher<type>::finished, __watcher,               \
@@ -23,8 +20,18 @@
           std::bind(std::mem_fn(&GitInterfacePrivate::finishAction),           \
                     _impl.get(), actionTag));                                  \
   QFuture<type> __future;                                                      \
-  _impl->actionFuture = __future = (runCall);                                  \
-  __watcher->setFuture(__future);                                              \
+  __future = (runCall);                                                        \
+  __watcher->setFuture(__future);
+
+#define WATCH_ASYNC_METHOD_CALL(actionTag, runCall)                            \
+  WATCH_ASYNC_METHOD_CALL_TYPED(actionTag, void, runCall);
+
+#define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
+  if (!_impl->startAction(actionTag)) {                                        \
+    return QFuture<type>();                                                    \
+  }                                                                            \
+  WATCH_ASYNC_METHOD_CALL_TYPED(actionTag, type, runCall);                     \
+  _impl->actionFuture = __future;                                              \
   return __future;
 
 #define RUN_ONCE(actionTag, runCall) RUN_ONCE_TYPED(actionTag, void, runCall)
@@ -64,9 +71,6 @@ public:
 
   void finishAction(const GitInterface::ActionTag &actionTag) {
     emit _this->actionFinished(actionTag);
-    if (!callQueue.isEmpty()) {
-      callQueue.takeFirst()();
-    }
   }
 
   GitProcess git(const QList<QString> &params, const QString &writeData = "") {
@@ -686,6 +690,13 @@ QString GitInterface::errorLogFileName() {
 
 void GitInterface::setFullFileDiff(bool fullFileDiff) {
   _impl->fullFileDiff = fullFileDiff;
+}
+
+void GitInterface::fetchNonBlocking() {
+  emit actionStarted(ActionTag::GIT_FETCH);
+  WATCH_ASYNC_METHOD_CALL(
+      ActionTag::GIT_FETCH,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::fetch));
 }
 
 QFuture<void> GitInterface::reload() {

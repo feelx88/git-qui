@@ -98,7 +98,7 @@ struct CorePrivate {
 
   void onAutoFetchTimerTimeout() {
     for (auto &repository : project->repositoryList()) {
-      repository->fetch();
+      repository->fetchNonBlocking();
     }
   }
 };

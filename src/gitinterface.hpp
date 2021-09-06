@@ -65,6 +65,8 @@ public:
   static QString errorLogFileName();
 
 public slots:
+  void setFullFileDiff(bool fullFileDiff);
+  void fetchNonBlocking();
   QFuture<void> reload();
   QFuture<void> status();
   QFuture<void> log();
@@ -80,7 +82,6 @@ public slots:
                      const QVariant &branch = QVariant(),
                      bool setUpstream = false);
   QFuture<void> pull(bool rebase);
-  void setFullFileDiff(bool fullFileDiff);
   QFuture<void> revertLastCommit();
   QFuture<void> resetLines(const QList<GitDiffLine> &lines);
   QFuture<void> checkoutPath(const QString &path);
