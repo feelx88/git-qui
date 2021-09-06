@@ -45,7 +45,7 @@ public:
 
   inline static const char *CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME =
       "disableDuringRepositoryAction";
-  inline static int CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME = 200;
+  inline static int CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME = 500;
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();
