@@ -9,6 +9,38 @@
 struct RepositoryListPrivate {
   GitInterface *gitInterface = nullptr;
   QString currentRepository;
+
+  void onActionStarted(QTreeWidgetItem *item,
+                       const GitInterface::ActionTag &actionTag) {
+    QString text;
+    switch (actionTag) {
+    case GitInterface::ActionTag::GIT_PUSH:
+      text = QObject::tr("Pushing...");
+      break;
+    case GitInterface::ActionTag::GIT_PULL:
+      text = QObject::tr("Pulling...");
+      break;
+    case GitInterface::ActionTag::GIT_FETCH:
+      text = QObject::tr("Fetching...");
+      break;
+    case GitInterface::ActionTag::GIT_COMMIT:
+      text = QObject::tr("Committing...");
+      break;
+    case GitInterface::ActionTag::GIT_STASH:
+      text = QObject::tr("Stashing...");
+      break;
+    case GitInterface::ActionTag::GIT_STASH_APPLY:
+      text = QObject::tr("Restoring stash entry...");
+      break;
+    default:
+      return;
+    }
+
+    item->setText(1, text);
+    item->setDisabled(true);
+    item->setIcon(0, QIcon::fromTheme("state-sync",
+                                      QIcon(":/deploy/icons/state-sync.svg")));
+  }
 };
 
 DOCK_WIDGET_IMPL(RepositoryList, tr("Repository list"))
@@ -81,26 +113,8 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
           });
 
   connect(newGitInterface, &GitInterface::actionStarted, item,
-          [=](const GitInterface::ActionTag &actionTag) {
-            if (actionTag == GitInterface::ActionTag::GIT_PUSH) {
-              item->setDisabled(true);
-              item->setText(1, tr("Pushing..."));
-              item->setIcon(
-                  0, QIcon::fromTheme("state-sync",
-                                      QIcon(":/deploy/icons/state-sync.svg")));
-            }
-          });
-
-  connect(newGitInterface, &GitInterface::actionStarted, item,
-          [=](const GitInterface::ActionTag &actionTag) {
-            if (actionTag == GitInterface::ActionTag::GIT_PULL) {
-              item->setDisabled(true);
-              item->setText(1, tr("Pulling..."));
-              item->setIcon(
-                  0, QIcon::fromTheme("state-sync",
-                                      QIcon(":/deploy/icons/state-sync.svg")));
-            }
-          });
+          std::bind(std::mem_fn(&RepositoryListPrivate::onActionStarted),
+                    _impl.get(), item, std::placeholders::_1));
 
   connect(newGitInterface, &GitInterface::error, item,
           [=](const QString &, GitInterface::ActionTag,
