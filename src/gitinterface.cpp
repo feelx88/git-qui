@@ -20,6 +20,7 @@
           std::bind(std::mem_fn(&GitInterfacePrivate::finishAction),           \
                     _impl.get(), actionTag));                                  \
   QFuture<type> __future = (runCall);                                          \
+  _impl->actionFuture = __future;                                              \
   __watcher->setFuture(__future);
 
 #define RUN_ONCE_TYPED(actionTag, type, runCall)                               \
@@ -52,6 +53,7 @@ public:
   QList<GitFile> files;
   QSharedPointer<QFile> errorLog;
   bool actionRunning = false;
+  QFuture<void> actionFuture;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -649,7 +651,10 @@ GitInterface::GitInterface(const QString &name, const QString &path,
   reload();
 }
 
-GitInterface::~GitInterface() {}
+GitInterface::~GitInterface() {
+  _impl->actionFuture.cancel();
+  _impl->actionFuture.waitForFinished();
+}
 
 const QString GitInterface::name() const { return _impl->name; }
 
