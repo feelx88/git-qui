@@ -48,9 +48,14 @@ struct MainWindowPrivate {
   MainWindow *_this;
   Core *core;
   bool editMode;
+  QTimer *toolbarsDisableTimer;
 
   MainWindowPrivate(MainWindow *mainWindow, Core *core)
-      : _this(mainWindow), core(core) {}
+      : _this(mainWindow), core(core), toolbarsDisableTimer(new QTimer(_this)) {
+    toolbarsDisableTimer->setInterval(
+        DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
+    toolbarsDisableTimer->setSingleShot(true);
+  }
 
   void connectSignals() {
     QSettings settings;
@@ -171,6 +176,12 @@ struct MainWindowPrivate {
               _this->core()->project()->activeRepository()->path());
           process->startDetached();
         });
+
+    QObject::connect(toolbarsDisableTimer, &QTimer::timeout, _this, [=] {
+      for (auto toolbar : _this->findChildren<QToolBar *>()) {
+        toolbar->setDisabled(true);
+      }
+    });
   }
 
   inline void connectMenuToToolbarAction(QAction *entry,
@@ -259,10 +270,51 @@ struct MainWindowPrivate {
            config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList()) {
         toolbar->addAction(ToolBarActions::byId(action.toString()));
       }
+      connectToolbarActions(toolbar);
     }
 
     _this->ui->actionEdit_mode->setChecked(
         configuration.value(ConfigurationKeys::EDIT_MODE, true).toBool());
+  }
+
+  void connectToolbarActions(QToolBar *toolbar) {
+    QObject::connect(
+        core, &Core::projectChanged, toolbar,
+        std::bind(std::mem_fn(&MainWindowPrivate::onToolbarProjectChanged),
+                  this, std::placeholders::_1));
+
+    onToolbarProjectChanged(core->project());
+    onToolbarRepositorySwitched(core->project()->activeRepository(),
+                                core->project()->activeRepositoryContext());
+  }
+
+  void onToolbarProjectChanged(Project *project) {
+    QObject::connect(
+        project, &Project::repositorySwitched,
+        std::bind(std::mem_fn(&MainWindowPrivate::onToolbarRepositorySwitched),
+                  this, std::placeholders::_1, std::placeholders::_2));
+  }
+
+  void onToolbarRepositorySwitched(GitInterface *gitInterface,
+                                   QObject *activeRepositoryContext) {
+    for (auto toolbar : _this->findChildren<QToolBar *>()) {
+      toolbar->setDisabled(gitInterface->actionRunning());
+    }
+
+    QObject::connect(
+        gitInterface, &GitInterface::actionStarted, activeRepositoryContext,
+        [=](const GitInterface::ActionTag &actionTag) {
+          if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
+            this->toolbarsDisableTimer->start();
+          }
+        });
+    QObject::connect(gitInterface, &GitInterface::actionFinished,
+                     activeRepositoryContext, [=] {
+                       this->toolbarsDisableTimer->stop();
+                       for (auto toolbar : _this->findChildren<QToolBar *>()) {
+                         toolbar->setDisabled(false);
+                       }
+                     });
   }
 };
 
@@ -357,6 +409,8 @@ QToolBar *MainWindow::addToolbar(Qt::ToolBarArea area) {
 
             menu->popup(toolbar->mapToGlobal(pos));
           });
+
+  _impl->connectToolbarActions(toolbar);
 
   addToolBar(area, toolbar);
   return toolbar;
