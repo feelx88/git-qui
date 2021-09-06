@@ -12,13 +12,13 @@ public:
   struct ActionID {
     static constexpr const char *STASH = "stash";
     static constexpr const char *UNSTASH = "unstash";
+    static constexpr const char *FETCH = "fetch";
     static constexpr const char *PUSH = "push";
     static constexpr const char *PULL = "pull";
     static constexpr const char *PUSH_ALL = "push-all";
     static constexpr const char *PULL_ALL = "pull-all";
     static constexpr const char *NEW_BRANCH = "new-branch";
     static constexpr const char *CLEANUP = "cleanup";
-    static constexpr const char *FETCH = "fetch";
   };
 
   static void initialize(Core *core);

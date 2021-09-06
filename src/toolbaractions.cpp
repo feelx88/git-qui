@@ -33,15 +33,15 @@ void ToolBarActions::initialize(Core *core) {
   auto projectChanged = [=](Project *newProject) {
     auto repositoryChanged = [=](GitInterface *repository,
                                  QObject *activeRepositoryContext) {
-      QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
-                       activeRepositoryContext, [=] { repository->fetch(); });
-
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
                        activeRepositoryContext, [=] { repository->stash(); });
 
       QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered,
                        activeRepositoryContext,
                        [=] { repository->stashPop(); });
+
+      QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
+                       activeRepositoryContext, [=] { repository->fetch(); });
 
       QObject::connect(
           _actionMap[ActionID::PUSH], &QAction::triggered,
