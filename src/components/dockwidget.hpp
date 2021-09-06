@@ -46,6 +46,8 @@ public:
   inline static const char *CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME =
       "disableDuringRepositoryAction";
   inline static int CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME = 500;
+  inline static QList<GitInterface::ActionTag> NON_LOCKING_ACTIONS = {
+      GitInterface::ActionTag::GIT_FETCH};
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();

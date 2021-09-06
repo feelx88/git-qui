@@ -24,6 +24,12 @@ struct DockWidgetPrivate {
                   this, true));
   }
 
+  void startUiLockTimer(const GitInterface::ActionTag &actionTag) {
+    if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
+      uiLockTimer->start();
+    }
+  }
+
   void setChildWidgetsDisabledState(bool disabled) {
     if (!disabled) {
       uiLockTimer->stop();
@@ -147,7 +153,9 @@ void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
   _impl->setChildWidgetsDisabledState(newGitInterface->actionRunning());
 
   connect(newGitInterface, &GitInterface::actionStarted,
-          activeRepositoryContext, [&] { _impl->uiLockTimer->start(); });
+          activeRepositoryContext,
+          std::bind(std::mem_fn(&DockWidgetPrivate::startUiLockTimer),
+                    _impl.get(), std::placeholders::_1));
 
   connect(
       newGitInterface, &GitInterface::actionFinished, activeRepositoryContext,
