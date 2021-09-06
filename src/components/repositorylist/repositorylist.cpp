@@ -37,9 +37,10 @@ struct RepositoryListPrivate {
     }
 
     item->setText(1, text);
-    item->setDisabled(true);
     item->setIcon(0, QIcon::fromTheme("state-sync",
                                       QIcon(":/deploy/icons/state-sync.svg")));
+    item->setForeground(1, QBrush(item->treeWidget()->palette().color(
+                               QPalette::Disabled, QPalette::Text)));
   }
 };
 
@@ -98,7 +99,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
                                    .arg(commitsAhead)
                                    .arg(commitsBehind));
 
-              QFont font = item->font(1);
+              QFont font = item->treeWidget()->font();
               font.setBold(commitsAhead > 0 || commitsBehind > 0);
               item->setFont(1, font);
             } else {
@@ -106,7 +107,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
                   1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
             }
             ui->treeWidget->resizeColumnToContents(1);
-            item->setDisabled(false);
+            item->setForeground(1, item->foreground(0));
             item->setIcon(
                 0, QIcon::fromTheme("state-ok",
                                     QIcon(":/deploy/icons/state-ok.svg")));
