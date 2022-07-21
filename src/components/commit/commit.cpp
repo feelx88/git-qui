@@ -52,6 +52,7 @@ struct CommitPrivate {
         _this->ui->pushButton_2->setEnabled(true);
 
         addHistoryEntry(_this, message);
+        _this->ui->plainTextEdit->clear();
       }
     });
 
@@ -159,14 +160,6 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
           activeRepositoryContext, [=](const QString &message) {
             ui->plainTextEdit->setPlainText(message);
             ui->pushButton_2->setDisabled(true);
-          });
-
-  connect(_impl->gitInterface, &GitInterface::actionFinished,
-          activeRepositoryContext,
-          [=](const GitInterface::ActionTag &actionTag) {
-            if (actionTag == GitInterface::ActionTag::GIT_COMMIT) {
-              ui->plainTextEdit->clear();
-            }
           });
 
   connect(_impl->gitInterface, &GitInterface::stagingAreaChanged,
