@@ -102,7 +102,7 @@ void BranchList::onRepositorySwitched(GitInterface *newGitInterface,
             QList<QString> localBranches, remoteBranches;
             QString currentBranch;
 
-            for (auto branch : branches) {
+            for (const auto &branch : branches) {
               if (branch.active) {
                 currentBranch = branch.name;
               }

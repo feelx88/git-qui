@@ -71,7 +71,8 @@ void DockWidget::init() {
 
   onProjectSwitched(project());
 
-  for (auto repository : project()->repositoryList()) {
+  auto repositories = project()->repositoryList();
+  for (auto repository : repositories) {
     onRepositoryAdded(repository);
   }
 

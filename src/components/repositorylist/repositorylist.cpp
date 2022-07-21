@@ -98,8 +98,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
               int commitsAhead, int commitsBehind) {
             if (hasUpstream) {
               item->setText(1, QString("%1%2 %3↑ %4↓")
-                                   .arg(branch)
-                                   .arg(hasChanges ? "*" : "")
+                                   .arg(branch, hasChanges ? "*" : "")
                                    .arg(commitsAhead)
                                    .arg(commitsBehind));
 
@@ -108,7 +107,7 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
               item->setFont(1, font);
             } else {
               item->setText(
-                  1, QString("%1%2 ∅").arg(branch).arg(hasChanges ? "*" : ""));
+                  1, QString("%1%2 ∅").arg(branch, hasChanges ? "*" : ""));
             }
             ui->treeWidget->resizeColumnToContents(1);
             item->setForeground(1, item->foreground(0));

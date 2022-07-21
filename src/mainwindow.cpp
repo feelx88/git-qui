@@ -78,12 +78,13 @@ struct MainWindowPrivate {
     _this->connect(_this->ui->actionEdit_mode, &QAction::toggled, _this,
                    [=](bool checked) {
                      editMode = checked;
-                     for (auto dockWidget :
-                          _this->findChildren<DockWidget *>()) {
+                     auto dockWidgets = _this->findChildren<DockWidget *>();
+                     for (auto dockWidget : dockWidgets) {
                        dockWidget->setEditModeEnabled(editMode);
                      }
 
-                     for (auto toolbar : _this->findChildren<QToolBar *>()) {
+                     auto toolBars = _this->findChildren<QToolBar *>();
+                     for (auto toolbar : toolBars) {
                        toolbar->setMovable(editMode);
                      }
                      _this->ui->tabWidget->setTabsClosable(editMode);
@@ -178,7 +179,8 @@ struct MainWindowPrivate {
         });
 
     QObject::connect(toolbarsDisableTimer, &QTimer::timeout, _this, [=] {
-      for (auto toolbar : _this->findChildren<QToolBar *>()) {
+      auto toolBars = _this->findChildren<QToolBar *>();
+      for (auto toolbar : toolBars) {
         toolbar->setDisabled(true);
       }
     });
@@ -191,14 +193,15 @@ struct MainWindowPrivate {
   }
 
   void populateAddViewMenu() {
-    for (DockWidget::RegistryEntry *entry :
-         DockWidget::registeredDockWidgets()) {
-      QAction *action = _this->ui->menuAdd_view->addAction(entry->name, [=] {
-        DockWidget::create(
-            entry->id, _this,
-            static_cast<QMainWindow *>(_this->ui->tabWidget->currentWidget()));
-        _this->ui->actionEdit_mode->setChecked(true);
-      });
+    auto registeredDockWidgets = DockWidget::registeredDockWidgets();
+    for (DockWidget::RegistryEntry *entry : registeredDockWidgets) {
+      QAction *action =
+          _this->ui->menuAdd_view->addAction(entry->name, _this, [=] {
+            DockWidget::create(entry->id, _this,
+                               static_cast<QMainWindow *>(
+                                   _this->ui->tabWidget->currentWidget()));
+            _this->ui->actionEdit_mode->setChecked(true);
+          });
       action->setData(entry->id);
     }
   }
@@ -207,7 +210,8 @@ struct MainWindowPrivate {
     _this->ui->menuRecent_Projects->clear();
     for (auto &[path, name] : _this->core()->recentProjects().toStdMap()) {
       _this->ui->menuRecent_Projects->addAction(
-          QString("%1 (%2)").arg(name.toString()).arg(path), [=, path = path] {
+          QString("%1 (%2)").arg(name.toString(), path), _this,
+          [=, path = path] {
             if (!QFile::exists(path)) {
               QMessageBox::critical(
                   _this, QObject::tr("File not found"),
@@ -220,10 +224,11 @@ struct MainWindowPrivate {
     }
 
     if (!_this->core()->recentProjects().isEmpty()) {
-      _this->ui->menuRecent_Projects->addAction(QObject::tr("Clear"), [=] {
-        _this->core()->clearRecentProjects();
-        populateRecentProjectsMenu();
-      });
+      _this->ui->menuRecent_Projects->addAction(
+          QObject::tr("Clear"), _this, [=] {
+            _this->core()->clearRecentProjects();
+            populateRecentProjectsMenu();
+          });
     } else {
       auto action = new QAction(QObject::tr("No recent projects"));
       action->setEnabled(false);
@@ -237,7 +242,7 @@ struct MainWindowPrivate {
 
     QVariantMap tabs = configuration.value(ConfigurationKeys::TABS).toMap();
 
-    for (auto tab : tabs.toStdMap()) {
+    for (const auto &tab : tabs.toStdMap()) {
       QVariantMap config = tab.second.toMap();
       QVariantList dockWidgetConfigurations =
           config.value(ConfigurationKeys::DOCK_WIDGETS).toList();
@@ -245,7 +250,7 @@ struct MainWindowPrivate {
       QMainWindow *page = _this->createTab(
           config.value(ConfigurationKeys::TAB_NAME).toString());
 
-      for (QVariant dockWidgetConfiguration : dockWidgetConfigurations) {
+      for (const QVariant &dockWidgetConfiguration : dockWidgetConfigurations) {
         QVariantMap config = dockWidgetConfiguration.toMap();
         DockWidget::create(
             config.value(ConfigurationKeys::DOCKWIDGET_CLASS).toString(), _this,
@@ -259,15 +264,16 @@ struct MainWindowPrivate {
 
     QVariantList toolbars =
         configuration.value(ConfigurationKeys::TOOLBARS).toList();
-    for (auto toolbarConfig : toolbars) {
+    for (const auto &toolbarConfig : toolbars) {
       QVariantMap config = toolbarConfig.toMap();
       QToolBar *toolbar = _this->addToolbar(static_cast<Qt::ToolBarArea>(
           config.value(ConfigurationKeys::TOOLBAR_AREA).toInt()));
       toolbar->restoreGeometry(
           config.value(ConfigurationKeys::GEOMETRY).toByteArray());
 
-      for (auto action :
-           config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList()) {
+      auto toolBarActions =
+          config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList();
+      for (const auto &action : toolBarActions) {
         toolbar->addAction(ToolBarActions::byId(action.toString()));
       }
       connectToolbarActions(toolbar);
@@ -297,7 +303,8 @@ struct MainWindowPrivate {
 
   void onToolbarRepositorySwitched(GitInterface *gitInterface,
                                    QObject *activeRepositoryContext) {
-    for (auto toolbar : _this->findChildren<QToolBar *>()) {
+    auto toolBars = _this->findChildren<QToolBar *>();
+    for (auto toolbar : toolBars) {
       toolbar->setDisabled(gitInterface->actionRunning());
     }
 
@@ -311,7 +318,8 @@ struct MainWindowPrivate {
     QObject::connect(gitInterface, &GitInterface::actionFinished,
                      activeRepositoryContext, [=] {
                        this->toolbarsDisableTimer->stop();
-                       for (auto toolbar : _this->findChildren<QToolBar *>()) {
+                       auto toolBars = _this->findChildren<QToolBar *>();
+                       for (auto toolbar : toolBars) {
                          toolbar->setDisabled(false);
                        }
                      });
@@ -340,11 +348,11 @@ QVariant MainWindow::configuration() const {
   QVariantMap tabs;
 
   for (int x = 0; x < ui->tabWidget->count(); ++x) {
-    QVariantMap config;
     QVariantList dockWidgetConfigurations;
     QMainWindow *tab = static_cast<QMainWindow *>(ui->tabWidget->widget(x));
 
-    for (auto dockWidget : tab->findChildren<DockWidget *>()) {
+    auto dockWidgets = tab->findChildren<DockWidget *>();
+    for (auto dockWidget : dockWidgets) {
       dockWidgetConfigurations.append(QVariantMap(
           {{ConfigurationKeys::DOCKWIDGET_CLASS,
             dockWidget->metaObject()->className()},
@@ -364,9 +372,11 @@ QVariant MainWindow::configuration() const {
   configuration.insert(ConfigurationKeys::TABS, tabs);
 
   QVariantList toolbars;
-  for (auto toolbar : findChildren<QToolBar *>()) {
+  auto toolBars = findChildren<QToolBar *>();
+  for (auto toolbar : toolBars) {
     QVariantList actions;
-    for (auto action : toolbar->actions()) {
+    auto toolBarActions = toolbar->actions();
+    for (auto action : toolBarActions) {
       actions.push_back(action->data());
     }
 

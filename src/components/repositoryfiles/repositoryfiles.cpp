@@ -170,7 +170,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
       activeRepositoryContext, [=](const QList<GitFile> &files) {
         QString hash = QString(_impl->unstaged ? "unstaged" : "staged")
                            .append(newGitInterface->path());
-        for (auto file : files) {
+        for (const auto &file : files) {
           hash.append(file.path);
         }
 
@@ -181,7 +181,7 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
         _impl->hash = hash;
         ui->listWidget->clear();
         ui->treeWidget->clear();
-        for (auto file : files) {
+        for (const auto &file : files) {
           ui->listWidget->addItem(file.path);
 
           QList<QString> parts = file.path.split('/');

@@ -53,7 +53,8 @@ struct DiffViewPrivate {
     resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
     _this->connect(resetSelected, &QAction::triggered, _this, [=] {
       QList<GitDiffLine> lines;
-      for (auto item : _this->ui->treeWidget->selectedItems()) {
+      auto selectedItems = _this->ui->treeWidget->selectedItems();
+      for (auto item : selectedItems) {
         lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
       }
       bool stillUnstaged =
@@ -68,7 +69,8 @@ struct DiffViewPrivate {
 
   void stageOrUnstage() {
     QList<GitDiffLine> lines;
-    for (auto item : _this->ui->treeWidget->selectedItems()) {
+    auto selectedItems = _this->ui->treeWidget->selectedItems();
+    for (auto item : selectedItems) {
       lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
     }
     bool stillUnstaged =
@@ -148,7 +150,7 @@ void DiffView::onRepositorySwitched(GitInterface *newGitInterface,
         QTreeWidgetItem *firstInterestingItem = nullptr;
         _impl->nonTrivialLines = 0;
 
-        for (auto line : lines) {
+        for (const auto &line : lines) {
           if (_impl->fullFileDiffAction->isChecked() &&
               line.type == GitDiffLine::diffType::HEADER) {
             continue;

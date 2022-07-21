@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QList>
+#include <QMetaType>
 
 struct GitCommit {
 public:
@@ -10,6 +11,6 @@ public:
   QDateTime date;
   QList<QString> branches, parents, children;
 };
-Q_DECLARE_METATYPE(GitCommit)
+Q_DECLARE_METATYPE(GitCommit);
 
 #endif // GITCOMMIT_H

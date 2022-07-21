@@ -18,6 +18,9 @@ DOCK_WIDGET_IMPL(ErrorLog, tr("Error log"))
 ErrorLog::ErrorLog(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::ErrorLog), _impl(new ErrorLogImpl) {
   ui->setupUi(this);
+
+  connect(ui->pushButton, &QPushButton::clicked, this,
+          &ErrorLog::onPushButtonClicked);
 }
 
 ErrorLog::~ErrorLog() { delete ui; }
@@ -40,7 +43,7 @@ void ErrorLog::onError(const QString &message, GitInterface::ActionTag,
   }
 }
 
-void ErrorLog::on_pushButton_clicked() {
+void ErrorLog::onPushButtonClicked() {
   auto file = _impl->getLogFile();
 
   if (file) {

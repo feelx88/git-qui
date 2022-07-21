@@ -101,14 +101,16 @@ void ToolBarActions::initialize(Core *core) {
 
     QObject::connect(_actionMap[ActionID::PUSH_ALL], &QAction::triggered,
                      newProject, [=] {
-                       for (auto repo : newProject->repositoryList()) {
+                       auto repositories = newProject->repositoryList();
+                       for (auto repo : repositories) {
                          repo->push();
                        }
                      });
 
     QObject::connect(_actionMap[ActionID::PULL_ALL], &QAction::triggered,
                      newProject, [=] {
-                       for (auto repo : newProject->repositoryList()) {
+                       auto repositories = newProject->repositoryList();
+                       for (auto repo : repositories) {
                          repo->pull(true);
                        }
                      });

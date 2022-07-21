@@ -50,7 +50,8 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   mainWindow->setEditMode(true);
 
   // Add default toolbars
-  for (auto toolbar : mainWindow->findChildren<QToolBar *>()) {
+  auto toolBars = mainWindow->findChildren<QToolBar *>();
+  for (auto toolbar : toolBars) {
     mainWindow->removeToolBar(toolbar);
     toolbar->deleteLater();
   }

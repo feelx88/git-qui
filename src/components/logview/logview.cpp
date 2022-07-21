@@ -61,7 +61,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
   connect(newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
           [=](const QList<GitCommit> &commits) {
             ui->treeWidget->clear();
-            for (GitCommit commit : commits) {
+            for (const GitCommit &commit : commits) {
               TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
               item->setText(0, commit.id);
               item->setText(1, commit.branches.join(", "));

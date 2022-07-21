@@ -13,7 +13,9 @@ struct ProjectSettingsDialogPrivate {
   void fillRepositoryList(ProjectSettingsDialog *_this) {
     _this->ui->repositoryTable->clearContents();
     _this->ui->repositoryTable->setRowCount(0);
-    for (auto repository : project->repositoryList()) {
+
+    auto repositories = project->repositoryList();
+    for (auto repository : repositories) {
       int row = _this->ui->repositoryTable->rowCount();
       _this->ui->repositoryTable->insertRow(row);
       _this->ui->repositoryTable->setItem(
