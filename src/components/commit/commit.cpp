@@ -77,7 +77,7 @@ struct CommitPrivate {
     messageHistory.push_back(message);
 
     messageMenu->clear();
-    for (const QString &message : messageHistory) {
+    for (const QString &message : qAsConst(messageHistory)) {
       auto truncatedMessage = message;
 
       if (truncatedMessage.length() > 100) {
@@ -114,7 +114,8 @@ QVariant Commit::configuration() {
 
 void Commit::configure(const QVariant &configuration) {
   QVariantMap config = configuration.toMap();
-  for (const QString &message : config.value("messageHistory").toStringList()) {
+  auto history = config.value("messageHistory").toStringList();
+  for (const QString &message : history) {
     _impl->addHistoryEntry(this, message);
   }
   ui->plainTextEdit->setPlainText(config.value("currentMessage").toString());
