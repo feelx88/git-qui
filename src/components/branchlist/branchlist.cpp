@@ -13,6 +13,8 @@
 #include "qtreewidgetutils.hpp"
 #include "toolbaractions.hpp"
 
+using namespace std::placeholders;
+
 struct BranchListPrivate {
   BranchList *_this;
   GitInterface *gitInterface = nullptr;
@@ -69,6 +71,44 @@ struct BranchListPrivate {
     _this->ui->treeWidget->addAction(deleteAction);
     _this->ui->treeWidget_2->addAction(copyAction);
   }
+
+  void refreshView(const QList<GitBranch> &branches) {
+    _this->ui->treeWidget->clear();
+    _this->ui->treeWidget_2->clear();
+
+    QList<QString> localBranches, remoteBranches;
+    QString currentBranch;
+
+    for (const auto &branch : branches) {
+      if (branch.active) {
+        currentBranch = branch.name;
+      }
+
+      if (branch.remote) {
+        remoteBranches.append(branch.name);
+      } else {
+        localBranches.append(branch.name);
+      }
+    }
+    _this->ui->treeWidget->addTopLevelItems(
+        TreeWidgetUtils::createItems(_this->ui->treeWidget, localBranches));
+    _this->ui->treeWidget_2->addTopLevelItems(
+        TreeWidgetUtils::createItems(_this->ui->treeWidget_2, remoteBranches));
+    QTreeWidgetItemIterator it(_this->ui->treeWidget);
+    while (*it) {
+      if ((*it)->data(0, Qt::UserRole) == currentBranch) {
+        auto activeFont = _this->font();
+        activeFont.setBold(true);
+        (*it)->setFont(0, activeFont);
+      }
+      (*it)->setExpanded(true);
+      ++it;
+    }
+
+    _this->ui->treeWidget_2->expandAll();
+    _this->ui->treeWidget->resizeColumnToContents(0);
+    _this->ui->treeWidget_2->resizeColumnToContents(0);
+  }
 };
 
 DOCK_WIDGET_IMPL(BranchList, tr("Branch list"))
@@ -95,41 +135,8 @@ void BranchList::onRepositorySwitched(GitInterface *newGitInterface,
   _impl->gitInterface = newGitInterface;
 
   connect(newGitInterface, &GitInterface::branchesChanged,
-          activeRepositoryContext, [=](const QList<GitBranch> &branches) {
-            ui->treeWidget->clear();
-            ui->treeWidget_2->clear();
+          activeRepositoryContext,
+          std::bind(std::mem_fn(&BranchListPrivate::refreshView), *_impl, _1));
 
-            QList<QString> localBranches, remoteBranches;
-            QString currentBranch;
-
-            for (const auto &branch : branches) {
-              if (branch.active) {
-                currentBranch = branch.name;
-              }
-
-              if (branch.remote) {
-                remoteBranches.append(branch.name);
-              } else {
-                localBranches.append(branch.name);
-              }
-            }
-            ui->treeWidget->addTopLevelItems(
-                TreeWidgetUtils::createItems(ui->treeWidget, localBranches));
-            ui->treeWidget_2->addTopLevelItems(
-                TreeWidgetUtils::createItems(ui->treeWidget_2, remoteBranches));
-            QTreeWidgetItemIterator it(ui->treeWidget);
-            while (*it) {
-              if ((*it)->data(0, Qt::UserRole) == currentBranch) {
-                auto activeFont = font();
-                activeFont.setBold(true);
-                (*it)->setFont(0, activeFont);
-              }
-              (*it)->setExpanded(true);
-              ++it;
-            }
-
-            ui->treeWidget_2->expandAll();
-            ui->treeWidget->resizeColumnToContents(0);
-            ui->treeWidget_2->resizeColumnToContents(0);
-          });
+  _impl->refreshView(newGitInterface->branchList());
 }

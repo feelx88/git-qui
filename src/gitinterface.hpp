@@ -61,6 +61,10 @@ public:
   QFuture<QList<GitBranch>> branches(const QList<QString> &args);
 
   const QList<GitFile> files() const;
+  const QList<GitFile> unstagedFiles() const;
+  const QList<GitFile> stagedFiles() const;
+
+  const QList<GitBranch> branchList() const;
 
   static QString errorLogFileName();
 
@@ -99,8 +103,7 @@ signals:
   void logChanged(const QList<GitCommit> &logs);
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
-  void branchChanged(const QString &branch, bool hasChanges, bool hasUpstream,
-                     int behindRemote, int aheadRemote);
+  void branchChanged(const GitBranch &branch);
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);
 

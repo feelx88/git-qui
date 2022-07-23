@@ -6,10 +6,9 @@
 
 struct GitBranch {
 public:
-  bool active;
-  QString name;
-  QString upstreamName;
-  bool remote;
+  bool active, remote = false, hasChanges = false, hasUpstream = false;
+  QString name, upstreamName = "";
+  int commitsAhead = 0, commitsBehind = 0;
 };
 
 Q_DECLARE_METATYPE(GitBranch)

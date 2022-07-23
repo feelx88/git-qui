@@ -50,9 +50,11 @@ public:
   bool readyForCommit = false;
   bool fullFileDiff = false;
   GitBranch activeBranch;
-  QList<GitFile> files;
+  QList<GitBranch> branchList;
+  QList<GitFile> files, unstagedFiles, stagedFiles;
   QSharedPointer<QFile> errorLog;
   QFuture<void> actionFuture;
+  QByteArray branchesHash, unstagedFilesHash, stagedFilesHash;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -178,10 +180,13 @@ public:
           continue;
         }
 
-        branches.append({parts[0] == "*", parts[1], parts[2],
-                         remotes.indexOf(parts[1].split('/')[0]) > -1});
+        branches.append({parts[0] == "*",
+                         remotes.indexOf(parts[1].split('/')[0]) > -1, false,
+                         false, parts[1], parts[2], 0, 0});
       }
     }
+
+    branchList = branches;
 
     return branches;
   }
@@ -269,24 +274,57 @@ public:
 
     readyForCommit = !staged.empty();
 
-    emit _this->nonStagingAreaChanged(unstaged);
-    emit _this->stagingAreaChanged(staged);
+    QCryptographicHash unstagedHash(QCryptographicHash::Sha256);
+    for (auto &file : qAsConst(unstaged)) {
+      QFile f(repositoryPath.absoluteFilePath(file.path));
+      f.open(QFile::ReadOnly);
+      unstagedHash.addData(f.readAll());
+      f.close();
+    }
+
+    if (unstagedHash.result() != unstagedFilesHash) {
+      unstagedFilesHash = unstagedHash.result();
+      unstagedFiles = unstaged;
+      emit _this->nonStagingAreaChanged(unstaged);
+    }
+
+    QCryptographicHash stagedHash(QCryptographicHash::Sha256);
+    for (auto &file : qAsConst(staged)) {
+      QFile f(repositoryPath.absoluteFilePath(file.path));
+      f.open(QFile::ReadOnly);
+      stagedHash.addData(f.readAll());
+      f.close();
+    }
+
+    if (stagedHash.result() != stagedFilesHash) {
+      stagedFilesHash = stagedHash.result();
+      stagedFiles = staged;
+      emit _this->stagingAreaChanged(staged);
+    }
 
     files.clear();
     files << unstaged << staged;
 
     QList<GitBranch> branches = this->branches({"--all"});
 
+    QCryptographicHash localBranchesHash(QCryptographicHash::Sha256);
     for (auto &branch : branches) {
+      localBranchesHash.addData(branch.name.toLatin1());
       if (branch.active) {
         activeBranch = branch;
-        break;
+        activeBranch.hasChanges = !(unstaged.empty() && staged.empty());
+        activeBranch.hasUpstream = hasUpstream;
+        activeBranch.commitsAhead = commitsAhead;
+        activeBranch.commitsBehind = commitsBehind;
+        localBranchesHash.addData("*");
       }
     }
 
-    emit _this->branchesChanged(branches);
-    emit _this->branchChanged(branchName, !(unstaged.empty() && staged.empty()),
-                              hasUpstream, commitsAhead, commitsBehind);
+    if (localBranchesHash.result() != branchesHash) {
+      branchesHash = localBranchesHash.result();
+      emit _this->branchesChanged(branches);
+      emit _this->branchChanged(activeBranch);
+    }
   }
 
   void log() {
@@ -682,6 +720,18 @@ QFuture<QList<GitBranch>> GitInterface::branches(const QList<QString> &args) {
 }
 
 const QList<GitFile> GitInterface::files() const { return _impl->files; }
+
+const QList<GitFile> GitInterface::unstagedFiles() const {
+  return _impl->unstagedFiles;
+}
+
+const QList<GitFile> GitInterface::stagedFiles() const {
+  return _impl->stagedFiles;
+}
+
+const QList<GitBranch> GitInterface::branchList() const {
+  return _impl->branchList;
+}
 
 QString GitInterface::errorLogFileName() {
   return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +

@@ -6,9 +6,14 @@
 #include "project.hpp"
 #include "treewidgetitem.hpp"
 
+using namespace std::placeholders;
+
 struct RepositoryListPrivate {
   GitInterface *gitInterface = nullptr;
   QString currentRepository;
+  RepositoryList *_this;
+
+  RepositoryListPrivate(RepositoryList *_this) : _this(_this) {}
 
   void onActionStarted(QTreeWidgetItem *item,
                        const GitInterface::ActionTag &actionTag) {
@@ -46,13 +51,37 @@ struct RepositoryListPrivate {
     item->setForeground(1, QBrush(item->treeWidget()->palette().color(
                                QPalette::Disabled, QPalette::Text)));
   }
+
+  void onActionFinished(TreeWidgetItem *item, GitInterface *gitInterface) {
+    onBranchChanged(item, gitInterface->activeBranch());
+  }
+
+  void onBranchChanged(TreeWidgetItem *item, const GitBranch &branch) {
+    if (branch.hasUpstream) {
+      item->setText(1, QString("%1%2 %3↑ %4↓")
+                           .arg(branch.name, branch.hasChanges ? "*" : "")
+                           .arg(branch.commitsAhead)
+                           .arg(branch.commitsBehind));
+
+      QFont font = item->treeWidget()->font();
+      font.setBold(branch.commitsAhead > 0 || branch.commitsBehind > 0);
+      item->setFont(1, font);
+    } else {
+      item->setText(
+          1, QString("%1%2 ∅").arg(branch.name, branch.hasChanges ? "*" : ""));
+    }
+    _this->ui->treeWidget->resizeColumnToContents(1);
+    item->setForeground(1, item->foreground(0));
+    item->setIcon(
+        0, QIcon::fromTheme("state-ok", QIcon(":/deploy/icons/state-ok.svg")));
+  }
 };
 
 DOCK_WIDGET_IMPL(RepositoryList, tr("Repository list"))
 
 RepositoryList::RepositoryList(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::RepositoryList),
-      _impl(new RepositoryListPrivate) {
+      _impl(new RepositoryListPrivate(this)) {
   ui->setupUi(this);
   ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
@@ -94,31 +123,18 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
   ui->treeWidget->addTopLevelItem(item);
 
   connect(newGitInterface, &GitInterface::branchChanged, item,
-          [=](const QString &branch, bool hasChanges, bool hasUpstream,
-              int commitsAhead, int commitsBehind) {
-            if (hasUpstream) {
-              item->setText(1, QString("%1%2 %3↑ %4↓")
-                                   .arg(branch, hasChanges ? "*" : "")
-                                   .arg(commitsAhead)
-                                   .arg(commitsBehind));
-
-              QFont font = item->treeWidget()->font();
-              font.setBold(commitsAhead > 0 || commitsBehind > 0);
-              item->setFont(1, font);
-            } else {
-              item->setText(
-                  1, QString("%1%2 ∅").arg(branch, hasChanges ? "*" : ""));
-            }
-            ui->treeWidget->resizeColumnToContents(1);
-            item->setForeground(1, item->foreground(0));
-            item->setIcon(
-                0, QIcon::fromTheme("state-ok",
-                                    QIcon(":/deploy/icons/state-ok.svg")));
-          });
+          std::bind(std::mem_fn(&RepositoryListPrivate::onBranchChanged),
+                    *_impl, item, _1));
 
   connect(newGitInterface, &GitInterface::actionStarted, item,
           std::bind(std::mem_fn(&RepositoryListPrivate::onActionStarted),
                     _impl.get(), item, std::placeholders::_1));
+
+  connect(newGitInterface, &GitInterface::actionFinished, item,
+          std::bind(std::mem_fn(&RepositoryListPrivate::onActionFinished),
+                    *_impl, item, newGitInterface));
+
+  _impl->onActionFinished(item, newGitInterface);
 
   connect(newGitInterface, &GitInterface::error, item,
           [=](const QString &, GitInterface::ActionTag,
