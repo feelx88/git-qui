@@ -1,6 +1,8 @@
 #include "cleanupdialog.hpp"
 #include "ui_cleanupdialog.h"
 
+#include <QFutureWatcher>
+
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
@@ -15,28 +17,45 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
       _impl(new CleanUpDialogPrivate) {
   ui->setupUi(this);
 
-  for (auto &repository : core->project()->repositoryList()) {
+  auto repositories = core->project()->repositoryList();
+
+  for (auto &repository : repositories) {
     QTreeWidgetItem *repoItem = new TreeWidgetItem(
         static_cast<QTreeWidget *>(nullptr), {repository->name()}, this);
-    for (auto branch : repository->branches({"--merged", "master"})) {
-      if (branch.name != "master") {
-        QTreeWidgetItem *item =
-            new TreeWidgetItem(repoItem, {branch.name}, this);
-        item->setCheckState(0, Qt::Checked);
-        _impl->items.append(item);
-      }
+    repoItem->setDisabled(true);
+    auto branchFuture = repository->branch({"--merged", "master"});
+
+    if (branchFuture.isCanceled()) {
+      return;
     }
 
-    if (repoItem->childCount() > 0) {
-      repoItem->setCheckState(0, Qt::Checked);
-      repoItem->setData(0, Qt::UserRole, repository->name());
-      repoItem->setText(1, tr("%1 branch(es)").arg(repoItem->childCount()));
-      ui->treeWidget->addTopLevelItem(repoItem);
-      _impl->items.append(repoItem);
-    }
+    auto watcher = new QFutureWatcher<QList<GitBranch>>(this);
+    connect(watcher, &QFutureWatcher<QList<GitBranch>>::finished, this, [=] {
+      for (auto &branch : watcher->future().result()) {
+        if (branch.name != "master") {
+          QTreeWidgetItem *item =
+              new TreeWidgetItem(repoItem, {branch.name}, this);
+          item->setCheckState(0, Qt::Checked);
+          _impl->items.append(item);
+        }
+      }
+
+      if (repoItem->childCount() > 0) {
+        repoItem->setCheckState(0, Qt::Checked);
+        repoItem->setData(0, Qt::UserRole, repository->name());
+        repoItem->setText(1, tr("%1 branch(es)").arg(repoItem->childCount()));
+        ui->treeWidget->addTopLevelItem(repoItem);
+        _impl->items.append(repoItem);
+        repoItem->setExpanded(true);
+      }
+      repoItem->setDisabled(false);
+      ui->treeWidget->resizeColumnToContents(0);
+    });
+    connect(watcher, &QFutureWatcher<QList<GitBranch>>::finished, watcher,
+            &QFutureWatcher<QList<GitBranch>>::deleteLater);
+    watcher->setFuture(branchFuture);
   }
 
-  ui->treeWidget->resizeColumnToContents(0);
   ui->treeWidget->setHeaderLabels({tr(""), tr("Count")});
 
   connect(ui->treeWidget, &QTreeWidget::itemChanged, this,

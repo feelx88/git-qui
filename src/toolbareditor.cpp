@@ -98,7 +98,8 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
                           action);
   });
 
-  for (auto action : toolbar->actions()) {
+  auto actions = toolbar->actions();
+  for (auto action : actions) {
     _impl->createItem(ui->treeWidget_2, action);
   }
 

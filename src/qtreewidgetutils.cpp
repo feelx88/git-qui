@@ -8,7 +8,7 @@ TreeWidgetUtils::createItems(QTreeWidget *parentWidget,
   QList<QTreeWidgetItem *> items;
   QMap<QString, QTreeWidgetItem *> itemMap;
 
-  for (auto label : itemLabels) {
+  for (const auto &label : itemLabels) {
     auto parts = label.split(separator);
     QTreeWidgetItem *rootItem = nullptr;
     for (auto item : items) {

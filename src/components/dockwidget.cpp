@@ -6,11 +6,50 @@
 #include "project.hpp"
 
 #include <QApplication>
+#include <QTimer>
+
+struct DockWidgetPrivate {
+  QTimer *uiLockTimer;
+  DockWidget *_this;
+
+  DockWidgetPrivate(DockWidget *_this) : _this(_this) {
+    uiLockTimer = new QTimer(_this);
+    uiLockTimer->setSingleShot(true);
+    uiLockTimer->setInterval(
+        DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
+
+    QObject::connect(
+        uiLockTimer, &QTimer::timeout, _this,
+        std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
+                  this, true));
+  }
+
+  void startUiLockTimer(const GitInterface::ActionTag &actionTag) {
+    if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
+      uiLockTimer->start();
+    }
+  }
+
+  void setChildWidgetsDisabledState(bool disabled) {
+    if (!disabled) {
+      uiLockTimer->stop();
+    }
+
+    auto children = _this->findChildren<QWidget *>();
+    for (const auto &child : children) {
+      if (child->property(DockWidget::CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME)
+              .toBool()) {
+        child->setDisabled(disabled);
+      }
+    }
+  }
+};
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
     DockWidget::_registry;
 
-DockWidget::DockWidget(MainWindow *mainWindow) : QDockWidget(mainWindow) {
+DockWidget::DockWidget(MainWindow *mainWindow)
+    : QDockWidget(mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
   setAttribute(Qt::WA_DeleteOnClose);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
@@ -32,7 +71,8 @@ void DockWidget::init() {
 
   onProjectSwitched(project());
 
-  for (auto repository : project()->repositoryList()) {
+  auto repositories = project()->repositoryList();
+  for (auto repository : repositories) {
     onRepositoryAdded(repository);
   }
 
@@ -103,20 +143,33 @@ void DockWidget::onProjectSwitched(Project *newProject) {
       newProject->dockWidgetConfiguration().value(widgetName()).toMap());
 }
 
-void DockWidget::onProjectSpecificConfigurationLoaded(
-    const QVariantMap &configuration) {}
+void DockWidget::onProjectSpecificConfigurationLoaded(const QVariantMap &) {}
 
 void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
   connect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onRepositorySwitched(GitInterface *, QObject *) {}
+void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
+                                      QObject *activeRepositoryContext) {
+  _impl->setChildWidgetsDisabledState(newGitInterface->actionRunning());
+
+  connect(newGitInterface, &GitInterface::actionStarted,
+          activeRepositoryContext,
+          std::bind(std::mem_fn(&DockWidgetPrivate::startUiLockTimer),
+                    _impl.get(), std::placeholders::_1));
+
+  connect(
+      newGitInterface, &GitInterface::actionFinished, activeRepositoryContext,
+      std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
+                _impl.get(), false));
+}
 
 void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
   disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onError(const QString &, ErrorTag) {}
+void DockWidget::onError(const QString &, GitInterface::ActionTag,
+                         GitInterface::ErrorType) {}
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::registry() {

@@ -26,9 +26,11 @@ struct CommitPrivate {
         dlg.setDefaultButton(QMessageBox::Yes);
 
         if (dlg.exec() == QMessageBox::Yes) {
-          for (auto &unstagedFile : QList<GitFile>(unstagedFiles)) {
-            gitInterface->stageFile(unstagedFile.path);
+          QStringList paths;
+          for (auto &file : unstagedFiles) {
+            paths << file.path;
           }
+          gitInterface->stageFiles(paths).waitForFinished();
         } else {
           return;
         }
@@ -44,11 +46,13 @@ struct CommitPrivate {
         message.append(QString(" ") + _this->ui->lineEditSuffix->text());
       }
 
-      if (gitInterface->commit(message)) {
+      auto commit = gitInterface->commit(message);
+      if (!commit.isCanceled() && commit.result()) {
         emit gitInterface->fileDiffed("", {}, false);
         _this->ui->pushButton_2->setEnabled(true);
 
         addHistoryEntry(_this, message);
+        _this->ui->plainTextEdit->clear();
       }
     });
 
@@ -73,7 +77,7 @@ struct CommitPrivate {
     messageHistory.push_back(message);
 
     messageMenu->clear();
-    for (const QString &message : messageHistory) {
+    for (const QString &message : qAsConst(messageHistory)) {
       auto truncatedMessage = message;
 
       if (truncatedMessage.length() > 100) {
@@ -110,7 +114,8 @@ QVariant Commit::configuration() {
 
 void Commit::configure(const QVariant &configuration) {
   QVariantMap config = configuration.toMap();
-  for (const QString &message : config.value("messageHistory").toStringList()) {
+  auto history = config.value("messageHistory").toStringList();
+  for (const QString &message : history) {
     _impl->addHistoryEntry(this, message);
   }
   ui->plainTextEdit->setPlainText(config.value("currentMessage").toString());
@@ -145,6 +150,8 @@ void Commit::onProjectSpecificConfigurationLoaded(
 
 void Commit::onRepositorySwitched(GitInterface *newGitInterface,
                                   QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
+
   _impl->gitInterface = newGitInterface;
 
   connect(ui->pushButton_2, &QPushButton::clicked, activeRepositoryContext,
@@ -156,9 +163,6 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
             ui->pushButton_2->setDisabled(true);
           });
 
-  connect(_impl->gitInterface, &GitInterface::commited, activeRepositoryContext,
-          [=] { ui->plainTextEdit->clear(); });
-
   connect(_impl->gitInterface, &GitInterface::stagingAreaChanged,
           activeRepositoryContext,
           [=](const QList<GitFile> &list) { _impl->stagedFiles = list; });
@@ -168,8 +172,9 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
           [=](const QList<GitFile> &list) { _impl->unstagedFiles = list; });
 }
 
-void Commit::onError(const QString &message, ErrorTag tag) {
-  if (tag != ErrorTag::GIT_COMMIT) {
+void Commit::onError(const QString &message, GitInterface::ActionTag tag,
+                     GitInterface::ErrorType) {
+  if (tag != GitInterface::ActionTag::GIT_COMMIT) {
     return;
   }
 

@@ -1,8 +1,12 @@
 #ifndef DOCKWIDGET_HPP
 #define DOCKWIDGET_HPP
 
+#include "gitinterface.hpp"
+#include <QDockWidget>
 #include <QFuture>
+#include <QList>
 #include <QMainWindow>
+#include <QUuid>
 
 #define DOCK_WIDGET                                                            \
 protected:                                                                     \
@@ -23,23 +27,29 @@ private:                                                                       \
         [](MainWindow *mainWindow) { return new name(mainWindow); }};          \
   }
 
-#include "errortag.hpp"
-#include <QDockWidget>
-#include <QList>
-#include <QUuid>
-
 class MainWindow;
 class Core;
 class Project;
-class GitInterface;
+
+struct DockWidgetPrivate;
 
 class DockWidget : public QDockWidget {
 public:
+  friend struct DockWidgetPrivate;
+
   struct RegistryEntry {
     QString id;
     QString name;
     std::function<DockWidget *(MainWindow *)> factory;
   };
+
+  inline static const char *CHILD_WIDGET_AUTO_DISABLE_PROPERTY_NAME =
+      "disableDuringRepositoryAction";
+  inline static int CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME = 500;
+  inline static QList<GitInterface::ActionTag> NON_LOCKING_ACTIONS = {
+      GitInterface::ActionTag::RELOAD, GitInterface::ActionTag::GIT_STATUS,
+      GitInterface::ActionTag::GIT_LOG, GitInterface::ActionTag::GIT_FETCH,
+      GitInterface::ActionTag::GIT_DIFF};
 
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();
@@ -77,15 +87,18 @@ protected:
   virtual void
   onProjectSpecificConfigurationLoaded(const QVariantMap &configuration);
   virtual void onRepositoryAdded(GitInterface *gitInterface);
-  virtual void onRepositorySwitched(GitInterface *, QObject *);
+  virtual void onRepositorySwitched(GitInterface *newGitInterface,
+                                    QObject *activeRepositoryContext);
   virtual void onRepositoryRemoved(GitInterface *gitInterface);
-  virtual void onError(const QString &, ErrorTag);
+  virtual void onError(const QString &, GitInterface::ActionTag,
+                       GitInterface::ErrorType);
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> registry();
   static QSharedPointer<QMap<QString, RegistryEntry *>> _registry;
 
   MainWindow *_mainWindow;
+  QScopedPointer<DockWidgetPrivate> _impl;
 };
 
 #endif // DOCKWIDGET_HPP

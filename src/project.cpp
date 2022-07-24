@@ -41,7 +41,7 @@ struct ProjectPrivate {
         settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
         list.size() - 1);
 
-    for (auto entry : list) {
+    for (const auto &entry : list) {
       repositories.append(new GitInterface(
           entry.value(ConfigurationKeys::REPOSITORY_LIST_NAME).toString(),
           entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString(),
@@ -60,7 +60,7 @@ struct ProjectPrivate {
                          currentRepository);
       QList<QVariantMap> list;
 
-      for (auto repository : repositories) {
+      for (auto repository : qAsConst(repositories)) {
         list << QVariantMap{
             {ConfigurationKeys::REPOSITORY_LIST_NAME, repository->name()},
             {ConfigurationKeys::REPOSITORY_LIST_PATH, repository->path()}};
@@ -134,20 +134,17 @@ void Project::addRepository() {
   QString path = QFileDialog::getExistingDirectory(
       nullptr, QObject::tr("Select repository path"), QDir::current().path());
 
-  auto list = repositoryList();
-
   if (!path.isNull()) {
     QDirIterator iterator(path, {".git"}, QDir::Dirs | QDir::Hidden,
                           QDirIterator::Subdirectories);
 
-    auto regex = QRegularExpression();
     while (iterator.hasNext()) {
       QDir currentDir = QDir(iterator.next());
       currentDir.cdUp();
 
       bool directoryValid = true;
 
-      for (auto regex : _impl->ignoredSubdirectories) {
+      for (const auto &regex : qAsConst(_impl->ignoredSubdirectories)) {
         if (regex.match(currentDir.path()).hasMatch()) {
           directoryValid = false;
           break;
@@ -155,8 +152,10 @@ void Project::addRepository() {
       }
 
       if (directoryValid) {
-        _impl->repositories.append(new GitInterface(
-            currentDir.dirName(), currentDir.absolutePath(), this));
+        GitInterface *repository = new GitInterface(
+            currentDir.dirName(), currentDir.absolutePath(), this);
+        _impl->repositories.append(repository);
+        emit repositoryAdded(repository);
       }
     }
 
@@ -165,6 +164,7 @@ void Project::addRepository() {
 }
 
 void Project::removeRepository(const int &index) {
+  emit repositoryRemoved(_impl->repositories.at(index));
   _impl->repositories.removeAt(index);
   _impl->writeSettings();
 }

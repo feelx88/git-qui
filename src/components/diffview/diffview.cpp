@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QFontDatabase>
+#include <QFutureWatcher>
 
 #include "core.hpp"
 #include "gitdiffline.hpp"
@@ -53,7 +54,8 @@ struct DiffViewPrivate {
     resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
     _this->connect(resetSelected, &QAction::triggered, _this, [=] {
       QList<GitDiffLine> lines;
-      for (auto item : _this->ui->treeWidget->selectedItems()) {
+      auto selectedItems = _this->ui->treeWidget->selectedItems();
+      for (auto item : selectedItems) {
         lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
       }
       bool stillUnstaged =
@@ -68,14 +70,17 @@ struct DiffViewPrivate {
 
   void stageOrUnstage() {
     QList<GitDiffLine> lines;
-    for (auto item : _this->ui->treeWidget->selectedItems()) {
+    auto selectedItems = _this->ui->treeWidget->selectedItems();
+    for (auto item : selectedItems) {
       lines.append(item->data(2, Qt::UserRole).value<GitDiffLine>());
     }
     bool stillUnstaged =
         lines.count() == nonTrivialLines ? !unstaged : unstaged;
-    gitInterface->addLines(lines, unstaged);
-
-    gitInterface->selectFile(stillUnstaged, currentPath);
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(_this);
+    watcher->setFuture(gitInterface->addLines(lines, unstaged));
+    QObject::connect(watcher, &QFutureWatcher<void>::finished, watcher, [=] {
+      gitInterface->selectFile(stillUnstaged, currentPath);
+    });
   }
 };
 
@@ -113,6 +118,7 @@ void DiffView::onProjectSwitched(Project *newProject) {
 
 void DiffView::onRepositorySwitched(GitInterface *newGitInterface,
                                     QObject *activeRepositoryContext) {
+  DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->clear();
   _impl->gitInterface = newGitInterface;
 
@@ -147,7 +153,7 @@ void DiffView::onRepositorySwitched(GitInterface *newGitInterface,
         QTreeWidgetItem *firstInterestingItem = nullptr;
         _impl->nonTrivialLines = 0;
 
-        for (auto line : lines) {
+        for (const auto &line : lines) {
           if (_impl->fullFileDiffAction->isChecked() &&
               line.type == GitDiffLine::diffType::HEADER) {
             continue;

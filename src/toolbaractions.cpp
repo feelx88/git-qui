@@ -1,22 +1,22 @@
 #include "toolbaractions.hpp"
 
-#include <QAction>
-#include <QApplication>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QtConcurrent/QtConcurrent>
-
 #include "cleanupdialog.hpp"
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
 #include "qobjecthelpers.hpp"
 
+#include <QAction>
+#include <QApplication>
+#include <QInputDialog>
+#include <QMessageBox>
+
 QMap<QString, QAction *> ToolBarActions::_actionMap;
 
 void ToolBarActions::initialize(Core *core) {
   addAction(ActionID::STASH, "archive-insert", "Stash changes");
   addAction(ActionID::UNSTASH, "archive-remove", "Unstash changes");
+  addAction(ActionID::FETCH, "edit-download", "Fetch data from default remote");
   addAction(ActionID::PUSH, "go-up", "Push current repository");
   addAction(ActionID::PULL, "go-down", "Pull current repository (with rebase)");
   addAction(ActionID::PUSH_ALL, "go-top", "Push all repositories");
@@ -40,6 +40,9 @@ void ToolBarActions::initialize(Core *core) {
                        activeRepositoryContext,
                        [=] { repository->stashPop(); });
 
+      QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
+                       activeRepositoryContext, [=] { repository->fetch(); });
+
       QObject::connect(
           _actionMap[ActionID::PUSH], &QAction::triggered,
           activeRepositoryContext, [=] {
@@ -56,10 +59,7 @@ void ToolBarActions::initialize(Core *core) {
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
 
-            QtConcurrent::run([=] {
-              emit repository->pushStarted();
-              repository->push("origin", branch, addUpstream);
-            });
+            repository->push("origin", branch, addUpstream);
           });
 
       QObject::connect(
@@ -78,16 +78,13 @@ void ToolBarActions::initialize(Core *core) {
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
 
-            QtConcurrent::run([=] {
-              emit repository->pullStarted();
-              if (stash) {
-                repository->stash();
-              }
-              repository->pull(true);
-              if (stash) {
-                repository->stashPop();
-              }
-            });
+            if (stash) {
+              repository->stash();
+            }
+            repository->pull(true);
+            if (stash) {
+              repository->stashPop();
+            }
           });
 
       QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
@@ -104,17 +101,17 @@ void ToolBarActions::initialize(Core *core) {
 
     QObject::connect(_actionMap[ActionID::PUSH_ALL], &QAction::triggered,
                      newProject, [=] {
-                       for (auto repo : newProject->repositoryList()) {
-                         emit repo->pushStarted();
-                         QtConcurrent::run([=] { repo->push(); });
+                       auto repositories = newProject->repositoryList();
+                       for (auto repo : repositories) {
+                         repo->push();
                        }
                      });
 
     QObject::connect(_actionMap[ActionID::PULL_ALL], &QAction::triggered,
                      newProject, [=] {
-                       for (auto repo : newProject->repositoryList()) {
-                         emit repo->pullStarted();
-                         QtConcurrent::run([=] { repo->pull(true); });
+                       auto repositories = newProject->repositoryList();
+                       for (auto repo : repositories) {
+                         repo->pull(true);
                        }
                      });
 
