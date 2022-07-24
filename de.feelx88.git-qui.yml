@@ -2,7 +2,7 @@ app-id: de.feelx88.git-qui
 runtime: org.kde.Platform
 runtime-version: '5.15'
 sdk: org.kde.Sdk
-command:  /opt/git-qui/bin/git-qui
+command: /app/git-qui
 modules:
   - name: git
     sources:
@@ -11,8 +11,8 @@ modules:
         sha256: c8162c6b8b8f1c5db706ab01b4ee29e31061182135dc27c4860224aaec1b3500
   - name: git-qui
     buildsystem: qmake
-    build-commands:
-      - make
+    config-opts:
+      - DEFINES+=FLATPAK_BUILD
     sources:
       - type: dir
         path: .
