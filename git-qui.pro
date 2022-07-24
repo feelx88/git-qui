@@ -107,4 +107,5 @@ RESOURCES += \
 # include(vendor/vendor.pri)
 
 DISTFILES += \
-  build.sh
+  build.sh \
+  de.feelx88.git-qui.yml

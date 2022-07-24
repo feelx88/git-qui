@@ -1,0 +1,13 @@
+app-id: de.feelx88.git-qui
+runtime: org.kde.Platform
+runtime-version: '5.15'
+sdk: org.kde.Sdk
+command:  /opt/git-qui/bin/git-qui
+modules:
+  - name: git-qui
+    buildsystem: qmake
+    build-commands:
+      - make
+    sources:
+      - type: dir
+        path: .
