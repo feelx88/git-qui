@@ -23,7 +23,7 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
     QTreeWidgetItem *repoItem = new TreeWidgetItem(
         static_cast<QTreeWidget *>(nullptr), {repository->name()}, this);
     repoItem->setDisabled(true);
-    auto branchFuture = repository->branches({"--merged", "master"});
+    auto branchFuture = repository->branch({"--merged", "master"});
 
     if (branchFuture.isCanceled()) {
       return;

@@ -138,5 +138,5 @@ void BranchList::onRepositorySwitched(GitInterface *newGitInterface,
           activeRepositoryContext,
           std::bind(std::mem_fn(&BranchListPrivate::refreshView), *_impl, _1));
 
-  _impl->refreshView(newGitInterface->branchList());
+  _impl->refreshView(newGitInterface->branches());
 }

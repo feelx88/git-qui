@@ -58,13 +58,13 @@ public:
   const GitBranch activeBranch() const;
   bool actionRunning() const;
 
-  QFuture<QList<GitBranch>> branches(const QList<QString> &args);
+  QFuture<QList<GitBranch>> branch(const QList<QString> &args);
 
   const QList<GitFile> files() const;
   const QList<GitFile> unstagedFiles() const;
   const QList<GitFile> stagedFiles() const;
 
-  const QList<GitBranch> branchList() const;
+  const QList<GitBranch> branches() const;
 
   static QString errorLogFileName();
 

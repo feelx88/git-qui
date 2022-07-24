@@ -50,7 +50,7 @@ public:
   bool readyForCommit = false;
   bool fullFileDiff = false;
   GitBranch activeBranch;
-  QList<GitBranch> branchList;
+  QList<GitBranch> branches;
   QList<GitFile> files, unstagedFiles, stagedFiles;
   QSharedPointer<QFile> errorLog;
   QFuture<void> actionFuture;
@@ -157,7 +157,7 @@ public:
     return patch;
   }
 
-  QList<GitBranch> branches(const QStringList &args) {
+  QList<GitBranch> branch(const QStringList &args) {
     auto process = git({"remote"});
     QList<QByteArray> remotes = process.standardOutOutput.split('\n');
     remotes.pop_back();
@@ -170,7 +170,7 @@ public:
                                            "%(upstream:short)"}
                   << args);
 
-    QList<GitBranch> branches;
+    branches.clear();
 
     for (auto &line : process.standardOutOutput.split('\n')) {
       if (!line.isEmpty()) {
@@ -181,12 +181,10 @@ public:
         }
 
         branches.append({parts[0] == "*",
-                         remotes.indexOf(parts[1].split('/')[0]) > -1, false,
-                         false, parts[1], parts[2], 0, 0});
+                           remotes.indexOf(parts[1].split('/')[0]) > -1, false,
+                           false, parts[1], parts[2], 0, 0});
       }
     }
-
-    branchList = branches;
 
     return branches;
   }
@@ -305,7 +303,7 @@ public:
     files.clear();
     files << unstaged << staged;
 
-    QList<GitBranch> branches = this->branches({"--all"});
+    QList<GitBranch> branches = this->branch({"--all"});
 
     QCryptographicHash localBranchesHash(QCryptographicHash::Sha256);
     for (auto &branch : branches) {
@@ -713,10 +711,10 @@ bool GitInterface::actionRunning() const {
   return _impl->actionFuture.isRunning();
 }
 
-QFuture<QList<GitBranch>> GitInterface::branches(const QList<QString> &args) {
+QFuture<QList<GitBranch>> GitInterface::branch(const QList<QString> &args) {
   RUN_ONCE_TYPED(
       ActionTag::GIT_BRANCH, QList<GitBranch>,
-      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::branches, args));
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::branch, args));
 }
 
 const QList<GitFile> GitInterface::files() const { return _impl->files; }
@@ -729,8 +727,8 @@ const QList<GitFile> GitInterface::stagedFiles() const {
   return _impl->stagedFiles;
 }
 
-const QList<GitBranch> GitInterface::branchList() const {
-  return _impl->branchList;
+const QList<GitBranch> GitInterface::branches() const {
+  return _impl->branches;
 }
 
 QString GitInterface::errorLogFileName() {
