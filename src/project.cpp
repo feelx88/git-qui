@@ -152,8 +152,10 @@ void Project::addRepository() {
       }
 
       if (directoryValid) {
-        _impl->repositories.append(new GitInterface(
-            currentDir.dirName(), currentDir.absolutePath(), this));
+        GitInterface *repository = new GitInterface(
+            currentDir.dirName(), currentDir.absolutePath(), this);
+        _impl->repositories.append(repository);
+        emit repositoryAdded(repository);
       }
     }
 
@@ -162,6 +164,7 @@ void Project::addRepository() {
 }
 
 void Project::removeRepository(const int &index) {
+  emit repositoryRemoved(_impl->repositories.at(index));
   _impl->repositories.removeAt(index);
   _impl->writeSettings();
 }
