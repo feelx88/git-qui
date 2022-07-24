@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QFontDatabase>
+#include <QFutureWatcher>
 
 #include "core.hpp"
 #include "gitdiffline.hpp"
@@ -75,9 +76,11 @@ struct DiffViewPrivate {
     }
     bool stillUnstaged =
         lines.count() == nonTrivialLines ? !unstaged : unstaged;
-    gitInterface->addLines(lines, unstaged);
-
-    gitInterface->selectFile(stillUnstaged, currentPath);
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(_this);
+    watcher->setFuture(gitInterface->addLines(lines, unstaged));
+    QObject::connect(watcher, &QFutureWatcher<void>::finished, watcher, [=] {
+      gitInterface->selectFile(stillUnstaged, currentPath);
+    });
   }
 };
 
