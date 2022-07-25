@@ -118,9 +118,12 @@ struct RepositoryFilesPrivate {
     selection = "";
   }
 
-  void refreshView(const QList<GitFile> &files) {
+  void refreshView(QList<GitFile> files) {
     _this->ui->listWidget->clear();
     _this->ui->treeWidget->clear();
+
+    std::sort(files.begin(), files.end());
+
     for (const auto &file : files) {
       _this->ui->listWidget->addItem(file.path);
 
