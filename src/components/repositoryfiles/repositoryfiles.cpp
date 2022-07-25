@@ -124,8 +124,20 @@ struct RepositoryFilesPrivate {
 
     std::sort(files.begin(), files.end());
 
+    QFont strikeThroughFont = _this->ui->listWidget->font();
+    strikeThroughFont.setStrikeOut(true);
+    QFont italicFont = _this->ui->listWidget->font();
+    italicFont.setItalic(true);
+
     for (const auto &file : files) {
-      _this->ui->listWidget->addItem(file.path);
+      QListWidgetItem *item = new QListWidgetItem(_this->ui->listWidget);
+      item->setText(file.path);
+      if (file.deleted) {
+        item->setFont(strikeThroughFont);
+      }
+      if (file.added) {
+        item->setFont(italicFont);
+      }
 
       QList<QString> parts = file.path.split('/');
 
@@ -160,6 +172,13 @@ struct RepositoryFilesPrivate {
 
         topLevelItem->addChild(child);
         topLevelItem = child;
+      }
+
+      if (file.deleted) {
+        topLevelItem->setFont(0, strikeThroughFont);
+      }
+      if (file.added) {
+        topLevelItem->setFont(0, italicFont);
       }
     }
 

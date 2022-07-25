@@ -181,8 +181,8 @@ public:
         }
 
         branches.append({parts[0] == "*",
-                           remotes.indexOf(parts[1].split('/')[0]) > -1, false,
-                           false, parts[1], parts[2], 0, 0});
+                         remotes.indexOf(parts[1].split('/')[0]) > -1, false,
+                         false, parts[1], parts[2], 0, 0});
       }
     }
 
@@ -240,6 +240,7 @@ public:
         file.deleted = true;
         break;
       case 'A':
+      case '?':
         file.added = true;
         break;
       case 'R':

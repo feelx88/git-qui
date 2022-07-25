@@ -5,8 +5,9 @@
 #include <QString>
 
 struct GitFile {
-  bool staged, unstaged, added, modified, deleted;
-  QString path;
+  bool staged = false, unstaged = false, added = false, modified = false,
+       deleted = false;
+  QString path = "";
 
   bool operator<(const GitFile &other) { return other.path < path; }
 };
