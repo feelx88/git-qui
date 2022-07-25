@@ -48,9 +48,9 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   ui->projectPathEdit->setText(_impl->project->fileName());
   _impl->fillRepositoryList(this);
 
-  connect(ui->projectNameEdit, &QLineEdit::textChanged, this,
-          [this](const QString &projectName) {
-            _impl->project->setName(projectName);
+  connect(ui->projectPathEdit, &QLineEdit::textChanged, this,
+          [this](const QString &path) {
+            ui->addRepositoryButton->setEnabled(!path.isEmpty());
           });
 
   connect(ui->projectPathChooseButton, &QToolButton::clicked, this, [this] {
@@ -58,7 +58,6 @@ ProjectSettingsDialog::ProjectSettingsDialog(
         QFileDialog::getSaveFileName(this, "Select project file"));
 
     ui->projectPathEdit->setText(_impl->project->fileName());
-    ui->addRepositoryButton->setEnabled(true);
   });
 
   ui->repositoryTable->setHorizontalHeaderLabels(QStringList() << "Name"
@@ -98,6 +97,12 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   connect(ui->removeRepositoryButton, &QToolButton::clicked, this, [this] {
     _impl->project->removeRepository(ui->repositoryTable->currentRow());
     _impl->fillRepositoryList(this);
+  });
+
+  connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [this] {
+    _impl->project->setFileName(ui->projectPathEdit->text());
+    _impl->project->setName(ui->projectNameEdit->text());
+    _impl->project->save();
   });
 }
 
