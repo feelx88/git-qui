@@ -218,6 +218,10 @@ void RepositoryFiles::configure(const QVariant &configuration) {
   _impl->unstaged = map.value("unstaged", true).toBool();
   ui->stackedWidget->setCurrentIndex(map.value("selectedViewIndex", 0).toInt());
 
+  if (ui->stackedWidget->currentIndex() == 1) {
+    ui->radioButton_2->setChecked(true);
+  }
+
   _impl->connectSignals(this);
   _impl->addContextMenuActions(this);
 
