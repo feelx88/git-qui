@@ -56,8 +56,8 @@ OTHER_FILES += \
     qpm.json \
     README.md \
     LICENSE \
-    deploy/git-qui.svg \
-    deploy/git-qui.desktop \
+    de.feelx88.git-qui.svg \
+    de.feelx88.git-qui.desktop \
     deploy/installer/config-linux.xml \
     deploy/installer/config-mac.xml \
     deploy/installer/packages/git-qui/meta/LICENSE \
@@ -100,6 +100,14 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:contains(DEFINES, FLATPAK_BUILD): target.path = /app
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+unix:contains(DEFINES, FLATPAK_BUILD) {
+  desktopfile.path = /app/share/icons/hicolor/128x128/apps/de.feelx88.git-qui.svg
+  desktopfile.files = de.feelx88.git-qui.svg
+  icon.path = /app/share/applications/de.feelx88.git-qui.desktop
+  icon.files = de.feelx88.git-qui.desktop
+  INSTALL += desktopfile icon
+}
 
 RESOURCES += \
     resources.qrc
