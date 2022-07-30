@@ -106,7 +106,7 @@ unix:contains(DEFINES, FLATPAK_BUILD) {
   desktopfile.files = de.feelx88.git-qui.svg
   icon.path = /app/share/applications/de.feelx88.git-qui.desktop
   icon.files = de.feelx88.git-qui.desktop
-  INSTALL += desktopfile icon
+  INSTALLS += desktopfile icon
 }
 
 RESOURCES += \
