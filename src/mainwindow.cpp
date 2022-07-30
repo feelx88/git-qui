@@ -160,10 +160,19 @@ struct MainWindowPrivate {
         _this->ui->actionStart_gitk_for_current_repository, &QAction::triggered,
         _this, [=] {
           QProcess *process = new QProcess(_this);
+#ifdef FLATPAK_BUILD
+          process->setProgram("flatpak-spawn");
+          process->setArguments(
+              {"--host",
+               QString("--directory=%1")
+                   .arg(_this->core()->project()->activeRepository()->path()),
+               "gitk", "--all"});
+#else
           process->setProgram("gitk");
           process->setArguments({"--all"});
           process->setWorkingDirectory(
               _this->core()->project()->activeRepository()->path());
+#endif
           process->startDetached();
         });
 
@@ -171,10 +180,19 @@ struct MainWindowPrivate {
         _this->ui->actionStart_git_gui_for_current_repository,
         &QAction::triggered, _this, [=] {
           QProcess *process = new QProcess(_this);
+#ifdef FLATPAK_BUILD
+          process->setProgram("flatpak-spawn");
+          process->setArguments(
+              {"--host",
+               QString("--directory=%1")
+                   .arg(_this->core()->project()->activeRepository()->path()),
+               "git", "gui"});
+#else
           process->setProgram("git");
           process->setArguments({"gui"});
           process->setWorkingDirectory(
               _this->core()->project()->activeRepository()->path());
+#endif
           process->startDetached();
         });
 
