@@ -102,9 +102,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 unix:contains(DEFINES, FLATPAK_BUILD) {
-  desktopfile.path = /app/share/icons/hicolor/128x128/apps/de.feelx88.git-qui.svg
+  desktopfile.path = /app/share/icons/hicolor/128x128/apps
   desktopfile.files = de.feelx88.git-qui.svg
-  icon.path = /app/share/applications/de.feelx88.git-qui.desktop
+  icon.path = /app/share/applications
   icon.files = de.feelx88.git-qui.desktop
   INSTALLS += desktopfile icon
 }
