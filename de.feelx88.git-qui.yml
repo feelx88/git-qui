@@ -2,6 +2,13 @@ app-id: de.feelx88.git-qui
 runtime: org.kde.Platform
 runtime-version: '5.15'
 sdk: org.kde.Sdk
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --share=network
+  - --filesystem=host
+  - --talk-name=org.freedesktop.Flatpak
 command: /app/git-qui
 modules:
   - name: git-qui
