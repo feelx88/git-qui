@@ -248,6 +248,7 @@ public:
         file.deleted = true;
         break;
       case 'A':
+      case '?':
         file.added = true;
         break;
       case 'R':

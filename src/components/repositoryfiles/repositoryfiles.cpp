@@ -118,11 +118,26 @@ struct RepositoryFilesPrivate {
     selection = "";
   }
 
-  void refreshView(const QList<GitFile> &files) {
+  void refreshView(QList<GitFile> files) {
     _this->ui->listWidget->clear();
     _this->ui->treeWidget->clear();
+
+    std::sort(files.begin(), files.end());
+
+    QFont strikeThroughFont = _this->ui->listWidget->font();
+    strikeThroughFont.setStrikeOut(true);
+    QFont italicFont = _this->ui->listWidget->font();
+    italicFont.setItalic(true);
+
     for (const auto &file : files) {
-      _this->ui->listWidget->addItem(file.path);
+      QListWidgetItem *item = new QListWidgetItem(_this->ui->listWidget);
+      item->setText(file.path);
+      if (file.deleted) {
+        item->setFont(strikeThroughFont);
+      }
+      if (file.added) {
+        item->setFont(italicFont);
+      }
 
       QList<QString> parts = file.path.split('/');
 
@@ -157,6 +172,13 @@ struct RepositoryFilesPrivate {
 
         topLevelItem->addChild(child);
         topLevelItem = child;
+      }
+
+      if (file.deleted) {
+        topLevelItem->setFont(0, strikeThroughFont);
+      }
+      if (file.added) {
+        topLevelItem->setFont(0, italicFont);
       }
     }
 
@@ -195,6 +217,10 @@ void RepositoryFiles::configure(const QVariant &configuration) {
 
   _impl->unstaged = map.value("unstaged", true).toBool();
   ui->stackedWidget->setCurrentIndex(map.value("selectedViewIndex", 0).toInt());
+
+  if (ui->stackedWidget->currentIndex() == 1) {
+    ui->radioButton_2->setChecked(true);
+  }
 
   _impl->connectSignals(this);
   _impl->addContextMenuActions(this);

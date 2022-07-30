@@ -129,9 +129,17 @@ struct MainWindowPrivate {
 
     QObject::connect(
         _this->ui->actionNew_Project, &QAction::triggered, _this, [=] {
-          (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::CREATE,
-                                     new Project(_this->core()), _this))
-              ->exec();
+          Project *project = new Project(_this->core());
+          auto result =
+              (new ProjectSettingsDialog(
+                   ProjectSettingsDialog::DialogMode::CREATE, project, _this))
+                  ->exec();
+
+          if (result == QDialog::Accepted) {
+            _this->core()->project()->save();
+            _this->core()->changeProject(project);
+            populateRecentProjectsMenu();
+          }
         });
 
     QObject::connect(
@@ -313,6 +321,7 @@ struct MainWindowPrivate {
   }
 
   void onToolbarProjectChanged(Project *project) {
+    _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
     QObject::connect(
         project, &Project::repositorySwitched,
         std::bind(std::mem_fn(&MainWindowPrivate::onToolbarRepositorySwitched),

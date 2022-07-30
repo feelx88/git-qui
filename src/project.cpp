@@ -37,9 +37,11 @@ struct ProjectPrivate {
     name = settings->value(ConfigurationKeys::NAME).toString();
     QList<QVariantMap> list = qvariant_cast<QList<QVariantMap>>(
         settings->value(ConfigurationKeys::REPOSITORY_LIST));
-    currentRepository = std::min(
-        settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
-        list.size() - 1);
+    currentRepository = std::max(
+        std::min(
+            settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
+            list.size() - 1),
+        0);
 
     for (const auto &entry : list) {
       repositories.append(new GitInterface(
@@ -98,7 +100,8 @@ QList<GitInterface *> Project::repositoryList() const {
 }
 
 GitInterface *Project::activeRepository() const {
-  return _impl->repositories.at(_impl->currentRepository);
+  return _impl->repositories.at(std::max(
+      std::min(_impl->repositories.size() - 1, _impl->currentRepository), 0));
 }
 
 QObject *Project::activeRepositoryContext() const {
