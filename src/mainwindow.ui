@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources.qrc">
-    <normaloff>:/deploy/git-qui.svg</normaloff>:/deploy/git-qui.svg</iconset>
+    <normaloff>:/git-qui.svg</normaloff>:/git-qui.svg</iconset>
   </property>
   <property name="dockNestingEnabled">
    <bool>true</bool>

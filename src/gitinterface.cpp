@@ -79,9 +79,17 @@ public:
     QSharedPointer<QProcess> process = QSharedPointer<QProcess>::create();
     std::string stdWriteData = writeData.toStdString();
 
+#ifdef FLATPAK_BUILD
+    process->setProgram("flatpak-spawn");
+    process->setArguments(
+        QStringList{"--host",
+                    QString("--directory=%1").arg(repositoryPath.path()), "git"}
+        << params);
+#else
     process->setWorkingDirectory(repositoryPath.path());
     process->setProgram("git");
     process->setArguments(params);
+#endif
     process->start();
     process->waitForStarted();
     process->write(stdWriteData.data(),
