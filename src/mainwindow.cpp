@@ -303,6 +303,7 @@ struct MainWindowPrivate {
   }
 
   void onToolbarProjectChanged(Project *project) {
+    _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
     QObject::connect(
         project, &Project::repositorySwitched,
         std::bind(std::mem_fn(&MainWindowPrivate::onToolbarRepositorySwitched),
