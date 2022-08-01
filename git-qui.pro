@@ -61,7 +61,8 @@ OTHER_FILES += \
     deploy/installer/config-linux.xml \
     deploy/installer/config-mac.xml \
     deploy/installer/packages/git-qui/meta/LICENSE \
-    deploy/installer/packages/git-qui/meta/package.xml
+    deploy/installer/packages/git-qui/meta/package.xml \
+    .circleci/config.yml
 
 FORMS += \
     src/cleanupdialog.ui \
