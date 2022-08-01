@@ -40,9 +40,6 @@ workflows:
     jobs:
       - build-flatpak:
           filters:
-            branches:
-              only:
-                - master
             tags:
               only: 
                 - /v.*/
