@@ -38,4 +38,7 @@ jobs:
 workflows:
   build-workflow:
     jobs:
-      - build-flatpak
+      - build-flatpak:
+          filters:
+            tags:
+              only: /v.*/
