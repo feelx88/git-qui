@@ -23,7 +23,7 @@ jobs:
           command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
       - run:
           name: "Run flatpak-builder"
-          command: "flatpak-builder --repo=repo --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
+          command: "sudo flatpak-builder --repo=repo --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
       - store_artifacts:
           path: repo
           destination: flatpak-repo
