@@ -15,7 +15,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "apk add -U git flatpak flatpak-builder"
+          command: "apk add -U git build-base flatpak flatpak-builder"
       - checkout:
           path: git-qui
       - run:
