@@ -75,6 +75,9 @@ struct MainWindowPrivate {
     _this->connect(_this->ui->actionAbout_qt, &QAction::triggered, _this,
                    QApplication::aboutQt);
 
+    _this->connect(_this->ui->actionAbout, &QAction::triggered, _this,
+                   std::bind(std::mem_fn(&MainWindowPrivate::about), this));
+
     _this->connect(_this->ui->actionEdit_mode, &QAction::toggled, _this,
                    [=](bool checked) {
                      editMode = checked;
@@ -350,6 +353,19 @@ struct MainWindowPrivate {
                          toolbar->setDisabled(false);
                        }
                      });
+  }
+
+  void about() {
+    QMessageBox::about(_this, "About git qui",
+                       QString("qt5 ui replacement for git-gui. \n\n"
+                               "Application Version: %1")
+                           .arg(
+#if defined(GIT_VERSION)
+                               GIT_VERSION
+#else
+                               "unversioned"
+#endif
+                               ));
   }
 };
 
