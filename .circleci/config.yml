@@ -1,0 +1,48 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  build-flatpak:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    machine:
+      image: ubuntu-2204:2022.04.1
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - run:
+          name: "Install dependencies"
+          command: "sudo apt update && sudo apt install git flatpak-builder"
+      - checkout:
+          path: git-qui
+      - run:
+          name: "Add flathub repo"
+          command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
+      - run:
+          name: "Run flatpak-builder"
+          command: "sudo flatpak-builder --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
+      - add_ssh_keys
+      - run:
+          name: "Publish artifacts"
+          command: |
+            rsync -avz ./build root@feelx88.de:/root/flatpak-repo
+            rsync -avz ./git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
+            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
+          
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  build-workflow:
+    jobs:
+      - build-flatpak:
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              only: 
+                - /v.*/

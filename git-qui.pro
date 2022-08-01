@@ -109,6 +109,8 @@ unix:contains(DEFINES, FLATPAK_BUILD) {
   INSTALLS += desktopfile icon
 }
 
+DEFINES += GIT_VERSION=\\\"$$system(git describe --always --abbrev=0 --tags --exact-match 2> /dev/null || git describe --always --abbrev=0)\\\"
+
 RESOURCES += \
     resources.qrc
 

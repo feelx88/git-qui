@@ -130,6 +130,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout_qt"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCurrent_Repository"/>
@@ -256,6 +257,11 @@
   <action name="actionClean_up_project">
    <property name="text">
     <string>&amp;Clean up project</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
    </property>
   </action>
  </widget>
