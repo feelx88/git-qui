@@ -27,7 +27,7 @@ jobs:
       - add_ssh_keys
       - run:
           name: "Publish artifacts"
-          command: "scp -r ./repo root@feelx88.de:/root/flatpak-repo/repo"
+          command: "scp -r ./repo root@feelx88.de:/root/flatpak-repo"
           
 
 # Invoke jobs via workflows
