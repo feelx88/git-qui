@@ -29,7 +29,7 @@ jobs:
           name: "Publish artifacts"
           command: |
             rsync -avz --exclude=".lock" ./repo root@feelx88.de:/root/flatpak-repo
-            flatpak build-sign repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D
+            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak build-sign repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D"
           
 
 # Invoke jobs via workflows
