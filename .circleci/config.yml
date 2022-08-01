@@ -24,9 +24,11 @@ jobs:
       - run:
           name: "Run flatpak-builder"
           command: "sudo flatpak-builder --repo=repo --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
-      - store_artifacts:
-          path: repo
-          destination: flatpak-repo
+      - add_ssh_keys
+      - run:
+          name: "Publish artifacts"
+          command: "scp -r ./flatpak-repo root@feelx88.de:/root/flatpak-repo/repo"
+          
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
