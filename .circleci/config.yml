@@ -29,7 +29,7 @@ jobs:
           name: "Publish artifacts"
           command: |
             rsync -avz ./build root@feelx88.de:/root/flatpak-repo
-            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D"
+            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build git-qui/de.feelx88.git-qui.yml"
           
 
 # Invoke jobs via workflows
