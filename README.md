@@ -1,7 +1,5 @@
 ![git-qui](https://raw.githubusercontent.com/feelx88/git-qui/master/de.feelx88.git-qui.svg?sanitize=true "git-qui")
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/feelx88/git-qui/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/feelx88/git-qui/tree/master)
-
 # git qui
 qt5 ui replacement for git-gui.
 
