@@ -15,9 +15,12 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "apk add -U git flatpak-builder"
+          command: "apk add -U git flatpak flatpak-builder"
       - checkout:
           path: git-qui
+      - run:
+          name: "Add flathub repo"
+          command: "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
       - run:
           name: "Run flatpak-builder"
           command: "flatpak-builder --repo=repo --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
