@@ -122,17 +122,17 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
   item->setTextAlignment(1, Qt::AlignRight);
   ui->treeWidget->addTopLevelItem(item);
 
-  connect(newGitInterface, &GitInterface::branchChanged, item,
-          std::bind(std::mem_fn(&RepositoryListPrivate::onBranchChanged),
-                    *_impl, item, _1));
+  connect(
+      newGitInterface, &GitInterface::branchChanged, item,
+      [=](const GitBranch &branch) { _impl->onBranchChanged(item, branch); });
 
   connect(newGitInterface, &GitInterface::actionStarted, item,
-          std::bind(std::mem_fn(&RepositoryListPrivate::onActionStarted),
-                    _impl.get(), item, std::placeholders::_1));
+          [=](const GitInterface::ActionTag &actionTag) {
+            _impl->onActionStarted(item, actionTag);
+          });
 
   connect(newGitInterface, &GitInterface::actionFinished, item,
-          std::bind(std::mem_fn(&RepositoryListPrivate::onActionFinished),
-                    *_impl, item, newGitInterface));
+          [=] { _impl->onActionFinished(item, newGitInterface); });
 
   _impl->onActionFinished(item, newGitInterface);
 

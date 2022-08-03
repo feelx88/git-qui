@@ -153,7 +153,7 @@ bool Core::init() {
 
   _impl->autoFetchTimer = new QTimer(this);
   connect(_impl->autoFetchTimer, &QTimer::timeout, this,
-          std::bind(&CorePrivate::onAutoFetchTimerTimeout, _impl.get()));
+          [this] { _impl->onAutoFetchTimerTimeout(); });
   _impl->autoFetchTimer->setInterval(
       std::chrono::seconds(AUTO_FETCH_INTERVAL_SECONDS));
   _impl->autoFetchTimer->start();
