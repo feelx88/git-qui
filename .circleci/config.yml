@@ -66,5 +66,8 @@ workflows:
       - build-dmg:
           filters:
             branches:
+              ignore:
+                - /.*/
+            tags:
               only:
-                - "feature/circleci-osx"
+                - /v.*/
