@@ -282,13 +282,18 @@ public:
 
     QCryptographicHash unstagedHash(QCryptographicHash::Sha256);
     for (auto &file : qAsConst(unstaged)) {
-      QFile f(repositoryPath.absoluteFilePath(file.path));
-      f.open(QFile::ReadOnly);
-      unstagedHash.addData(f.readAll());
-      f.close();
+      if (file.deleted) {
+        unstagedHash.addData(
+            QByteArray(QString("DELETED %1").arg(file.path).toLatin1()));
+      } else {
+        QFile f(repositoryPath.absoluteFilePath(file.path));
+        f.open(QFile::ReadOnly);
+        unstagedHash.addData(f.readAll());
+        f.close();
+      }
     }
 
-    if (unstagedHash.result() != unstagedFilesHash) {
+    if (unstaged.empty() || unstagedHash.result() != unstagedFilesHash) {
       unstagedFilesHash = unstagedHash.result();
       unstagedFiles = unstaged;
       emit _this->nonStagingAreaChanged(unstaged);
@@ -296,13 +301,18 @@ public:
 
     QCryptographicHash stagedHash(QCryptographicHash::Sha256);
     for (auto &file : qAsConst(staged)) {
-      QFile f(repositoryPath.absoluteFilePath(file.path));
-      f.open(QFile::ReadOnly);
-      stagedHash.addData(f.readAll());
-      f.close();
+      if (file.deleted) {
+        stagedHash.addData(
+            QByteArray(QString("DELETED %1").arg(file.path).toLatin1()));
+      } else {
+        QFile f(repositoryPath.absoluteFilePath(file.path));
+        f.open(QFile::ReadOnly);
+        stagedHash.addData(f.readAll());
+        f.close();
+      }
     }
 
-    if (stagedHash.result() != stagedFilesHash) {
+    if (staged.empty() || stagedHash.result() != stagedFilesHash) {
       stagedFilesHash = stagedHash.result();
       stagedFiles = staged;
       emit _this->stagingAreaChanged(staged);
