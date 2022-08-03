@@ -17,18 +17,9 @@ Alternatively, this can be run in the terminal:
 
 `flatpak install https://flatpak.feelx88.de/de.feelx88.git-qui.flatpakref`
 
-
 ### Mac OS
 
-A Mac OS installer version is available here: https://repo.git-qui.feelx88.de/mac/installer-mac-x86_64.dmg
-
-#### Updating/Uninstalling
-
-The installer ships with a binary called `maintenancetool` which can be used to update or uninstall the program.
-
-#### Without installer
-
-A version without the installer is available under [releases](https://github.com/feelx88/git-qui/releases) too.
+An *untested* Mac OS version is automatically built for each release and can be found under [releases](https://github.com/feelx88/git-qui/releases).
 
 ### Building from source
 
