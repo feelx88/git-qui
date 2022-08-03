@@ -76,7 +76,7 @@ struct MainWindowPrivate {
                    QApplication::aboutQt);
 
     _this->connect(_this->ui->actionAbout, &QAction::triggered, _this,
-                   std::bind(std::mem_fn(&MainWindowPrivate::about), this));
+                   [this] { about(); });
 
     _this->connect(_this->ui->actionEdit_mode, &QAction::toggled, _this,
                    [=](bool checked) {
@@ -315,8 +315,7 @@ struct MainWindowPrivate {
   void connectToolbarActions(QToolBar *toolbar) {
     QObject::connect(
         core, &Core::projectChanged, toolbar,
-        std::bind(std::mem_fn(&MainWindowPrivate::onToolbarProjectChanged),
-                  this, std::placeholders::_1));
+        [this](Project *project) { onToolbarProjectChanged(project); });
 
     onToolbarProjectChanged(core->project());
     onToolbarRepositorySwitched(core->project()->activeRepository(),
@@ -327,8 +326,9 @@ struct MainWindowPrivate {
     _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
     QObject::connect(
         project, &Project::repositorySwitched,
-        std::bind(std::mem_fn(&MainWindowPrivate::onToolbarRepositorySwitched),
-                  this, std::placeholders::_1, std::placeholders::_2));
+        [this](GitInterface *repository, QObject *activeRepositoryContext) {
+          onToolbarRepositorySwitched(repository, activeRepositoryContext);
+        });
   }
 
   void onToolbarRepositorySwitched(GitInterface *gitInterface,

@@ -18,10 +18,8 @@ struct DockWidgetPrivate {
     uiLockTimer->setInterval(
         DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
 
-    QObject::connect(
-        uiLockTimer, &QTimer::timeout, _this,
-        std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
-                  this, true));
+    QObject::connect(uiLockTimer, &QTimer::timeout, _this,
+                     [this] { setChildWidgetsDisabledState(true); });
   }
 
   void startUiLockTimer(const GitInterface::ActionTag &actionTag) {
@@ -155,13 +153,13 @@ void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
 
   connect(newGitInterface, &GitInterface::actionStarted,
           activeRepositoryContext,
-          std::bind(std::mem_fn(&DockWidgetPrivate::startUiLockTimer),
-                    _impl.get(), std::placeholders::_1));
+          [this](const GitInterface::ActionTag &actionTag) {
+            _impl->startUiLockTimer(actionTag);
+          });
 
-  connect(
-      newGitInterface, &GitInterface::actionFinished, activeRepositoryContext,
-      std::bind(std::mem_fn(&DockWidgetPrivate::setChildWidgetsDisabledState),
-                _impl.get(), false));
+  connect(newGitInterface, &GitInterface::actionFinished,
+          activeRepositoryContext,
+          [this] { _impl->setChildWidgetsDisabledState(false); });
 }
 
 void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {

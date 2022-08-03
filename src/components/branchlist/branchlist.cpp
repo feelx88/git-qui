@@ -136,7 +136,7 @@ void BranchList::onRepositorySwitched(GitInterface *newGitInterface,
 
   connect(newGitInterface, &GitInterface::branchesChanged,
           activeRepositoryContext,
-          std::bind(std::mem_fn(&BranchListPrivate::refreshView), *_impl, _1));
+          [this](QList<GitBranch> branches) { _impl->refreshView(branches); });
 
   _impl->refreshView(newGitInterface->branches());
 }

@@ -17,8 +17,7 @@
   connect(__watcher, &QFutureWatcher<type>::finished, __watcher,               \
           &QFutureWatcher<type>::deleteLater);                                 \
   connect(__watcher, &QFutureWatcher<type>::finished, this,                    \
-          std::bind(std::mem_fn(&GitInterfacePrivate::finishAction),           \
-                    _impl.get(), actionTag));                                  \
+          [=] { _impl->finishAction(actionTag); });                            \
   QFuture<type> __future;                                                      \
   __future = (runCall);                                                        \
   __watcher->setFuture(__future);
