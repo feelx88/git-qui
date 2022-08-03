@@ -238,12 +238,11 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
 
-  connect(
-      newGitInterface,
-      _impl->unstaged ? &GitInterface::nonStagingAreaChanged
-                      : &GitInterface::stagingAreaChanged,
-      activeRepositoryContext,
-      std::bind(std::mem_fn(&RepositoryFilesPrivate::refreshView), *_impl, _1));
+  connect(newGitInterface,
+          _impl->unstaged ? &GitInterface::nonStagingAreaChanged
+                          : &GitInterface::stagingAreaChanged,
+          activeRepositoryContext,
+          [this](QList<GitFile> files) { _impl->refreshView(files); });
 
   _impl->refreshView(_impl->unstaged ? newGitInterface->unstagedFiles()
                                      : newGitInterface->stagedFiles());

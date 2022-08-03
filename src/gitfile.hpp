@@ -9,7 +9,7 @@ struct GitFile {
        deleted = false;
   QString path = "";
 
-  bool operator<(const GitFile &other) { return other.path < path; }
+  bool operator<(const GitFile &other) const { return other.path < path; }
 };
 Q_DECLARE_METATYPE(GitFile)
 
