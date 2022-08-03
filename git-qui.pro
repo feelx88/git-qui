@@ -58,10 +58,10 @@ OTHER_FILES += \
     LICENSE \
     de.feelx88.git-qui.svg \
     de.feelx88.git-qui.desktop \
-    deploy/installer/config-linux.xml \
     deploy/installer/config-mac.xml \
     deploy/installer/packages/git-qui/meta/LICENSE \
     deploy/installer/packages/git-qui/meta/package.xml \
+    de.feelx88.git-qui.yml \
     .circleci/config.yml
 
 FORMS += \
@@ -114,10 +114,3 @@ DEFINES += GIT_VERSION=\\\"$$system(git describe --always --abbrev=0 --tags --ex
 
 RESOURCES += \
     resources.qrc
-
-# qpm dependencies
-# include(vendor/vendor.pri)
-
-DISTFILES += \
-  build.sh \
-  de.feelx88.git-qui.yml
