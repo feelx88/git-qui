@@ -41,7 +41,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "NONINTERACTIVE=1 /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)\" && brew install qt@5"
+          command: "brew install qt@5"
       - checkout
       - run:
           name: "Build dmg"
