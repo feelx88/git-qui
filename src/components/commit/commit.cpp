@@ -11,13 +11,12 @@
 
 struct CommitPrivate {
   GitInterface *gitInterface = nullptr;
-  QList<GitFile> unstagedFiles, stagedFiles;
   QList<QString> messageHistory;
   QMenu *messageMenu;
 
   void connectSignals(Commit *_this) {
     _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this, [=] {
-      if (stagedFiles.empty()) {
+      if (gitInterface->stagedFiles().empty()) {
         QMessageBox dlg;
         dlg.setText(_this->tr(
             "There are no staged files. Would you like to commit everything?"));
@@ -27,7 +26,7 @@ struct CommitPrivate {
 
         if (dlg.exec() == QMessageBox::Yes) {
           QStringList paths;
-          for (auto &file : unstagedFiles) {
+          for (auto &file : gitInterface->unstagedFiles()) {
             paths << file.path;
           }
           gitInterface->stageFiles(paths).waitForFinished();
@@ -162,14 +161,6 @@ void Commit::onRepositorySwitched(GitInterface *newGitInterface,
             ui->plainTextEdit->setPlainText(message);
             ui->pushButton_2->setDisabled(true);
           });
-
-  connect(_impl->gitInterface, &GitInterface::stagingAreaChanged,
-          activeRepositoryContext,
-          [=](const QList<GitFile> &list) { _impl->stagedFiles = list; });
-
-  connect(_impl->gitInterface, &GitInterface::nonStagingAreaChanged,
-          activeRepositoryContext,
-          [=](const QList<GitFile> &list) { _impl->unstagedFiles = list; });
 }
 
 void Commit::onError(const QString &message, GitInterface::ActionTag tag,
