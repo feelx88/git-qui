@@ -59,6 +59,9 @@
      </layout>
     </item>
     <item>
+      <property name="tabChangesFocus">
+       <bool>true</bool>
+      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QPushButton" name="pushButton_3">
