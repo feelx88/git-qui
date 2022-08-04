@@ -46,7 +46,7 @@
     <item>
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>Upstream branches</string>
+       <string>Remote branches</string>
       </property>
      </widget>
     </item>
