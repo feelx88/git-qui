@@ -34,7 +34,8 @@ jobs:
       - store_artifacts:
           path: git-qui.dmg
   publish-flatpak:
-    machine: ubuntu-2204:2022.04.1
+    machine:
+      image: ubuntu-2204:2022.04.1
     steps:
       - add_ssh_keys
       - run:
