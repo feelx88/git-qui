@@ -8,6 +8,7 @@ jobs:
   build-flatpak:
     machine:
       image: ubuntu-2204:2022.04.1
+    resource_class: medium
     steps:
       - run:
           name: "Install dependencies"
@@ -23,6 +24,7 @@ jobs:
   build-dmg:
     macos:
       xcode: 14.0.0
+    resource_class: medium
     steps:
       - run:
           name: "Install dependencies"
@@ -36,6 +38,7 @@ jobs:
   publish-flatpak:
     machine:
       image: ubuntu-2204:2022.04.1
+    resource_class: medium
     steps:
       - add_ssh_keys
       - run:
@@ -47,6 +50,7 @@ jobs:
   publish-github-artifacts:
     docker:
       - image: cibuilds/github:0.10
+    resource_class: small
     steps:
       - attach_workspace:
           at: ./artifacts
