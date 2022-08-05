@@ -1,5 +1,8 @@
 ![git-qui](https://raw.githubusercontent.com/feelx88/git-qui/master/de.feelx88.git-qui.svg?sanitize=true "git-qui")
 
+![CircleCI](https://img.shields.io/circleci/build/github/feelx88/git-qui)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/feelx88/git-qui?include_prereleases)
+
 # git qui
 qt5 ui replacement for git-gui.
 
