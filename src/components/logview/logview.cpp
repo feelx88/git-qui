@@ -20,8 +20,11 @@ struct Delegate : public QItemDelegate {
 
   Delegate(QObject *parent) : QItemDelegate(parent) {}
 
-  void setGitTree(QSharedPointer<GitTree> gitTree) { this->gitTree = gitTree; }
-  void setLanes(QMap<QString, LaneInfo> lanes) { this->lanes = lanes; }
+  void refreshData(QSharedPointer<GitTree> gitTree,
+                   QMap<QString, LaneInfo> lanes) {
+    this->gitTree = gitTree;
+    this->lanes = lanes;
+  }
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              const QModelIndex &index) const override {
@@ -163,8 +166,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
               _impl->lanes.insert(commit->id, laneInfo);
             }
 
-            _impl->graphDelegate->setGitTree(tree);
-            _impl->graphDelegate->setLanes(_impl->lanes);
+            _impl->graphDelegate->refreshData(tree, _impl->lanes);
 
             ui->treeWidget->resizeColumnToContents(1);
             ui->treeWidget->resizeColumnToContents(3);
