@@ -6,9 +6,9 @@
 #include <QVariant>
 
 #include "gitbranch.hpp"
-#include "gitcommit.hpp"
 #include "gitdiffline.hpp"
 #include "gitfile.hpp"
+#include "gittree.hpp"
 
 class QDir;
 class QFile;
@@ -100,7 +100,7 @@ signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);
   void stagingAreaChanged(const QList<GitFile> &);
-  void logChanged(const QList<GitCommit> &logs);
+  void logChanged(QSharedPointer<GitTree> tree);
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
   void branchChanged(const GitBranch &branch);
