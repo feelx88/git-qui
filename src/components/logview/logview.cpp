@@ -10,57 +10,64 @@
 #include <QPainter>
 #include <iostream>
 
-struct LaneInfo {
-  int lane = 0, laneCount = 1;
+struct RowInfo {
+  int column = 0, columnCount = 1;
+  QString forCommitId;
+  QMultiMap<QString, int> currentColumns;
+  QMultiMap<QString, int> childColumns;
 };
 
 struct Delegate : public QItemDelegate {
   QSharedPointer<GitTree> gitTree;
-  QMap<QString, LaneInfo> lanes;
+  QList<RowInfo> rows;
+  QMap<QString, QPoint> commitCoordinates;
 
-  Delegate(QObject *parent) : QItemDelegate(parent) {}
+  Delegate(QObject *parent) : QItemDelegate(parent) { setClipping(false); }
 
-  void refreshData(QSharedPointer<GitTree> gitTree,
-                   QMap<QString, LaneInfo> lanes) {
+  void refreshData(QSharedPointer<GitTree> gitTree, QList<RowInfo> rows) {
     this->gitTree = gitTree;
-    this->lanes = lanes;
+    this->rows = rows;
+
+    for (int row = 0; row < this->rows.size(); ++row) {
+      auto rowInfo = this->rows.at(row);
+      commitCoordinates.insert(rowInfo.forCommitId,
+                               QPoint(rowInfo.column, row));
+    }
   }
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              const QModelIndex &index) const override {
+    painter->save();
     QPoint center(option.rect.x() + 9, option.rect.center().y());
     auto commit = gitTree->commitList().at(index.row());
 
     drawBackground(painter, option, index);
 
-    for (int parentIndex = 0; parentIndex < commit->parentCommits.size();
-         ++parentIndex) {
-      painter->setPen(QPen(QBrush(Qt::red), 2));
-      painter->drawLine(
-          center, center + QPoint(parentIndex * 24, option.rect.height() / 2));
-    }
+    RowInfo currentRow = rows.value(index.row());
+    painter->setPen(QPen(QBrush(Qt::red), 2));
 
     for (int childIndex = 0; childIndex < commit->childCommits.size();
          ++childIndex) {
-      painter->setPen(QPen(QBrush(Qt::red), 2));
+      auto childCoordinate = commitCoordinates.value(
+          commit->childCommits.at(childIndex).lock()->id);
       painter->drawLine(
-          center, center - QPoint(childIndex * -24, option.rect.height() / 2));
+          center + QPoint(24 * currentRow.column, 0),
+          center + QPoint(24 * childCoordinate.x(), option.rect.height() / -2));
     }
 
-    LaneInfo laneInfo = lanes.value(commit->id);
-
-    for (int lane = 0; lane < laneInfo.laneCount; ++lane) {
+    for (int column = 0; column < currentRow.columnCount; ++column) {
       painter->setPen(QPen(QBrush(Qt::red), 2));
-      painter->drawLine(
-          center + QPoint(lane * 24, 0) - QPoint(0, option.rect.height() / 2),
-          center + QPoint(lane * 24, 0) + QPoint(0, option.rect.height() / 2));
-
-      if (lane == laneInfo.lane) {
-        painter->setBrush(Qt::blue);
-        painter->setPen(Qt::blue);
-        painter->drawEllipse(center + QPoint(lane * 24, 0), 6, 6);
-      }
+      painter->drawLine(center + QPoint(column * 24, 0) -
+                            QPoint(0, option.rect.height() / 2),
+                        center + QPoint(column * 24, 0) +
+                            QPoint(0, option.rect.height() / 2));
     }
+
+    painter->setBrush(Qt::blue);
+    painter->setPen(Qt::blue);
+    painter->drawEllipse(center + QPoint(currentRow.column * 24, 0), 6, 6);
+
+    painter->restore();
   }
 
   QSize sizeHint(const QStyleOptionViewItem &,
@@ -72,7 +79,7 @@ struct Delegate : public QItemDelegate {
 struct LogViewPrivate {
   GitInterface *gitInterface = nullptr;
   Delegate *graphDelegate;
-  QMap<QString, LaneInfo> lanes;
+  QList<RowInfo> rows;
 
   LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {}
 
@@ -127,49 +134,64 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                                    QObject *activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
-  connect(newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
-          [=](QSharedPointer<GitTree> tree) {
-            ui->treeWidget->clear();
+  connect(
+      newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
+      [=](QSharedPointer<GitTree> tree) {
+        ui->treeWidget->clear();
+        _impl->rows.clear();
+        for (auto it = tree->commitList().rbegin();
+             it != tree->commitList().rend(); ++it) {
 
-            for (const auto &commit : tree->commitList()) {
-              TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
-              item->setText(1, commit->id);
-              item->setText(2, commit->branchHeads.join(", "));
-              item->setText(3, commit->message);
-              item->setText(4, commit->author);
-              item->setText(5, commit->date.toString());
+          auto commit = *it;
+          auto currentRow =
+              _impl->rows.isEmpty() ? RowInfo() : RowInfo(_impl->rows.first());
+          currentRow.currentColumns = currentRow.childColumns;
 
-              ui->treeWidget->addTopLevelItem(item);
+          auto childIdValues = currentRow.childColumns.values(commit->id);
+          auto minChildColumn =
+              std::min_element(childIdValues.begin(), childIdValues.end());
+          currentRow.column =
+              minChildColumn != childIdValues.end() ? *minChildColumn : 0;
 
-              LaneInfo laneInfo = _impl->lanes.value(commit->id),
-                       parentLaneInfo;
+          currentRow.currentColumns.remove(currentRow.forCommitId);
+          currentRow.forCommitId = commit->id;
+          currentRow.childColumns.remove(commit->id);
 
-              if (commit->childCommits.size() > 0) {
-                laneInfo.lane -= (commit->childCommits.size() - 1);
-                laneInfo.laneCount -= (commit->childCommits.size() - 1);
+          for (int column = 0; column < commit->childCommits.size(); ++column) {
+            auto childCommit = commit->childCommits.at(column).lock();
+            if (!currentRow.childColumns.contains(childCommit->id)) {
+              int newColumn = 0;
+              auto childColumns = currentRow.childColumns.values();
+              while (childColumns.contains(newColumn)) {
+                ++newColumn;
               }
-
-              laneInfo.lane = laneInfo.lane >= 0 ? laneInfo.lane : 0;
-              laneInfo.laneCount =
-                  laneInfo.laneCount >= 1 ? laneInfo.laneCount : 1;
-
-              for (int parentIndex = 0;
-                   parentIndex < commit->parentCommits.size(); ++parentIndex) {
-                parentLaneInfo.lane = parentLaneInfo.lane + parentIndex;
-                parentLaneInfo.laneCount =
-                    laneInfo.laneCount + (commit->parentCommits.size() - 1);
-                _impl->lanes.insert(
-                    commit->parentCommits.at(parentIndex).lock()->id,
-                    parentLaneInfo);
-              }
-
-              _impl->lanes.insert(commit->id, laneInfo);
+              currentRow.childColumns.insert(childCommit->id, newColumn);
             }
+          }
 
-            _impl->graphDelegate->refreshData(tree, _impl->lanes);
+          auto currentIdValues = currentRow.currentColumns.values();
+          currentRow.columnCount = *std::max_element(currentIdValues.begin(),
+                                                     currentIdValues.end()) +
+                                   1;
 
-            ui->treeWidget->resizeColumnToContents(1);
-            ui->treeWidget->resizeColumnToContents(3);
-            ui->treeWidget->resizeColumnToContents(4);
-          });
+          _impl->rows.prepend(currentRow);
+        }
+
+        for (const auto &commit : tree->commitList()) {
+          TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
+          item->setText(1, commit->id);
+          item->setText(2, commit->branchHeads.join(", "));
+          item->setText(3, commit->message);
+          item->setText(4, commit->author);
+          item->setText(5, commit->date.toString());
+
+          ui->treeWidget->addTopLevelItem(item);
+        }
+
+        _impl->graphDelegate->refreshData(tree, _impl->rows);
+
+        ui->treeWidget->resizeColumnToContents(1);
+        ui->treeWidget->resizeColumnToContents(3);
+        ui->treeWidget->resizeColumnToContents(4);
+      });
 }
