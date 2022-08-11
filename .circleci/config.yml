@@ -82,6 +82,8 @@ workflows:
               only:
                 - /v.*/
       - publish-flatpak:
+          requires:
+            - build-flatpak
           filters:
             branches:
               ignore:
@@ -90,6 +92,8 @@ workflows:
               only:
                 - /v.*/
       - publish-github-artifacts:
+          requires:
+            - build-dmg
           filters:
             branches:
               ignore:
