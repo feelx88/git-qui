@@ -21,6 +21,7 @@ struct Delegate : public QItemDelegate {
   QSharedPointer<GitTree> gitTree;
   QList<RowInfo> rows;
   QMap<QString, int> commitColumns;
+  int minWidth = 0;
 
   Delegate(QObject *parent) : QItemDelegate(parent) { setClipping(false); }
 
@@ -28,10 +29,16 @@ struct Delegate : public QItemDelegate {
     this->gitTree = gitTree;
     this->rows = rows;
 
+    int maxColumns = 1;
+
     for (int row = 0; row < this->rows.size(); ++row) {
       auto rowInfo = this->rows.at(row);
       commitColumns.insert(rowInfo.commitId, rowInfo.column);
+
+      maxColumns = qMax(maxColumns, rowInfo.columnCount);
     }
+
+    minWidth = (9 * 2) + (maxColumns * 24);
   }
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -78,9 +85,9 @@ struct Delegate : public QItemDelegate {
     painter->restore();
   }
 
-  QSize sizeHint(const QStyleOptionViewItem &,
-                 const QModelIndex &index) const override {
-    return QSize(index.data(Qt::UserRole + 1).toList().size() * 5 + 10, 0);
+  QSize sizeHint(const QStyleOptionViewItem &option,
+                 const QModelIndex &) const override {
+    return QSize(minWidth, option.rect.height());
   }
 };
 
@@ -110,6 +117,7 @@ LogView::LogView(MainWindow *mainWindow)
       _impl(new LogViewPrivate(this)) {
   ui->setupUi(this);
   ui->treeWidget->setItemDelegateForColumn(0, _impl->graphDelegate);
+  ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Fixed);
 
   _impl->connectSignals(this);
 }
@@ -147,6 +155,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
       [=](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
         _impl->rows.clear();
+
         for (auto it = tree->commitList().rbegin();
              it != tree->commitList().rend(); ++it) {
 
@@ -154,6 +163,10 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           auto currentRow =
               _impl->rows.isEmpty() ? RowInfo() : RowInfo(_impl->rows.first());
           currentRow.currentColumns = currentRow.childColumns;
+
+          if (currentRow.currentColumns.isEmpty()) {
+            currentRow.currentColumns.insert(commit->id, 0);
+          }
 
           auto childIdValues = currentRow.childColumns.values(commit->id);
           auto minChildColumn =
@@ -198,6 +211,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
 
         _impl->graphDelegate->refreshData(tree, _impl->rows);
 
+        ui->treeWidget->resizeColumnToContents(0);
         ui->treeWidget->resizeColumnToContents(1);
         ui->treeWidget->resizeColumnToContents(3);
         ui->treeWidget->resizeColumnToContents(4);
