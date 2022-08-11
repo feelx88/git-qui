@@ -70,11 +70,17 @@ workflows:
             branches:
               only:
                 - master
+            tags:
+              only:
+                - /v.*/
       - build-dmg:
           filters:
             branches:
               only:
                 - master
+            tags:
+              only:
+                - /v.*/
       - publish-flatpak:
           filters:
             branches:
