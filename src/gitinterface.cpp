@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 #include <QtConcurrent/QtConcurrent>
 
+#include "gitcommit.hpp"
 #include <iostream>
 
 #define WATCH_ASYNC_METHOD_CALL_TYPED(actionTag, type, runCall)                \
@@ -344,18 +345,21 @@ public:
   }
 
   void log() {
-    auto process = git({"log", "--all", "--full-history",
-                        "--pretty="
-                        "%x0c"
-                        "%h"
-                        "%x0c"
-                        "%s"
-                        "%x0c"
-                        "%an"
-                        "%x0c"
-                        "%ct"
-                        "%x0c"
-                        "%D"});
+    auto process =
+        git({"log", "--all", "--full-history", "--parents", "--topo-order",
+             "--pretty="
+             "%x0c"
+             "%H"
+             "%x0c"
+             "%s"
+             "%x0c"
+             "%an"
+             "%x0c"
+             "%ct"
+             "%x0c"
+             "%D"
+             "%x0c"
+             "%P"});
 
     QList<GitCommit> list;
 
@@ -372,12 +376,15 @@ public:
         commit.message = parts.at(2);
         commit.author = parts.at(3);
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.branches = parts.at(5).split(", ", Qt::SkipEmptyParts);
+        commit.branchHeads = parts.at(5).split(", ", Qt::SkipEmptyParts);
+        commit.parentIds = parts.at(6).split(" ", Qt::SkipEmptyParts);
       }
+
       list.append(commit);
     }
 
-    emit _this->logChanged(list);
+    QSharedPointer<GitTree> tree(new GitTree(list));
+    emit _this->logChanged(tree);
   }
 
   void fetch() {

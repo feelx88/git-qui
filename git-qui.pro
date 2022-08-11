@@ -23,7 +23,8 @@ SOURCES += \
     src/qtreewidgetutils.cpp \
     src/toolbareditor.cpp \
     src/toolbaractions.cpp \
-    src/treewidgetitem.cpp
+    src/treewidgetitem.cpp \
+    src/gittree.cpp
 
 HEADERS += \
     src/cleanupdialog.hpp \
@@ -49,7 +50,8 @@ HEADERS += \
     src/toolbareditor.hpp \
     src/toolbaractions.hpp \
     src/qobjecthelpers.hpp \
-    src/treewidgetitem.hpp
+    src/treewidgetitem.hpp \
+    src/gittree.hpp
 
 OTHER_FILES += \
     .gitignore \

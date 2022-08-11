@@ -1,11 +1,11 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
+#include <QSharedPointer>
 #include <QThreadPool>
 
 #include "core.hpp"
 #include "gitinterface.hpp"
-#include "toolbaractions.hpp"
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
@@ -16,8 +16,12 @@ int main(int argc, char *argv[]) {
 
   qRegisterMetaType<QList<GitFile>>();
   qRegisterMetaType<QList<GitCommit>>();
+  qRegisterMetaType<QSharedPointer<GitCommit>>();
+  qRegisterMetaType<QWeakPointer<GitCommit>>();
   qRegisterMetaType<QList<GitBranch>>();
   qRegisterMetaType<QList<GitDiffLine>>();
+  qRegisterMetaType<QList<GitTree>>();
+  qRegisterMetaType<QSharedPointer<GitTree>>();
   qRegisterMetaTypeStreamOperators<QList<QVariantMap>>();
 
   qRegisterMetaType<GitInterface::ActionTag>();

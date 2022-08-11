@@ -325,7 +325,7 @@ struct MainWindowPrivate {
   void onToolbarProjectChanged(Project *project) {
     _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
     QObject::connect(
-        project, &Project::repositorySwitched,
+        project, &Project::repositorySwitched, _this,
         [this](GitInterface *repository, QObject *activeRepositoryContext) {
           onToolbarRepositorySwitched(repository, activeRepositoryContext);
         });
