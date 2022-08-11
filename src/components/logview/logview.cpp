@@ -20,7 +20,7 @@ struct RowInfo {
 struct Delegate : public QItemDelegate {
   QSharedPointer<GitTree> gitTree;
   QList<RowInfo> rows;
-  QMap<QString, QPoint> commitCoordinates;
+  QMap<QString, int> commitColumns;
 
   Delegate(QObject *parent) : QItemDelegate(parent) { setClipping(false); }
 
@@ -30,14 +30,17 @@ struct Delegate : public QItemDelegate {
 
     for (int row = 0; row < this->rows.size(); ++row) {
       auto rowInfo = this->rows.at(row);
-      commitCoordinates.insert(rowInfo.commitId, QPoint(rowInfo.column, row));
+      commitColumns.insert(rowInfo.commitId, rowInfo.column);
     }
   }
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              const QModelIndex &index) const override {
     painter->save();
-    QPoint center(option.rect.x() + 9, option.rect.center().y());
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    QPoint center(option.rect.x() + 9, option.rect.center().y() + 1);
+    QPoint halfHeight = QPoint(0, (option.rect.height() / 2) - 1);
     auto commit = gitTree->commitList().at(index.row());
 
     drawBackground(painter, option, index);
@@ -45,29 +48,26 @@ struct Delegate : public QItemDelegate {
     RowInfo currentRow = rows.value(index.row());
     painter->setPen(QPen(QBrush(Qt::red), 2));
 
-    for (int childIndex = 0; childIndex < commit->childCommits.size();
-         ++childIndex) {
-      auto childCoordinate = commitCoordinates.value(
-          commit->childCommits.at(childIndex).lock()->id);
+    for (const auto &childCommit : qAsConst(commit->childCommits)) {
       painter->drawLine(
           center + QPoint(24 * currentRow.column, 0),
-          center + QPoint(24 * childCoordinate.x(), option.rect.height() / -2));
+          center + QPoint(24 * commitColumns.value(childCommit.lock()->id),
+                          -halfHeight.y()));
     }
 
+    auto filledChildColumns = currentRow.childColumns.values();
+    auto filledCurrentColumns = currentRow.currentColumns.values();
+
     for (int column = 0; column < currentRow.columnCount; ++column) {
-      painter->setPen(QPen(QBrush(Qt::red), 2));
-      auto filledChildColumns = currentRow.childColumns.values();
-      auto filledCurrentColumns = currentRow.currentColumns.values();
       if (filledChildColumns.contains(column) &&
           filledCurrentColumns.contains(column)) {
-        painter->drawLine(center + QPoint(column * 24, 0) -
-                              QPoint(0, option.rect.height() / 2),
-                          center + QPoint(column * 24, 0) +
-                              QPoint(0, option.rect.height() / 2));
-      } else if (column == currentRow.column) {
+        painter->drawLine(center + QPoint(column * 24, 0) - halfHeight,
+                          center + QPoint(column * 24, 0));
+      }
+
+      if (filledCurrentColumns.contains(column)) {
         painter->drawLine(center + QPoint(column * 24, 0),
-                          center + QPoint(column * 24, 0) +
-                              QPoint(0, option.rect.height() / 2));
+                          center + QPoint(column * 24, 0) + halfHeight);
       }
     }
 
