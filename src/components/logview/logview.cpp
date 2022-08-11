@@ -212,8 +212,5 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
         _impl->graphDelegate->refreshData(tree, _impl->rows);
 
         ui->treeWidget->resizeColumnToContents(0);
-        ui->treeWidget->resizeColumnToContents(1);
-        ui->treeWidget->resizeColumnToContents(3);
-        ui->treeWidget->resizeColumnToContents(4);
       });
 }
