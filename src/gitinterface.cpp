@@ -345,20 +345,21 @@ public:
   }
 
   void log() {
-    auto process = git({"log", "--all", "--full-history", "--parents",
-                        "--pretty="
-                        "%x0c"
-                        "%H"
-                        "%x0c"
-                        "%s"
-                        "%x0c"
-                        "%an"
-                        "%x0c"
-                        "%ct"
-                        "%x0c"
-                        "%D"
-                        "%x0c"
-                        "%P"});
+    auto process =
+        git({"log", "--all", "--full-history", "--parents", "--topo-order",
+             "--pretty="
+             "%x0c"
+             "%H"
+             "%x0c"
+             "%s"
+             "%x0c"
+             "%an"
+             "%x0c"
+             "%ct"
+             "%x0c"
+             "%D"
+             "%x0c"
+             "%P"});
 
     QList<GitCommit> list;
 
