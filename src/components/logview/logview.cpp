@@ -8,7 +8,6 @@
 
 #include <QItemDelegate>
 #include <QPainter>
-#include <iostream>
 
 struct RowInfo {
   int column = 0, columnCount = 1;
