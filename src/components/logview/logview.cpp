@@ -12,7 +12,7 @@
 
 struct RowInfo {
   int column = 0, columnCount = 1;
-  QString forCommitId;
+  QString commitId;
   QMultiMap<QString, int> currentColumns;
   QMultiMap<QString, int> childColumns;
 };
@@ -30,8 +30,7 @@ struct Delegate : public QItemDelegate {
 
     for (int row = 0; row < this->rows.size(); ++row) {
       auto rowInfo = this->rows.at(row);
-      commitCoordinates.insert(rowInfo.forCommitId,
-                               QPoint(rowInfo.column, row));
+      commitCoordinates.insert(rowInfo.commitId, QPoint(rowInfo.column, row));
     }
   }
 
@@ -57,10 +56,19 @@ struct Delegate : public QItemDelegate {
 
     for (int column = 0; column < currentRow.columnCount; ++column) {
       painter->setPen(QPen(QBrush(Qt::red), 2));
-      painter->drawLine(center + QPoint(column * 24, 0) -
-                            QPoint(0, option.rect.height() / 2),
-                        center + QPoint(column * 24, 0) +
-                            QPoint(0, option.rect.height() / 2));
+      auto filledChildColumns = currentRow.childColumns.values();
+      auto filledCurrentColumns = currentRow.currentColumns.values();
+      if (filledChildColumns.contains(column) &&
+          filledCurrentColumns.contains(column)) {
+        painter->drawLine(center + QPoint(column * 24, 0) -
+                              QPoint(0, option.rect.height() / 2),
+                          center + QPoint(column * 24, 0) +
+                              QPoint(0, option.rect.height() / 2));
+      } else if (column == currentRow.column) {
+        painter->drawLine(center + QPoint(column * 24, 0),
+                          center + QPoint(column * 24, 0) +
+                              QPoint(0, option.rect.height() / 2));
+      }
     }
 
     painter->setBrush(Qt::blue);
@@ -153,8 +161,8 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           currentRow.column =
               minChildColumn != childIdValues.end() ? *minChildColumn : 0;
 
-          currentRow.currentColumns.remove(currentRow.forCommitId);
-          currentRow.forCommitId = commit->id;
+          currentRow.currentColumns.remove(currentRow.commitId);
+          currentRow.commitId = commit->id;
           currentRow.childColumns.remove(commit->id);
 
           for (int column = 0; column < commit->childCommits.size(); ++column) {
