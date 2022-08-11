@@ -159,13 +159,14 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
              it != tree->commitList().rend(); ++it) {
 
           auto commit = *it;
-          auto currentRow =
-              _impl->rows.isEmpty() ? RowInfo() : RowInfo(_impl->rows.first());
-          currentRow.currentColumns = currentRow.childColumns;
-
-          if (currentRow.currentColumns.isEmpty()) {
+          RowInfo currentRow;
+          if (_impl->rows.isEmpty()) {
             currentRow.currentColumns.insert(commit->id, 0);
+          } else {
+            currentRow = RowInfo(_impl->rows.first());
           }
+
+          currentRow.currentColumns = currentRow.childColumns;
 
           auto childIdValues = currentRow.childColumns.values(commit->id);
           auto minChildColumn =
