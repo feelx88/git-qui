@@ -8,6 +8,7 @@ jobs:
   build-flatpak:
     machine:
       image: ubuntu-2204:2022.04.1
+    working_directory: /tmp/git-qui
     resource_class: medium
     steps:
       - run:
@@ -21,9 +22,15 @@ jobs:
       - run:
           name: "Run flatpak-builder"
           command: "sudo flatpak-builder --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "git-qui/de.feelx88.git-qui.yml"
+            - "build"
   build-dmg:
     macos:
       xcode: 14.0.0
+    working_directory: /tmp/git-qui
     resource_class: medium
     steps:
       - run:
@@ -33,31 +40,37 @@ jobs:
       - run:
           name: "Build dmg"
           command: "qmake && make && macdeployqt git-qui.app -dmg"
-      - store_artifacts:
-          path: git-qui.dmg
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "git-qui.dmg"
   publish-flatpak:
     machine:
       image: ubuntu-2204:2022.04.1
+    working_directory: /tmp/git-qui
     resource_class: medium
     steps:
       - add_ssh_keys
+      - attach_workspace:
+          at: /tmp/git-qui
       - run:
           name: "Publish artifacts"
           command: |
-            rsync -avz ./build root@feelx88.de:/root/flatpak-repo
-            rsync -avz ./git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
+            rsync -avz /tmp/git-qui/build root@feelx88.de:/root/flatpak-repo
+            rsync -avz /tmp/git-qui/git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
             ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --install-deps-from=flathub --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
   publish-github-artifacts:
     docker:
       - image: cibuilds/github:0.10
+    working_directory: /tmp/git-qui
     resource_class: small
     steps:
       - attach_workspace:
-          at: ./artifacts
+          at: /tmp/git-qui
       - run:
           name: "Publish artifacts"
           command: |
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} ./artifacts/
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} ./git-qui.dmg
 
 
 # Invoke jobs via workflows
