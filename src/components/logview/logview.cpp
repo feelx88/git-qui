@@ -161,7 +161,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           auto commit = *it;
           RowInfo currentRow;
           if (_impl->rows.isEmpty()) {
-            currentRow.currentColumns.insert(commit->id, 0);
+            currentRow.childColumns.insert(commit->id, 0);
           } else {
             currentRow = RowInfo(_impl->rows.first());
           }
