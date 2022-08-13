@@ -6,6 +6,7 @@
 #include "mainwindow.hpp"
 #include "treewidgetitem.hpp"
 
+#include <QAction>
 #include <QItemDelegate>
 #include <QPainter>
 
@@ -94,6 +95,7 @@ struct LogViewPrivate {
   GitInterface *gitInterface = nullptr;
   Delegate *graphDelegate;
   QList<RowInfo> rows;
+  QAction *resetAction;
 
   LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {}
 
@@ -106,6 +108,15 @@ struct LogViewPrivate {
         _this->tr("Author"),
         _this->tr("Date"),
     });
+
+    _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    resetAction = new QAction(_this);
+    QObject::connect(resetAction, &QAction::triggered, _this, [=] {
+      gitInterface->resetToCommit(
+          _this->ui->treeWidget->currentItem()->text(1));
+    });
+    _this->ui->treeWidget->addAction(resetAction);
   }
 };
 
@@ -213,4 +224,11 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
 
         ui->treeWidget->resizeColumnToContents(0);
       });
+
+  auto newBranchAction = [=](const GitBranch &branch) {
+    _impl->resetAction->setText(
+        tr("Reset branch %1 to this commit...").arg(branch.name));
+  };
+  connect(newGitInterface, &GitInterface::branchChanged, this, newBranchAction);
+  newBranchAction(newGitInterface->activeBranch());
 }
