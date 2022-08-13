@@ -104,10 +104,10 @@ struct LogViewPrivate {
     _this->ui->treeWidget->setHeaderLabels({
         _this->tr("Graph"),
         _this->tr("Refs"),
-        _this->tr("Id"),
         _this->tr("Message"),
         _this->tr("Author"),
         _this->tr("Date"),
+        _this->tr("Id"),
     });
 
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -213,10 +213,10 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
 
         for (const auto &commit : tree->commitList()) {
           TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
-          item->setText(2, commit->id);
-          item->setText(3, commit->message);
-          item->setText(4, commit->author);
-          item->setText(5, commit->date.toString());
+          item->setText(2, commit->message);
+          item->setText(3, commit->author);
+          item->setText(4, commit->date.toString());
+          item->setText(5, commit->id);
 
           item->setData(0, 0, QVariant::fromValue(GitCommit(*commit)));
 
