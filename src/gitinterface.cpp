@@ -701,6 +701,12 @@ public:
     git({"stash", "pop"});
     status();
   }
+
+  void resetToCommit(const QString &commitId) {
+    git({"reset", "--hard", commitId});
+    status();
+    log();
+  }
 };
 
 GitInterface::GitInterface(const QString &name, const QString &path,
@@ -898,4 +904,10 @@ QFuture<void> GitInterface::stash() {
 QFuture<void> GitInterface::stashPop() {
   RUN_ONCE(ActionTag::GIT_STASH_APPLY,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stashPop));
+}
+
+QFuture<void> GitInterface::resetToCommit(const QString &commitId) {
+  RUN_ONCE(ActionTag::GIT_RESET,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::resetToCommit,
+                             commitId));
 }

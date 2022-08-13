@@ -96,6 +96,7 @@ public slots:
   QFuture<void> setUpstream(const QString &remote, const QString &branch);
   QFuture<void> stash();
   QFuture<void> stashPop();
+  QFuture<void> resetToCommit(const QString &commitId);
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);
