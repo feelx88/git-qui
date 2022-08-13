@@ -12,7 +12,7 @@ public:
   GitCommit(const GitCommit &) = default;
   QString id, message, author;
   QDateTime date;
-  QList<QString> branchHeads, parentIds;
+  QList<QString> refs, parentIds;
   QList<QWeakPointer<GitCommit>> parentCommits, childCommits;
 };
 Q_DECLARE_METATYPE(GitCommit)

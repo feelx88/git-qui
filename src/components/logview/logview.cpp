@@ -9,6 +9,7 @@
 #include <QAction>
 #include <QItemDelegate>
 #include <QPainter>
+#include <QPushButton>
 
 struct RowInfo {
   int column = 0, columnCount = 1;
@@ -102,8 +103,8 @@ struct LogViewPrivate {
   void connectSignals(LogView *_this) {
     _this->ui->treeWidget->setHeaderLabels({
         _this->tr("Graph"),
+        _this->tr("Refs"),
         _this->tr("Id"),
-        _this->tr("Branches"),
         _this->tr("Message"),
         _this->tr("Author"),
         _this->tr("Date"),
@@ -113,8 +114,9 @@ struct LogViewPrivate {
 
     resetAction = new QAction(_this);
     QObject::connect(resetAction, &QAction::triggered, _this, [=] {
-      gitInterface->resetToCommit(
-          _this->ui->treeWidget->currentItem()->text(1));
+      GitCommit commit =
+          _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
+      gitInterface->resetToCommit(commit.id);
     });
     _this->ui->treeWidget->addAction(resetAction);
   }
@@ -211,13 +213,43 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
 
         for (const auto &commit : tree->commitList()) {
           TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
-          item->setText(1, commit->id);
-          item->setText(2, commit->branchHeads.join(", "));
+          item->setText(2, commit->id);
           item->setText(3, commit->message);
           item->setText(4, commit->author);
           item->setText(5, commit->date.toString());
 
+          item->setData(0, 0, QVariant::fromValue(GitCommit(*commit)));
+
           ui->treeWidget->addTopLevelItem(item);
+        }
+
+        for (int x = 0; x < ui->treeWidget->topLevelItemCount(); ++x) {
+          auto item = ui->treeWidget->topLevelItem(x);
+          auto commit = item->data(0, 0).value<GitCommit>();
+          if (commit.refs.isEmpty()) {
+            continue;
+          }
+          auto container = new QWidget(ui->treeWidget);
+          auto layout = new QHBoxLayout(container);
+          layout->setAlignment(Qt::AlignLeft);
+          for (auto ref : qAsConst(commit.refs)) {
+            bool tag = ref.startsWith("tag:");
+            ref.remove("tag: ");
+            auto b = new QPushButton(ref, container);
+            if (tag) {
+              b->setStyleSheet(
+                  "QPushButton {color: black; background-color: "
+                  "yellow; border: 1px black solid; padding: 0.1em;}");
+            } else {
+              b->setStyleSheet(
+                  "QPushButton {color: black; background-color: "
+                  "lightgray; border: 1px black solid; padding: 0.1em;}");
+            }
+            b->setSizePolicy(
+                QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
+            layout->addWidget(b);
+          }
+          ui->treeWidget->setItemWidget(item, 1, container);
         }
 
         _impl->graphDelegate->refreshData(tree, _impl->rows);

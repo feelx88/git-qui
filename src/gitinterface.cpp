@@ -376,7 +376,7 @@ public:
         commit.message = parts.at(2);
         commit.author = parts.at(3);
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.branchHeads = parts.at(5).split(", ", Qt::SkipEmptyParts);
+        commit.refs = parts.at(5).split(", ", Qt::SkipEmptyParts);
         commit.parentIds = parts.at(6).split(" ", Qt::SkipEmptyParts);
       }
 
