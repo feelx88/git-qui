@@ -17,6 +17,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTreeWidget" name="treeWidget">
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
       <property name="columnCount">
        <number>5</number>
       </property>
