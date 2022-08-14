@@ -179,22 +179,22 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             if (isTag) {
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
-                  "yellow; border: 1px black solid; padding: 0.1em;}");
+                  "yellow; padding: 0.1em;}");
             } else if (isRemote) {
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
-                  "gray; border: 1px black solid; padding: 0.1em;}");
+                  "gray; padding: 0.1em;}");
             } else if (isHead) {
               insertPosition = 0;
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
-                  "lightgray; border: 1px black solid; padding: 0.1em; "
+                  "lightgray; padding: 0.1em; "
                   "font-weight: bold}");
             } else {
               insertPosition = remoteIndex;
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
-                  "lightgray; border: 1px black solid; padding: 0.1em;}");
+                  "lightgray; padding: 0.1em;}");
             }
             button->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
