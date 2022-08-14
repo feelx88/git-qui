@@ -13,6 +13,7 @@ public:
   QString id, message, author;
   QDateTime date;
   QList<QString> refs, parentIds;
+  bool isHead = false;
   QList<QWeakPointer<GitCommit>> parentCommits, childCommits;
 };
 Q_DECLARE_METATYPE(GitCommit)

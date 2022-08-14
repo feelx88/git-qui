@@ -80,8 +80,8 @@ struct Delegate : public QItemDelegate {
       }
     }
 
-    painter->setBrush(Qt::blue);
-    painter->setPen(Qt::blue);
+    painter->setBrush(commit->isHead ? Qt::green : Qt::blue);
+    painter->setPen(commit->isHead ? Qt::green : Qt::blue);
     painter->drawEllipse(center + QPoint(currentRow.column * 24, 0), 6, 6);
 
     painter->restore();

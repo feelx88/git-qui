@@ -378,6 +378,15 @@ public:
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
         commit.refs = parts.at(5).split(", ", Qt::SkipEmptyParts);
         commit.parentIds = parts.at(6).split(" ", Qt::SkipEmptyParts);
+
+        for (int refIndex = 0; refIndex < commit.refs.size(); ++refIndex) {
+          QString ref = commit.refs.at(refIndex);
+          if (ref.startsWith("HEAD ->")) {
+            commit.refs.replace(refIndex, ref.remove("HEAD -> "));
+            commit.isHead = true;
+            break;
+          }
+        }
       }
 
       list.append(commit);
