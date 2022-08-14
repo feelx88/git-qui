@@ -10,10 +10,15 @@
 
 struct ToolBarEditorPrivate {
   void createItem(QTreeWidget *widget, QAction *action) {
-    auto item = new TreeWidgetItem(widget, {action->text()});
-    item->setData(0, Qt::UserRole, action->data().toString());
-    item->setIcon(0, action->icon());
-    widget->addTopLevelItem(item);
+    if (action->data().isNull()) {
+      auto item = new TreeWidgetItem(widget, {QObject::tr("Separator")});
+      widget->addTopLevelItem(item);
+    } else {
+      auto item = new TreeWidgetItem(widget, {action->text()});
+      item->setData(0, Qt::UserRole, action->data().toString());
+      item->setIcon(0, action->icon());
+      widget->addTopLevelItem(item);
+    }
   }
 };
 
@@ -52,10 +57,16 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
 
   auto removeSlot = [=] {
     QTreeWidgetItem *item = ui->treeWidget_2->selectedItems().first();
-    QAction *action =
-        ToolBarActions::byId(item->data(0, Qt::UserRole).toString());
-    _impl->createItem(ui->treeWidget, action);
-    toolbar->removeAction(action);
+    auto data = item->data(0, Qt::UserRole);
+
+    if (!data.isNull()) {
+      QAction *action = ToolBarActions::byId(data.toString());
+      _impl->createItem(ui->treeWidget, action);
+      toolbar->removeAction(action);
+    } else {
+      toolbar->removeAction(
+          toolbar->actions().at(ui->treeWidget_2->currentIndex().row()));
+    }
     delete item;
   };
   connect(ui->toolButtonLeft, &QToolButton::clicked, this, removeSlot);
@@ -96,6 +107,11 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
                               ? nullptr
                               : toolbar->actions().at(index + 1),
                           action);
+  });
+
+  connect(ui->toolButtonSeparator, &QToolButton::clicked, this, [=] {
+    _impl->createItem(ui->treeWidget_2, new QAction());
+    toolbar->addSeparator();
   });
 
   auto actions = toolbar->actions();

@@ -44,6 +44,8 @@ struct ConfigurationKeys {
   static constexpr const char *TOOLBAR_ACTIONS = "actions";
 };
 
+QString SEPARATOR_ID = "separator";
+
 struct MainWindowPrivate {
   MainWindow *_this;
   Core *core;
@@ -303,7 +305,11 @@ struct MainWindowPrivate {
       auto toolBarActions =
           config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList();
       for (const auto &action : toolBarActions) {
-        toolbar->addAction(ToolBarActions::byId(action.toString()));
+        if (action.toString() == SEPARATOR_ID) {
+          toolbar->addSeparator();
+        } else {
+          toolbar->addAction(ToolBarActions::byId(action.toString()));
+        }
       }
       connectToolbarActions(toolbar);
     }
@@ -423,7 +429,11 @@ QVariant MainWindow::configuration() const {
     QVariantList actions;
     auto toolBarActions = toolbar->actions();
     for (auto action : toolBarActions) {
-      actions.push_back(action->data());
+      if (action->data().isNull()) {
+        actions.push_back(SEPARATOR_ID);
+      } else {
+        actions.push_back(action->data());
+      }
     }
 
     QVariantMap config = {
