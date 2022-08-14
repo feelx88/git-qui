@@ -240,6 +240,7 @@ void LogView::onRepositorySwitched(
                             tr("Check out branch %1").arg(ref.name));
                         _impl->deleteAction->setText(
                             tr("Delete branch %1...").arg(ref.name));
+                        _impl->deleteAction->setDisabled(ref.isHead);
                         _impl->branchMenu->popup(button->mapToGlobal(at));
                       }
                     });
