@@ -47,6 +47,9 @@ public:
   enum class ErrorType { GENERIC = 0, STDERR, ALREADY_RUNNING };
   Q_ENUM(ErrorType);
 
+  enum class ResetType { MIXED = 0, SOFT, HARD };
+  Q_ENUM(ResetType);
+
   GitInterface(const QString &name, const QString &path,
                QObject *parent = nullptr);
   virtual ~GitInterface();
@@ -97,7 +100,9 @@ public slots:
   QFuture<void> setUpstream(const QString &remote, const QString &branch);
   QFuture<void> stash();
   QFuture<void> stashPop();
-  QFuture<void> resetToCommit(const QString &commitId);
+  QFuture<void> resetToCommit(
+      const QString &commitId,
+      const GitInterface::ResetType &type = GitInterface::ResetType::MIXED);
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);

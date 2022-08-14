@@ -742,8 +742,22 @@ public:
     log();
   }
 
-  void resetToCommit(const QString &commitId) {
-    git({"reset", "--hard", commitId});
+  void resetToCommit(const QString &commitId,
+                     const GitInterface::ResetType &type) {
+    QString typeArg;
+    switch (type) {
+    case GitInterface::ResetType::MIXED:
+      typeArg = "--mixed";
+      break;
+    case GitInterface::ResetType::SOFT:
+      typeArg = "--soft";
+      break;
+    case GitInterface::ResetType::HARD:
+      typeArg = "--hard";
+      break;
+    }
+
+    git({"reset", typeArg, commitId});
     status();
     log();
   }
@@ -947,9 +961,9 @@ QFuture<void> GitInterface::stashPop() {
   RUN_ONCE(ActionTag::GIT_STASH_APPLY,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stashPop));
 }
-
-QFuture<void> GitInterface::resetToCommit(const QString &commitId) {
+QFuture<void> GitInterface::resetToCommit(const QString &commitId,
+                                          const ResetType &type) {
   RUN_ONCE(ActionTag::GIT_RESET,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::resetToCommit,
-                             commitId));
+                             commitId, type));
 }

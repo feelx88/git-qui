@@ -8,7 +8,7 @@
 #include "treewidgetitem.hpp"
 
 #include <QAction>
-#include <QItemDelegate>
+#include <QInputDialog>
 #include <QMenu>
 #include <QPainter>
 #include <QPushButton>
@@ -44,7 +44,21 @@ struct LogViewPrivate {
     QObject::connect(resetAction, &QAction::triggered, _this, [=] {
       GitCommit commit =
           _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
-      gitInterface->resetToCommit(commit.id);
+
+      bool ok;
+      QList<QString> choices{QObject::tr("Mixed"), QObject::tr("Soft"),
+                             QObject::tr("Hard")};
+      QString selectedItem = QInputDialog::getItem(
+          _this, QObject::tr("Reset branch"),
+          QString("Reset branch %1 to commit %2?")
+              .arg(gitInterface->activeBranch().name, commit.id),
+          choices, 0, false, &ok);
+
+      if (ok) {
+        gitInterface->resetToCommit(commit.id,
+                                    static_cast<GitInterface::ResetType>(
+                                        choices.indexOf(selectedItem)));
+      }
     });
     _this->ui->treeWidget->addAction(resetAction);
   }
