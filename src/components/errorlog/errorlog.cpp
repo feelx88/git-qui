@@ -3,7 +3,7 @@
 
 #include <QStandardPaths>
 
-struct ErrorLogImpl {
+struct ErrorLogPrivate {
   QSharedPointer<QFile> getLogFile() {
     auto fileName =
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
@@ -16,7 +16,7 @@ struct ErrorLogImpl {
 DOCK_WIDGET_IMPL(ErrorLog, tr("Error log"))
 
 ErrorLog::ErrorLog(MainWindow *mainWindow)
-    : DockWidget(mainWindow), ui(new Ui::ErrorLog), _impl(new ErrorLogImpl) {
+    : DockWidget(mainWindow), ui(new Ui::ErrorLog), _impl(new ErrorLogPrivate) {
   ui->setupUi(this);
 
   connect(ui->pushButton, &QPushButton::clicked, this,

@@ -10,7 +10,7 @@
 #include "project.hpp"
 
 struct CommitPrivate {
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
   QList<QString> messageHistory;
   QMenu *messageMenu;
 
@@ -147,17 +147,19 @@ void Commit::onProjectSpecificConfigurationLoaded(
       configuration.value("message", "").toString());
 }
 
-void Commit::onRepositorySwitched(GitInterface *newGitInterface,
-                                  QObject *activeRepositoryContext) {
+void Commit::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
 
   _impl->gitInterface = newGitInterface;
 
-  connect(ui->pushButton_2, &QPushButton::clicked, activeRepositoryContext,
+  connect(ui->pushButton_2, &QPushButton::clicked,
+          activeRepositoryContext.get(),
           [=] { newGitInterface->revertLastCommit(); });
 
-  connect(_impl->gitInterface, &GitInterface::lastCommitReverted,
-          activeRepositoryContext, [=](const QString &message) {
+  connect(_impl->gitInterface.get(), &GitInterface::lastCommitReverted,
+          activeRepositoryContext.get(), [=](const QString &message) {
             ui->plainTextEdit->setPlainText(message);
             ui->pushButton_2->setDisabled(true);
           });

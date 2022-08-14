@@ -6,7 +6,6 @@
 #include <QInputDialog>
 #include <QMenu>
 
-#include "core.hpp"
 #include "gitinterface.hpp"
 #include "mainwindow.hpp"
 #include "project.hpp"
@@ -17,7 +16,7 @@ using namespace std::placeholders;
 
 struct BranchListPrivate {
   BranchList *_this;
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface;
   QFont italicFont;
 
   BranchListPrivate(BranchList *branchList) : _this(branchList) {}
@@ -128,14 +127,15 @@ void BranchList::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void BranchList::onRepositorySwitched(GitInterface *newGitInterface,
-                                      QObject *activeRepositoryContext) {
+void BranchList::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
 
   _impl->gitInterface = newGitInterface;
 
-  connect(newGitInterface, &GitInterface::branchesChanged,
-          activeRepositoryContext,
+  connect(newGitInterface.get(), &GitInterface::branchesChanged,
+          activeRepositoryContext.get(),
           [this](QList<GitBranch> branches) { _impl->refreshView(branches); });
 
   _impl->refreshView(newGitInterface->branches());

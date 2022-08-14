@@ -28,8 +28,9 @@ protected:
   virtual void onProjectSwitched(Project *newProject) override;
   virtual void onProjectSpecificConfigurationLoaded(
       const QVariantMap &configuration) override;
-  virtual void onRepositorySwitched(GitInterface *newGitInterface,
-                                    QObject *activeRepositoryContext) override;
+  virtual void onRepositorySwitched(
+      QSharedPointer<GitInterface> newGitInterface,
+      QSharedPointer<QObject> activeRepositoryContext) override;
   virtual void onError(const QString &message, GitInterface::ActionTag tag,
                        GitInterface::ErrorType type) override;
 

@@ -21,6 +21,11 @@ public:
     static constexpr const char *CLEANUP = "cleanup";
   };
 
+  struct ActionCallerProperty {
+    static constexpr const char *NEW_BRANCH_BASE_COMMIT =
+        "new-branch_base-commit";
+  };
+
   static void initialize(Core *core);
   static const QMap<QString, QAction *> all();
   static QAction *byId(const QString &id);

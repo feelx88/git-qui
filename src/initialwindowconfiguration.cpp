@@ -21,7 +21,7 @@
 
 void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   // Main tab
-  QMainWindow *main = mainWindow->createTab(mainWindow->tr("main"));
+  QMainWindow *main = mainWindow->createTab(mainWindow->tr("Commit"));
 
   mainWindow->addDockWidget<RepositoryFiles>(0,
                                              QVariantMap({{"unstaged", true}}));
@@ -40,6 +40,7 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   mainWindow->createTab(mainWindow->tr("History"));
 
   mainWindow->addDockWidget<LogView>(1);
+  mainWindow->addDockWidget<RepositoryList>(1);
 
   // Error log tab
   mainWindow->createTab(mainWindow->tr("Error log"));
@@ -58,13 +59,18 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
 
   auto toolbar = mainWindow->addToolbar(Qt::ToolBarArea::TopToolBarArea);
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::FETCH));
+  toolbar->addSeparator();
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PUSH));
+  toolbar->addSeparator();
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PULL_ALL));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::PUSH_ALL));
+  toolbar->addSeparator();
   toolbar->addAction(
       ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
+  toolbar->addSeparator();
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::STASH));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::UNSTASH));
+  toolbar->addSeparator();
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));
 }

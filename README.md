@@ -35,3 +35,4 @@ The Logo is based on the Git Logo by [Jason Long](https://twitter.com/jasonlong)
 
 Icons packaged with the program are part of [breeze icon set](https://github.com/KDE/breeze-icons).
 
+The application itself is heavily inspired by the git gui tools ([git gui](https://www.git-scm.com/docs/git-gui) and [gitk](https://www.git-scm.com/docs/gitk)) and uses some of the same ui concepts.

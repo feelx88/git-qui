@@ -70,7 +70,7 @@ void DockWidget::init() {
   onProjectSwitched(project());
 
   auto repositories = project()->repositoryList();
-  for (auto repository : repositories) {
+  for (const auto &repository : repositories) {
     onRepositoryAdded(repository);
   }
 
@@ -143,27 +143,30 @@ void DockWidget::onProjectSwitched(Project *newProject) {
 
 void DockWidget::onProjectSpecificConfigurationLoaded(const QVariantMap &) {}
 
-void DockWidget::onRepositoryAdded(GitInterface *gitInterface) {
-  connect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
+void DockWidget::onRepositoryAdded(QSharedPointer<GitInterface> gitInterface) {
+  connect(gitInterface.get(), &GitInterface::error, this, &DockWidget::onError);
 }
 
-void DockWidget::onRepositorySwitched(GitInterface *newGitInterface,
-                                      QObject *activeRepositoryContext) {
+void DockWidget::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   _impl->setChildWidgetsDisabledState(newGitInterface->actionRunning());
 
-  connect(newGitInterface, &GitInterface::actionStarted,
-          activeRepositoryContext,
+  connect(newGitInterface.get(), &GitInterface::actionStarted,
+          activeRepositoryContext.get(),
           [this](const GitInterface::ActionTag &actionTag) {
             _impl->startUiLockTimer(actionTag);
           });
 
-  connect(newGitInterface, &GitInterface::actionFinished,
-          activeRepositoryContext,
+  connect(newGitInterface.get(), &GitInterface::actionFinished,
+          activeRepositoryContext.get(),
           [this] { _impl->setChildWidgetsDisabledState(false); });
 }
 
-void DockWidget::onRepositoryRemoved(GitInterface *gitInterface) {
-  disconnect(gitInterface, &GitInterface::error, this, &DockWidget::onError);
+void DockWidget::onRepositoryRemoved(
+    QSharedPointer<GitInterface> gitInterface) {
+  disconnect(gitInterface.get(), &GitInterface::error, this,
+             &DockWidget::onError);
 }
 
 void DockWidget::onError(const QString &, GitInterface::ActionTag,

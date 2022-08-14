@@ -55,6 +55,7 @@ public:
   QSharedPointer<QFile> errorLog;
   QFuture<void> actionFuture;
   QByteArray branchesHash, unstagedFilesHash, stagedFilesHash;
+  QList<QString> remotes;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -342,6 +343,13 @@ public:
       emit _this->branchesChanged(branches);
       emit _this->branchChanged(activeBranch);
     }
+
+    process = git({"remote"});
+
+    remotes.clear();
+    for (auto &output : process.standardOutOutput.split('\n')) {
+      remotes.append(output);
+    }
   }
 
   void log() {
@@ -369,6 +377,10 @@ public:
       }
 
       QList<QString> parts = line.split('\f');
+      QList<QString> remoteParts = remotes;
+      for (auto &remote : remoteParts) {
+        remote.append('/');
+      }
 
       GitCommit commit;
       if (parts.length() > 1) {
@@ -376,8 +388,33 @@ public:
         commit.message = parts.at(2);
         commit.author = parts.at(3);
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.branchHeads = parts.at(5).split(", ", Qt::SkipEmptyParts);
+        QList<QString> refs = parts.at(5).split(", ", Qt::SkipEmptyParts);
         commit.parentIds = parts.at(6).split(" ", Qt::SkipEmptyParts);
+
+        for (int refIndex = 0; refIndex < refs.size(); ++refIndex) {
+          GitRef ref;
+          ref.name = refs.at(refIndex);
+          if (ref.name.startsWith("HEAD ->")) {
+            ref.name.remove("HEAD -> ");
+            commit.isHead = true;
+            ref.isHead = true;
+          }
+
+          if (ref.name.startsWith("tag:")) {
+            ref.name.remove("tag: ");
+            ref.isTag = true;
+          }
+
+          for (const auto &remote : remoteParts) {
+            if (ref.name.startsWith(remote)) {
+              ref.remotePart = remote;
+              ref.isRemote = true;
+              break;
+            }
+          }
+
+          commit.refs.append(ref);
+        }
       }
 
       list.append(commit);
@@ -610,6 +647,7 @@ public:
     }
 
     status();
+    log();
   }
 
   void pull(bool rebase) {
@@ -678,14 +716,20 @@ public:
     reload();
   }
 
-  void createBranch(const QString &name) {
-    git({"branch", name});
+  void createBranch(const QString &name, const QString &baseCommit) {
+    QList<QString> arguments = {"branch", name};
+    if (!baseCommit.isEmpty()) {
+      arguments << baseCommit;
+    }
+    git(arguments);
     status();
+    log();
   }
 
   void deleteBranch(const QString &name) {
     git({"branch", "-d", name});
     status();
+    log();
   }
 
   void setUpstream(const QString &remote, const QString &branch) {
@@ -695,11 +739,33 @@ public:
   void stash() {
     git({"stash", "--include-untracked"});
     status();
+    log();
   }
 
   void stashPop() {
     git({"stash", "pop"});
     status();
+    log();
+  }
+
+  void resetToCommit(const QString &commitId,
+                     const GitInterface::ResetType &type) {
+    QString typeArg;
+    switch (type) {
+    case GitInterface::ResetType::MIXED:
+      typeArg = "--mixed";
+      break;
+    case GitInterface::ResetType::SOFT:
+      typeArg = "--soft";
+      break;
+    case GitInterface::ResetType::HARD:
+      typeArg = "--hard";
+      break;
+    }
+
+    git({"reset", typeArg, commitId});
+    status();
+    log();
   }
 };
 
@@ -755,6 +821,8 @@ const QList<GitFile> GitInterface::stagedFiles() const {
 const QList<GitBranch> GitInterface::branches() const {
   return _impl->branches;
 }
+
+const QList<QString> GitInterface::remotes() const { return _impl->remotes; }
 
 QString GitInterface::errorLogFileName() {
   return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
@@ -871,10 +939,11 @@ QFuture<void> GitInterface::changeBranch(const QString &branchName,
                              branchName, upstreamBranchName));
 }
 
-QFuture<void> GitInterface::createBranch(const QString &name) {
-  RUN_ONCE(
-      ActionTag::GIT_BRANCH,
-      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createBranch, name));
+QFuture<void> GitInterface::createBranch(const QString &name,
+                                         const QString &baseCommit) {
+  RUN_ONCE(ActionTag::GIT_BRANCH,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createBranch,
+                             name, baseCommit));
 }
 
 QFuture<void> GitInterface::deleteBranch(const QString &name) {
@@ -898,4 +967,10 @@ QFuture<void> GitInterface::stash() {
 QFuture<void> GitInterface::stashPop() {
   RUN_ONCE(ActionTag::GIT_STASH_APPLY,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::stashPop));
+}
+QFuture<void> GitInterface::resetToCommit(const QString &commitId,
+                                          const ResetType &type) {
+  RUN_ONCE(ActionTag::GIT_RESET,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::resetToCommit,
+                             commitId, type));
 }

@@ -72,7 +72,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   connect(ui->repositoryTable->itemDelegate(),
           &QAbstractItemDelegate::commitData, this, [this]() {
             auto item = ui->repositoryTable->currentItem();
-            GitInterface *repository =
+            QSharedPointer<GitInterface> repository =
                 _impl->project->repositoryList().at(item->row());
 
             switch (item->column()) {

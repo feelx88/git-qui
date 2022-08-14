@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QSharedPointer>
 
 struct ProjectPrivate;
 class GitInterface;
@@ -15,11 +16,11 @@ public:
 
   QString fileName() const;
   QString name() const;
-  QList<GitInterface *> repositoryList() const;
+  QList<QSharedPointer<GitInterface>> repositoryList() const;
 
-  GitInterface *activeRepository() const;
-  QObject *activeRepositoryContext() const;
-  GitInterface *repositoryByName(const QString &name) const;
+  QSharedPointer<GitInterface> activeRepository() const;
+  QSharedPointer<QObject> activeRepositoryContext() const;
+  QSharedPointer<GitInterface> repositoryByName(const QString &name) const;
 
   QVariantMap dockWidgetConfiguration() const;
   void setDockWidgetConfigurationEntry(const QString &key, QVariant value);
@@ -28,7 +29,6 @@ public:
   void removeRepository(const int &index);
 
   void setCurrentRepository(const int &index);
-  void setCurrentRepository(GitInterface *repository);
   void setCurrentRepository(const QString &name);
 
   void setName(const QString &name);
@@ -39,13 +39,13 @@ public:
   void reloadAllRepositories();
 
 signals:
-  void repositoryAdded(GitInterface *repository);
-  void repositorySwitched(GitInterface *repository,
-                          QObject *activeRepositoryContext);
-  void repositoryRemoved(GitInterface *repository);
+  void repositoryAdded(QSharedPointer<GitInterface> repository);
+  void repositorySwitched(QSharedPointer<GitInterface> repository,
+                          QSharedPointer<QObject> activeRepositoryContext);
+  void repositoryRemoved(QSharedPointer<GitInterface> repository);
 
 private:
-  ProjectPrivate *_impl;
+  QSharedPointer<ProjectPrivate> _impl;
 };
 
 #endif // PROJECT_HPP

@@ -1,6 +1,8 @@
 #ifndef GITCOMMIT_H
 #define GITCOMMIT_H
 
+#include "gitref.hpp"
+
 #include <QDateTime>
 #include <QList>
 #include <QMetaType>
@@ -12,7 +14,9 @@ public:
   GitCommit(const GitCommit &) = default;
   QString id, message, author;
   QDateTime date;
-  QList<QString> branchHeads, parentIds;
+  QList<GitRef> refs;
+  QList<QString> parentIds;
+  bool isHead = false;
   QList<QWeakPointer<GitCommit>> parentCommits, childCommits;
 };
 Q_DECLARE_METATYPE(GitCommit)

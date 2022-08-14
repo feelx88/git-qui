@@ -44,6 +44,8 @@ struct ConfigurationKeys {
   static constexpr const char *TOOLBAR_ACTIONS = "actions";
 };
 
+QString SEPARATOR_ID = "separator";
+
 struct MainWindowPrivate {
   MainWindow *_this;
   Core *core;
@@ -303,7 +305,11 @@ struct MainWindowPrivate {
       auto toolBarActions =
           config.value(ConfigurationKeys::TOOLBAR_ACTIONS).toList();
       for (const auto &action : toolBarActions) {
-        toolbar->addAction(ToolBarActions::byId(action.toString()));
+        if (action.toString() == SEPARATOR_ID) {
+          toolbar->addSeparator();
+        } else {
+          toolbar->addAction(ToolBarActions::byId(action.toString()));
+        }
       }
       connectToolbarActions(toolbar);
     }
@@ -324,29 +330,32 @@ struct MainWindowPrivate {
 
   void onToolbarProjectChanged(Project *project) {
     _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
-    QObject::connect(
-        project, &Project::repositorySwitched, _this,
-        [this](GitInterface *repository, QObject *activeRepositoryContext) {
-          onToolbarRepositorySwitched(repository, activeRepositoryContext);
-        });
+    QObject::connect(project, &Project::repositorySwitched, _this,
+                     [this](QSharedPointer<GitInterface> repository,
+                            QSharedPointer<QObject> activeRepositoryContext) {
+                       onToolbarRepositorySwitched(repository,
+                                                   activeRepositoryContext);
+                     });
   }
 
-  void onToolbarRepositorySwitched(GitInterface *gitInterface,
-                                   QObject *activeRepositoryContext) {
+  void
+  onToolbarRepositorySwitched(QSharedPointer<GitInterface> gitInterface,
+                              QSharedPointer<QObject> activeRepositoryContext) {
     auto toolBars = _this->findChildren<QToolBar *>();
     for (auto toolbar : toolBars) {
       toolbar->setDisabled(gitInterface->actionRunning());
     }
 
     QObject::connect(
-        gitInterface, &GitInterface::actionStarted, activeRepositoryContext,
+        gitInterface.get(), &GitInterface::actionStarted,
+        activeRepositoryContext.get(),
         [=](const GitInterface::ActionTag &actionTag) {
           if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
             this->toolbarsDisableTimer->start();
           }
         });
-    QObject::connect(gitInterface, &GitInterface::actionFinished,
-                     activeRepositoryContext, [=] {
+    QObject::connect(gitInterface.get(), &GitInterface::actionFinished,
+                     activeRepositoryContext.get(), [=] {
                        this->toolbarsDisableTimer->stop();
                        auto toolBars = _this->findChildren<QToolBar *>();
                        for (auto toolbar : toolBars) {
@@ -420,7 +429,11 @@ QVariant MainWindow::configuration() const {
     QVariantList actions;
     auto toolBarActions = toolbar->actions();
     for (auto action : toolBarActions) {
-      actions.push_back(action->data());
+      if (action->data().isNull()) {
+        actions.push_back(SEPARATOR_ID);
+      } else {
+        actions.push_back(action->data());
+      }
     }
 
     QVariantMap config = {

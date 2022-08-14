@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
-#include "qobjecthelpers.hpp"
 
 #include <QAction>
 #include <QApplication>
@@ -31,21 +30,24 @@ void ToolBarActions::initialize(Core *core) {
   }
 
   auto projectChanged = [=](Project *newProject) {
-    auto repositoryChanged = [=](GitInterface *repository,
-                                 QObject *activeRepositoryContext) {
+    auto repositoryChanged = [=](QSharedPointer<GitInterface> repository,
+                                 QSharedPointer<QObject>
+                                     activeRepositoryContext) {
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
-                       activeRepositoryContext, [=] { repository->stash(); });
+                       activeRepositoryContext.get(),
+                       [=] { repository->stash(); });
 
       QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered,
-                       activeRepositoryContext,
+                       activeRepositoryContext.get(),
                        [=] { repository->stashPop(); });
 
       QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
-                       activeRepositoryContext, [=] { repository->fetch(); });
+                       activeRepositoryContext.get(),
+                       [=] { repository->fetch(); });
 
       QObject::connect(
           _actionMap[ActionID::PUSH], &QAction::triggered,
-          activeRepositoryContext, [=] {
+          activeRepositoryContext.get(), [=] {
             QString branch = repository->activeBranch().name;
             bool addUpstream = false;
             if (repository->activeBranch().upstreamName.isEmpty()) {
@@ -64,7 +66,7 @@ void ToolBarActions::initialize(Core *core) {
 
       QObject::connect(
           _actionMap[ActionID::PULL], &QAction::triggered,
-          activeRepositoryContext, [=] {
+          activeRepositoryContext.get(), [=] {
             bool stash = false;
 
             if (!repository->files().empty()) {
@@ -87,13 +89,32 @@ void ToolBarActions::initialize(Core *core) {
             }
           });
 
-      QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
-                       activeRepositoryContext, [=] {
-                         repository->createBranch(QInputDialog::getText(
-                             QApplication::activeWindow(),
-                             QObject::tr("Create new branch"),
-                             QObject::tr("New branch name")));
-                       });
+      QObject::connect(
+          _actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
+          activeRepositoryContext.get(), [=] {
+            QString baseCommit;
+
+            const auto &widgets =
+                _actionMap[ActionID::NEW_BRANCH]->associatedWidgets();
+            for (const auto &widget : widgets) {
+              if (widget->hasFocus() &&
+                  !widget
+                       ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
+                       .isNull()) {
+                baseCommit =
+                    widget
+                        ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
+                        .toString();
+              }
+            }
+            QString branchName = QInputDialog::getText(
+                QApplication::activeWindow(), QObject::tr("Create new branch"),
+                QObject::tr("New branch name"));
+
+            if (!branchName.isEmpty()) {
+              repository->createBranch(branchName, baseCommit);
+            }
+          });
     };
 
     QObject::connect(newProject, &Project::repositorySwitched, newProject,

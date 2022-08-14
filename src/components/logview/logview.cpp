@@ -3,108 +3,92 @@
 
 #include "gitcommit.hpp"
 #include "gitinterface.hpp"
+#include "graphdelegate.h"
 #include "mainwindow.hpp"
+#include "resetdialog.hpp"
+#include "toolbaractions.hpp"
 #include "treewidgetitem.hpp"
 
-#include <QItemDelegate>
+#include <QAction>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
+#include <QPushButton>
 
-struct RowInfo {
-  int column = 0, columnCount = 1;
-  QString commitId;
-  QMultiMap<QString, int> currentColumns;
-  QMultiMap<QString, int> childColumns;
-};
-
-struct Delegate : public QItemDelegate {
-  QSharedPointer<GitTree> gitTree;
-  QList<RowInfo> rows;
-  QMap<QString, int> commitColumns;
-  int minWidth = 0;
-
-  Delegate(QObject *parent) : QItemDelegate(parent) { setClipping(false); }
-
-  void refreshData(QSharedPointer<GitTree> gitTree, QList<RowInfo> rows) {
-    this->gitTree = gitTree;
-    this->rows = rows;
-
-    int maxColumns = 1;
-
-    for (int row = 0; row < this->rows.size(); ++row) {
-      auto rowInfo = this->rows.at(row);
-      commitColumns.insert(rowInfo.commitId, rowInfo.column);
-
-      maxColumns = qMax(maxColumns, rowInfo.columnCount);
-    }
-
-    minWidth = (9 * 2) + (maxColumns * 24);
-  }
-
-  void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const override {
-    painter->save();
-    painter->setRenderHint(QPainter::Antialiasing);
-
-    QPoint center(option.rect.x() + 9, option.rect.center().y() + 1);
-    QPoint halfHeight = QPoint(0, (option.rect.height() / 2) - 1);
-    auto commit = gitTree->commitList().at(index.row());
-
-    drawBackground(painter, option, index);
-
-    RowInfo currentRow = rows.value(index.row());
-    painter->setPen(QPen(QBrush(Qt::red), 2));
-
-    for (const auto &childCommit : qAsConst(commit->childCommits)) {
-      painter->drawLine(
-          center + QPoint(24 * currentRow.column, 0),
-          center + QPoint(24 * commitColumns.value(childCommit.lock()->id),
-                          -halfHeight.y()));
-    }
-
-    auto filledChildColumns = currentRow.childColumns.values();
-    auto filledCurrentColumns = currentRow.currentColumns.values();
-
-    for (int column = 0; column < currentRow.columnCount; ++column) {
-      if (filledChildColumns.contains(column) &&
-          filledCurrentColumns.contains(column)) {
-        painter->drawLine(center + QPoint(column * 24, 0) - halfHeight,
-                          center + QPoint(column * 24, 0));
-      }
-
-      if (filledCurrentColumns.contains(column)) {
-        painter->drawLine(center + QPoint(column * 24, 0),
-                          center + QPoint(column * 24, 0) + halfHeight);
-      }
-    }
-
-    painter->setBrush(Qt::blue);
-    painter->setPen(Qt::blue);
-    painter->drawEllipse(center + QPoint(currentRow.column * 24, 0), 6, 6);
-
-    painter->restore();
-  }
-
-  QSize sizeHint(const QStyleOptionViewItem &option,
-                 const QModelIndex &) const override {
-    return QSize(minWidth, option.rect.height());
-  }
-};
+QString baseButtonStyleSheet =
+    "color: black; padding: 0.1em; background-color: %1; font-weight: %2";
+QString tagButtonStyleSheet = baseButtonStyleSheet.arg("yellow", "normal");
+QString localBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("lightgray", "normal");
+QString localHeadBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("lightgray", "bold");
+QString remoteBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("gray", "normal");
 
 struct LogViewPrivate {
-  GitInterface *gitInterface = nullptr;
-  Delegate *graphDelegate;
-  QList<RowInfo> rows;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
+  GraphDelegate *graphDelegate;
+  QAction *resetAction, *checkoutAction, *deleteAction;
+  QMenu *branchMenu;
 
-  LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {}
+  LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {}
 
   void connectSignals(LogView *_this) {
     _this->ui->treeWidget->setHeaderLabels({
         _this->tr("Graph"),
-        _this->tr("Id"),
-        _this->tr("Branches"),
+        _this->tr("Refs"),
         _this->tr("Message"),
         _this->tr("Author"),
         _this->tr("Date"),
+        _this->tr("Id"),
+    });
+
+    QObject::connect(
+        _this->ui->treeWidget, &QTreeWidget::currentItemChanged, _this,
+        [=](QTreeWidgetItem *item) {
+          if (item) {
+            auto commit = _this->ui->treeWidget->currentItem()
+                              ->data(0, 0)
+                              .value<GitCommit>();
+            _this->ui->treeWidget->setProperty(
+                ToolBarActions::ActionCallerProperty::NEW_BRANCH_BASE_COMMIT,
+                QVariant::fromValue(commit.id));
+          }
+        });
+
+    _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    resetAction = new QAction("");
+    _this->ui->treeWidget->addAction(resetAction);
+    QObject::connect(resetAction, &QAction::triggered, _this, [=] {
+      auto commit =
+          _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
+
+      ResetDialog dialog(gitInterface->activeBranch(), commit, _this);
+
+      if (dialog.exec() == QDialog::Accepted) {
+        gitInterface->resetToCommit(commit.id, dialog.resetType());
+      }
+    });
+
+    _this->ui->treeWidget->addAction(
+        ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
+
+    branchMenu = new QMenu(_this);
+    checkoutAction = branchMenu->addAction("");
+    QObject::connect(checkoutAction, &QAction::triggered, branchMenu, [=] {
+      gitInterface->changeBranch(
+          branchMenu->property("branch").value<GitRef>().name);
+    });
+
+    deleteAction = branchMenu->addAction("");
+    QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=] {
+      auto branch = branchMenu->property("branch").value<GitRef>().name;
+      if (QMessageBox::question(_this, "Delete branch",
+                                QString("Delete branch %1?").arg(branch)) ==
+          QMessageBox::Yes) {
+        gitInterface->deleteBranch(branch);
+      }
     });
   }
 };
@@ -145,25 +129,26 @@ void LogView::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void LogView::onRepositorySwitched(GitInterface *newGitInterface,
-                                   QObject *activeRepositoryContext) {
+void LogView::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   connect(
-      newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
-      [=](QSharedPointer<GitTree> tree) {
+      newGitInterface.get(), &GitInterface::logChanged,
+      activeRepositoryContext.get(), [=](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
-        _impl->rows.clear();
+        QList<GraphDelegate::RowInfo> rows;
 
         for (auto it = tree->commitList().rbegin();
              it != tree->commitList().rend(); ++it) {
 
           auto commit = *it;
-          RowInfo currentRow;
-          if (_impl->rows.isEmpty()) {
+          GraphDelegate::RowInfo currentRow;
+          if (rows.isEmpty()) {
             currentRow.childColumns.insert(commit->id, 0);
           } else {
-            currentRow = RowInfo(_impl->rows.first());
+            currentRow = GraphDelegate::RowInfo(rows.first());
           }
 
           currentRow.currentColumns = currentRow.childColumns;
@@ -195,22 +180,85 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                                                      currentIdValues.end()) +
                                    1;
 
-          _impl->rows.prepend(currentRow);
+          rows.prepend(currentRow);
         }
 
         for (const auto &commit : tree->commitList()) {
           TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
-          item->setText(1, commit->id);
-          item->setText(2, commit->branchHeads.join(", "));
-          item->setText(3, commit->message);
-          item->setText(4, commit->author);
-          item->setText(5, commit->date.toString());
+          item->setText(2, commit->message);
+          item->setText(3, commit->author);
+          item->setText(4, commit->date.toString());
+          item->setText(5, commit->id);
+
+          item->setData(0, 0, QVariant::fromValue(GitCommit(*commit)));
 
           ui->treeWidget->addTopLevelItem(item);
         }
 
-        _impl->graphDelegate->refreshData(tree, _impl->rows);
+        for (int x = 0; x < ui->treeWidget->topLevelItemCount(); ++x) {
+          auto item = ui->treeWidget->topLevelItem(x);
+          auto commit = item->data(0, 0).value<GitCommit>();
+
+          if (commit.refs.isEmpty()) {
+            continue;
+          }
+
+          auto container = new QWidget(ui->treeWidget);
+          auto layout = new QHBoxLayout(container);
+          int remoteIndex = 0;
+          layout->setAlignment(Qt::AlignLeft);
+          layout->setMargin(2);
+          for (const auto &ref : qAsConst(commit.refs)) {
+            remoteIndex += ref.isRemote ? 1 : 0;
+            int insertPosition = -1;
+            auto button = new QPushButton(ref.name, container);
+            if (ref.isTag) {
+              button->setStyleSheet(tagButtonStyleSheet);
+            } else if (ref.isRemote) {
+              button->setStyleSheet(remoteBranchButtonStyleSheet);
+            } else if (ref.isHead) {
+              insertPosition = 0;
+              button->setStyleSheet(localHeadBranchButtonStyleSheet);
+            } else {
+              insertPosition = remoteIndex;
+              button->setStyleSheet(localBranchButtonStyleSheet);
+            }
+            button->setSizePolicy(
+                QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
+            button->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(button, &QPushButton::customContextMenuRequested, button,
+                    [=](const QPoint &at) {
+                      ui->treeWidget->clearSelection();
+                      item->setSelected(true);
+
+                      if (!ref.isTag && !ref.isRemote) {
+                        _impl->branchMenu->setProperty(
+                            "commit", QVariant::fromValue(commit));
+                        _impl->branchMenu->setProperty(
+                            "branch", QVariant::fromValue(ref));
+                        _impl->checkoutAction->setText(
+                            tr("Check out branch %1").arg(ref.name));
+                        _impl->deleteAction->setText(
+                            tr("Delete branch %1...").arg(ref.name));
+                        _impl->deleteAction->setDisabled(ref.isHead);
+                        _impl->branchMenu->popup(button->mapToGlobal(at));
+                      }
+                    });
+            layout->insertWidget(insertPosition, button);
+          }
+          ui->treeWidget->setItemWidget(item, 1, container);
+        }
+
+        _impl->graphDelegate->refreshData(tree, rows);
 
         ui->treeWidget->resizeColumnToContents(0);
       });
+
+  auto newBranchAction = [=](const GitBranch &branch) {
+    _impl->resetAction->setText(
+        tr("Reset branch %1 to this commit...").arg(branch.name));
+  };
+  connect(newGitInterface.get(), &GitInterface::branchChanged,
+          activeRepositoryContext.get(), newBranchAction);
+  newBranchAction(newGitInterface->activeBranch());
 }
