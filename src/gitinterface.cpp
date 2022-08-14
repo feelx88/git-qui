@@ -716,9 +716,14 @@ public:
     reload();
   }
 
-  void createBranch(const QString &name) {
-    git({"branch", name});
+  void createBranch(const QString &name, const QString &baseCommit) {
+    QList<QString> arguments = {"branch", name};
+    if (!baseCommit.isEmpty()) {
+      arguments << baseCommit;
+    }
+    git(arguments);
     status();
+    log();
   }
 
   void deleteBranch(const QString &name) {
@@ -933,10 +938,11 @@ QFuture<void> GitInterface::changeBranch(const QString &branchName,
                              branchName, upstreamBranchName));
 }
 
-QFuture<void> GitInterface::createBranch(const QString &name) {
-  RUN_ONCE(
-      ActionTag::GIT_BRANCH,
-      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createBranch, name));
+QFuture<void> GitInterface::createBranch(const QString &name,
+                                         const QString &baseCommit) {
+  RUN_ONCE(ActionTag::GIT_BRANCH,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createBranch,
+                             name, baseCommit));
 }
 
 QFuture<void> GitInterface::deleteBranch(const QString &name) {

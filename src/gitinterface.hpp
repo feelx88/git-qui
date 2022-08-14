@@ -95,7 +95,8 @@ public slots:
   QFuture<void> checkoutPath(const QString &path);
   QFuture<void> changeBranch(const QString &branchName,
                              const QString &upstreamBranchName = "");
-  QFuture<void> createBranch(const QString &name);
+  QFuture<void> createBranch(const QString &name,
+                             const QString &baseCommit = "");
   QFuture<void> deleteBranch(const QString &name);
   QFuture<void> setUpstream(const QString &remote, const QString &branch);
   QFuture<void> stash();
