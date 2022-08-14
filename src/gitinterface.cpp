@@ -729,6 +729,7 @@ public:
   void deleteBranch(const QString &name) {
     git({"branch", "-d", name});
     status();
+    log();
   }
 
   void setUpstream(const QString &remote, const QString &branch) {
