@@ -15,7 +15,7 @@ struct ProjectSettingsDialogPrivate {
     _this->ui->repositoryTable->setRowCount(0);
 
     auto repositories = project->repositoryList();
-    for (auto repository : repositories) {
+    for (const auto &repository : repositories) {
       int row = _this->ui->repositoryTable->rowCount();
       _this->ui->repositoryTable->insertRow(row);
       _this->ui->repositoryTable->setItem(
