@@ -21,11 +21,9 @@ GitInterface::ResetType ResetDialog::resetType() {
     return GitInterface::ResetType::SOFT;
   }
 
-  if (ui->radioButton_2->isChecked()) {
-    return GitInterface::ResetType::MIXED;
-  }
-
   if (ui->radioButton_3->isChecked()) {
     return GitInterface::ResetType::HARD;
   }
+
+  return GitInterface::ResetType::MIXED;
 }
