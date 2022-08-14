@@ -89,13 +89,32 @@ void ToolBarActions::initialize(Core *core) {
             }
           });
 
-      QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
-                       activeRepositoryContext.get(), [=] {
-                         repository->createBranch(QInputDialog::getText(
-                             QApplication::activeWindow(),
-                             QObject::tr("Create new branch"),
-                             QObject::tr("New branch name")));
-                       });
+      QObject::connect(
+          _actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
+          activeRepositoryContext.get(), [=] {
+            QString baseCommit;
+
+            const auto &widgets =
+                _actionMap[ActionID::NEW_BRANCH]->associatedWidgets();
+            for (const auto &widget : widgets) {
+              if (widget->hasFocus() &&
+                  !widget
+                       ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
+                       .isNull()) {
+                baseCommit =
+                    widget
+                        ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
+                        .toString();
+              }
+            }
+            QString branchName = QInputDialog::getText(
+                QApplication::activeWindow(), QObject::tr("Create new branch"),
+                QObject::tr("New branch name"));
+
+            if (!branchName.isEmpty()) {
+              repository->createBranch(branchName, baseCommit);
+            }
+          });
     };
 
     QObject::connect(newProject, &Project::repositorySwitched, newProject,
