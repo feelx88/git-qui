@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
 
@@ -27,17 +28,10 @@ QString remoteBranchButtonStyleSheet =
 struct LogViewPrivate {
   QSharedPointer<GitInterface> gitInterface = nullptr;
   GraphDelegate *graphDelegate;
-  QAction *resetAction;
+  QAction *resetAction, *checkoutAction, *deleteAction;
   QMenu *branchMenu;
 
-  LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {
-    branchMenu = new QMenu(_this);
-    QObject::connect(branchMenu->addAction(QObject::tr("Checkout branch")),
-                     &QAction::triggered, branchMenu, [=] {
-                       gitInterface->changeBranch(
-                           branchMenu->property("branch").toString());
-                     });
-  }
+  LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {}
 
   void connectSignals(LogView *_this) {
     _this->ui->treeWidget->setHeaderLabels({
@@ -53,17 +47,21 @@ struct LogViewPrivate {
         _this->ui->treeWidget, &QTreeWidget::currentItemChanged, _this,
         [=](QTreeWidgetItem *item) {
           if (item) {
+            auto commit = _this->ui->treeWidget->currentItem()
+                              ->data(0, 0)
+                              .value<GitCommit>();
             _this->ui->treeWidget->setProperty(
                 ToolBarActions::ActionCallerProperty::NEW_BRANCH_BASE_COMMIT,
-                QVariant::fromValue(item->text(5)));
+                QVariant::fromValue(commit.id));
           }
         });
 
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    resetAction = new QAction(_this);
+    resetAction = new QAction("");
+    _this->ui->treeWidget->addAction(resetAction);
     QObject::connect(resetAction, &QAction::triggered, _this, [=] {
-      GitCommit commit =
+      auto commit =
           _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
 
       ResetDialog dialog(gitInterface->activeBranch(), commit, _this);
@@ -72,9 +70,26 @@ struct LogViewPrivate {
         gitInterface->resetToCommit(commit.id, dialog.resetType());
       }
     });
-    _this->ui->treeWidget->addAction(resetAction);
+
     _this->ui->treeWidget->addAction(
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
+
+    branchMenu = new QMenu(_this);
+    checkoutAction = branchMenu->addAction("");
+    QObject::connect(checkoutAction, &QAction::triggered, branchMenu, [=] {
+      gitInterface->changeBranch(
+          branchMenu->property("branch").value<GitRef>().name);
+    });
+
+    deleteAction = branchMenu->addAction("");
+    QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=] {
+      auto branch = branchMenu->property("branch").value<GitRef>().name;
+      if (QMessageBox::question(_this, "Delete branch",
+                                QString("Delete branch %1?").arg(branch)) ==
+          QMessageBox::Yes) {
+        gitInterface->deleteBranch(branch);
+      }
+    });
   }
 };
 
@@ -221,6 +236,10 @@ void LogView::onRepositorySwitched(
                             "commit", QVariant::fromValue(commit));
                         _impl->branchMenu->setProperty(
                             "branch", QVariant::fromValue(ref));
+                        _impl->checkoutAction->setText(
+                            tr("Check out branch %1").arg(ref.name));
+                        _impl->deleteAction->setText(
+                            tr("Delete branch %1...").arg(ref.name));
                         _impl->branchMenu->popup(button->mapToGlobal(at));
                       }
                     });
