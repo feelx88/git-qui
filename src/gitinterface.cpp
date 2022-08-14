@@ -619,6 +619,7 @@ public:
     }
 
     status();
+    log();
   }
 
   void pull(bool rebase) {
