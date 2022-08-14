@@ -17,11 +17,26 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTreeWidget" name="treeWidget">
+      <property name="autoScroll">
+       <bool>false</bool>
+      </property>
+      <property name="showDropIndicator" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
       <property name="rootIsDecorated">
        <bool>false</bool>
       </property>
+      <property name="itemsExpandable">
+       <bool>false</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
+      </property>
       <property name="columnCount">
-       <number>5</number>
+       <number>6</number>
       </property>
       <attribute name="headerVisible">
        <bool>true</bool>
@@ -52,6 +67,11 @@
       <column>
        <property name="text">
         <string notr="true">5</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string notr="true">6</string>
        </property>
       </column>
      </widget>
