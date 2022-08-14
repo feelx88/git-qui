@@ -65,6 +65,7 @@ public:
   const QList<GitFile> stagedFiles() const;
 
   const QList<GitBranch> branches() const;
+  const QList<QString> remotes() const;
 
   static QString errorLogFileName();
 

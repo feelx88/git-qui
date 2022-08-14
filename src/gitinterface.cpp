@@ -55,6 +55,7 @@ public:
   QSharedPointer<QFile> errorLog;
   QFuture<void> actionFuture;
   QByteArray branchesHash, unstagedFilesHash, stagedFilesHash;
+  QList<QString> remotes;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -341,6 +342,13 @@ public:
       branchesHash = localBranchesHash.result();
       emit _this->branchesChanged(branches);
       emit _this->branchChanged(activeBranch);
+    }
+
+    process = git({"remote"});
+
+    remotes.clear();
+    for (auto &output : process.standardOutOutput.split('\n')) {
+      remotes.append(output);
     }
   }
 
@@ -771,6 +779,8 @@ const QList<GitFile> GitInterface::stagedFiles() const {
 const QList<GitBranch> GitInterface::branches() const {
   return _impl->branches;
 }
+
+const QList<QString> GitInterface::remotes() const { return _impl->remotes; }
 
 QString GitInterface::errorLogFileName() {
   return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +

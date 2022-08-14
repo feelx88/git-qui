@@ -102,7 +102,7 @@ struct LogViewPrivate {
 
   LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {
     branchMenu = new QMenu(_this);
-    QObject::connect(branchMenu->addAction("Select branch"),
+    QObject::connect(branchMenu->addAction(QObject::tr("Checkout branch")),
                      &QAction::triggered, branchMenu, [=] {
                        gitInterface->changeBranch(
                            branchMenu->property("branch").toString());
@@ -242,13 +242,24 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           auto layout = new QHBoxLayout(container);
           layout->setAlignment(Qt::AlignLeft);
           for (auto ref : qAsConst(commit.refs)) {
-            bool tag = ref.startsWith("tag:");
+            bool isTag = ref.startsWith("tag:");
+            bool isRemote = false;
+            for (const auto &remote : newGitInterface->remotes()) {
+              isRemote = ref.startsWith(QString("%1/").arg(remote));
+              if (isRemote) {
+                break;
+              }
+            }
             ref.remove("tag: ");
             auto b = new QPushButton(ref, container);
-            if (tag) {
+            if (isTag) {
               b->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "yellow; border: 1px black solid; padding: 0.1em;}");
+            } else if (isRemote) {
+              b->setStyleSheet(
+                  "QPushButton {color: black; background-color: "
+                  "gray; border: 1px black solid; padding: 0.1em;}");
             } else {
               b->setStyleSheet(
                   "QPushButton {color: black; background-color: "
@@ -257,7 +268,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             b->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
             connect(b, &QPushButton::clicked, b, [=] {
-              if (!tag) {
+              if (!isTag && !isRemote) {
                 ui->treeWidget->clearSelection();
                 item->setSelected(true);
                 _impl->branchMenu->setProperty("commit",
