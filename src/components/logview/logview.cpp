@@ -240,11 +240,14 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           }
           auto container = new QWidget(ui->treeWidget);
           auto layout = new QHBoxLayout(container);
+          int remoteIndex = 0;
           layout->setAlignment(Qt::AlignLeft);
           for (auto ref : qAsConst(commit.refs)) {
             bool isTag = ref.startsWith("tag:");
             bool isRemote = false;
             bool isHead = newGitInterface->activeBranch().name == ref;
+            remoteIndex += isRemote ? 1 : 0;
+            int insertPosition = -1;
             for (const auto &remote : newGitInterface->remotes()) {
               isRemote = ref.startsWith(QString("%1/").arg(remote));
               if (isRemote) {
@@ -262,11 +265,13 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                   "QPushButton {color: black; background-color: "
                   "gray; border: 1px black solid; padding: 0.1em;}");
             } else if (isHead) {
+              insertPosition = 0;
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "lightgray; border: 1px black solid; padding: 0.1em; "
                   "font-weight: bold}");
             } else {
+              insertPosition = remoteIndex;
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "lightgray; border: 1px black solid; padding: 0.1em;}");
@@ -284,7 +289,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                 _impl->branchMenu->popup(QCursor::pos());
               }
             });
-            layout->insertWidget(isHead ? 0 : (isRemote ? -1 : 1), button);
+            layout->insertWidget(insertPosition, button);
           }
           ui->treeWidget->setItemWidget(item, 1, container);
         }
