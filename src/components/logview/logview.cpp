@@ -13,6 +13,16 @@
 #include <QPainter>
 #include <QPushButton>
 
+QString baseButtonStyleSheet =
+    "color: black; padding: 0.1em; background-color: %1; font-weight: %2";
+QString tagButtonStyleSheet = baseButtonStyleSheet.arg("yellow", "normal");
+QString localBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("lightgray", "normal");
+QString localHeadBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("lightgray", "bold");
+QString remoteBranchButtonStyleSheet =
+    baseButtonStyleSheet.arg("gray", "normal");
+
 struct LogViewPrivate {
   GitInterface *gitInterface = nullptr;
   GraphDelegate *graphDelegate;
@@ -174,24 +184,15 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             int insertPosition = -1;
             auto button = new QPushButton(ref.name, container);
             if (ref.isTag) {
-              button->setStyleSheet(
-                  "QPushButton {color: black; background-color: "
-                  "yellow; padding: 0.1em;}");
+              button->setStyleSheet(tagButtonStyleSheet);
             } else if (ref.isRemote) {
-              button->setStyleSheet(
-                  "QPushButton {color: black; background-color: "
-                  "gray; padding: 0.1em;}");
+              button->setStyleSheet(remoteBranchButtonStyleSheet);
             } else if (ref.isHead) {
               insertPosition = 0;
-              button->setStyleSheet(
-                  "QPushButton {color: black; background-color: "
-                  "lightgray; padding: 0.1em; "
-                  "font-weight: bold}");
+              button->setStyleSheet(localHeadBranchButtonStyleSheet);
             } else {
               insertPosition = remoteIndex;
-              button->setStyleSheet(
-                  "QPushButton {color: black; background-color: "
-                  "lightgray; padding: 0.1em;}");
+              button->setStyleSheet(localBranchButtonStyleSheet);
             }
             button->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
