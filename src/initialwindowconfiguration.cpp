@@ -40,6 +40,7 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   mainWindow->createTab(mainWindow->tr("History"));
 
   mainWindow->addDockWidget<LogView>(1);
+  mainWindow->addDockWidget<RepositoryList>(1);
 
   // Error log tab
   mainWindow->createTab(mainWindow->tr("Error log"));
