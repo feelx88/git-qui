@@ -6,6 +6,7 @@
 #include "graphdelegate.h"
 #include "mainwindow.hpp"
 #include "resetdialog.hpp"
+#include "toolbaractions.hpp"
 #include "treewidgetitem.hpp"
 
 #include <QAction>
@@ -48,6 +49,16 @@ struct LogViewPrivate {
         _this->tr("Id"),
     });
 
+    QObject::connect(
+        _this->ui->treeWidget, &QTreeWidget::currentItemChanged, _this,
+        [=](QTreeWidgetItem *item) {
+          if (item) {
+            _this->ui->treeWidget->setProperty(
+                ToolBarActions::ActionCallerProperty::NEW_BRANCH_BASE_COMMIT,
+                QVariant::fromValue(item->text(5)));
+          }
+        });
+
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     resetAction = new QAction(_this);
@@ -62,6 +73,8 @@ struct LogViewPrivate {
       }
     });
     _this->ui->treeWidget->addAction(resetAction);
+    _this->ui->treeWidget->addAction(
+        ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
   }
 };
 
