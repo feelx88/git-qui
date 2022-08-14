@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
-#include "qobjecthelpers.hpp"
 
 #include <QAction>
 #include <QApplication>
@@ -31,7 +30,7 @@ void ToolBarActions::initialize(Core *core) {
   }
 
   auto projectChanged = [=](Project *newProject) {
-    auto repositoryChanged = [=](GitInterface *repository,
+    auto repositoryChanged = [=](QSharedPointer<GitInterface> repository,
                                  QObject *activeRepositoryContext) {
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
                        activeRepositoryContext, [=] { repository->stash(); });

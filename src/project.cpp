@@ -23,7 +23,7 @@ struct ProjectPrivate {
   Project *_this;
   QSettings *settings = nullptr;
   QString name;
-  QList<GitInterface *> repositories;
+  QList<QSharedPointer<GitInterface>> repositories;
   int currentRepository = 0;
   QList<QRegularExpression> ignoredSubdirectories = {
       QRegularExpression("/.*vendor.*/"),
@@ -44,10 +44,10 @@ struct ProjectPrivate {
         0);
 
     for (const auto &entry : list) {
-      repositories.append(new GitInterface(
+      repositories.append(QSharedPointer<GitInterface>(new GitInterface(
           entry.value(ConfigurationKeys::REPOSITORY_LIST_NAME).toString(),
           entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString(),
-          _this));
+          _this)));
     }
   }
 
@@ -95,11 +95,11 @@ QString Project::fileName() const {
 
 QString Project::name() const { return _impl->name; }
 
-QList<GitInterface *> Project::repositoryList() const {
+QList<QSharedPointer<GitInterface>> Project::repositoryList() const {
   return _impl->repositories;
 }
 
-GitInterface *Project::activeRepository() const {
+QSharedPointer<GitInterface> Project::activeRepository() const {
   return _impl->repositories.at(std::max(
       std::min(_impl->repositories.size() - 1, _impl->currentRepository), 0));
 }
@@ -108,10 +108,12 @@ QObject *Project::activeRepositoryContext() const {
   return _impl->currentRepositoryContext.get();
 }
 
-GitInterface *Project::repositoryByName(const QString &name) const {
-  auto it = std::find_if(
-      _impl->repositories.begin(), _impl->repositories.end(),
-      [=](GitInterface *repository) { return repository->name() == name; });
+QSharedPointer<GitInterface>
+Project::repositoryByName(const QString &name) const {
+  auto it = std::find_if(_impl->repositories.begin(), _impl->repositories.end(),
+                         [=](QSharedPointer<GitInterface> repository) {
+                           return repository->name() == name;
+                         });
 
   if (it != _impl->repositories.end()) {
     return *it;
@@ -155,8 +157,8 @@ void Project::addRepository() {
       }
 
       if (directoryValid) {
-        GitInterface *repository = new GitInterface(
-            currentDir.dirName(), currentDir.absolutePath(), this);
+        auto repository = QSharedPointer<GitInterface>(new GitInterface(
+            currentDir.dirName(), currentDir.absolutePath(), this));
         _impl->repositories.append(repository);
         emit repositoryAdded(repository);
       }
@@ -177,15 +179,12 @@ void Project::setCurrentRepository(const int &index) {
   _impl->changeRepository();
 }
 
-void Project::setCurrentRepository(GitInterface *repository) {
-  _impl->currentRepository = _impl->repositories.indexOf(repository);
-  _impl->changeRepository();
-}
-
 void Project::setCurrentRepository(const QString &name) {
-  auto found = std::find_if(
-      _impl->repositories.begin(), _impl->repositories.end(),
-      [name](GitInterface *repository) { return repository->name() == name; });
+  auto found =
+      std::find_if(_impl->repositories.begin(), _impl->repositories.end(),
+                   [name](QSharedPointer<GitInterface> repository) {
+                     return repository->name() == name;
+                   });
 
   if (found == _impl->repositories.end()) {
     return;

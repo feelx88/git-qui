@@ -5,7 +5,6 @@
 #include <QFontDatabase>
 #include <QFutureWatcher>
 
-#include "core.hpp"
 #include "gitdiffline.hpp"
 #include "gitinterface.hpp"
 #include "mainwindow.hpp"
@@ -14,7 +13,7 @@
 
 struct DiffViewPrivate {
   DiffView *_this;
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
   bool unstaged = false;
   QString currentPath;
   QAction *fullFileDiffAction, *stageOrUnstageSelected, *resetSelected;
@@ -116,14 +115,15 @@ void DiffView::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void DiffView::onRepositorySwitched(GitInterface *newGitInterface,
-                                    QObject *activeRepositoryContext) {
+void DiffView::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QObject *activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->clear();
   _impl->gitInterface = newGitInterface;
 
   connect(
-      newGitInterface, &GitInterface::fileDiffed, activeRepositoryContext,
+      newGitInterface.get(), &GitInterface::fileDiffed, activeRepositoryContext,
       [=](const QString &path, QList<GitDiffLine> lines, bool unstaged) {
         _impl->stageOrUnstageSelected->setVisible(true);
         _impl->resetSelected->setVisible(true);

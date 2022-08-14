@@ -9,7 +9,7 @@
 using namespace std::placeholders;
 
 struct RepositoryListPrivate {
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
   QString currentRepository;
   RepositoryList *_this;
 
@@ -52,7 +52,8 @@ struct RepositoryListPrivate {
                                QPalette::Disabled, QPalette::Text)));
   }
 
-  void onActionFinished(TreeWidgetItem *item, GitInterface *gitInterface) {
+  void onActionFinished(TreeWidgetItem *item,
+                        QSharedPointer<GitInterface> gitInterface) {
     onBranchChanged(item, gitInterface->activeBranch());
   }
 
@@ -107,7 +108,8 @@ void RepositoryList::onProjectSwitched(Project *newProject) {
   });
 }
 
-void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
+void RepositoryList::onRepositoryAdded(
+    QSharedPointer<GitInterface> newGitInterface) {
   auto items = ui->treeWidget->findItems(newGitInterface->name(),
                                          Qt::MatchCaseSensitive, 0);
 
@@ -123,20 +125,20 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
   ui->treeWidget->addTopLevelItem(item);
 
   connect(
-      newGitInterface, &GitInterface::branchChanged, item,
+      newGitInterface.get(), &GitInterface::branchChanged, item,
       [=](const GitBranch &branch) { _impl->onBranchChanged(item, branch); });
 
-  connect(newGitInterface, &GitInterface::actionStarted, item,
+  connect(newGitInterface.get(), &GitInterface::actionStarted, item,
           [=](const GitInterface::ActionTag &actionTag) {
             _impl->onActionStarted(item, actionTag);
           });
 
-  connect(newGitInterface, &GitInterface::actionFinished, item,
+  connect(newGitInterface.get(), &GitInterface::actionFinished, item,
           [=] { _impl->onActionFinished(item, newGitInterface); });
 
   _impl->onActionFinished(item, newGitInterface);
 
-  connect(newGitInterface, &GitInterface::error, item,
+  connect(newGitInterface.get(), &GitInterface::error, item,
           [=](const QString &, GitInterface::ActionTag,
               GitInterface::ErrorType type) {
             if (type != GitInterface::ErrorType::ALREADY_RUNNING) {
@@ -147,8 +149,9 @@ void RepositoryList::onRepositoryAdded(GitInterface *newGitInterface) {
           });
 }
 
-void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface,
-                                          QObject *activeRepositoryContext) {
+void RepositoryList::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QObject *activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   _impl->currentRepository = newGitInterface->name();
@@ -159,12 +162,14 @@ void RepositoryList::onRepositorySwitched(GitInterface *newGitInterface,
   }
 }
 
-void RepositoryList::onRepositoryRemoved(GitInterface *newGitInterface) {
+void RepositoryList::onRepositoryRemoved(
+    QSharedPointer<GitInterface> newGitInterface) {
   auto items = ui->treeWidget->findItems(newGitInterface->name(),
                                          Qt::MatchCaseSensitive, 0);
   if (!items.isEmpty()) {
     delete items.first();
   }
 
-  disconnect(newGitInterface, &GitInterface::branchChanged, this, nullptr);
+  disconnect(newGitInterface.get(), &GitInterface::branchChanged, this,
+             nullptr);
 }

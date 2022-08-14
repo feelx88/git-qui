@@ -10,7 +10,7 @@
 using namespace std::placeholders;
 
 struct RepositoryFilesPrivate {
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
   bool unstaged;
   QString selection;
   RepositoryFiles *_this;
@@ -233,12 +233,13 @@ void RepositoryFiles::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
-                                           QObject *activeRepositoryContext) {
+void RepositoryFiles::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QObject *activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
 
-  connect(newGitInterface,
+  connect(newGitInterface.get(),
           _impl->unstaged ? &GitInterface::nonStagingAreaChanged
                           : &GitInterface::stagingAreaChanged,
           activeRepositoryContext,
@@ -247,8 +248,8 @@ void RepositoryFiles::onRepositorySwitched(GitInterface *newGitInterface,
   _impl->refreshView(_impl->unstaged ? newGitInterface->unstagedFiles()
                                      : newGitInterface->stagedFiles());
 
-  connect(newGitInterface, &GitInterface::fileSelected, activeRepositoryContext,
-          [=](bool unstaged, const QString &path) {
+  connect(newGitInterface.get(), &GitInterface::fileSelected,
+          activeRepositoryContext, [=](bool unstaged, const QString &path) {
             if (unstaged != _impl->unstaged) {
               ui->listWidget->setCurrentItem(nullptr);
               ui->treeWidget->setCurrentItem(nullptr);

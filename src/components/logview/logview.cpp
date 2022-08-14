@@ -24,7 +24,7 @@ QString remoteBranchButtonStyleSheet =
     baseButtonStyleSheet.arg("gray", "normal");
 
 struct LogViewPrivate {
-  GitInterface *gitInterface = nullptr;
+  QSharedPointer<GitInterface> gitInterface = nullptr;
   GraphDelegate *graphDelegate;
   QAction *resetAction;
   QMenu *branchMenu;
@@ -101,12 +101,12 @@ void LogView::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void LogView::onRepositorySwitched(GitInterface *newGitInterface,
+void LogView::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
                                    QObject *activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   connect(
-      newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
+      newGitInterface.get(), &GitInterface::logChanged, activeRepositoryContext,
       [=](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
         QList<GraphDelegate::RowInfo> rows;
@@ -224,6 +224,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
     _impl->resetAction->setText(
         tr("Reset branch %1 to this commit...").arg(branch.name));
   };
-  connect(newGitInterface, &GitInterface::branchChanged, this, newBranchAction);
+  connect(newGitInterface.get(), &GitInterface::branchChanged, this,
+          newBranchAction);
   newBranchAction(newGitInterface->activeBranch());
 }

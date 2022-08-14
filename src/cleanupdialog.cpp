@@ -83,7 +83,7 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
     for (auto &item : _impl->items) {
       if (item->checkState(0) == Qt::Checked &&
           item->data(0, Qt::UserRole).isNull()) {
-        GitInterface *repository = core->project()->repositoryByName(
+        auto repository = core->project()->repositoryByName(
             item->parent()->data(0, Qt::UserRole).toString());
         if (repository) {
           repository->deleteBranch(item->text(0));

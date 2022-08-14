@@ -21,7 +21,7 @@ public:
 
 private:
   Ui::ToolBarEditor *ui;
-  QSharedPointer<ToolBarEditorPrivate> _impl;
+  QScopedPointer<ToolBarEditorPrivate> _impl;
 };
 
 #endif // TOOLBAREDITOR_HPP

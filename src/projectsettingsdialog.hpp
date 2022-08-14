@@ -25,7 +25,7 @@ public:
 
 private:
   Ui::ProjectSettingsDialog *ui;
-  ProjectSettingsDialogPrivate *_impl;
+  QScopedPointer<ProjectSettingsDialogPrivate> _impl;
 };
 
 #endif // PROJECTSETTINGSDIALOG_HPP

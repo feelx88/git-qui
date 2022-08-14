@@ -86,10 +86,11 @@ protected:
   virtual void onProjectSwitched(Project *newProject);
   virtual void
   onProjectSpecificConfigurationLoaded(const QVariantMap &configuration);
-  virtual void onRepositoryAdded(GitInterface *gitInterface);
-  virtual void onRepositorySwitched(GitInterface *newGitInterface,
-                                    QObject *activeRepositoryContext);
-  virtual void onRepositoryRemoved(GitInterface *gitInterface);
+  virtual void onRepositoryAdded(QSharedPointer<GitInterface> gitInterface);
+  virtual void
+  onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
+                       QObject *activeRepositoryContext);
+  virtual void onRepositoryRemoved(QSharedPointer<GitInterface> gitInterface);
   virtual void onError(const QString &, GitInterface::ActionTag,
                        GitInterface::ErrorType);
 

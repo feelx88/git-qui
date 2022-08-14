@@ -17,7 +17,7 @@ public:
   const QList<QSharedPointer<GitCommit>> &commitList() const;
 
 private:
-  GitTreePrivate *_impl;
+  QSharedPointer<GitTreePrivate> _impl;
 };
 Q_DECLARE_METATYPE(GitTree)
 Q_DECLARE_METATYPE(QSharedPointer<GitTree>)
