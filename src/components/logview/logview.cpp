@@ -244,6 +244,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           for (auto ref : qAsConst(commit.refs)) {
             bool isTag = ref.startsWith("tag:");
             bool isRemote = false;
+            bool isHead = newGitInterface->activeBranch().name == ref;
             for (const auto &remote : newGitInterface->remotes()) {
               isRemote = ref.startsWith(QString("%1/").arg(remote));
               if (isRemote) {
@@ -251,23 +252,28 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
               }
             }
             ref.remove("tag: ");
-            auto b = new QPushButton(ref, container);
+            auto button = new QPushButton(ref, container);
             if (isTag) {
-              b->setStyleSheet(
+              button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "yellow; border: 1px black solid; padding: 0.1em;}");
             } else if (isRemote) {
-              b->setStyleSheet(
+              button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "gray; border: 1px black solid; padding: 0.1em;}");
+            } else if (isHead) {
+              button->setStyleSheet(
+                  "QPushButton {color: black; background-color: "
+                  "lightgray; border: 1px black solid; padding: 0.1em; "
+                  "font-weight: bold}");
             } else {
-              b->setStyleSheet(
+              button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "lightgray; border: 1px black solid; padding: 0.1em;}");
             }
-            b->setSizePolicy(
+            button->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
-            connect(b, &QPushButton::clicked, b, [=] {
+            connect(button, &QPushButton::clicked, button, [=] {
               if (!isTag && !isRemote) {
                 ui->treeWidget->clearSelection();
                 item->setSelected(true);
@@ -278,7 +284,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                 _impl->branchMenu->popup(QCursor::pos());
               }
             });
-            layout->addWidget(b);
+            layout->insertWidget(isHead ? 0 : (isRemote ? -1 : 1), button);
           }
           ui->treeWidget->setItemWidget(item, 1, container);
         }
