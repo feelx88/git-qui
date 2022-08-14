@@ -26,7 +26,7 @@ public:
                  const QModelIndex &) const override;
 
 private:
-  GraphDelegatePrivate *_impl;
+  QScopedPointer<GraphDelegatePrivate> _impl;
 };
 
 #endif // GRAPHDELEGATE_H
