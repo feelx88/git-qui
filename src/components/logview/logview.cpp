@@ -5,10 +5,10 @@
 #include "gitinterface.hpp"
 #include "graphdelegate.h"
 #include "mainwindow.hpp"
+#include "resetdialog.hpp"
 #include "treewidgetitem.hpp"
 
 #include <QAction>
-#include <QInputDialog>
 #include <QMenu>
 #include <QPainter>
 #include <QPushButton>
@@ -45,19 +45,10 @@ struct LogViewPrivate {
       GitCommit commit =
           _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
 
-      bool ok;
-      QList<QString> choices{QObject::tr("Mixed"), QObject::tr("Soft"),
-                             QObject::tr("Hard")};
-      QString selectedItem = QInputDialog::getItem(
-          _this, QObject::tr("Reset branch"),
-          QString("Reset branch %1 to commit %2?")
-              .arg(gitInterface->activeBranch().name, commit.id),
-          choices, 0, false, &ok);
+      ResetDialog dialog(gitInterface->activeBranch(), commit, _this);
 
-      if (ok) {
-        gitInterface->resetToCommit(commit.id,
-                                    static_cast<GitInterface::ResetType>(
-                                        choices.indexOf(selectedItem)));
+      if (dialog.exec() == QDialog::Accepted) {
+        gitInterface->resetToCommit(commit.id, dialog.resetType());
       }
     });
     _this->ui->treeWidget->addAction(resetAction);
