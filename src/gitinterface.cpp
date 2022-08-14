@@ -713,11 +713,13 @@ public:
   void stash() {
     git({"stash", "--include-untracked"});
     status();
+    log();
   }
 
   void stashPop() {
     git({"stash", "pop"});
     status();
+    log();
   }
 
   void resetToCommit(const QString &commitId) {
