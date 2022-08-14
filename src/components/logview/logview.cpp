@@ -154,37 +154,29 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
         for (int x = 0; x < ui->treeWidget->topLevelItemCount(); ++x) {
           auto item = ui->treeWidget->topLevelItem(x);
           auto commit = item->data(0, 0).value<GitCommit>();
+
           if (commit.refs.isEmpty()) {
             continue;
           }
+
           auto container = new QWidget(ui->treeWidget);
           auto layout = new QHBoxLayout(container);
           int remoteIndex = 0;
           layout->setAlignment(Qt::AlignLeft);
           layout->setMargin(2);
-          for (auto ref : qAsConst(commit.refs)) {
-            bool isTag = ref.startsWith("tag:");
-            bool isRemote = false;
-            bool isHead = newGitInterface->activeBranch().name == ref;
-            remoteIndex += isRemote ? 1 : 0;
+          for (const auto &ref : qAsConst(commit.refs)) {
+            remoteIndex += ref.isRemote ? 1 : 0;
             int insertPosition = -1;
-            for (const auto &remote : newGitInterface->remotes()) {
-              isRemote = ref.startsWith(QString("%1/").arg(remote));
-              if (isRemote) {
-                break;
-              }
-            }
-            ref.remove("tag: ");
-            auto button = new QPushButton(ref, container);
-            if (isTag) {
+            auto button = new QPushButton(ref.name, container);
+            if (ref.isTag) {
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "yellow; padding: 0.1em;}");
-            } else if (isRemote) {
+            } else if (ref.isRemote) {
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
                   "gray; padding: 0.1em;}");
-            } else if (isHead) {
+            } else if (ref.isHead) {
               insertPosition = 0;
               button->setStyleSheet(
                   "QPushButton {color: black; background-color: "
@@ -204,7 +196,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                       ui->treeWidget->clearSelection();
                       item->setSelected(true);
 
-                      if (!isTag && !isRemote) {
+                      if (!ref.isTag && !ref.isRemote) {
                         _impl->branchMenu->setProperty(
                             "commit", QVariant::fromValue(commit));
                         _impl->branchMenu->setProperty(

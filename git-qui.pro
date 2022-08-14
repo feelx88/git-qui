@@ -53,7 +53,8 @@ HEADERS += \
     src/toolbaractions.hpp \
     src/qobjecthelpers.hpp \
     src/treewidgetitem.hpp \
-    src/gittree.hpp
+    src/gittree.hpp \
+    src/gitref.hpp
 
 OTHER_FILES += \
     .gitignore \

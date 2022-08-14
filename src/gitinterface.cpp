@@ -377,6 +377,10 @@ public:
       }
 
       QList<QString> parts = line.split('\f');
+      QList<QString> remoteParts = remotes;
+      for (auto &remote : remoteParts) {
+        remote.append('/');
+      }
 
       GitCommit commit;
       if (parts.length() > 1) {
@@ -384,16 +388,32 @@ public:
         commit.message = parts.at(2);
         commit.author = parts.at(3);
         commit.date = QDateTime::fromSecsSinceEpoch(parts.at(4).toInt());
-        commit.refs = parts.at(5).split(", ", Qt::SkipEmptyParts);
+        QList<QString> refs = parts.at(5).split(", ", Qt::SkipEmptyParts);
         commit.parentIds = parts.at(6).split(" ", Qt::SkipEmptyParts);
 
-        for (int refIndex = 0; refIndex < commit.refs.size(); ++refIndex) {
-          QString ref = commit.refs.at(refIndex);
-          if (ref.startsWith("HEAD ->")) {
-            commit.refs.replace(refIndex, ref.remove("HEAD -> "));
+        for (int refIndex = 0; refIndex < refs.size(); ++refIndex) {
+          GitRef ref;
+          ref.name = refs.at(refIndex);
+          if (ref.name.startsWith("HEAD ->")) {
+            ref.name.remove("HEAD -> ");
             commit.isHead = true;
-            break;
+            ref.isHead = true;
           }
+
+          if (ref.name.startsWith("tag:")) {
+            ref.name.remove("tag: ");
+            ref.isTag = true;
+          }
+
+          for (const auto &remote : remoteParts) {
+            if (ref.name.startsWith(remote)) {
+              ref.remotePart = remote;
+              ref.isRemote = true;
+              break;
+            }
+          }
+
+          commit.refs.append(ref);
         }
       }
 
