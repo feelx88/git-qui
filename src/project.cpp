@@ -1,5 +1,4 @@
 #include "project.hpp"
-#include "mainwindow.hpp"
 
 #include <QDirIterator>
 #include <QFileDialog>
@@ -46,8 +45,7 @@ struct ProjectPrivate {
     for (const auto &entry : list) {
       repositories.append(QSharedPointer<GitInterface>(new GitInterface(
           entry.value(ConfigurationKeys::REPOSITORY_LIST_NAME).toString(),
-          entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString(),
-          _this)));
+          entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString())));
     }
   }
 
