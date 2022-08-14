@@ -117,13 +117,14 @@ void DiffView::onProjectSwitched(Project *newProject) {
 
 void DiffView::onRepositorySwitched(
     QSharedPointer<GitInterface> newGitInterface,
-    QObject *activeRepositoryContext) {
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->clear();
   _impl->gitInterface = newGitInterface;
 
   connect(
-      newGitInterface.get(), &GitInterface::fileDiffed, activeRepositoryContext,
+      newGitInterface.get(), &GitInterface::fileDiffed,
+      activeRepositoryContext.get(),
       [=](const QString &path, QList<GitDiffLine> lines, bool unstaged) {
         _impl->stageOrUnstageSelected->setVisible(true);
         _impl->resetSelected->setVisible(true);

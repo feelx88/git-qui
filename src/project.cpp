@@ -28,8 +28,8 @@ struct ProjectPrivate {
   QList<QRegularExpression> ignoredSubdirectories = {
       QRegularExpression("/.*vendor.*/"),
       QRegularExpression("/.*node_modules.*/")};
-  QScopedPointer<QObject> currentRepositoryContext =
-      QScopedPointer<QObject>(new QObject(_this));
+  QSharedPointer<QObject> currentRepositoryContext =
+      QSharedPointer<QObject>(new QObject(_this));
 
   ProjectPrivate(Project *project) : _this(project) {}
 
@@ -62,7 +62,7 @@ struct ProjectPrivate {
                          currentRepository);
       QList<QVariantMap> list;
 
-      for (auto repository : qAsConst(repositories)) {
+      for (const auto &repository : qAsConst(repositories)) {
         list << QVariantMap{
             {ConfigurationKeys::REPOSITORY_LIST_NAME, repository->name()},
             {ConfigurationKeys::REPOSITORY_LIST_PATH, repository->path()}};
@@ -77,7 +77,7 @@ struct ProjectPrivate {
   void changeRepository() {
     currentRepositoryContext.reset(new QObject(_this));
     auto repo = repositories.at(currentRepository);
-    emit _this->repositorySwitched(repo, currentRepositoryContext.get());
+    emit _this->repositorySwitched(repo, currentRepositoryContext);
     repo->reload();
   }
 };
@@ -104,8 +104,8 @@ QSharedPointer<GitInterface> Project::activeRepository() const {
       std::min(_impl->repositories.size() - 1, _impl->currentRepository), 0));
 }
 
-QObject *Project::activeRepositoryContext() const {
-  return _impl->currentRepositoryContext.get();
+QSharedPointer<QObject> Project::activeRepositoryContext() const {
+  return _impl->currentRepositoryContext;
 }
 
 QSharedPointer<GitInterface>

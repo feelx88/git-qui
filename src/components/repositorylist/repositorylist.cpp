@@ -149,9 +149,8 @@ void RepositoryList::onRepositoryAdded(
           });
 }
 
-void RepositoryList::onRepositorySwitched(
-    QSharedPointer<GitInterface> newGitInterface,
-    QObject *activeRepositoryContext) {
+void RepositoryList::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   _impl->currentRepository = newGitInterface->name();

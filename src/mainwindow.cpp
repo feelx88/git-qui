@@ -326,14 +326,15 @@ struct MainWindowPrivate {
     _this->setWindowTitle(QString("git qui - %1").arg(project->name()));
     QObject::connect(project, &Project::repositorySwitched, _this,
                      [this](QSharedPointer<GitInterface> repository,
-                            QObject *activeRepositoryContext) {
+                            QSharedPointer<QObject> activeRepositoryContext) {
                        onToolbarRepositorySwitched(repository,
                                                    activeRepositoryContext);
                      });
   }
 
-  void onToolbarRepositorySwitched(QSharedPointer<GitInterface> gitInterface,
-                                   QObject *activeRepositoryContext) {
+  void
+  onToolbarRepositorySwitched(QSharedPointer<GitInterface> gitInterface,
+                              QSharedPointer<QObject> activeRepositoryContext) {
     auto toolBars = _this->findChildren<QToolBar *>();
     for (auto toolbar : toolBars) {
       toolbar->setDisabled(gitInterface->actionRunning());
@@ -341,13 +342,14 @@ struct MainWindowPrivate {
 
     QObject::connect(
         gitInterface.get(), &GitInterface::actionStarted,
-        activeRepositoryContext, [=](const GitInterface::ActionTag &actionTag) {
+        activeRepositoryContext.get(),
+        [=](const GitInterface::ActionTag &actionTag) {
           if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
             this->toolbarsDisableTimer->start();
           }
         });
     QObject::connect(gitInterface.get(), &GitInterface::actionFinished,
-                     activeRepositoryContext, [=] {
+                     activeRepositoryContext.get(), [=] {
                        this->toolbarsDisableTimer->stop();
                        auto toolBars = _this->findChildren<QToolBar *>();
                        for (auto toolbar : toolBars) {

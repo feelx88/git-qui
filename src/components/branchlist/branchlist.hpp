@@ -20,8 +20,9 @@ public:
 
 protected:
   virtual void onProjectSwitched(Project *newProject) override;
-  virtual void onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
-                                    QObject *activeRepositoryContext) override;
+  virtual void onRepositorySwitched(
+      QSharedPointer<GitInterface> newGitInterface,
+      QSharedPointer<QObject> activeRepositoryContext) override;
 
 private:
   Ui::BranchList *ui;

@@ -147,17 +147,19 @@ void Commit::onProjectSpecificConfigurationLoaded(
       configuration.value("message", "").toString());
 }
 
-void Commit::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
-                                  QObject *activeRepositoryContext) {
+void Commit::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
 
   _impl->gitInterface = newGitInterface;
 
-  connect(ui->pushButton_2, &QPushButton::clicked, activeRepositoryContext,
+  connect(ui->pushButton_2, &QPushButton::clicked,
+          activeRepositoryContext.get(),
           [=] { newGitInterface->revertLastCommit(); });
 
   connect(_impl->gitInterface.get(), &GitInterface::lastCommitReverted,
-          activeRepositoryContext, [=](const QString &message) {
+          activeRepositoryContext.get(), [=](const QString &message) {
             ui->plainTextEdit->setPlainText(message);
             ui->pushButton_2->setDisabled(true);
           });

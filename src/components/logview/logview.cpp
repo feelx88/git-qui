@@ -101,13 +101,14 @@ void LogView::onProjectSwitched(Project *newProject) {
   DockWidget::onProjectSwitched(newProject);
 }
 
-void LogView::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
-                                   QObject *activeRepositoryContext) {
+void LogView::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
   connect(
-      newGitInterface.get(), &GitInterface::logChanged, activeRepositoryContext,
-      [=](QSharedPointer<GitTree> tree) {
+      newGitInterface.get(), &GitInterface::logChanged,
+      activeRepositoryContext.get(), [=](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
         QList<GraphDelegate::RowInfo> rows;
 
@@ -224,7 +225,7 @@ void LogView::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
     _impl->resetAction->setText(
         tr("Reset branch %1 to this commit...").arg(branch.name));
   };
-  connect(newGitInterface.get(), &GitInterface::branchChanged, this,
-          newBranchAction);
+  connect(newGitInterface.get(), &GitInterface::branchChanged,
+          activeRepositoryContext.get(), newBranchAction);
   newBranchAction(newGitInterface->activeBranch());
 }

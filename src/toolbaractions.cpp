@@ -31,20 +31,23 @@ void ToolBarActions::initialize(Core *core) {
 
   auto projectChanged = [=](Project *newProject) {
     auto repositoryChanged = [=](QSharedPointer<GitInterface> repository,
-                                 QObject *activeRepositoryContext) {
+                                 QSharedPointer<QObject>
+                                     activeRepositoryContext) {
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
-                       activeRepositoryContext, [=] { repository->stash(); });
+                       activeRepositoryContext.get(),
+                       [=] { repository->stash(); });
 
       QObject::connect(_actionMap[ActionID::UNSTASH], &QAction::triggered,
-                       activeRepositoryContext,
+                       activeRepositoryContext.get(),
                        [=] { repository->stashPop(); });
 
       QObject::connect(_actionMap[ActionID::FETCH], &QAction::triggered,
-                       activeRepositoryContext, [=] { repository->fetch(); });
+                       activeRepositoryContext.get(),
+                       [=] { repository->fetch(); });
 
       QObject::connect(
           _actionMap[ActionID::PUSH], &QAction::triggered,
-          activeRepositoryContext, [=] {
+          activeRepositoryContext.get(), [=] {
             QString branch = repository->activeBranch().name;
             bool addUpstream = false;
             if (repository->activeBranch().upstreamName.isEmpty()) {
@@ -63,7 +66,7 @@ void ToolBarActions::initialize(Core *core) {
 
       QObject::connect(
           _actionMap[ActionID::PULL], &QAction::triggered,
-          activeRepositoryContext, [=] {
+          activeRepositoryContext.get(), [=] {
             bool stash = false;
 
             if (!repository->files().empty()) {
@@ -87,7 +90,7 @@ void ToolBarActions::initialize(Core *core) {
           });
 
       QObject::connect(_actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
-                       activeRepositoryContext, [=] {
+                       activeRepositoryContext.get(), [=] {
                          repository->createBranch(QInputDialog::getText(
                              QApplication::activeWindow(),
                              QObject::tr("Create new branch"),

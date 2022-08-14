@@ -23,8 +23,9 @@ protected:
   virtual void onProjectSwitched(Project *newProject) override;
   virtual void
   onRepositoryAdded(QSharedPointer<GitInterface> newGitInterface) override;
-  virtual void onRepositorySwitched(QSharedPointer<GitInterface>,
-                                    QObject *activeRepositoryContext) override;
+  virtual void onRepositorySwitched(
+      QSharedPointer<GitInterface>,
+      QSharedPointer<QObject> activeRepositoryContext) override;
   virtual void onRepositoryRemoved(QSharedPointer<GitInterface>) override;
 
 private:

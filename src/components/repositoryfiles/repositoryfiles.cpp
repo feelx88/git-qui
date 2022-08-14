@@ -235,21 +235,22 @@ void RepositoryFiles::onProjectSwitched(Project *newProject) {
 
 void RepositoryFiles::onRepositorySwitched(
     QSharedPointer<GitInterface> newGitInterface,
-    QObject *activeRepositoryContext) {
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
 
   connect(newGitInterface.get(),
           _impl->unstaged ? &GitInterface::nonStagingAreaChanged
                           : &GitInterface::stagingAreaChanged,
-          activeRepositoryContext,
+          activeRepositoryContext.get(),
           [this](QList<GitFile> files) { _impl->refreshView(files); });
 
   _impl->refreshView(_impl->unstaged ? newGitInterface->unstagedFiles()
                                      : newGitInterface->stagedFiles());
 
   connect(newGitInterface.get(), &GitInterface::fileSelected,
-          activeRepositoryContext, [=](bool unstaged, const QString &path) {
+          activeRepositoryContext.get(),
+          [=](bool unstaged, const QString &path) {
             if (unstaged != _impl->unstaged) {
               ui->listWidget->setCurrentItem(nullptr);
               ui->treeWidget->setCurrentItem(nullptr);

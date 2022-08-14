@@ -6,7 +6,6 @@
 #include <QInputDialog>
 #include <QMenu>
 
-#include "core.hpp"
 #include "gitinterface.hpp"
 #include "mainwindow.hpp"
 #include "project.hpp"
@@ -130,13 +129,13 @@ void BranchList::onProjectSwitched(Project *newProject) {
 
 void BranchList::onRepositorySwitched(
     QSharedPointer<GitInterface> newGitInterface,
-    QObject *activeRepositoryContext) {
+    QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
 
   _impl->gitInterface = newGitInterface;
 
   connect(newGitInterface.get(), &GitInterface::branchesChanged,
-          activeRepositoryContext,
+          activeRepositoryContext.get(),
           [this](QList<GitBranch> branches) { _impl->refreshView(branches); });
 
   _impl->refreshView(newGitInterface->branches());

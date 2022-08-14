@@ -149,17 +149,17 @@ void DockWidget::onRepositoryAdded(QSharedPointer<GitInterface> gitInterface) {
 
 void DockWidget::onRepositorySwitched(
     QSharedPointer<GitInterface> newGitInterface,
-    QObject *activeRepositoryContext) {
+    QSharedPointer<QObject> activeRepositoryContext) {
   _impl->setChildWidgetsDisabledState(newGitInterface->actionRunning());
 
   connect(newGitInterface.get(), &GitInterface::actionStarted,
-          activeRepositoryContext,
+          activeRepositoryContext.get(),
           [this](const GitInterface::ActionTag &actionTag) {
             _impl->startUiLockTimer(actionTag);
           });
 
   connect(newGitInterface.get(), &GitInterface::actionFinished,
-          activeRepositoryContext,
+          activeRepositoryContext.get(),
           [this] { _impl->setChildWidgetsDisabledState(false); });
 }
 

@@ -19,7 +19,7 @@ public:
   QList<QSharedPointer<GitInterface>> repositoryList() const;
 
   QSharedPointer<GitInterface> activeRepository() const;
-  QObject *activeRepositoryContext() const;
+  QSharedPointer<QObject> activeRepositoryContext() const;
   QSharedPointer<GitInterface> repositoryByName(const QString &name) const;
 
   QVariantMap dockWidgetConfiguration() const;
@@ -41,7 +41,7 @@ public:
 signals:
   void repositoryAdded(QSharedPointer<GitInterface> repository);
   void repositorySwitched(QSharedPointer<GitInterface> repository,
-                          QObject *activeRepositoryContext);
+                          QSharedPointer<QObject> activeRepositoryContext);
   void repositoryRemoved(QSharedPointer<GitInterface> repository);
 
 private:
