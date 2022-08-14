@@ -198,9 +198,10 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             button->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
             connect(button, &QPushButton::clicked, button, [=] {
+              ui->treeWidget->clearSelection();
+              item->setSelected(true);
+
               if (!isTag && !isRemote) {
-                ui->treeWidget->clearSelection();
-                item->setSelected(true);
                 _impl->branchMenu->setProperty("commit",
                                                QVariant::fromValue(commit));
                 _impl->branchMenu->setProperty("branch",
