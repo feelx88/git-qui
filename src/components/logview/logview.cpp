@@ -161,6 +161,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           auto layout = new QHBoxLayout(container);
           int remoteIndex = 0;
           layout->setAlignment(Qt::AlignLeft);
+          layout->setMargin(2);
           for (auto ref : qAsConst(commit.refs)) {
             bool isTag = ref.startsWith("tag:");
             bool isRemote = false;
@@ -196,7 +197,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                   "lightgray; border: 1px black solid; padding: 0.1em;}");
             }
             button->setSizePolicy(
-                QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
+                QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
             connect(button, &QPushButton::clicked, button, [=] {
               ui->treeWidget->clearSelection();
               item->setSelected(true);
