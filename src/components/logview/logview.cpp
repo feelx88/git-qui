@@ -198,18 +198,20 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             }
             button->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
-            connect(button, &QPushButton::clicked, button, [=] {
-              ui->treeWidget->clearSelection();
-              item->setSelected(true);
+            button->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(button, &QPushButton::customContextMenuRequested, button,
+                    [=](const QPoint &at) {
+                      ui->treeWidget->clearSelection();
+                      item->setSelected(true);
 
-              if (!isTag && !isRemote) {
-                _impl->branchMenu->setProperty("commit",
-                                               QVariant::fromValue(commit));
-                _impl->branchMenu->setProperty("branch",
-                                               QVariant::fromValue(ref));
-                _impl->branchMenu->popup(QCursor::pos());
-              }
-            });
+                      if (!isTag && !isRemote) {
+                        _impl->branchMenu->setProperty(
+                            "commit", QVariant::fromValue(commit));
+                        _impl->branchMenu->setProperty(
+                            "branch", QVariant::fromValue(ref));
+                        _impl->branchMenu->popup(button->mapToGlobal(at));
+                      }
+                    });
             layout->insertWidget(insertPosition, button);
           }
           ui->treeWidget->setItemWidget(item, 1, container);
