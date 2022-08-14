@@ -3,6 +3,7 @@
 
 #include "gitcommit.hpp"
 #include "gitinterface.hpp"
+#include "graphdelegate.h"
 #include "mainwindow.hpp"
 #include "treewidgetitem.hpp"
 
@@ -12,95 +13,13 @@
 #include <QPainter>
 #include <QPushButton>
 
-struct RowInfo {
-  int column = 0, columnCount = 1;
-  QString commitId;
-  QMultiMap<QString, int> currentColumns;
-  QMultiMap<QString, int> childColumns;
-};
-
-struct Delegate : public QItemDelegate {
-  QSharedPointer<GitTree> gitTree;
-  QList<RowInfo> rows;
-  QMap<QString, int> commitColumns;
-  int minWidth = 0;
-
-  Delegate(QObject *parent) : QItemDelegate(parent) { setClipping(false); }
-
-  void refreshData(QSharedPointer<GitTree> gitTree, QList<RowInfo> rows) {
-    this->gitTree = gitTree;
-    this->rows = rows;
-
-    int maxColumns = 1;
-
-    for (int row = 0; row < this->rows.size(); ++row) {
-      auto rowInfo = this->rows.at(row);
-      commitColumns.insert(rowInfo.commitId, rowInfo.column);
-
-      maxColumns = qMax(maxColumns, rowInfo.columnCount);
-    }
-
-    minWidth = (9 * 2) + (maxColumns * 24);
-  }
-
-  void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const override {
-    painter->save();
-    painter->setRenderHint(QPainter::Antialiasing);
-
-    QPoint center(option.rect.x() + 9, option.rect.center().y() + 1);
-    QPoint halfHeight = QPoint(0, (option.rect.height() / 2) - 1);
-    auto commit = gitTree->commitList().at(index.row());
-
-    drawBackground(painter, option, index);
-
-    RowInfo currentRow = rows.value(index.row());
-    painter->setPen(QPen(QBrush(Qt::red), 2));
-
-    for (const auto &childCommit : qAsConst(commit->childCommits)) {
-      painter->drawLine(
-          center + QPoint(24 * currentRow.column, 0),
-          center + QPoint(24 * commitColumns.value(childCommit.lock()->id),
-                          -halfHeight.y()));
-    }
-
-    auto filledChildColumns = currentRow.childColumns.values();
-    auto filledCurrentColumns = currentRow.currentColumns.values();
-
-    for (int column = 0; column < currentRow.columnCount; ++column) {
-      if (filledChildColumns.contains(column) &&
-          filledCurrentColumns.contains(column)) {
-        painter->drawLine(center + QPoint(column * 24, 0) - halfHeight,
-                          center + QPoint(column * 24, 0));
-      }
-
-      if (filledCurrentColumns.contains(column)) {
-        painter->drawLine(center + QPoint(column * 24, 0),
-                          center + QPoint(column * 24, 0) + halfHeight);
-      }
-    }
-
-    painter->setBrush(commit->isHead ? Qt::green : Qt::blue);
-    painter->setPen(commit->isHead ? Qt::green : Qt::blue);
-    painter->drawEllipse(center + QPoint(currentRow.column * 24, 0), 6, 6);
-
-    painter->restore();
-  }
-
-  QSize sizeHint(const QStyleOptionViewItem &option,
-                 const QModelIndex &) const override {
-    return QSize(minWidth, option.rect.height());
-  }
-};
-
 struct LogViewPrivate {
   GitInterface *gitInterface = nullptr;
-  Delegate *graphDelegate;
-  QList<RowInfo> rows;
+  GraphDelegate *graphDelegate;
   QAction *resetAction;
   QMenu *branchMenu;
 
-  LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {
+  LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {
     branchMenu = new QMenu(_this);
     QObject::connect(branchMenu->addAction(QObject::tr("Checkout branch")),
                      &QAction::triggered, branchMenu, [=] {
@@ -175,17 +94,17 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
       newGitInterface, &GitInterface::logChanged, activeRepositoryContext,
       [=](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
-        _impl->rows.clear();
+        QList<GraphDelegate::RowInfo> rows;
 
         for (auto it = tree->commitList().rbegin();
              it != tree->commitList().rend(); ++it) {
 
           auto commit = *it;
-          RowInfo currentRow;
-          if (_impl->rows.isEmpty()) {
+          GraphDelegate::RowInfo currentRow;
+          if (rows.isEmpty()) {
             currentRow.childColumns.insert(commit->id, 0);
           } else {
-            currentRow = RowInfo(_impl->rows.first());
+            currentRow = GraphDelegate::RowInfo(rows.first());
           }
 
           currentRow.currentColumns = currentRow.childColumns;
@@ -217,7 +136,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
                                                      currentIdValues.end()) +
                                    1;
 
-          _impl->rows.prepend(currentRow);
+          rows.prepend(currentRow);
         }
 
         for (const auto &commit : tree->commitList()) {
@@ -294,7 +213,7 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
           ui->treeWidget->setItemWidget(item, 1, container);
         }
 
-        _impl->graphDelegate->refreshData(tree, _impl->rows);
+        _impl->graphDelegate->refreshData(tree, rows);
 
         ui->treeWidget->resizeColumnToContents(0);
       });

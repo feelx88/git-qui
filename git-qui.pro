@@ -5,6 +5,7 @@ CONFIG += c++1z
 SOURCES += \
     src/cleanupdialog.cpp \
     src/components/errorlog/errorlog.cpp \
+    src/components/logview/graphdelegate.cpp \
     src/core.cpp \
     src/initialwindowconfiguration.cpp \
     src/main.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
 HEADERS += \
     src/cleanupdialog.hpp \
     src/components/errorlog/errorlog.hpp \
+    src/components/logview/graphdelegate.h \
     src/core.hpp \
     src/gitinterface.hpp \
     src/gitcommit.hpp \
