@@ -21,7 +21,7 @@
 
 void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   // Main tab
-  QMainWindow *main = mainWindow->createTab(mainWindow->tr("main"));
+  QMainWindow *main = mainWindow->createTab(mainWindow->tr("Commit"));
 
   mainWindow->addDockWidget<RepositoryFiles>(0,
                                              QVariantMap({{"unstaged", true}}));
