@@ -8,6 +8,7 @@
 
 #include <QAction>
 #include <QItemDelegate>
+#include <QMenu>
 #include <QPainter>
 #include <QPushButton>
 
@@ -97,8 +98,16 @@ struct LogViewPrivate {
   Delegate *graphDelegate;
   QList<RowInfo> rows;
   QAction *resetAction;
+  QMenu *branchMenu;
 
-  LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {}
+  LogViewPrivate(LogView *_this) : graphDelegate(new Delegate(_this)) {
+    branchMenu = new QMenu(_this);
+    QObject::connect(branchMenu->addAction("Select branch"),
+                     &QAction::triggered, branchMenu, [=] {
+                       gitInterface->changeBranch(
+                           branchMenu->property("branch").toString());
+                     });
+  }
 
   void connectSignals(LogView *_this) {
     _this->ui->treeWidget->setHeaderLabels({
@@ -247,6 +256,17 @@ void LogView::onRepositorySwitched(GitInterface *newGitInterface,
             }
             b->setSizePolicy(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
+            connect(b, &QPushButton::clicked, b, [=] {
+              if (!tag) {
+                ui->treeWidget->clearSelection();
+                item->setSelected(true);
+                _impl->branchMenu->setProperty("commit",
+                                               QVariant::fromValue(commit));
+                _impl->branchMenu->setProperty("branch",
+                                               QVariant::fromValue(ref));
+                _impl->branchMenu->popup(QCursor::pos());
+              }
+            });
             layout->addWidget(b);
           }
           ui->treeWidget->setItemWidget(item, 1, container);
