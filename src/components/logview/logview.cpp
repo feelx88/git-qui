@@ -186,9 +186,11 @@ void LogView::onRepositorySwitched(
         for (const auto &commit : tree->commitList()) {
           TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
           item->setText(2, commit->message);
+          item->setToolTip(2, commit->message);
           item->setText(3, commit->author);
           item->setText(4, commit->date.toString());
           item->setText(5, commit->id);
+          item->setToolTip(5, commit->id);
 
           item->setData(0, 0, QVariant::fromValue(GitCommit(*commit)));
 
