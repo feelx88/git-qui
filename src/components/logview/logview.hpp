@@ -2,6 +2,9 @@
 #define LOGVIEW_HPP
 
 #include "components/dockwidget.hpp"
+#include <QEvent>
+#include <QMetaEnum>
+#include <iostream>
 
 namespace Ui {
 class LogView;

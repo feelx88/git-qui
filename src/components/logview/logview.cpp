@@ -53,6 +53,9 @@ struct LogViewPrivate {
             _this->ui->treeWidget->setProperty(
                 ToolBarActions::ActionCallerProperty::NEW_BRANCH_BASE_COMMIT,
                 QVariant::fromValue(commit.id));
+            _this->ui->treeWidget->setProperty(
+                ToolBarActions::ActionCallerProperty::RESET_REF,
+                QVariant::fromValue(commit.id));
           }
         });
 
@@ -60,16 +63,7 @@ struct LogViewPrivate {
 
     resetAction = new QAction("");
     _this->ui->treeWidget->addAction(resetAction);
-    QObject::connect(resetAction, &QAction::triggered, _this, [=] {
-      auto commit =
-          _this->ui->treeWidget->currentItem()->data(0, 0).value<GitCommit>();
-
-      ResetDialog dialog(gitInterface->activeBranch(), commit, _this);
-
-      if (dialog.exec() == QDialog::Accepted) {
-        gitInterface->resetToCommit(commit.id, dialog.resetType());
-      }
-    });
+    ToolBarActions::connectById(ToolBarActions::ActionID::RESET, resetAction);
 
     _this->ui->treeWidget->addAction(
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));

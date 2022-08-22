@@ -1,6 +1,7 @@
 #include "toolbaractions.hpp"
 
 #include "cleanupdialog.hpp"
+#include "components/logview/resetdialog.hpp"
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
@@ -24,6 +25,7 @@ void ToolBarActions::initialize(Core *core) {
   addAction(ActionID::NEW_BRANCH, "distribute-graph-directed",
             "Create new branch");
   addAction(ActionID::CLEANUP, "edit-clear-history", "Clean up repository");
+  addAction(ActionID::RESET, "edit-reset", "Reset current branch to HEAD");
 
   for (auto &[id, action] : _actionMap.toStdMap()) {
     action->setData(id);
@@ -99,6 +101,7 @@ void ToolBarActions::initialize(Core *core) {
                   widget->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
                       .toString();
             }
+
             QString branchName = QInputDialog::getText(
                 QApplication::activeWindow(), QObject::tr("Create new branch"),
                 QObject::tr("New branch name"));
@@ -128,6 +131,35 @@ void ToolBarActions::initialize(Core *core) {
                        }
                      });
 
+    QObject::connect(
+        _actionMap[ActionID::RESET], &QAction::triggered, core, [=] {
+          QString repositoryName, ref;
+          auto widget = focusedWidget(ActionID::RESET);
+
+          if (widget) {
+            repositoryName =
+                widget->property(ActionCallerProperty::RESET_REPOSITORY)
+                    .toString();
+            ref = widget->property(ActionCallerProperty::RESET_REF).toString();
+          }
+
+          auto repository = repositoryName.isEmpty()
+                                ? newProject->activeRepository()
+                                : newProject->repositoryByName(repositoryName);
+
+          ref = ref.isEmpty() ? "HEAD" : ref;
+
+          if (repository) {
+            auto commit = GitCommit();
+            commit.id = ref;
+            ResetDialog dialog(repository->activeBranch(), commit);
+
+            if (dialog.exec() == QDialog::Accepted) {
+              repository->resetToCommit(ref, dialog.resetType());
+            }
+          }
+        });
+
     repositoryChanged(core->project()->activeRepository(),
                       core->project()->activeRepositoryContext());
   };
@@ -144,6 +176,13 @@ const QMap<QString, QAction *> ToolBarActions::all() { return _actionMap; }
 
 QAction *ToolBarActions::byId(const QString &id) {
   return _actionMap.value(id);
+}
+
+void ToolBarActions::connectById(const QString &id, QAction *action) {
+  auto parentAction = byId(id);
+  action->setParent(parentAction);
+  QObject::connect(action, &QAction::triggered, action,
+                   [parentAction] { parentAction->trigger(); });
 }
 
 void ToolBarActions::addAction(QString id, QString icon, QString text) {

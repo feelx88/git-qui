@@ -16,7 +16,7 @@ class ResetDialog : public QDialog {
 
 public:
   explicit ResetDialog(const GitBranch &ref, const GitCommit &commit,
-                       QWidget *parent);
+                       QWidget *parent = nullptr);
   ~ResetDialog();
 
   GitInterface::ResetType resetType();
