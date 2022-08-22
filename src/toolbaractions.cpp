@@ -1,10 +1,10 @@
 #include "toolbaractions.hpp"
 
 #include "cleanupdialog.hpp"
-#include "components/logview/resetdialog.hpp"
 #include "core.hpp"
 #include "gitinterface.hpp"
 #include "project.hpp"
+#include "resetdialog.hpp"
 
 #include <QAction>
 #include <QApplication>

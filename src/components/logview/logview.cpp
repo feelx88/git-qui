@@ -5,7 +5,6 @@
 #include "gitinterface.hpp"
 #include "graphdelegate.h"
 #include "mainwindow.hpp"
-#include "resetdialog.hpp"
 #include "toolbaractions.hpp"
 #include "treewidgetitem.hpp"
 
