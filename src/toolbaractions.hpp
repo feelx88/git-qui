@@ -33,6 +33,7 @@ public:
 private:
   static QMap<QString, QAction *> _actionMap;
   static void addAction(QString id, QString icon, QString text);
+  static QWidget *focusedWidget(const QString &id);
 };
 
 #endif // TOOLBARACTIONS_HPP

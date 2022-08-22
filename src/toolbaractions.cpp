@@ -93,19 +93,11 @@ void ToolBarActions::initialize(Core *core) {
           _actionMap[ActionID::NEW_BRANCH], &QAction::triggered,
           activeRepositoryContext.get(), [=] {
             QString baseCommit;
-
-            const auto &widgets =
-                _actionMap[ActionID::NEW_BRANCH]->associatedWidgets();
-            for (const auto &widget : widgets) {
-              if (widget->hasFocus() &&
-                  !widget
-                       ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
-                       .isNull()) {
-                baseCommit =
-                    widget
-                        ->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
-                        .toString();
-              }
+            auto widget = focusedWidget(ActionID::NEW_BRANCH);
+            if (widget) {
+              baseCommit =
+                  widget->property(ActionCallerProperty::NEW_BRANCH_BASE_COMMIT)
+                      .toString();
             }
             QString branchName = QInputDialog::getText(
                 QApplication::activeWindow(), QObject::tr("Create new branch"),
@@ -160,4 +152,28 @@ void ToolBarActions::addAction(QString id, QString icon, QString text) {
       new QAction(QIcon::fromTheme(
                       icon, QIcon(QString(":/deploy/icons/%1.svg").arg(icon))),
                   QObject::tr(text.toStdString().c_str())));
+}
+
+QWidget *ToolBarActions::focusedWidget(const QString &id) {
+  auto action = _actionMap[id];
+
+  {
+    const auto &widgets = action->associatedWidgets();
+    for (const auto &widget : widgets) {
+      if (widget->hasFocus()) {
+        return widget;
+      }
+    }
+  }
+
+  for (const auto &child : action->children()) {
+    const auto &widgets = static_cast<QAction *>(child)->associatedWidgets();
+    for (const auto &widget : widgets) {
+      if (widget->hasFocus()) {
+        return widget;
+      }
+    }
+  }
+
+  return nullptr;
 }
