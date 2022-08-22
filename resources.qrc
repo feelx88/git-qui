@@ -17,6 +17,6 @@
         <file>deploy/icons/edit-clear-history.svg</file>
         <file>deploy/icons/edit-download.svg</file>
         <file alias="git-qui.svg">de.feelx88.git-qui.svg</file>
-        <file>deploy/icons/edit-reset.svg</file>
+        <file>deploy/icons/edit-undo.svg</file>
     </qresource>
 </RCC>

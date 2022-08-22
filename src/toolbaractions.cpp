@@ -25,7 +25,7 @@ void ToolBarActions::initialize(Core *core) {
   addAction(ActionID::NEW_BRANCH, "distribute-graph-directed",
             "Create new branch");
   addAction(ActionID::CLEANUP, "edit-clear-history", "Clean up repository");
-  addAction(ActionID::RESET, "edit-reset", "Reset current branch to HEAD");
+  addAction(ActionID::RESET, "edit-undo", "Reset current branch to HEAD");
 
   for (auto &[id, action] : _actionMap.toStdMap()) {
     action->setData(id);
