@@ -9,6 +9,7 @@
 #include "treewidgetitem.hpp"
 
 #include <QAction>
+#include <QClipboard>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
@@ -66,6 +67,14 @@ struct LogViewPrivate {
 
     _this->ui->treeWidget->addAction(
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
+
+    auto copyIdAction = new QAction(QObject::tr("Copy commit id"), _this);
+    QObject::connect(copyIdAction, &QAction::triggered, _this, [=] {
+      QGuiApplication::clipboard()->setText(_this->ui->treeWidget->currentItem()
+                                                ->data(5, Qt::DisplayRole)
+                                                .toString());
+    });
+    _this->ui->treeWidget->addAction(copyIdAction);
 
     branchMenu = new QMenu(_this);
     checkoutAction = branchMenu->addAction("");
