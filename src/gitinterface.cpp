@@ -845,14 +845,18 @@ QFuture<void> GitInterface::reload() {
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::reload));
 }
 
-QFuture<void> GitInterface::status() {
-  RUN_ONCE(ActionTag::GIT_STATUS,
-           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status));
+void GitInterface::status() {
+  emit actionStarted(ActionTag::GIT_STATUS);
+  WATCH_ASYNC_METHOD_CALL(
+      ActionTag::GIT_STATUS,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status));
 }
 
-QFuture<void> GitInterface::log() {
-  RUN_ONCE(ActionTag::GIT_LOG,
-           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log));
+void GitInterface::log() {
+  emit actionStarted(ActionTag::GIT_LOG);
+  WATCH_ASYNC_METHOD_CALL(
+      ActionTag::GIT_LOG,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::log));
 }
 
 QFuture<void> GitInterface::fetch() {
@@ -884,15 +888,17 @@ QFuture<void> GitInterface::unstageFile(const QString &path) {
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::unstageFile, path));
 }
 
-QFuture<void> GitInterface::selectFile(bool unstaged, const QString &path) {
+void GitInterface::selectFile(bool unstaged, const QString &path) {
   emit fileSelected(unstaged, path);
-  return diffFile(unstaged, path);
+  diffFile(unstaged, path);
 }
 
-QFuture<void> GitInterface::diffFile(bool unstaged, const QString &path) {
-  RUN_ONCE(ActionTag::GIT_DIFF,
-           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::diffFile,
-                             unstaged, path));
+void GitInterface::diffFile(bool unstaged, const QString &path) {
+  emit actionStarted(ActionTag::GIT_DIFF);
+  WATCH_ASYNC_METHOD_CALL(ActionTag::GIT_DIFF,
+                          QtConcurrent::run(_impl.get(),
+                                            &GitInterfacePrivate::diffFile,
+                                            unstaged, path));
 }
 
 QFuture<void> GitInterface::addLines(const QList<GitDiffLine> &lines,

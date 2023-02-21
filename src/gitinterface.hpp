@@ -76,15 +76,15 @@ public slots:
   void setFullFileDiff(bool fullFileDiff);
   void fetchNonBlocking();
   QFuture<void> reload();
-  QFuture<void> status();
-  QFuture<void> log();
+  void status();
+  void log();
   QFuture<void> fetch();
   QFuture<bool> commit(const QString &message);
   QFuture<void> stageFile(const QString &path);
   QFuture<void> stageFiles(const QStringList &paths);
   QFuture<void> unstageFile(const QString &path);
-  QFuture<void> selectFile(bool unstaged, const QString &path);
-  QFuture<void> diffFile(bool unstaged, const QString &path);
+  void selectFile(bool unstaged, const QString &path);
+  void diffFile(bool unstaged, const QString &path);
   QFuture<void> addLines(const QList<GitDiffLine> &lines, bool unstage);
   QFuture<void> push(const QString &remote = "origin",
                      const QVariant &branch = QVariant(),
