@@ -46,6 +46,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
 
   ui->projectNameEdit->setText(_impl->project->name());
   ui->projectPathEdit->setText(_impl->project->fileName());
+  ui->autoFetchEnabled->setChecked(_impl->project->autoFetchEnabled());
   _impl->fillRepositoryList(this);
 
   connect(ui->projectPathEdit, &QLineEdit::textChanged, this,
@@ -102,6 +103,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [this] {
     _impl->project->setFileName(ui->projectPathEdit->text());
     _impl->project->setName(ui->projectNameEdit->text());
+    _impl->project->setAutoFetchEnabled(ui->autoFetchEnabled->isChecked());
     _impl->project->save();
   });
 }

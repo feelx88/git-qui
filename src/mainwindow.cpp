@@ -60,7 +60,16 @@ struct MainWindowPrivate {
   }
 
   void connectSignals() {
-    QSettings settings;
+    QObject::connect(core, &Core::projectChanged, _this,
+                     [=](Project *project) { connectProjectSignals(project); });
+    connectProjectSignals(core->project());
+
+    QObject::connect(_this->ui->actionEnable_auto_fetch, &QAction::toggled,
+                     _this, [=](bool toggled) {
+                       auto project = _this->core()->project();
+                       project->setAutoFetchEnabled(toggled);
+                       project->save();
+                     });
 
     _this->connect(_this->ui->actionTop, &QAction::triggered, _this,
                    [=] { _this->addToolbar(Qt::TopToolBarArea); });
@@ -221,6 +230,14 @@ struct MainWindowPrivate {
                                          const QString &action) {
     QObject::connect(entry, &QAction::triggered, ToolBarActions::byId(action),
                      &QAction::trigger);
+  }
+
+  void connectProjectSignals(Project *project) {
+    QObject::connect(project, &Project::autoFetchChanged, project,
+                     [=](bool enabled) {
+                       _this->ui->actionEnable_auto_fetch->setChecked(enabled);
+                     });
+    _this->ui->actionEnable_auto_fetch->setChecked(project->autoFetchEnabled());
   }
 
   void populateAddViewMenu() {

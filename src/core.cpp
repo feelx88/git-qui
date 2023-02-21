@@ -103,6 +103,10 @@ struct CorePrivate {
       }
     }
 
+    if (!project->autoFetchEnabled()) {
+      return;
+    }
+
     for (auto &repository : project->repositoryList()) {
       repository->fetchNonBlocking();
     }

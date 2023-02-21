@@ -16,6 +16,7 @@ struct ConfigurationKeys {
   static constexpr const char *REPOSITORY_LIST_PATH = "path";
   static constexpr const char *DOCK_WIDGET_CONFIGURATION =
       "dockWidgetConfiguration";
+  static constexpr const char *AUTOFETCH_ENABLED = "autofetchEnabled";
 };
 
 struct ProjectPrivate {
@@ -24,13 +25,14 @@ struct ProjectPrivate {
   QString name = "";
   QList<QSharedPointer<GitInterface>> repositories;
   int currentRepository = 0;
+  bool autoFetchEnabled = true;
   QList<QRegularExpression> ignoredSubdirectories = {
       QRegularExpression("/.*vendor.*/"),
       QRegularExpression("/.*node_modules.*/")};
-  QSharedPointer<QObject> currentRepositoryContext =
-      QSharedPointer<QObject>(new QObject(_this));
+  QSharedPointer<QObject> currentRepositoryContext = nullptr;
 
-  ProjectPrivate(Project *project) : _this(project) {}
+  ProjectPrivate(Project *project)
+      : _this{project}, currentRepositoryContext{new QObject(_this)} {}
 
   void loadSettings() {
     name = settings->value(ConfigurationKeys::NAME).toString();
@@ -41,6 +43,8 @@ struct ProjectPrivate {
             settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
             list.size() - 1),
         0);
+    autoFetchEnabled =
+        settings->value(ConfigurationKeys::AUTOFETCH_ENABLED, true).toBool();
 
     for (const auto &entry : list) {
       repositories.append(QSharedPointer<GitInterface>(new GitInterface(
@@ -58,6 +62,9 @@ struct ProjectPrivate {
 
       settings->setValue(ConfigurationKeys::CURRENT_REPOSITORY,
                          currentRepository);
+      settings->setValue(ConfigurationKeys::AUTOFETCH_ENABLED,
+                         autoFetchEnabled);
+
       QList<QVariantMap> list;
 
       for (const auto &repository : qAsConst(repositories)) {
@@ -213,4 +220,11 @@ void Project::reloadAllRepositories() {
   for (auto &repository : repositoryList()) {
     repository->reload();
   }
+}
+
+bool Project::autoFetchEnabled() const { return _impl->autoFetchEnabled; }
+
+void Project::setAutoFetchEnabled(bool enabled) {
+  _impl->autoFetchEnabled = enabled;
+  emit autoFetchChanged(enabled);
 }

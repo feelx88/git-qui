@@ -132,7 +132,14 @@
     <addaction name="actionAbout_qt"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuCurrent_Project">
+    <property name="title">
+     <string>Current Project</string>
+    </property>
+    <addaction name="actionEnable_auto_fetch"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCurrent_Project"/>
    <addaction name="menuCurrent_Repository"/>
    <addaction name="menuTool"/>
    <addaction name="menuWindow"/>
@@ -262,6 +269,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About...</string>
+   </property>
+  </action>
+  <action name="actionEnable_auto_fetch">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable auto-fetch</string>
    </property>
   </action>
  </widget>

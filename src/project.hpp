@@ -39,11 +39,15 @@ public:
 
   void reloadAllRepositories();
 
+  bool autoFetchEnabled() const;
+  void setAutoFetchEnabled(bool enabled);
+
 signals:
   void repositoryAdded(QSharedPointer<GitInterface> repository);
   void repositorySwitched(QSharedPointer<GitInterface> repository,
                           QSharedPointer<QObject> activeRepositoryContext);
   void repositoryRemoved(QSharedPointer<GitInterface> repository);
+  void autoFetchChanged(bool enabled);
 
 private:
   QScopedPointer<ProjectPrivate> _impl;
