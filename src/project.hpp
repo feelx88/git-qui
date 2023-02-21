@@ -13,6 +13,7 @@ class Project : public QObject {
 public:
   Project(const QString &fileName, QObject *parent = nullptr);
   Project(QObject *parent = nullptr);
+  virtual ~Project();
 
   QString fileName() const;
   QString name() const;
@@ -45,7 +46,7 @@ signals:
   void repositoryRemoved(QSharedPointer<GitInterface> repository);
 
 private:
-  QSharedPointer<ProjectPrivate> _impl;
+  QScopedPointer<ProjectPrivate> _impl;
 };
 
 #endif // PROJECT_HPP

@@ -49,7 +49,7 @@ QString SEPARATOR_ID = "separator";
 struct MainWindowPrivate {
   MainWindow *_this;
   Core *core;
-  bool editMode;
+  bool editMode = false;
   QTimer *toolbarsDisableTimer;
 
   MainWindowPrivate(MainWindow *mainWindow, Core *core)

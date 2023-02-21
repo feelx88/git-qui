@@ -19,9 +19,9 @@ struct ConfigurationKeys {
 };
 
 struct ProjectPrivate {
-  Project *_this;
+  Project *_this = nullptr;
   QSettings *settings = nullptr;
-  QString name;
+  QString name = "";
   QList<QSharedPointer<GitInterface>> repositories;
   int currentRepository = 0;
   QList<QRegularExpression> ignoredSubdirectories = {
@@ -86,6 +86,8 @@ Project::Project(const QString &fileName, QObject *parent) : Project(parent) {
 
 Project::Project(QObject *parent)
     : QObject(parent), _impl(new ProjectPrivate(this)) {}
+
+Project::~Project() {}
 
 QString Project::fileName() const {
   return _impl->settings ? _impl->settings->fileName() : "";
