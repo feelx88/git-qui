@@ -8,6 +8,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QFutureWatcher>
 #include <QInputDialog>
 #include <QMessageBox>
 
@@ -83,11 +84,26 @@ void ToolBarActions::initialize(Core *core) {
             }
 
             if (stash) {
-              repository->stash();
-            }
-            repository->pull(true);
-            if (stash) {
-              repository->stashPop();
+              auto stashWatcher =
+                       new QFutureWatcher<void>(activeRepositoryContext.get()),
+                   pullWatcher =
+                       new QFutureWatcher<void>(activeRepositoryContext.get());
+
+              QObject::connect(stashWatcher, &QFutureWatcher<void>::finished,
+                               activeRepositoryContext.get(), [=] {
+                                 pullWatcher->setFuture(repository->pull(true));
+                                 stashWatcher->deleteLater();
+                               });
+
+              QObject::connect(pullWatcher, &QFutureWatcher<void>::finished,
+                               activeRepositoryContext.get(), [=] {
+                                 repository->stashPop();
+                                 pullWatcher->deleteLater();
+                               });
+
+              stashWatcher->setFuture(repository->stash());
+            } else {
+              repository->pull(true);
             }
           });
 
