@@ -1,5 +1,5 @@
 #include "initialwindowconfiguration.hpp"
-
+/*
 #include <QToolBar>
 
 #include "components/dockwidget.hpp"
@@ -16,12 +16,13 @@
 
 #define SPLIT_DOCK_WIDGET(target, direction, first, second)                    \
   target->splitDockWidget(                                                     \
-      static_cast<QDockWidget *>(main->children()[first]),                     \
-      static_cast<QDockWidget *>(main->children()[second]), Qt::direction);
-
+      static_cast<ads::CDockWidget *>(main->children()[first]),                \
+      static_cast<ads::CDockWidget *>(main->children()[second]),               \
+      Qt::direction);
+*/
 void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   // Main tab
-  QMainWindow *main = mainWindow->createTab(mainWindow->tr("Commit"));
+  /*QMainWindow *main = mainWindow->createTab(mainWindow->tr("Commit"));
 
   mainWindow->addDockWidget<RepositoryFiles>(0,
                                              QVariantMap({{"unstaged", true}}));
@@ -72,5 +73,5 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::STASH));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::UNSTASH));
   toolbar->addSeparator();
-  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));*/
 }

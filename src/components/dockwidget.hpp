@@ -2,11 +2,13 @@
 #define DOCKWIDGET_HPP
 
 #include "gitinterface.hpp"
-#include <QDockWidget>
 #include <QFuture>
 #include <QList>
 #include <QMainWindow>
 #include <QUuid>
+
+#include <DockManager.h>
+#include <DockWidget.h>
 
 #define DOCK_WIDGET                                                            \
 protected:                                                                     \
@@ -33,7 +35,7 @@ class Project;
 
 struct DockWidgetPrivate;
 
-class DockWidget : public QDockWidget {
+class DockWidget : public ads::CDockWidget {
 public:
   friend struct DockWidgetPrivate;
 
@@ -54,7 +56,7 @@ public:
   virtual ~DockWidget() override;
   static QList<RegistryEntry *> registeredDockWidgets();
   static DockWidget *create(QString className, MainWindow *mainWindow,
-                            QMainWindow *container,
+                            ads::CDockManager *container,
                             const QString &id = QUuid::createUuid().toString(),
                             const QVariant &configuration = QVariant());
 

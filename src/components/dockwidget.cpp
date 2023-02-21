@@ -18,8 +18,8 @@ struct DockWidgetPrivate {
     uiLockTimer->setInterval(
         DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
 
-    QObject::connect(uiLockTimer, &QTimer::timeout, _this,
-                     [this] { setChildWidgetsDisabledState(true); });
+    /*QObject::connect(uiLockTimer, &QTimer::timeout, _this,
+                     [this] { setChildWidgetsDisabledState(true); });*/
   }
 
   void startUiLockTimer(const GitInterface::ActionTag &actionTag) {
@@ -29,7 +29,8 @@ struct DockWidgetPrivate {
   }
 
   void setChildWidgetsDisabledState(bool disabled) {
-    if (!disabled) {
+    return;
+    if (!disabled && uiLockTimer) {
       uiLockTimer->stop();
     }
 
@@ -47,7 +48,7 @@ QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
     DockWidget::_registry;
 
 DockWidget::DockWidget(MainWindow *mainWindow)
-    : QDockWidget(mainWindow), _impl(new DockWidgetPrivate(this)) {
+    : ads::CDockWidget("", mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
   setAttribute(Qt::WA_DeleteOnClose);
   setFeatures(DockWidgetClosable | DockWidgetMovable);
@@ -55,6 +56,9 @@ DockWidget::DockWidget(MainWindow *mainWindow)
 }
 
 void DockWidget::init() {
+  auto child = findChild<QFrame *>();
+  child->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
   connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
     oldProject->setDockWidgetConfigurationEntry(
         widgetName(), getProjectSpecificConfiguration());
@@ -85,13 +89,13 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets() {
 }
 
 DockWidget *DockWidget::create(QString className, MainWindow *mainWindow,
-                               QMainWindow *container, const QString &id,
+                               ads::CDockManager *container, const QString &id,
                                const QVariant &configuration) {
   RegistryEntry *entry = registry()->value(className, nullptr);
 
   if (entry) {
     DockWidget *widget = entry->factory(mainWindow);
-    container->addDockWidget(Qt::TopDockWidgetArea, widget);
+    container->addDockWidget(ads::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
     widget->init();

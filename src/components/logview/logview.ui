@@ -1,86 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LogView</class>
- <widget class="QDockWidget" name="LogView">
+ <widget class="QFrame" name="LogView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>775</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Log view</string>
   </property>
-  <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QTreeWidget" name="treeWidget">
-      <property name="autoScroll">
-       <bool>false</bool>
-      </property>
-      <property name="showDropIndicator" stdset="0">
-       <bool>false</bool>
-      </property>
-      <property name="verticalScrollMode">
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
-      </property>
-      <property name="rootIsDecorated">
-       <bool>false</bool>
-      </property>
-      <property name="uniformRowHeights">
-       <bool>true</bool>
-      </property>
-      <property name="itemsExpandable">
-       <bool>false</bool>
-      </property>
-      <property name="allColumnsShowFocus">
-       <bool>true</bool>
-      </property>
-      <property name="columnCount">
-       <number>6</number>
-      </property>
-      <attribute name="headerVisible">
-       <bool>true</bool>
-      </attribute>
-      <attribute name="headerStretchLastSection">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="autoScroll">
+        <bool>false</bool>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">2</string>
+       <property name="showDropIndicator" stdset="0">
+        <bool>false</bool>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">3</string>
+       <property name="verticalScrollMode">
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">4</string>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">5</string>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">6</string>
+       <property name="itemsExpandable">
+        <bool>false</bool>
        </property>
-      </column>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <property name="columnCount">
+        <number>6</number>
+       </property>
+       <attribute name="headerVisible">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string notr="true">2</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string notr="true">3</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string notr="true">4</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string notr="true">5</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string notr="true">6</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
