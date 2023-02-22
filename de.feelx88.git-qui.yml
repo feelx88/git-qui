@@ -5,7 +5,6 @@ sdk: org.kde.Sdk
 finish-args:
   - --share=ipc
   - --socket=x11
-  - --socket=wayland
   - --share=network
   - --filesystem=host
   - --talk-name=org.freedesktop.Flatpak
