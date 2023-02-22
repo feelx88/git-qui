@@ -18,8 +18,8 @@ struct DockWidgetPrivate {
     uiLockTimer->setInterval(
         DockWidget::CHILD_WIDGET_AUTO_DISABLE_DEBOUNCE_TIME);
 
-    /*QObject::connect(uiLockTimer, &QTimer::timeout, _this,
-                     [this] { setChildWidgetsDisabledState(true); });*/
+    QObject::connect(uiLockTimer, &QTimer::timeout, _this,
+                     [this] { setChildWidgetsDisabledState(true); });
   }
 
   void startUiLockTimer(const GitInterface::ActionTag &actionTag) {
@@ -50,14 +50,15 @@ QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::DockWidget(MainWindow *mainWindow)
     : ads::CDockWidget("", mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
-  setAttribute(Qt::WA_DeleteOnClose);
-  setFeatures(DockWidgetClosable | DockWidgetMovable);
+  // setAttribute(Qt::WA_DeleteOnClose);
+  // setFeatures(DockWidgetClosable | DockWidgetMovable);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void DockWidget::init() {
-  auto child = findChild<QFrame *>();
-  child->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  /*auto child = findChild<QFrame *>();
+  child->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);*/
+  setWidget(findChild<QFrame *>());
 
   connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
     oldProject->setDockWidgetConfigurationEntry(

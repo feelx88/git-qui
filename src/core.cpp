@@ -116,6 +116,7 @@ struct CorePrivate {
 Core::Core(QObject *parent) : QObject(parent), _impl(new CorePrivate(this)) {}
 
 Core::~Core() {
+  return;
   if (project()) {
     project()->save();
   }
