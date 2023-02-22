@@ -88,7 +88,8 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets() {
 
 DockWidget *DockWidget::create(QString className, MainWindow *mainWindow,
                                ads::CDockManager *container, const QString &id,
-                               const QVariant &configuration) {
+                               const QVariant &configuration,
+                               ads::DockWidgetArea area) {
   RegistryEntry *entry = registry()->value(className, nullptr);
 
   if (entry) {
@@ -96,7 +97,7 @@ DockWidget *DockWidget::create(QString className, MainWindow *mainWindow,
     widget->setObjectName(id);
     widget->configure(configuration);
     widget->init();
-    container->addDockWidget(ads::CenterDockWidgetArea, widget);
+    container->addDockWidget(area, widget);
 
     return widget;
   }

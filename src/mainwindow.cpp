@@ -533,10 +533,11 @@ bool MainWindow::event(QEvent *ev) {
 
 DockWidget *MainWindow::addDockWidget(const QString &className, int tabIndex,
                                       const QVariant &configuration,
+                                      ads::DockWidgetArea area,
                                       const QString &uuid) {
   auto tabDockManager =
       ui->tabWidget->widget(tabIndex)->findChild<ads::CDockManager *>();
 
   return DockWidget::create(className, this, tabDockManager, uuid,
-                            configuration);
+                            configuration, area);
 }

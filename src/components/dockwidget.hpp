@@ -58,7 +58,8 @@ public:
   static DockWidget *create(QString className, MainWindow *mainWindow,
                             ads::CDockManager *container,
                             const QString &id = QUuid::createUuid().toString(),
-                            const QVariant &configuration = QVariant());
+                            const QVariant &configuration = QVariant(),
+                            ads::DockWidgetArea area = ads::TopDockWidgetArea);
 
   virtual QVariant configuration();
   virtual void configure(const QVariant &configuration);

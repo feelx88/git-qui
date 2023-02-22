@@ -1,5 +1,5 @@
 #include "initialwindowconfiguration.hpp"
-/*
+
 #include <QToolBar>
 
 #include "components/dockwidget.hpp"
@@ -19,29 +19,27 @@
       static_cast<ads::CDockWidget *>(main->children()[first]),                \
       static_cast<ads::CDockWidget *>(main->children()[second]),               \
       Qt::direction);
-*/
+
 void InitialWindowConfiguration::create(MainWindow *mainWindow) {
-  // Main tab
-  /*QMainWindow *main = mainWindow->createTab(mainWindow->tr("Commit"));
+  // Commit tab
+  mainWindow->createTab(mainWindow->tr("Commit"));
 
-  mainWindow->addDockWidget<RepositoryFiles>(0,
-                                             QVariantMap({{"unstaged", true}}));
+  mainWindow->addDockWidget<DiffView>(0, {}, ads::CenterDockWidgetArea);
+  mainWindow->addDockWidget<Commit>(0, {}, ads::CenterDockWidgetArea);
+
   mainWindow->addDockWidget<RepositoryFiles>(
-      0, QVariantMap({{"unstaged", false}}));
-  mainWindow->addDockWidget<DiffView>(0);
-  mainWindow->addDockWidget<Commit>(0);
-  mainWindow->addDockWidget<RepositoryList>(0);
-  mainWindow->addDockWidget<BranchList>(0);
+      0, QVariantMap({{"unstaged", true}}), ads::LeftDockWidgetArea);
+  mainWindow->addDockWidget<RepositoryFiles>(
+      0, QVariantMap({{"unstaged", false}}), ads::LeftDockWidgetArea);
 
-  SPLIT_DOCK_WIDGET(main, Vertical, 1, 2);
-  SPLIT_DOCK_WIDGET(main, Vertical, 3, 4);
-  SPLIT_DOCK_WIDGET(main, Vertical, 5, 6);
+  mainWindow->addDockWidget<RepositoryList>(0, {}, ads::RightDockWidgetArea);
+  mainWindow->addDockWidget<BranchList>(0, {}, ads::RightDockWidgetArea);
 
   // History tab
   mainWindow->createTab(mainWindow->tr("History"));
 
-  mainWindow->addDockWidget<LogView>(1);
-  mainWindow->addDockWidget<RepositoryList>(1);
+  mainWindow->addDockWidget<LogView>(1, {}, ads::LeftDockWidgetArea);
+  mainWindow->addDockWidget<RepositoryList>(1, {}, ads::RightDockWidgetArea);
 
   // Error log tab
   mainWindow->createTab(mainWindow->tr("Error log"));
@@ -73,5 +71,5 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::STASH));
   toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::UNSTASH));
   toolbar->addSeparator();
-  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));*/
+  toolbar->addAction(ToolBarActions::byId(ToolBarActions::ActionID::CLEANUP));
 }
