@@ -400,7 +400,8 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration)
     : QMainWindow(nullptr), ui(new Ui::MainWindow),
       _impl(new MainWindowPrivate(this, core)) {
   ui->setupUi(this);
-  ads::CDockManager::setConfigFlag(ads::CDockManager::AlwaysShowTabs, true);
+  ads::CDockManager::setConfigFlag(
+      ads::CDockManager::DockAreaHideDisabledButtons, true);
   ads::CDockManager::setAutoHideConfigFlags(
       ads::CDockManager::DefaultAutoHideConfig);
   _impl->connectSignals();

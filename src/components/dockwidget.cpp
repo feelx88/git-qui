@@ -110,8 +110,14 @@ QVariant DockWidget::configuration() { return QVariant(); }
 void DockWidget::configure(const QVariant &) {}
 
 void DockWidget::setEditModeEnabled(bool enabled) {
-  setFeatures(enabled ? features() | DockWidgetClosable | DockWidgetMovable
-                      : features() & ~DockWidgetClosable & ~DockWidgetMovable);
+  setFeatures(enabled ? features() | ads::CDockWidget::DockWidgetClosable |
+                            ads::CDockWidget::DockWidgetMovable |
+                            ads::CDockWidget::DockWidgetFloatable |
+                            ads::CDockWidget::DockWidgetPinnable
+                      : features() & ~ads::CDockWidget::DockWidgetClosable &
+                            ~ads::CDockWidget::DockWidgetMovable &
+                            ~ads::CDockWidget::DockWidgetFloatable &
+                            ~ads::CDockWidget::DockWidgetPinnable);
 }
 
 MainWindow *DockWidget::mainWindow() { return _mainWindow; }
