@@ -27,6 +27,8 @@ struct CorePrivate {
 
   CorePrivate(Core *core) : _this(core) {}
 
+  ~CorePrivate() = default;
+
   bool loadProject(const QSettings &settings) {
     QString projectFileName =
         settings.value(ConfigurationKey::CURRENT_PROJECT).toString();
@@ -116,7 +118,8 @@ struct CorePrivate {
 Core::Core(QObject *parent) : QObject(parent), _impl(new CorePrivate(this)) {}
 
 Core::~Core() {
-  return;
+  ToolBarActions::destroy();
+
   if (project()) {
     project()->save();
   }

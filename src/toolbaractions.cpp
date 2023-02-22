@@ -197,6 +197,12 @@ void ToolBarActions::initialize(Core *core) {
       [=] { (new CleanUpDialog(core, qApp->activeWindow()))->exec(); });
 }
 
+void ToolBarActions::destroy() {
+  for (auto entry : _actionMap) {
+    entry->disconnect();
+  }
+}
+
 const QMap<QString, QAction *> ToolBarActions::all() { return _actionMap; }
 
 QAction *ToolBarActions::byId(const QString &id) {
