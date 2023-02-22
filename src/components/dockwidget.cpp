@@ -50,14 +50,11 @@ QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::DockWidget(MainWindow *mainWindow)
     : ads::CDockWidget("", mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
-  // setAttribute(Qt::WA_DeleteOnClose);
-  // setFeatures(DockWidgetClosable | DockWidgetMovable);
+  setFeature(ads::CDockWidget::DockWidgetAlwaysCloseAndDelete, true);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void DockWidget::init() {
-  /*auto child = findChild<QFrame *>();
-  child->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);*/
   setWidget(findChild<QFrame *>());
 
   connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
