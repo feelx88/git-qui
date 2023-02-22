@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>RepositoryFiles</class>
- <widget class="QFrame" name="RepositoryFiles">
+ <widget class="QWidget" name="RepositoryFiles">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -55,7 +55,7 @@ DockWidget::DockWidget(MainWindow *mainWindow)
 }
 
 void DockWidget::init() {
-  setWidget(findChild<QFrame *>());
+  setWidget(findChild<QWidget *>());
 
   connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
     oldProject->setDockWidgetConfigurationEntry(
