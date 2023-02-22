@@ -27,6 +27,7 @@
 
 struct ConfigurationKeys {
   static constexpr const char *GEOMETRY = "geometry";
+  static constexpr const char *DOCK_CONFIGURATION = "dockConfiguration";
   static constexpr const char *STATE = "state";
   static constexpr const char *EDIT_MODE = "editMode";
 
@@ -294,7 +295,7 @@ struct MainWindowPrivate {
       QVariantList dockWidgetConfigurations =
           config.value(ConfigurationKeys::DOCK_WIDGETS).toList();
 
-      QMainWindow *page = _this->createTab(
+      auto page = _this->createTab(
           config.value(ConfigurationKeys::TAB_NAME).toString());
       auto tabDockManager = page->findChild<ads::CDockManager *>();
 
@@ -306,9 +307,8 @@ struct MainWindowPrivate {
             config.value(ConfigurationKeys::DOCKWIDGET_ID).toString(),
             config.value(ConfigurationKeys::DOCKWIDGET_CONFIGURATION));
       }
-      page->restoreState(config.value(ConfigurationKeys::STATE).toByteArray());
-      page->restoreGeometry(
-          config.value(ConfigurationKeys::GEOMETRY).toByteArray());
+      tabDockManager->restoreState(
+          config.value(ConfigurationKeys::DOCK_CONFIGURATION).toByteArray());
     }
 
     QVariantList toolbars =
@@ -422,7 +422,8 @@ QVariant MainWindow::configuration() const {
 
   for (int x = 0; x < ui->tabWidget->count(); ++x) {
     QVariantList dockWidgetConfigurations;
-    QMainWindow *tab = static_cast<QMainWindow *>(ui->tabWidget->widget(x));
+    auto tab = ui->tabWidget->widget(x);
+    auto tabDockManager = tab->findChild<ads::CDockManager *>();
 
     auto dockWidgets = tab->findChildren<DockWidget *>();
     for (auto dockWidget : dockWidgets) {
@@ -438,8 +439,8 @@ QVariant MainWindow::configuration() const {
         QString::number(x),
         QVariantMap(
             {{ConfigurationKeys::DOCK_WIDGETS, dockWidgetConfigurations},
-             {ConfigurationKeys::STATE, tab->saveState()},
-             {ConfigurationKeys::GEOMETRY, tab->saveGeometry()},
+             {ConfigurationKeys::DOCK_CONFIGURATION,
+              tabDockManager->saveState()},
              {ConfigurationKeys::TAB_NAME, ui->tabWidget->tabText(x)}}));
   }
   configuration.insert(ConfigurationKeys::TABS, tabs);
@@ -506,9 +507,6 @@ QToolBar *MainWindow::addToolbar(Qt::ToolBarArea area) {
 QMainWindow *MainWindow::createTab(const QString &title) {
   QMainWindow *tab = new QMainWindow(ui->tabWidget);
   new ads::CDockManager(tab);
-  tab->setDockOptions(
-      QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks |
-      QMainWindow::AnimatedDocks | QMainWindow::GroupedDragging);
   ui->tabWidget->addTab(tab, title);
   return tab;
 }
@@ -537,7 +535,7 @@ DockWidget *MainWindow::addDockWidget(const QString &className, int tabIndex,
                                       const QVariant &configuration,
                                       const QString &uuid) {
   auto tabDockManager =
-      ui->tabWidget->currentWidget()->findChild<ads::CDockManager *>();
+      ui->tabWidget->widget(tabIndex)->findChild<ads::CDockManager *>();
 
   return DockWidget::create(className, this, tabDockManager, uuid,
                             configuration);

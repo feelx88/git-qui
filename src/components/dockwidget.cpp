@@ -93,10 +93,10 @@ DockWidget *DockWidget::create(QString className, MainWindow *mainWindow,
 
   if (entry) {
     DockWidget *widget = entry->factory(mainWindow);
-    container->addDockWidget(ads::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
     widget->init();
+    container->addDockWidget(ads::CenterDockWidgetArea, widget);
 
     return widget;
   }
