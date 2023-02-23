@@ -402,6 +402,8 @@ MainWindow::MainWindow(Core *core, const QVariantMap &configuration)
   ui->setupUi(this);
   ads::CDockManager::setConfigFlag(
       ads::CDockManager::DockAreaHideDisabledButtons, true);
+  ads::CDockManager::setConfigFlag(
+      ads::CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
   ads::CDockManager::setAutoHideConfigFlags(
       ads::CDockManager::DefaultAutoHideConfig);
   _impl->connectSignals();
