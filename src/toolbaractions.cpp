@@ -36,6 +36,8 @@ void ToolBarActions::initialize(Core *core) {
     auto repositoryChanged = [=](QSharedPointer<GitInterface> repository,
                                  QSharedPointer<QObject>
                                      activeRepositoryContext) {
+      disconnectActions();
+
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
                        activeRepositoryContext.get(),
                        [=] { repository->stash(); });
@@ -197,7 +199,7 @@ void ToolBarActions::initialize(Core *core) {
       [=] { (new CleanUpDialog(core, qApp->activeWindow()))->exec(); });
 }
 
-void ToolBarActions::destroy() {
+void ToolBarActions::disconnectActions() {
   for (auto entry : _actionMap) {
     entry->disconnect();
   }

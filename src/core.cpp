@@ -118,7 +118,7 @@ struct CorePrivate {
 Core::Core(QObject *parent) : QObject(parent), _impl(new CorePrivate(this)) {}
 
 Core::~Core() {
-  ToolBarActions::destroy();
+  ToolBarActions::disconnectActions();
 
   if (project()) {
     project()->save();
