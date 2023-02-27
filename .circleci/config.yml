@@ -18,6 +18,7 @@ jobs:
           path: git-qui
       - run:
           name: "Checkout submodules"
+          working_directory: git-qui
           command: git submodule sync --recursive && git submodule update --recursive --init
       - run:
           name: "Add flathub repo"
