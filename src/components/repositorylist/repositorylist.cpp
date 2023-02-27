@@ -71,6 +71,8 @@ struct RepositoryListPrivate {
       item->setText(
           1, QString("%1%2 ∅").arg(branch.name, branch.hasChanges ? "*" : ""));
     }
+    item->setTextAlignment(0, Qt::AlignVCenter);
+    item->setTextAlignment(1, Qt::AlignVCenter);
     _this->ui->treeWidget->resizeColumnToContents(1);
     item->setForeground(1, item->foreground(0));
     item->setIcon(
@@ -149,7 +151,8 @@ void RepositoryList::onRepositoryAdded(
           });
 }
 
-void RepositoryList::onRepositorySwitched(QSharedPointer<GitInterface> newGitInterface,
+void RepositoryList::onRepositorySwitched(
+    QSharedPointer<GitInterface> newGitInterface,
     QSharedPointer<QObject> activeRepositoryContext) {
   DockWidget::onRepositorySwitched(newGitInterface, activeRepositoryContext);
   _impl->gitInterface = newGitInterface;
