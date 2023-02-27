@@ -1,8 +1,6 @@
 #ifndef REPOSITORYFILES_H
 #define REPOSITORYFILES_H
 
-#include <QDockWidget>
-
 #include "components/dockwidget.hpp"
 #include "gitinterface.hpp"
 

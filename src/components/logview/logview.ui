@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LogView</class>
- <widget class="QDockWidget" name="LogView">
+ <widget class="QWidget" name="LogView">
   <property name="geometry">
    <rect>
     <x>0</x>

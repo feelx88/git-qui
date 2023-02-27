@@ -32,6 +32,7 @@ public:
   };
 
   static void initialize(Core *core);
+  static void disconnectActions();
   static const QMap<QString, QAction *> all();
   static QAction *byId(const QString &id);
 

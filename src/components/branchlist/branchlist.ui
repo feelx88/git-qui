@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>BranchList</class>
- <widget class="QDockWidget" name="BranchList">
+ <widget class="QWidget" name="BranchList">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>346</width>
+    <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,63 +15,63 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QLabel" name="label">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Local branches</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="treeWidget">
+     <property name="rootIsDecorated">
+      <bool>true</bool>
+     </property>
+     <property name="columnCount">
+      <number>1</number>
+     </property>
+     <property name="disableDuringRepositoryAction" stdset="0">
+      <bool>true</bool>
+     </property>
+     <attribute name="headerVisible">
+      <bool>false</bool>
+     </attribute>
+     <column>
       <property name="text">
-       <string>Local branches</string>
+       <string notr="true">1</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTreeWidget" name="treeWidget">
-      <property name="rootIsDecorated">
-       <bool>true</bool>
-      </property>
-      <property name="columnCount">
-       <number>1</number>
-      </property>
-      <property name="disableDuringRepositoryAction" stdset="0">
-       <bool>true</bool>
-      </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
-       </property>
-      </column>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_2">
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Remote branches</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="treeWidget_2">
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>true</bool>
+     </property>
+     <property name="disableDuringRepositoryAction" stdset="0">
+      <bool>true</bool>
+     </property>
+     <attribute name="headerVisible">
+      <bool>false</bool>
+     </attribute>
+     <column>
       <property name="text">
-       <string>Remote branches</string>
+       <string notr="true">1</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTreeWidget" name="treeWidget_2">
-      <property name="contextMenuPolicy">
-       <enum>Qt::ActionsContextMenu</enum>
-      </property>
-      <property name="rootIsDecorated">
-       <bool>true</bool>
-      </property>
-      <property name="disableDuringRepositoryAction" stdset="0">
-       <bool>true</bool>
-      </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
-       </property>
-      </column>
-     </widget>
-    </item>
-   </layout>
+     </column>
+    </widget>
+   </item>
+  </layout>
   </widget>
  </widget>
  <resources/>

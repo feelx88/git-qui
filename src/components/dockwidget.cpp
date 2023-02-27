@@ -29,7 +29,8 @@ struct DockWidgetPrivate {
   }
 
   void setChildWidgetsDisabledState(bool disabled) {
-    if (!disabled) {
+    return;
+    if (!disabled && uiLockTimer) {
       uiLockTimer->stop();
     }
 
@@ -47,14 +48,15 @@ QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
     DockWidget::_registry;
 
 DockWidget::DockWidget(MainWindow *mainWindow)
-    : QDockWidget(mainWindow), _impl(new DockWidgetPrivate(this)) {
+    : ads::CDockWidget("", mainWindow), _impl(new DockWidgetPrivate(this)) {
   _mainWindow = mainWindow;
-  setAttribute(Qt::WA_DeleteOnClose);
-  setFeatures(DockWidgetClosable | DockWidgetMovable);
+  setFeature(ads::CDockWidget::DockWidgetAlwaysCloseAndDelete, true);
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void DockWidget::init() {
+  setWidget(findChild<QWidget *>());
+
   connectCoreSignal(&Core::beforeProjectChanged, [&](Project *oldProject) {
     oldProject->setDockWidgetConfigurationEntry(
         widgetName(), getProjectSpecificConfiguration());
@@ -85,16 +87,17 @@ QList<DockWidget::RegistryEntry *> DockWidget::registeredDockWidgets() {
 }
 
 DockWidget *DockWidget::create(QString className, MainWindow *mainWindow,
-                               QMainWindow *container, const QString &id,
-                               const QVariant &configuration) {
+                               ads::CDockManager *container, const QString &id,
+                               const QVariant &configuration,
+                               ads::DockWidgetArea area) {
   RegistryEntry *entry = registry()->value(className, nullptr);
 
   if (entry) {
     DockWidget *widget = entry->factory(mainWindow);
-    container->addDockWidget(Qt::TopDockWidgetArea, widget);
     widget->setObjectName(id);
     widget->configure(configuration);
     widget->init();
+    container->addDockWidget(area, widget);
 
     return widget;
   }
@@ -107,8 +110,14 @@ QVariant DockWidget::configuration() { return QVariant(); }
 void DockWidget::configure(const QVariant &) {}
 
 void DockWidget::setEditModeEnabled(bool enabled) {
-  setFeatures(enabled ? features() | DockWidgetClosable | DockWidgetMovable
-                      : features() & ~DockWidgetClosable & ~DockWidgetMovable);
+  setFeatures(enabled ? features() | ads::CDockWidget::DockWidgetClosable |
+                            ads::CDockWidget::DockWidgetMovable |
+                            ads::CDockWidget::DockWidgetFloatable |
+                            ads::CDockWidget::DockWidgetPinnable
+                      : features() & ~ads::CDockWidget::DockWidgetClosable &
+                            ~ads::CDockWidget::DockWidgetMovable &
+                            ~ads::CDockWidget::DockWidgetFloatable &
+                            ~ads::CDockWidget::DockWidgetPinnable);
 }
 
 MainWindow *DockWidget::mainWindow() { return _mainWindow; }
