@@ -123,7 +123,11 @@ DEFINES += GIT_VERSION=\\\"$$system(git describe --always --abbrev=0 --tags --ex
 RESOURCES += \
     resources.qrc
 
-LIBS += -L$$PWD/Qt-Advanced-Docking-System/lib
+unix:contains(DEFINES, FLATPAK_BUILD) {
+  LIBS += -L/app/lib
+} else {
+  LIBS += -L$$PWD/Qt-Advanced-Docking-System/lib
+}
 include(Qt-Advanced-Docking-System/ads.pri)
 INCLUDEPATH += Qt-Advanced-Docking-System/src
 DEPENDPATH += Qt-Advanced-Docking-System/src

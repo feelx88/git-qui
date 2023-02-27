@@ -12,6 +12,8 @@ command: /app/git-qui
 modules:
   - name: Qt-Advanced-Docking-System
     buildsystem: qmake
+    config-opts:
+      - DEFINES+=FLATPAK_BUILD
     build-options:
       env:
         - QT_SELECT=5
