@@ -71,8 +71,8 @@ struct RepositoryListPrivate {
       item->setText(
           1, QString("%1%2 ∅").arg(branch.name, branch.hasChanges ? "*" : ""));
     }
-    item->setTextAlignment(0, Qt::AlignVCenter);
-    item->setTextAlignment(1, Qt::AlignVCenter);
+    item->setTextAlignment(0, Qt::AlignVCenter | Qt::AlignLeading);
+    item->setTextAlignment(1, Qt::AlignVCenter | Qt::AlignTrailing);
     _this->ui->treeWidget->resizeColumnToContents(1);
     item->setForeground(1, item->foreground(0));
     item->setIcon(
@@ -123,7 +123,8 @@ void RepositoryList::onRepositoryAdded(
   item->setFlags(item->flags() ^ Qt::ItemIsDropEnabled);
   item->setText(0, newGitInterface->name());
   item->setData(0, Qt::UserRole, newGitInterface->path());
-  item->setTextAlignment(1, Qt::AlignRight);
+  item->setTextAlignment(0, Qt::AlignVCenter | Qt::AlignLeading);
+  item->setTextAlignment(1, Qt::AlignVCenter | Qt::AlignTrailing);
   ui->treeWidget->addTopLevelItem(item);
 
   connect(
