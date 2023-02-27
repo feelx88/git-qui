@@ -45,6 +45,10 @@ jobs:
           name: "Checkout submodules"
           command: git submodule sync --recursive && git submodule update --recursive --init
       - run:
+          name: "Build Qt Advanced Docking System library"
+          working_directory: Qt-Advanced-Docking-System
+          command: "qmake && make"
+      - run:
           name: "Build dmg"
           command: "qmake && make && macdeployqt git-qui.app -dmg"
       - persist_to_workspace:
