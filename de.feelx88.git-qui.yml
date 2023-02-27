@@ -10,6 +10,14 @@ finish-args:
   - --talk-name=org.freedesktop.Flatpak
 command: /app/git-qui
 modules:
+  - name: Qt-Advanced-Docking-System
+    buildsystem: qmake
+    build-options:
+      env:
+        - QT_SELECT=5
+    sources:
+      - type: dir
+        path: Qt-Advanced-Docking-System
   - name: git-qui
     buildsystem: qmake
     config-opts:
