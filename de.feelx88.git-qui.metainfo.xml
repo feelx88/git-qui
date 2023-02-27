@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>de.feelx88.git_qui</id>
+
+  <name>git-qui</name>
+  <summary>qt5 ui replacement for git-gui</summary>
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <description>
+    <p>
+      qt5 ui replacement for git-gui.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">de.feelx88.git-qui.desktop</launchable>
+  <releases>
+    <release version="0.6.3-beta"></release>
+  </releases>
+</component>
