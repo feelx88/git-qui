@@ -17,6 +17,9 @@ jobs:
       - checkout:
           path: git-qui
       - run:
+          name: "Checkout submodules"
+          command: git submodule sync --recursive && git submodule update --recursive --init
+      - run:
           name: "Add flathub repo"
           command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
       - run:
