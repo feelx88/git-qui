@@ -185,8 +185,10 @@ void ToolBarActions::initialize(Core *core) {
   QObject::connect(core, &Core::projectChanged, core, projectChanged);
   projectChanged(core->project());
 
-  QObject::connect(core, &Core::beforeProjectChanged, core,
-                   [=] { disconnectProjectActions(); });
+  QObject::connect(core, &Core::beforeProjectChanged, core, [=] {
+    disconnectRepositoryActions();
+    disconnectProjectActions();
+  });
 
   QObject::connect(
       _actionMap[ActionID::CLEANUP], &QAction::triggered, core,
