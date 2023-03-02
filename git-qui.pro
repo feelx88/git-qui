@@ -115,7 +115,9 @@ unix:contains(DEFINES, FLATPAK_BUILD) {
   desktopfile.files = de.feelx88.git-qui.svg
   icon.path = /app/share/applications
   icon.files = de.feelx88.git-qui.desktop
-  INSTALLS += desktopfile icon
+  metainfo.path = /app/share/metainfo
+  matainfo.files = de.feelx88.git-qui.metainfo.xml
+  INSTALLS += desktopfile icon metainfo
 }
 
 DEFINES += GIT_VERSION=\\\"$$system(git describe --always --abbrev=0 --tags --exact-match 2> /dev/null || git describe --always --abbrev=0)\\\"
