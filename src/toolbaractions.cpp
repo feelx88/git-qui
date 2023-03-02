@@ -36,7 +36,7 @@ void ToolBarActions::initialize(Core *core) {
     auto repositoryChanged = [=](QSharedPointer<GitInterface> repository,
                                  QSharedPointer<QObject>
                                      activeRepositoryContext) {
-      disconnectActions();
+      disconnectRepositoryActions();
 
       QObject::connect(_actionMap[ActionID::STASH], &QAction::triggered,
                        activeRepositoryContext.get(),
@@ -130,6 +130,8 @@ void ToolBarActions::initialize(Core *core) {
           });
     };
 
+    disconnectProjectActions();
+
     QObject::connect(newProject, &Project::repositorySwitched, newProject,
                      repositoryChanged);
 
@@ -200,9 +202,8 @@ void ToolBarActions::initialize(Core *core) {
 }
 
 void ToolBarActions::disconnectActions() {
-  for (auto entry : _actionMap) {
-    entry->disconnect();
-  }
+  disconnectProjectActions();
+  disconnectRepositoryActions();
 }
 
 const QMap<QString, QAction *> ToolBarActions::all() { return _actionMap; }
@@ -216,6 +217,20 @@ void ToolBarActions::connectById(const QString &id, QAction *action) {
   action->setParent(parentAction);
   QObject::connect(action, &QAction::triggered, action,
                    [parentAction] { parentAction->trigger(); });
+}
+
+void ToolBarActions::disconnectProjectActions() {
+  for (auto entry : {ActionID::PULL_ALL, ActionID::PUSH_ALL, ActionID::RESET}) {
+    _actionMap[entry]->disconnect();
+  }
+}
+
+void ToolBarActions::disconnectRepositoryActions() {
+  for (auto entry :
+       {ActionID::STASH, ActionID::UNSTASH, ActionID::FETCH, ActionID::PUSH,
+        ActionID::PULL, ActionID::NEW_BRANCH, ActionID::CLEANUP}) {
+    _actionMap[entry]->disconnect();
+  }
 }
 
 void ToolBarActions::addAction(QString id, QString icon, QString text) {
