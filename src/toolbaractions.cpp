@@ -198,6 +198,7 @@ void ToolBarActions::initialize(Core *core) {
 void ToolBarActions::disconnectActions() {
   disconnectProjectActions();
   disconnectRepositoryActions();
+  disconnectApplicationActions();
 }
 
 const QMap<QString, QAction *> ToolBarActions::all() { return _actionMap; }
@@ -220,9 +221,14 @@ void ToolBarActions::disconnectProjectActions() {
 }
 
 void ToolBarActions::disconnectRepositoryActions() {
-  for (auto entry :
-       {ActionID::STASH, ActionID::UNSTASH, ActionID::FETCH, ActionID::PUSH,
-        ActionID::PULL, ActionID::NEW_BRANCH, ActionID::CLEANUP}) {
+  for (auto entry : {ActionID::STASH, ActionID::UNSTASH, ActionID::FETCH,
+                     ActionID::PUSH, ActionID::PULL, ActionID::NEW_BRANCH}) {
+    _actionMap[entry]->disconnect();
+  }
+}
+
+void ToolBarActions::disconnectApplicationActions() {
+  for (auto entry : {ActionID::CLEANUP}) {
     _actionMap[entry]->disconnect();
   }
 }

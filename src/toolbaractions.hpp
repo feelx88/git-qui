@@ -41,6 +41,7 @@ public:
 private:
   static void disconnectProjectActions();
   static void disconnectRepositoryActions();
+  static void disconnectApplicationActions();
 
   static QMap<QString, QAction *> _actionMap;
   static void addAction(QString id, QString icon, QString text);
