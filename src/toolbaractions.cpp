@@ -130,8 +130,6 @@ void ToolBarActions::initialize(Core *core) {
           });
     };
 
-    disconnectProjectActions();
-
     QObject::connect(newProject, &Project::repositorySwitched, newProject,
                      repositoryChanged);
 
