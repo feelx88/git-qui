@@ -116,7 +116,7 @@ unix:contains(DEFINES, FLATPAK_BUILD) {
   icon.path = /app/share/applications
   icon.files = de.feelx88.git-qui.desktop
   metainfo.path = /app/share/metainfo
-  matainfo.files = de.feelx88.git-qui.metainfo.xml
+  metainfo.files = de.feelx88.git-qui.metainfo.xml
   INSTALLS += desktopfile icon metainfo
 }
 
