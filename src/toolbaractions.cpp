@@ -187,14 +187,8 @@ void ToolBarActions::initialize(Core *core) {
   QObject::connect(core, &Core::projectChanged, core, projectChanged);
   projectChanged(core->project());
 
-  QObject::connect(core, &Core::beforeProjectChanged, core, [=] {
-    for (auto action :
-         {ActionID::STASH, ActionID::UNSTASH, ActionID::FETCH,
-          ActionID::NEW_BRANCH, ActionID::PULL, ActionID::PULL_ALL,
-          ActionID::PUSH, ActionID::PUSH_ALL, ActionID::RESET}) {
-      _actionMap[action]->disconnect();
-    }
-  });
+  QObject::connect(core, &Core::beforeProjectChanged, core,
+                   [=] { disconnectProjectActions(); });
 
   QObject::connect(
       _actionMap[ActionID::CLEANUP], &QAction::triggered, core,
