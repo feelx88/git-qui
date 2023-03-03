@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>de.feelx88.git_qui</id>
+  <id>de.feelx88.git-qui</id>
 
   <name>git-qui</name>
   <summary>qt5 ui replacement for git-gui</summary>
