@@ -69,6 +69,7 @@ set(OTHER_FILES
   de.feelx88.git-qui.yml
   .circleci/config.yml
   resources.qrc
+  .clang-format
 )
 
 set(FORMS
