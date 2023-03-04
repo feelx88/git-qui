@@ -1,62 +1,22 @@
 cmake_minimum_required(VERSION 3.20)
 project(git-qui LANGUAGES CXX)
 
-set(SOURCE_FILES
-  src/cleanupdialog.cpp
-  src/components/errorlog/errorlog.cpp
-  src/components/logview/graphdelegate.cpp
-  src/resetdialog.cpp
-  src/core.cpp
-  src/initialwindowconfiguration.cpp
-  src/main.cpp
-  src/gitinterface.cpp
-  src/mainwindow.cpp
-  src/components/dockwidget.cpp
-  src/components/repositoryfiles/repositoryfiles.cpp
-  src/components/commit/commit.cpp
-  src/components/diffview/diffview.cpp
-  src/components/repositorylist/repositorylist.cpp
-  src/gitdiffline.cpp
-  src/components/logview/logview.cpp
-  src/components/branchlist/branchlist.cpp
-  src/project.cpp
-  src/projectsettingsdialog.cpp
-  src/qtreewidgetutils.cpp
-  src/toolbareditor.cpp
-  src/toolbaractions.cpp
-  src/treewidgetitem.cpp
-  src/gittree.cpp
+file(GLOB_RECURSE
+  SOURCE_FILES
+  LIST_DIRECTORIES false
+  src/*.cpp
 )
 
-set(HEADER_FILES
-  src/cleanupdialog.hpp
-  src/components/errorlog/errorlog.hpp
-  src/components/logview/graphdelegate.h
-  src/resetdialog.hpp
-  src/core.hpp
-  src/gitinterface.hpp
-  src/gitcommit.hpp
-  src/gitfile.hpp
-  src/initialwindowconfiguration.hpp
-  src/mainwindow.hpp
-  src/components/dockwidget.hpp
-  src/components/repositoryfiles/repositoryfiles.hpp
-  src/components/commit/commit.hpp
-  src/components/logview/logview.hpp
-  src/components/branchlist/branchlist.hpp
-  src/gitbranch.hpp
-  src/project.hpp
-  src/projectsettingsdialog.hpp
-  src/qtreewidgetutils.hpp
-  src/components/repositorylist/repositorylist.hpp
-  src/components/diffview/diffview.hpp
-  src/gitdiffline.hpp
-  src/toolbareditor.hpp
-  src/toolbaractions.hpp
-  src/qobjecthelpers.hpp
-  src/treewidgetitem.hpp
-  src/gittree.hpp
-  src/gitref.hpp
+file(GLOB_RECURSE
+  HEADER_FILES
+  LIST_DIRECTORIES false
+  src/*.hpp
+)
+
+file(GLOB_RECURSE
+  FORMS
+  LIST_DIRECTORIES false
+  src/*.ui
 )
 
 set(OTHER_FILES
@@ -70,21 +30,6 @@ set(OTHER_FILES
   .circleci/config.yml
   resources.qrc
   .clang-format
-)
-
-set(FORMS
-  src/cleanupdialog.ui
-  src/components/errorlog/errorlog.ui
-  src/resetdialog.ui
-  src/mainwindow.ui
-  src/components/repositoryfiles/repositoryfiles.ui
-  src/components/commit/commit.ui
-  src/components/diffview/diffview.ui
-  src/components/repositorylist/repositorylist.ui
-  src/components/logview/logview.ui
-  src/components/branchlist/branchlist.ui
-  src/projectsettingsdialog.ui
-  src/toolbareditor.ui
 )
 
 set(CMAKE_CXX_STANDARD 23)
