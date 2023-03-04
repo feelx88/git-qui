@@ -126,6 +126,7 @@ void DiffView::onRepositorySwitched(
       newGitInterface.get(), &GitInterface::fileDiffed,
       activeRepositoryContext.get(),
       [=, this](const QString &path, QList<GitDiffLine> lines, bool unstaged) {
+        ui->label->setText(path);
         _impl->stageOrUnstageSelected->setVisible(true);
         _impl->resetSelected->setVisible(true);
         _impl->resetSelected->setEnabled(unstaged);
@@ -142,7 +143,6 @@ void DiffView::onRepositorySwitched(
         _impl->hash = hash;
         _impl->currentPath = path;
         _impl->unstaged = unstaged;
-        setWindowTitle(path);
         _impl->stageOrUnstageSelected->setText(
             unstaged ? tr("Stage selected lines")
                      : tr("Unstage selected lines"));
