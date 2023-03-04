@@ -39,18 +39,14 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "brew install qt@5 && brew link qt@5"
+          command: "brew install qt@5 && brew link qt@5 && brew install cmake"
       - checkout
       - run:
           name: "Checkout submodules"
           command: git submodule sync --recursive && git submodule update --recursive --init
       - run:
-          name: "Build Qt Advanced Docking System library"
-          working_directory: Qt-Advanced-Docking-System
-          command: "qmake && make"
-      - run:
           name: "Build dmg"
-          command: "qmake && make && macdeployqt git-qui.app -dmg"
+          command: "cmake . && make && macdeployqt git-qui.app -dmg"
       - persist_to_workspace:
           root: .
           paths:
