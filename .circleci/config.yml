@@ -46,6 +46,8 @@ jobs:
           command: git submodule sync --recursive && git submodule update --recursive --init
       - run:
           name: "Build dmg"
+          environment:
+            Qt5_DIR: /usr/local/opt/qt5/lib/cmake
           command: "cmake . && make && macdeployqt git-qui.app -dmg"
       - persist_to_workspace:
           root: .
