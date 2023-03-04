@@ -31,7 +31,7 @@ struct DiffViewPrivate {
 
   void connectSignals() {
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked,
-                   _this, [=] { stageOrUnstage(); });
+                   _this, [=, this] { stageOrUnstage(); });
   }
 
   void addActions() {
@@ -39,7 +39,7 @@ struct DiffViewPrivate {
     fullFileDiffAction->setCheckable(true);
     _this->addAction(fullFileDiffAction);
     _this->connect(fullFileDiffAction, &QAction::toggled, _this,
-                   [=](bool checked) {
+                   [=, this](bool checked) {
                      gitInterface->setFullFileDiff(checked);
                      gitInterface->diffFile(unstaged, currentPath);
                    });
@@ -48,10 +48,10 @@ struct DiffViewPrivate {
   void addContextMenuActions() {
     stageOrUnstageSelected = new QAction(_this);
     _this->connect(stageOrUnstageSelected, &QAction::triggered, _this,
-                   [=] { stageOrUnstage(); });
+                   [=, this] { stageOrUnstage(); });
 
     resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
-    _this->connect(resetSelected, &QAction::triggered, _this, [=] {
+    _this->connect(resetSelected, &QAction::triggered, _this, [=, this] {
       QList<GitDiffLine> lines;
       auto selectedItems = _this->ui->treeWidget->selectedItems();
       for (auto item : selectedItems) {
@@ -77,9 +77,9 @@ struct DiffViewPrivate {
         lines.count() == nonTrivialLines ? !unstaged : unstaged;
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(_this);
     watcher->setFuture(gitInterface->addLines(lines, unstaged));
-    QObject::connect(watcher, &QFutureWatcher<void>::finished, watcher, [=] {
-      gitInterface->selectFile(stillUnstaged, currentPath);
-    });
+    QObject::connect(
+        watcher, &QFutureWatcher<void>::finished, watcher,
+        [=, this] { gitInterface->selectFile(stillUnstaged, currentPath); });
   }
 };
 
@@ -125,7 +125,7 @@ void DiffView::onRepositorySwitched(
   connect(
       newGitInterface.get(), &GitInterface::fileDiffed,
       activeRepositoryContext.get(),
-      [=](const QString &path, QList<GitDiffLine> lines, bool unstaged) {
+      [=, this](const QString &path, QList<GitDiffLine> lines, bool unstaged) {
         _impl->stageOrUnstageSelected->setVisible(true);
         _impl->resetSelected->setVisible(true);
         _impl->resetSelected->setEnabled(unstaged);

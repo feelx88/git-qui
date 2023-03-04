@@ -102,7 +102,7 @@ void RepositoryList::onProjectSwitched(Project *newProject) {
   onRepositorySwitched(newProject->activeRepository(),
                        newProject->activeRepositoryContext());
 
-  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=] {
+  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=, this] {
     QList<QTreeWidgetItem *> selection = ui->treeWidget->selectedItems();
     if (!selection.isEmpty()) {
       newProject->setCurrentRepository(selection.first()->text(0));
@@ -129,20 +129,20 @@ void RepositoryList::onRepositoryAdded(
 
   connect(
       newGitInterface.get(), &GitInterface::branchChanged, item,
-      [=](const GitBranch &branch) { _impl->onBranchChanged(item, branch); });
+      [=, this](const GitBranch &branch) { _impl->onBranchChanged(item, branch); });
 
   connect(newGitInterface.get(), &GitInterface::actionStarted, item,
-          [=](const GitInterface::ActionTag &actionTag) {
+          [=, this](const GitInterface::ActionTag &actionTag) {
             _impl->onActionStarted(item, actionTag);
           });
 
   connect(newGitInterface.get(), &GitInterface::actionFinished, item,
-          [=] { _impl->onActionFinished(item, newGitInterface); });
+          [=, this] { _impl->onActionFinished(item, newGitInterface); });
 
   _impl->onActionFinished(item, newGitInterface);
 
   connect(newGitInterface.get(), &GitInterface::error, item,
-          [=](const QString &, GitInterface::ActionTag,
+          [=, this](const QString &, GitInterface::ActionTag,
               GitInterface::ErrorType type) {
             if (type != GitInterface::ErrorType::ALREADY_RUNNING) {
               item->setIcon(

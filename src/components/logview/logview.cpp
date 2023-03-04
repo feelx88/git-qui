@@ -45,7 +45,7 @@ struct LogViewPrivate {
 
     QObject::connect(
         _this->ui->treeWidget, &QTreeWidget::currentItemChanged, _this,
-        [=](QTreeWidgetItem *item) {
+        [=, this](QTreeWidgetItem *item) {
           if (item) {
             auto commit = _this->ui->treeWidget->currentItem()
                               ->data(0, 0)
@@ -69,7 +69,7 @@ struct LogViewPrivate {
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
 
     auto copyIdAction = new QAction(QObject::tr("Copy commit id"), _this);
-    QObject::connect(copyIdAction, &QAction::triggered, _this, [=] {
+    QObject::connect(copyIdAction, &QAction::triggered, _this, [=, this] {
       QGuiApplication::clipboard()->setText(_this->ui->treeWidget->currentItem()
                                                 ->data(5, Qt::DisplayRole)
                                                 .toString());
@@ -78,13 +78,13 @@ struct LogViewPrivate {
 
     branchMenu = new QMenu(_this);
     checkoutAction = branchMenu->addAction("");
-    QObject::connect(checkoutAction, &QAction::triggered, branchMenu, [=] {
+    QObject::connect(checkoutAction, &QAction::triggered, branchMenu, [=, this] {
       gitInterface->changeBranch(
           branchMenu->property("branch").value<GitRef>().name);
     });
 
     deleteAction = branchMenu->addAction("");
-    QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=] {
+    QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=, this] {
       auto branch = branchMenu->property("branch").value<GitRef>().name;
       if (QMessageBox::question(_this, "Delete branch",
                                 QString("Delete branch %1?").arg(branch)) ==
@@ -138,7 +138,7 @@ void LogView::onRepositorySwitched(
   _impl->gitInterface = newGitInterface;
   connect(
       newGitInterface.get(), &GitInterface::logChanged,
-      activeRepositoryContext.get(), [=](QSharedPointer<GitTree> tree) {
+      activeRepositoryContext.get(), [=, this](QSharedPointer<GitTree> tree) {
         ui->treeWidget->clear();
         QList<GraphDelegate::RowInfo> rows;
 
@@ -231,7 +231,7 @@ void LogView::onRepositorySwitched(
                 QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(button, &QPushButton::customContextMenuRequested, button,
-                    [=](const QPoint &at) {
+                    [=, this](const QPoint &at) {
                       ui->treeWidget->clearSelection();
                       item->setSelected(true);
 
@@ -258,7 +258,7 @@ void LogView::onRepositorySwitched(
         ui->treeWidget->resizeColumnToContents(0);
       });
 
-  auto newBranchAction = [=](const GitBranch &branch) {
+  auto newBranchAction = [=, this](const GitBranch &branch) {
     _impl->resetAction->setText(
         tr("Reset branch %1 to this commit...").arg(branch.name));
   };

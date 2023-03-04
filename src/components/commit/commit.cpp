@@ -15,45 +15,46 @@ struct CommitPrivate {
   QMenu *messageMenu;
 
   void connectSignals(Commit *_this) {
-    _this->connect(_this->ui->pushButton, &QPushButton::clicked, _this, [=] {
-      if (gitInterface->stagedFiles().empty()) {
-        QMessageBox dlg;
-        dlg.setText(_this->tr(
-            "There are no staged files. Would you like to commit everything?"));
-        dlg.addButton(QMessageBox::Yes);
-        dlg.addButton(QMessageBox::No);
-        dlg.setDefaultButton(QMessageBox::Yes);
+    _this->connect(
+        _this->ui->pushButton, &QPushButton::clicked, _this, [=, this] {
+          if (gitInterface->stagedFiles().empty()) {
+            QMessageBox dlg;
+            dlg.setText(_this->tr("There are no staged files. Would you like "
+                                  "to commit everything?"));
+            dlg.addButton(QMessageBox::Yes);
+            dlg.addButton(QMessageBox::No);
+            dlg.setDefaultButton(QMessageBox::Yes);
 
-        if (dlg.exec() == QMessageBox::Yes) {
-          QStringList paths;
-          for (auto &file : gitInterface->unstagedFiles()) {
-            paths << file.path;
+            if (dlg.exec() == QMessageBox::Yes) {
+              QStringList paths;
+              for (auto &file : gitInterface->unstagedFiles()) {
+                paths << file.path;
+              }
+              gitInterface->stageFiles(paths).waitForFinished();
+            } else {
+              return;
+            }
           }
-          gitInterface->stageFiles(paths).waitForFinished();
-        } else {
-          return;
-        }
-      }
 
-      QString message = _this->ui->plainTextEdit->toPlainText();
+          QString message = _this->ui->plainTextEdit->toPlainText();
 
-      if (_this->ui->checkBoxPrefix->isChecked()) {
-        message.prepend(_this->ui->lineEditPrefix->text() + " ");
-      }
+          if (_this->ui->checkBoxPrefix->isChecked()) {
+            message.prepend(_this->ui->lineEditPrefix->text() + " ");
+          }
 
-      if (_this->ui->checkBoxSuffix->isChecked()) {
-        message.append(QString(" ") + _this->ui->lineEditSuffix->text());
-      }
+          if (_this->ui->checkBoxSuffix->isChecked()) {
+            message.append(QString(" ") + _this->ui->lineEditSuffix->text());
+          }
 
-      auto commit = gitInterface->commit(message);
-      if (!commit.isCanceled() && commit.result()) {
-        emit gitInterface->fileDiffed("", {}, false);
-        _this->ui->pushButton_2->setEnabled(true);
+          auto commit = gitInterface->commit(message);
+          if (!commit.isCanceled() && commit.result()) {
+            emit gitInterface->fileDiffed("", {}, false);
+            _this->ui->pushButton_2->setEnabled(true);
 
-        addHistoryEntry(_this, message);
-        _this->ui->plainTextEdit->clear();
-      }
-    });
+            addHistoryEntry(_this, message);
+            _this->ui->plainTextEdit->clear();
+          }
+        });
 
     QShortcut *shortcut =
         new QShortcut(QKeySequence("Ctrl+Return"), _this->ui->plainTextEdit);
@@ -84,7 +85,7 @@ struct CommitPrivate {
         truncatedMessage.append("...");
       }
 
-      messageMenu->addAction(truncatedMessage, messageMenu, [=] {
+      messageMenu->addAction(truncatedMessage, messageMenu, [=, this] {
         _this->ui->plainTextEdit->setPlainText(message);
       });
     }
@@ -156,10 +157,10 @@ void Commit::onRepositorySwitched(
 
   connect(ui->pushButton_2, &QPushButton::clicked,
           activeRepositoryContext.get(),
-          [=] { newGitInterface->revertLastCommit(); });
+          [=, this] { newGitInterface->revertLastCommit(); });
 
   connect(_impl->gitInterface.get(), &GitInterface::lastCommitReverted,
-          activeRepositoryContext.get(), [=](const QString &message) {
+          activeRepositoryContext.get(), [=, this](const QString &message) {
             ui->plainTextEdit->setPlainText(message);
             ui->pushButton_2->setDisabled(true);
           });

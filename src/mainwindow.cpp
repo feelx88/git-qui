@@ -60,28 +60,29 @@ struct MainWindowPrivate {
   }
 
   void connectSignals() {
-    QObject::connect(core, &Core::projectChanged, _this,
-                     [=](Project *project) { connectProjectSignals(project); });
+    QObject::connect(
+        core, &Core::projectChanged, _this,
+        [=, this](Project *project) { connectProjectSignals(project); });
     connectProjectSignals(core->project());
 
     QObject::connect(_this->ui->actionEnable_auto_fetch, &QAction::toggled,
-                     _this, [=](bool toggled) {
+                     _this, [=, this](bool toggled) {
                        auto project = _this->core()->project();
                        project->setAutoFetchEnabled(toggled);
                        project->save();
                      });
 
     _this->connect(_this->ui->actionTop, &QAction::triggered, _this,
-                   [=] { _this->addToolbar(Qt::TopToolBarArea); });
+                   [=, this] { _this->addToolbar(Qt::TopToolBarArea); });
 
     _this->connect(_this->ui->actionBottom, &QAction::triggered, _this,
-                   [=] { _this->addToolbar(Qt::BottomToolBarArea); });
+                   [=, this] { _this->addToolbar(Qt::BottomToolBarArea); });
 
     _this->connect(_this->ui->actionLeft, &QAction::triggered, _this,
-                   [=] { _this->addToolbar(Qt::LeftToolBarArea); });
+                   [=, this] { _this->addToolbar(Qt::LeftToolBarArea); });
 
     _this->connect(_this->ui->actionRight, &QAction::triggered, _this,
-                   [=] { _this->addToolbar(Qt::RightToolBarArea); });
+                   [=, this] { _this->addToolbar(Qt::RightToolBarArea); });
 
     _this->connect(_this->ui->actionAbout_qt, &QAction::triggered, _this,
                    QApplication::aboutQt);
@@ -90,7 +91,7 @@ struct MainWindowPrivate {
                    [this] { about(); });
 
     _this->connect(_this->ui->actionEdit_mode, &QAction::toggled, _this,
-                   [=](bool checked) {
+                   [=, this](bool checked) {
                      editMode = checked;
                      auto dockWidgets = _this->findChildren<DockWidget *>();
                      for (auto dockWidget : dockWidgets) {
@@ -104,20 +105,22 @@ struct MainWindowPrivate {
                      _this->ui->tabWidget->setTabsClosable(editMode);
                    });
 
-    _this->connect(_this->ui->actionAdd_tab, &QAction::triggered, _this, [=] {
-      QString tabName =
-          QInputDialog::getText(_this, _this->tr("Tab name"),
-                                _this->tr("Please enter the new tab's name"));
-      if (!tabName.isNull()) {
-        _this->createTab(tabName);
-      }
-    });
+    _this->connect(_this->ui->actionAdd_tab, &QAction::triggered, _this,
+                   [=, this] {
+                     QString tabName = QInputDialog::getText(
+                         _this, _this->tr("Tab name"),
+                         _this->tr("Please enter the new tab's name"));
+                     if (!tabName.isNull()) {
+                       _this->createTab(tabName);
+                     }
+                   });
 
-    _this->connect(_this->ui->tabWidget, &QTabWidget::tabCloseRequested, _this,
-                   [=](int index) { _this->ui->tabWidget->removeTab(index); });
+    _this->connect(
+        _this->ui->tabWidget, &QTabWidget::tabCloseRequested, _this,
+        [=, this](int index) { _this->ui->tabWidget->removeTab(index); });
 
     _this->connect(_this->ui->actionRestore_defaults, &QAction::triggered,
-                   _this, [=] {
+                   _this, [=, this] {
                      auto response = QMessageBox::question(
                          _this, _this->tr("Restore defaults"),
                          _this->tr("Do really want to restore the default tab "
@@ -129,7 +132,7 @@ struct MainWindowPrivate {
                    });
 
     QObject::connect(
-        _this->ui->actionOpen_Project, &QAction::triggered, _this, [=] {
+        _this->ui->actionOpen_Project, &QAction::triggered, _this, [=, this] {
           auto fileName =
               QFileDialog::getOpenFileName(_this, QObject::tr("Open Project"));
 
@@ -142,7 +145,7 @@ struct MainWindowPrivate {
         });
 
     QObject::connect(
-        _this->ui->actionNew_Project, &QAction::triggered, _this, [=] {
+        _this->ui->actionNew_Project, &QAction::triggered, _this, [=, this] {
           Project *project = new Project(_this->core());
           auto result =
               (new ProjectSettingsDialog(
@@ -157,7 +160,8 @@ struct MainWindowPrivate {
         });
 
     QObject::connect(
-        _this->ui->actionProject_settings, &QAction::triggered, _this, [=] {
+        _this->ui->actionProject_settings, &QAction::triggered, _this,
+        [=, this] {
           (new ProjectSettingsDialog(ProjectSettingsDialog::DialogMode::EDIT,
                                      _this->core()->project(), _this))
               ->exec();
@@ -165,7 +169,7 @@ struct MainWindowPrivate {
 
     QObject::connect(
         _this->ui->actionReload_current_repository, &QAction::triggered, _this,
-        [=] { _this->core()->project()->activeRepository()->reload(); });
+        [=, this] { _this->core()->project()->activeRepository()->reload(); });
 
     connectMenuToToolbarAction(_this->ui->actionPush,
                                ToolBarActions::ActionID::PUSH);
@@ -180,7 +184,7 @@ struct MainWindowPrivate {
 
     QObject::connect(
         _this->ui->actionStart_gitk_for_current_repository, &QAction::triggered,
-        _this, [=] {
+        _this, [=, this] {
           QProcess *process = new QProcess(_this);
 #ifdef FLATPAK_BUILD
           process->setProgram("flatpak-spawn");
@@ -200,7 +204,7 @@ struct MainWindowPrivate {
 
     QObject::connect(
         _this->ui->actionStart_git_gui_for_current_repository,
-        &QAction::triggered, _this, [=] {
+        &QAction::triggered, _this, [=, this] {
           QProcess *process = new QProcess(_this);
 #ifdef FLATPAK_BUILD
           process->setProgram("flatpak-spawn");
@@ -218,7 +222,7 @@ struct MainWindowPrivate {
           process->startDetached();
         });
 
-    QObject::connect(toolbarsDisableTimer, &QTimer::timeout, _this, [=] {
+    QObject::connect(toolbarsDisableTimer, &QTimer::timeout, _this, [=, this] {
       auto toolBars = _this->findChildren<QToolBar *>();
       for (auto toolbar : toolBars) {
         toolbar->setDisabled(true);
@@ -234,7 +238,7 @@ struct MainWindowPrivate {
 
   void connectProjectSignals(Project *project) {
     QObject::connect(project, &Project::autoFetchChanged, project,
-                     [=](bool enabled) {
+                     [=, this](bool enabled) {
                        _this->ui->actionEnable_auto_fetch->setChecked(enabled);
                      });
     _this->ui->actionEnable_auto_fetch->setChecked(project->autoFetchEnabled());
@@ -244,7 +248,7 @@ struct MainWindowPrivate {
     auto registeredDockWidgets = DockWidget::registeredDockWidgets();
     for (DockWidget::RegistryEntry *entry : registeredDockWidgets) {
       QAction *action =
-          _this->ui->menuAdd_view->addAction(entry->name, _this, [=] {
+          _this->ui->menuAdd_view->addAction(entry->name, _this, [=, this] {
             auto tabDockManager = _this->ui->tabWidget->currentWidget()
                                       ->findChild<ads::CDockManager *>();
             DockWidget::create(entry->id, _this, tabDockManager);
@@ -259,7 +263,7 @@ struct MainWindowPrivate {
     for (auto &[path, name] : _this->core()->recentProjects().toStdMap()) {
       _this->ui->menuRecent_Projects->addAction(
           QString("%1 (%2)").arg(name.toString(), path), _this,
-          [=, path = path] {
+          [=, this, path = path] {
             if (!QFile::exists(path)) {
               QMessageBox::critical(
                   _this, QObject::tr("File not found"),
@@ -273,7 +277,7 @@ struct MainWindowPrivate {
 
     if (!_this->core()->recentProjects().isEmpty()) {
       _this->ui->menuRecent_Projects->addAction(
-          QObject::tr("Clear"), _this, [=] {
+          QObject::tr("Clear"), _this, [=, this] {
             _this->core()->clearRecentProjects();
             populateRecentProjectsMenu();
           });
@@ -367,13 +371,13 @@ struct MainWindowPrivate {
     QObject::connect(
         gitInterface.get(), &GitInterface::actionStarted,
         activeRepositoryContext.get(),
-        [=](const GitInterface::ActionTag &actionTag) {
+        [=, this](const GitInterface::ActionTag &actionTag) {
           if (!DockWidget::NON_LOCKING_ACTIONS.contains(actionTag)) {
             this->toolbarsDisableTimer->start();
           }
         });
     QObject::connect(gitInterface.get(), &GitInterface::actionFinished,
-                     activeRepositoryContext.get(), [=] {
+                     activeRepositoryContext.get(), [=, this] {
                        this->toolbarsDisableTimer->stop();
                        auto toolBars = _this->findChildren<QToolBar *>();
                        for (auto toolbar : toolBars) {
@@ -480,13 +484,13 @@ QToolBar *MainWindow::addToolbar(Qt::ToolBarArea area) {
   toolbar->setMovable(_impl->editMode);
 
   connect(toolbar, &QToolBar::customContextMenuRequested, this,
-          [=](const QPoint &pos) {
+          [=, this](const QPoint &pos) {
             QAction *configAction =
                 new QAction(tr("Configure toolbar..."), toolbar);
             connect(configAction, &QAction::triggered, this,
-                    [=] { (new ToolBarEditor(toolbar))->show(); });
+                    [=, this] { (new ToolBarEditor(toolbar))->show(); });
             QAction *removeAction = new QAction(tr("Remove toolbar"), toolbar);
-            connect(removeAction, &QAction::triggered, this, [=] {
+            connect(removeAction, &QAction::triggered, this, [=, this] {
               removeToolBar(toolbar);
               toolbar->deleteLater();
             });

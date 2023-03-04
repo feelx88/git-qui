@@ -26,7 +26,7 @@ struct BranchListPrivate {
     italicFont.setItalic(true);
 
     _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked,
-                   _this, [=](QTreeWidgetItem *item) {
+                   _this, [=, this](QTreeWidgetItem *item) {
                      QString branch = item->data(0, Qt::UserRole).toString();
                      if (!branch.isEmpty()) {
                        gitInterface->changeBranch(branch);
@@ -34,7 +34,7 @@ struct BranchListPrivate {
                    });
 
     _this->connect(_this->ui->treeWidget_2, &QTreeWidget::itemDoubleClicked,
-                   _this, [=](QTreeWidgetItem *item) {
+                   _this, [=, this](QTreeWidgetItem *item) {
                      QString branch = item->data(0, Qt::UserRole).toString();
                      if (!branch.isEmpty()) {
                        QString localBranch = branch.right(
@@ -46,7 +46,7 @@ struct BranchListPrivate {
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
     QAction *copyAction = new QAction(_this->tr("Copy branch name"), _this);
     QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
-    _this->connect(copyAction, &QAction::triggered, _this, [=] {
+    _this->connect(copyAction, &QAction::triggered, _this, [=, this] {
       if (!_this->ui->treeWidget->selectedItems().empty()) {
         QApplication::clipboard()->setText(
             _this->ui->treeWidget->selectedItems()
@@ -55,7 +55,7 @@ struct BranchListPrivate {
                 .toString());
       }
     });
-    _this->connect(deleteAction, &QAction::triggered, _this, [=] {
+    _this->connect(deleteAction, &QAction::triggered, _this, [=, this] {
       QString branch = _this->ui->treeWidget->selectedItems()
                            .first()
                            ->data(0, Qt::UserRole)

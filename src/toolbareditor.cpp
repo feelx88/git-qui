@@ -27,7 +27,7 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
       _impl(new ToolBarEditorPrivate) {
   ui->setupUi(this);
 
-  connect(ui->treeWidget_2, &QTreeWidget::itemSelectionChanged, this, [=] {
+  connect(ui->treeWidget_2, &QTreeWidget::itemSelectionChanged, this, [=, this] {
     auto items = ui->treeWidget_2->selectedItems();
 
     ui->toolButtonLeft->setEnabled(!items.isEmpty());
@@ -40,11 +40,11 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
             ui->treeWidget_2->topLevelItemCount() - 1);
   });
 
-  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, this, [=] {
+  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, this, [=, this] {
     ui->toolButtonRight->setEnabled(!ui->treeWidget->selectedItems().empty());
   });
 
-  auto addSlot = [=] {
+  auto addSlot = [=, this] {
     QTreeWidgetItem *item = ui->treeWidget->selectedItems().first();
     QAction *action =
         ToolBarActions::byId(item->data(0, Qt::UserRole).toString());
@@ -55,7 +55,7 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
   connect(ui->toolButtonRight, &QToolButton::clicked, this, addSlot);
   connect(ui->treeWidget, &QTreeWidget::itemDoubleClicked, this, addSlot);
 
-  auto removeSlot = [=] {
+  auto removeSlot = [=, this] {
     QTreeWidgetItem *item = ui->treeWidget_2->selectedItems().first();
     auto data = item->data(0, Qt::UserRole);
 
@@ -72,7 +72,7 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
   connect(ui->toolButtonLeft, &QToolButton::clicked, this, removeSlot);
   connect(ui->treeWidget_2, &QTreeWidget::itemDoubleClicked, this, removeSlot);
 
-  connect(ui->toolButtonUp, &QToolButton::clicked, this, [=] {
+  connect(ui->toolButtonUp, &QToolButton::clicked, this, [=, this] {
     int index =
         ui->treeWidget_2->indexOfTopLevelItem(ui->treeWidget_2->currentItem());
 
@@ -89,7 +89,7 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
     toolbar->insertAction(toolbar->actions().at(index - 1), action);
   });
 
-  connect(ui->toolButtonDown, &QToolButton::clicked, this, [=] {
+  connect(ui->toolButtonDown, &QToolButton::clicked, this, [=, this] {
     int index =
         ui->treeWidget_2->indexOfTopLevelItem(ui->treeWidget_2->currentItem());
 
@@ -109,7 +109,7 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
                           action);
   });
 
-  connect(ui->toolButtonSeparator, &QToolButton::clicked, this, [=] {
+  connect(ui->toolButtonSeparator, &QToolButton::clicked, this, [=, this] {
     _impl->createItem(ui->treeWidget_2, new QAction());
     toolbar->addSeparator();
   });

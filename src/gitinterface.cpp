@@ -18,7 +18,7 @@
   connect(__watcher, &QFutureWatcher<type>::finished, __watcher,               \
           &QFutureWatcher<type>::deleteLater);                                 \
   connect(__watcher, &QFutureWatcher<type>::finished, this,                    \
-          [=] { _impl->finishAction(actionTag); });                            \
+          [=, this] { _impl->finishAction(actionTag); });                      \
   QFuture<type> __future;                                                      \
   __future = (runCall);                                                        \
   __watcher->setFuture(__future);

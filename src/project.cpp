@@ -118,7 +118,7 @@ QSharedPointer<QObject> Project::activeRepositoryContext() const {
 QSharedPointer<GitInterface>
 Project::repositoryByName(const QString &name) const {
   auto it = std::find_if(_impl->repositories.begin(), _impl->repositories.end(),
-                         [=](QSharedPointer<GitInterface> repository) {
+                         [=, this](QSharedPointer<GitInterface> repository) {
                            return repository->name() == name;
                          });
 
