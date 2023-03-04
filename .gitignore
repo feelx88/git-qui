@@ -79,4 +79,5 @@ vendor/
 # Custom
 dist/
 de.feelx88.git-qui.metainfo.xml
+CMakeLists.txt.user
 
