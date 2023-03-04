@@ -650,6 +650,20 @@ public:
     log();
   }
 
+  void pushTags(const QString &remote) {
+    QList<QString> args = {"push", "--tags", remote};
+
+    auto process = git(args);
+    if (process.exitCode != EXIT_SUCCESS) {
+      emit _this->error(QObject::tr("Push tags has failed"),
+                        GitInterface::ActionTag::GIT_PUSH,
+                        GitInterface::ErrorType::GENERIC);
+    }
+
+    status();
+    log();
+  }
+
   void pull(bool rebase) {
     QList<QString> arguments = {"pull"};
     if (rebase) {
@@ -923,6 +937,12 @@ QFuture<void> GitInterface::push(const QString &remote, const QVariant &branch,
   RUN_ONCE(ActionTag::GIT_PUSH,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::push, remote,
                              branch, setUpstream));
+}
+
+QFuture<void> GitInterface::pushTags(const QString &remote) {
+  RUN_ONCE(
+      ActionTag::GIT_PUSH,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::pushTags, remote));
 }
 
 QFuture<void> GitInterface::pull(bool rebase) {

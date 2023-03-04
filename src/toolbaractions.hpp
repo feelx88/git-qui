@@ -16,6 +16,7 @@ public:
     static constexpr const char *UNSTASH = "unstash";
     static constexpr const char *FETCH = "fetch";
     static constexpr const char *PUSH = "push";
+    static constexpr const char *PUSH_TAGS = "push-tags";
     static constexpr const char *PULL = "pull";
     static constexpr const char *PUSH_ALL = "push-all";
     static constexpr const char *PULL_ALL = "pull-all";

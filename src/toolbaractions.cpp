@@ -19,6 +19,7 @@ void ToolBarActions::initialize(Core *core) {
   addAction(ActionID::UNSTASH, "archive-remove", "Unstash changes");
   addAction(ActionID::FETCH, "edit-download", "Fetch data from default remote");
   addAction(ActionID::PUSH, "go-up", "Push current repository");
+  addAction(ActionID::PUSH_TAGS, "send-to", "Push tags of current repository");
   addAction(ActionID::PULL, "go-down", "Pull current repository (with rebase)");
   addAction(ActionID::PUSH_ALL, "go-top", "Push all repositories");
   addAction(ActionID::PULL_ALL, "go-bottom",
@@ -68,6 +69,10 @@ void ToolBarActions::initialize(Core *core) {
 
             repository->push("origin", branch, addUpstream);
           });
+
+      QObject::connect(_actionMap[ActionID::PUSH_TAGS], &QAction::triggered,
+                       activeRepositoryContext.get(),
+                       [=] { repository->pushTags("origin"); });
 
       QObject::connect(
           _actionMap[ActionID::PULL], &QAction::triggered,

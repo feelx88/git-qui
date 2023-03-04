@@ -90,6 +90,7 @@ public slots:
   QFuture<void> push(const QString &remote = "origin",
                      const QVariant &branch = QVariant(),
                      bool setUpstream = false);
+  QFuture<void> pushTags(const QString &remote = "origin");
   QFuture<void> pull(bool rebase);
   QFuture<void> revertLastCommit();
   QFuture<void> resetLines(const QList<GitDiffLine> &lines);
