@@ -16,6 +16,6 @@
 
   <launchable type="desktop-id">de.feelx88.git-qui.desktop</launchable>
   <releases>
-    <release version="0.6.7-beta" date="2023-03-03"></release>
+    <release version="${GIT_VERSION}" date="${DATE}"></release>
   </releases>
 </component>
