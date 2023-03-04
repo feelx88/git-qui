@@ -37,6 +37,7 @@ public:
     GIT_PULL,
     GIT_RESET,
     GIT_BRANCH,
+    GIT_TAG,
     GIT_STASH,
     GIT_STASH_APPLY,
     GIT_CHECKOUT,
@@ -99,6 +100,8 @@ public slots:
                              const QString &baseCommit = "");
   QFuture<void> deleteBranch(const QString &name);
   QFuture<void> setUpstream(const QString &remote, const QString &branch);
+  QFuture<void> createTag(const QString &name, const QString &commitId);
+  QFuture<void> deleteTag(const QString &name);
   QFuture<void> stash();
   QFuture<void> stashPop();
   QFuture<void> resetToCommit(

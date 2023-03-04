@@ -10,6 +10,7 @@
 
 #include <QAction>
 #include <QClipboard>
+#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
@@ -28,8 +29,8 @@ QString remoteBranchButtonStyleSheet =
 struct LogViewPrivate {
   QSharedPointer<GitInterface> gitInterface = nullptr;
   GraphDelegate *graphDelegate;
-  QAction *resetAction, *checkoutAction, *deleteAction;
-  QMenu *branchMenu;
+  QAction *resetAction, *checkoutAction, *deleteAction, *deleteTagAction;
+  QMenu *branchMenu, *tagMenu;
 
   LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {}
 
@@ -68,6 +69,21 @@ struct LogViewPrivate {
     _this->ui->treeWidget->addAction(
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
 
+    auto newTagAction = new QAction("Create new tag");
+    QObject::connect(newTagAction, &QAction::triggered, _this, [=, this] {
+      auto commitId = _this->ui->treeWidget->currentItem()
+                          ->data(5, Qt::DisplayRole)
+                          .toString();
+      auto name = QInputDialog::getText(QApplication::activeWindow(),
+                                        QObject::tr("Create new tag"),
+                                        QObject::tr("New tag name"));
+
+      if (!name.isEmpty() && !commitId.isEmpty()) {
+        gitInterface->createTag(name, commitId);
+      }
+    });
+    _this->ui->treeWidget->addAction(newTagAction);
+
     auto copyIdAction = new QAction(QObject::tr("Copy commit id"), _this);
     QObject::connect(copyIdAction, &QAction::triggered, _this, [=, this] {
       QGuiApplication::clipboard()->setText(_this->ui->treeWidget->currentItem()
@@ -78,10 +94,11 @@ struct LogViewPrivate {
 
     branchMenu = new QMenu(_this);
     checkoutAction = branchMenu->addAction("");
-    QObject::connect(checkoutAction, &QAction::triggered, branchMenu, [=, this] {
-      gitInterface->changeBranch(
-          branchMenu->property("branch").value<GitRef>().name);
-    });
+    QObject::connect(checkoutAction, &QAction::triggered, branchMenu,
+                     [=, this] {
+                       gitInterface->changeBranch(
+                           branchMenu->property("branch").value<GitRef>().name);
+                     });
 
     deleteAction = branchMenu->addAction("");
     QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=, this] {
@@ -90,6 +107,17 @@ struct LogViewPrivate {
                                 QString("Delete branch %1?").arg(branch)) ==
           QMessageBox::Yes) {
         gitInterface->deleteBranch(branch);
+      }
+    });
+
+    tagMenu = new QMenu(_this);
+    deleteTagAction = tagMenu->addAction("");
+    QObject::connect(deleteTagAction, &QAction::triggered, tagMenu, [=, this] {
+      auto tag = tagMenu->property("tag").value<GitRef>().name;
+      if (QMessageBox::question(_this, "Delete tag",
+                                QString("Delete tag %1?").arg(tag)) ==
+          QMessageBox::Yes) {
+        gitInterface->deleteTag(tag);
       }
     });
   }
@@ -246,6 +274,12 @@ void LogView::onRepositorySwitched(
                             tr("Delete branch %1...").arg(ref.name));
                         _impl->deleteAction->setDisabled(ref.isHead);
                         _impl->branchMenu->popup(button->mapToGlobal(at));
+                      } else if (ref.isTag) {
+                        _impl->tagMenu->setProperty("tag",
+                                                    QVariant::fromValue(ref));
+                        _impl->deleteTagAction->setText(
+                            tr("Delete tag %1...").arg(ref.name));
+                        _impl->tagMenu->popup(button->mapToGlobal(at));
                       }
                     });
             layout->insertWidget(insertPosition, button);

@@ -736,6 +736,16 @@ public:
     git({"branch", QString("--set-upstream-to=%1/%2").arg(remote, branch)});
   }
 
+  void createTag(const QString &name, const QString &commitId) {
+    git({"tag", name, commitId});
+    log();
+  }
+
+  void deleteTag(const QString &name) {
+    git({"tag", "-d", name});
+    log();
+  }
+
   void stash() {
     git({"stash", "--include-untracked"});
     status();
@@ -963,6 +973,19 @@ QFuture<void> GitInterface::setUpstream(const QString &remote,
   RUN_ONCE(ActionTag::GIT_REMOTE,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::setUpstream,
                              remote, branch));
+}
+
+QFuture<void> GitInterface::createTag(const QString &name,
+                                      const QString &commitId) {
+  RUN_ONCE(ActionTag::GIT_TAG,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::createTag, name,
+                             commitId));
+}
+
+QFuture<void> GitInterface::deleteTag(const QString &name) {
+  RUN_ONCE(
+      ActionTag::GIT_TAG,
+      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::deleteTag, name));
 }
 
 QFuture<void> GitInterface::stash() {
