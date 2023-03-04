@@ -134,6 +134,10 @@ target_link_libraries(git-qui
 )
 
 if(FLATPAK_BUILD)
+  target_compile_definitions(git-qui
+    PUBLIC FLATPAK_BUILD
+  )
+
   execute_process(
     COMMAND sh -c "date --iso-8601=seconds"
     OUTPUT_VARIABLE DATE
