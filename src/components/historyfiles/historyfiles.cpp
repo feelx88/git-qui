@@ -1,4 +1,5 @@
 #include "historyfiles.h"
+#include "qtreewidgetutils.hpp"
 #include "ui_historyfiles.h"
 
 #include "mainwindow.hpp"
@@ -24,26 +25,12 @@ void HistoryFiles::onRepositorySwitched(
                 QString(tr("Selected commit id: %1")).arg(commitId));
             ui->files->clear();
 
+            QStringList fileNames;
             for (const auto &file : files) {
-              auto parentItem = ui->files->invisibleRootItem();
-
-              for (const auto &part : file.path.split('/')) {
-                QTreeWidgetItem *currentItem = nullptr;
-
-                for (int x = 0; x < parentItem->childCount(); ++x) {
-                  if (parentItem->child(x)->text(0) == part) {
-                    currentItem = parentItem->child(x);
-                    break;
-                  }
-                }
-
-                if (!currentItem) {
-                  currentItem = new QTreeWidgetItem(parentItem, {part});
-                }
-
-                parentItem = currentItem;
-              }
+              fileNames.append(file.path);
             }
+
+            TreeWidgetUtils::createItems(ui->files, fileNames);
 
             ui->files->expandAll();
           });

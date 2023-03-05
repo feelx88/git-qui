@@ -8,10 +8,9 @@ class QTreeWidget;
 class QTreeWidgetItem;
 
 namespace TreeWidgetUtils {
-QList<QTreeWidgetItem *> createItems(QTreeWidget *parentWidget,
+void createItems(QTreeWidget *parentWidget,
                                      const QList<QString> &itemLabels,
-                                     const QString &separator = "/",
-                                     QObject *parent = nullptr);
+                                     const QString &separator = "/");
 };
 
 #endif // QTREEWIDGETUTILS_HPP

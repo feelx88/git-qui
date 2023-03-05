@@ -89,10 +89,8 @@ struct BranchListPrivate {
         localBranches.append(branch.name);
       }
     }
-    _this->ui->treeWidget->addTopLevelItems(
-        TreeWidgetUtils::createItems(_this->ui->treeWidget, localBranches));
-    _this->ui->treeWidget_2->addTopLevelItems(
-        TreeWidgetUtils::createItems(_this->ui->treeWidget_2, remoteBranches));
+    TreeWidgetUtils::createItems(_this->ui->treeWidget, localBranches);
+    TreeWidgetUtils::createItems(_this->ui->treeWidget_2, remoteBranches);
     QTreeWidgetItemIterator it(_this->ui->treeWidget);
     while (*it) {
       if ((*it)->data(0, Qt::UserRole) == currentBranch) {

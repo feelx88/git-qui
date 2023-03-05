@@ -1,42 +1,29 @@
 #include "qtreewidgetutils.hpp"
 #include "treewidgetitem.hpp"
 
-QList<QTreeWidgetItem *>
-TreeWidgetUtils::createItems(QTreeWidget *parentWidget,
-                             const QList<QString> &itemLabels,
-                             const QString &separator, QObject *parent) {
-  QList<QTreeWidgetItem *> items;
-  QMap<QString, QTreeWidgetItem *> itemMap;
+void TreeWidgetUtils::createItems(QTreeWidget *parentWidget,
+                                  const QList<QString> &itemLabels,
+                                  const QString &separator) {
+  for (const auto &itemLabel : itemLabels) {
+    auto parentItem = parentWidget->invisibleRootItem();
 
-  for (const auto &label : itemLabels) {
-    auto parts = label.split(separator);
-    QTreeWidgetItem *rootItem = nullptr;
-    for (auto item : items) {
-      if (item->text(0) == parts[0]) {
-        rootItem = item;
-        break;
+    for (const auto &part : itemLabel.split(separator)) {
+      QTreeWidgetItem *currentItem = nullptr;
+
+      for (int x = 0; x < parentItem->childCount(); ++x) {
+        if (parentItem->child(x)->text(0) == part) {
+          currentItem = parentItem->child(x);
+          break;
+        }
       }
-    }
 
-    if (!rootItem) {
-      rootItem = new TreeWidgetItem(parentWidget, {parts[0]}, parent);
-    }
-
-    QTreeWidgetItem *item = rootItem;
-
-    for (int x = 1; x < parts.length(); ++x) {
-      auto foundItem = itemMap.find(parts[x]);
-      if (foundItem != itemMap.end()) {
-        item = foundItem.value();
-      } else {
-        item = new TreeWidgetItem(item, {parts[x]}, parent);
-        itemMap.insert(parts[x], item);
+      if (!currentItem) {
+        currentItem = new TreeWidgetItem(parentItem, {part}, parentWidget);
       }
+
+      parentItem = currentItem;
     }
 
-    item->setData(0, Qt::UserRole, label);
-    items.append(rootItem);
+    parentItem->setData(0, Qt::UserRole, itemLabel);
   }
-
-  return items;
 }
