@@ -879,8 +879,9 @@ void GitInterface::historyStatus(const QString &commitId) {
   auto process =
       _impl->git({"diff", "-z", "--name-only", commitId, commitId + "~1"});
   QList<GitFile> list;
-  for (auto file :
-       QString(process.standardOutOutput).split('\0', Qt::SkipEmptyParts)) {
+  for (auto file : QString::fromLocal8Bit(process.standardOutOutput,
+                                          process.standardOutOutput.size())
+                       .split('\0', Qt::SkipEmptyParts)) {
     auto gitFile = GitFile();
     gitFile.path = file;
     list.append(gitFile);
