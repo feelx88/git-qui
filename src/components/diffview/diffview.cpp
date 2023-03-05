@@ -42,8 +42,10 @@ struct DiffViewPrivate {
     _this->addAction(fullFileDiffAction);
     _this->connect(fullFileDiffAction, &QAction::toggled, _this,
                    [=, this](bool checked) {
-                     gitInterface->setFullFileDiff(checked);
-                     gitInterface->diffFile(unstaged, currentPath);
+                     if (gitInterface) {
+                       gitInterface->setFullFileDiff(checked);
+                       gitInterface->diffFile(unstaged, currentPath);
+                     }
                    });
 
     historyAction =
@@ -94,7 +96,9 @@ struct DiffViewPrivate {
   void refreshView(const QString &path, QList<GitDiffLine> lines, bool unstaged,
                    const QString &commitId) {
     if (historyMode) {
-      _this->ui->label->setText(QString("%1 @ %2").arg(path).arg(commitId));
+      _this->ui->label->setText(QString("%1 @ %2").arg(path, commitId));
+      stageOrUnstageSelected->setVisible(false);
+      resetSelected->setVisible(false);
     } else {
       _this->ui->label->setText(path);
       stageOrUnstageSelected->setVisible(true);
@@ -202,6 +206,7 @@ DiffView::DiffView(MainWindow *mainWindow)
 
   _impl->connectSignals();
   _impl->addActions();
+  _impl->addContextMenuActions();
 }
 
 DiffView::~DiffView() { delete ui; }
@@ -219,10 +224,6 @@ void DiffView::configure(const QVariant &configuration) {
   _impl->fullFileDiffAction->setChecked(
       map.value("fullFileDiff", false).toBool());
   _impl->historyAction->setChecked(map.value("historyMode", false).toBool());
-
-  if (!_impl->historyMode) {
-    _impl->addContextMenuActions();
-  }
 }
 
 void DiffView::onProjectSwitched(Project *newProject) {
