@@ -87,6 +87,7 @@ public slots:
   QFuture<void> unstageFile(const QString &path);
   void selectFile(bool unstaged, const QString &path);
   void diffFile(bool unstaged, const QString &path);
+  void historyDiffFile(const QString &commitId, const QString &path);
   QFuture<void> addLines(const QList<GitDiffLine> &lines, bool unstage);
   QFuture<void> push(const QString &remote = "origin",
                      const QVariant &branch = QVariant(),
@@ -117,6 +118,8 @@ signals:
   void logChanged(QSharedPointer<GitTree> tree);
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
+  void historyFileDiffed(const QString &path, QList<GitDiffLine> lines,
+                         const QString &commitId);
   void branchChanged(const GitBranch &branch);
   void lastCommitReverted(const QString &lastCommitMessage);
   void branchesChanged(const QList<GitBranch> branches);

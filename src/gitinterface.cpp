@@ -465,7 +465,8 @@ public:
     status();
   }
 
-  void diffFile(bool unstaged, const QString &path) {
+  void diffFile(bool unstaged, const QString &path,
+                const QString &commitId = QString()) {
     QString absolutePath = repositoryPath.absolutePath() + "/" + path;
 
     if (path.isEmpty() || !QFileInfo(absolutePath).isFile()) {
@@ -491,7 +492,11 @@ public:
     QList<GitDiffLine> list;
     GitProcess process;
 
-    if (unstaged) {
+    if (!commitId.isNull()) {
+      process =
+          git({"diff", fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
+               QString("%1~1..%1").arg(commitId), "--", path});
+    } else if (unstaged) {
       process =
           git({"diff", fullFileDiff ? QString("-U%1").arg(lineCount) : "-U3",
                "--", path});
@@ -604,8 +609,14 @@ public:
       }
     }
 
-    emit _this->fileDiffed(path, list, unstaged);
+    if (!commitId.isNull()) {
+      emit _this->historyFileDiffed(path, list, commitId);
+    } else {
+      emit _this->fileDiffed(path, list, unstaged);
+    }
   }
+
+  void historyDiffFile(const QString &commitId, const QString &path) {}
 
   void addLines(const QList<GitDiffLine> &lines, bool unstage) {
     if (lines.isEmpty()) {
@@ -936,7 +947,16 @@ void GitInterface::diffFile(bool unstaged, const QString &path) {
   WATCH_ASYNC_METHOD_CALL(ActionTag::GIT_DIFF,
                           QtConcurrent::run(_impl.get(),
                                             &GitInterfacePrivate::diffFile,
-                                            unstaged, path));
+                                            unstaged, path, nullptr));
+}
+
+void GitInterface::historyDiffFile(const QString &commitId,
+                                   const QString &path) {
+  emit actionStarted(ActionTag::GIT_DIFF);
+  WATCH_ASYNC_METHOD_CALL(ActionTag::GIT_DIFF,
+                          QtConcurrent::run(_impl.get(),
+                                            &GitInterfacePrivate::diffFile,
+                                            false, path, commitId));
 }
 
 QFuture<void> GitInterface::addLines(const QList<GitDiffLine> &lines,
