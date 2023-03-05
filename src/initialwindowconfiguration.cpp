@@ -16,6 +16,8 @@
 
 #include <AutoHideSideBar.h>
 
+#include <components/historyfiles/historyfiles.h>
+
 #define SPLIT_DOCK_WIDGET(target, direction, first, second)                    \
   target->splitDockWidget(                                                     \
       static_cast<ads::CDockWidget *>(main->children()[first]),                \
@@ -48,10 +50,19 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
       ->insertDockWidget(0, errorLog);
 
   // History tab
-  mainWindow->createTab(mainWindow->tr("History"));
+  auto historyTab = mainWindow->createTab(mainWindow->tr("History"));
+  auto historyTabDockManager = historyTab->findChild<ads::CDockManager *>();
 
   mainWindow->addDockWidget<LogView>(1, {}, ads::LeftDockWidgetArea);
   mainWindow->addDockWidget<RepositoryList>(1, {}, ads::RightDockWidgetArea);
+
+  auto historyFiles =
+      mainWindow->addDockWidget<HistoryFiles>(1, {}, ads::BottomDockWidgetArea);
+  auto historyDiffView = mainWindow->addDockWidget<DiffView>(
+      1, QVariantMap{{"historyMode", true}});
+  historyTabDockManager->addDockWidget(ads::RightDockWidgetArea,
+                                       historyDiffView,
+                                       historyFiles->dockAreaWidget());
 
   // Enable edit mode
   mainWindow->setEditMode(true);
