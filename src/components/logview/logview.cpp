@@ -57,6 +57,8 @@ struct LogViewPrivate {
             _this->ui->treeWidget->setProperty(
                 ToolBarActions::ActionCallerProperty::RESET_REF,
                 QVariant::fromValue(commit.id));
+
+            gitInterface->historyStatus(commit.id);
           }
         });
 
