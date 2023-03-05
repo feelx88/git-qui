@@ -7,12 +7,16 @@ namespace Ui {
 class HistoryFiles;
 }
 
+struct HistoryFilesPrivate;
+
 class HistoryFiles : public DockWidget
 {
   Q_OBJECT
   DOCK_WIDGET
 
 public:
+  friend class HistoryFilesPrivate;
+
   explicit HistoryFiles(MainWindow *mainWindow);
   ~HistoryFiles();
 
@@ -21,6 +25,7 @@ protected:
 
 private:
   Ui::HistoryFiles *ui;
+  QScopedPointer<HistoryFilesPrivate> _impl;
 };
 
 #endif // HISTORYFILES_H
