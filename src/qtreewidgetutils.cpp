@@ -7,7 +7,8 @@ void TreeWidgetUtils::createItems(QTreeWidget *parentWidget,
   for (const auto &itemLabel : itemLabels) {
     auto parentItem = parentWidget->invisibleRootItem();
 
-    for (const auto &part : itemLabel.split(separator)) {
+    auto itemLabelsContainer = itemLabel.split(separator);
+    for (const auto &part : itemLabelsContainer) {
       QTreeWidgetItem *currentItem = nullptr;
 
       for (int x = 0; x < parentItem->childCount(); ++x) {
