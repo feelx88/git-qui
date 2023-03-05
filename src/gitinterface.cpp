@@ -10,7 +10,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "gitcommit.hpp"
-#include <iostream>
 
 #define WATCH_ASYNC_METHOD_CALL_TYPED(actionTag, type, runCall)                \
   QFutureWatcher<type> *__watcher =                                            \
