@@ -875,6 +875,20 @@ void GitInterface::status() {
       QtConcurrent::run(_impl.get(), &GitInterfacePrivate::status));
 }
 
+void GitInterface::historyStatus(const QString &commitId) {
+  auto process =
+      _impl->git({"diff", "-z", "--name-only", commitId, commitId + "~1"});
+  QList<GitFile> list;
+  for (auto file :
+       QString(process.standardOutOutput).split('\0', Qt::SkipEmptyParts)) {
+    auto gitFile = GitFile();
+    gitFile.path = file;
+    list.append(gitFile);
+  }
+
+  emit historyFilesChanged(commitId, list);
+}
+
 void GitInterface::log() {
   emit actionStarted(ActionTag::GIT_LOG);
   WATCH_ASYNC_METHOD_CALL(

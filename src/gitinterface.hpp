@@ -78,6 +78,7 @@ public slots:
   void fetchNonBlocking();
   QFuture<void> reload();
   void status();
+  void historyStatus(const QString &commitId);
   void log();
   QFuture<void> fetch();
   QFuture<bool> commit(const QString &message);
@@ -112,6 +113,7 @@ signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);
   void stagingAreaChanged(const QList<GitFile> &);
+  void historyFilesChanged(const QString &commitId, const QList<GitFile> &);
   void logChanged(QSharedPointer<GitTree> tree);
   void fileSelected(bool unstaged, const QString &path);
   void fileDiffed(const QString &path, QList<GitDiffLine> lines, bool unstaged);
