@@ -157,11 +157,26 @@ void Commit::onRepositorySwitched(
 
   connect(ui->pushButton_2, &QPushButton::clicked,
           activeRepositoryContext.get(),
-          [=, this] { newGitInterface->revertLastCommit(); });
+          [=] { newGitInterface->revertLastCommit(); });
 
   connect(_impl->gitInterface.get(), &GitInterface::lastCommitReverted,
           activeRepositoryContext.get(), [=, this](const QString &message) {
-            ui->plainTextEdit->setPlainText(message);
+            auto newMessage = message;
+
+            auto suffix = QString(" ") + ui->lineEditSuffix->text();
+            if (ui->checkBoxSuffix->isChecked() &&
+                message.trimmed().endsWith(suffix)) {
+              newMessage.remove(message.length() - suffix.length(),
+                                suffix.length());
+            }
+
+            auto prefix = ui->lineEditPrefix->text() + QString(" ");
+            if (ui->checkBoxPrefix->isChecked() &&
+                message.trimmed().startsWith(prefix)) {
+              newMessage.remove(0, prefix.length());
+            }
+
+            ui->plainTextEdit->setPlainText(newMessage.trimmed());
             ui->pushButton_2->setDisabled(true);
           });
 }
