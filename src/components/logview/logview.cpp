@@ -29,7 +29,8 @@ QString remoteBranchButtonStyleSheet =
 struct LogViewPrivate {
   QSharedPointer<GitInterface> gitInterface = nullptr;
   GraphDelegate *graphDelegate;
-  QAction *resetAction, *checkoutAction, *deleteAction, *deleteTagAction;
+  QAction *resetAction, *checkoutAction, *deleteAction, *deleteTagAction,
+      *cherryPickAction;
   QMenu *branchMenu, *tagMenu;
 
   LogViewPrivate(LogView *_this) : graphDelegate(new GraphDelegate(_this)) {}
@@ -59,6 +60,10 @@ struct LogViewPrivate {
                 QVariant::fromValue(commit.id));
 
             gitInterface->historyStatus(commit.id);
+
+            cherryPickAction->setText(
+                QObject::tr("Cherry pick commit into branch %1")
+                    .arg(gitInterface->activeBranch().name));
           }
         });
 
@@ -93,6 +98,15 @@ struct LogViewPrivate {
                                                 .toString());
     });
     _this->ui->treeWidget->addAction(copyIdAction);
+
+    cherryPickAction = new QAction("", _this);
+    QObject::connect(cherryPickAction, &QAction::triggered, _this, [=, this] {
+      auto commitId = _this->ui->treeWidget->currentItem()
+                          ->data(5, Qt::DisplayRole)
+                          .toString();
+      gitInterface->cherryPickCommit(commitId);
+    });
+    _this->ui->treeWidget->addAction(cherryPickAction);
 
     branchMenu = new QMenu(_this);
     checkoutAction = branchMenu->addAction("");
