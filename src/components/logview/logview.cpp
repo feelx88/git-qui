@@ -1,6 +1,7 @@
 #include "logview.hpp"
 #include "ui_logview.h"
 
+#include "deletebranchdialog.h"
 #include "gitcommit.hpp"
 #include "gitinterface.hpp"
 #include "graphdelegate.h"
@@ -119,10 +120,9 @@ struct LogViewPrivate {
     deleteAction = branchMenu->addAction("");
     QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=, this] {
       auto branch = branchMenu->property("branch").value<GitRef>().name;
-      if (QMessageBox::question(_this, "Delete branch",
-                                QString("Delete branch %1?").arg(branch)) ==
-          QMessageBox::Yes) {
-        gitInterface->deleteBranch(branch);
+      DeleteBranchDialog dialog(QString("Delete branch %1?").arg(branch));
+      if (dialog.exec() == QDialog::DialogCode::Accepted) {
+        gitInterface->deleteBranch(branch, dialog.forceDelete());
       }
     });
 
