@@ -10,11 +10,14 @@
 #include "project.hpp"
 
 struct CommitPrivate {
+  Commit *_this;
   QSharedPointer<GitInterface> gitInterface = nullptr;
   QList<QString> messageHistory;
   QMenu *messageMenu;
 
-  void connectSignals(Commit *_this) {
+  CommitPrivate(Commit *_this) : _this(_this) {}
+
+  void connectSignals() {
     _this->connect(
         _this->ui->pushButton, &QPushButton::clicked, _this, [=, this] {
           if (gitInterface->stagedFiles().empty()) {
@@ -86,21 +89,40 @@ struct CommitPrivate {
       }
 
       messageMenu->addAction(truncatedMessage, messageMenu, [=, this] {
-        _this->ui->plainTextEdit->setPlainText(message);
+        _this->ui->plainTextEdit->setPlainText(removePrefixAndSuffix(message));
       });
     }
 
     _this->ui->pushButton_3->setEnabled(true);
+  }
+
+  QString removePrefixAndSuffix(const QString &message) const {
+    auto newMessage = message;
+
+    auto suffix = QString(" ") + _this->ui->lineEditSuffix->text();
+    if (_this->ui->checkBoxSuffix->isChecked() &&
+        message.trimmed().endsWith(suffix)) {
+      newMessage.remove(message.length() - suffix.length(), suffix.length());
+    }
+
+    auto prefix = _this->ui->lineEditPrefix->text() + QString(" ");
+    if (_this->ui->checkBoxPrefix->isChecked() &&
+        message.trimmed().startsWith(prefix)) {
+      newMessage.remove(0, prefix.length());
+    }
+
+    return newMessage.trimmed();
   }
 };
 
 DOCK_WIDGET_IMPL(Commit, tr("Commit editor"))
 
 Commit::Commit(MainWindow *mainWindow)
-    : DockWidget(mainWindow), ui(new Ui::Commit), _impl(new CommitPrivate) {
+    : DockWidget(mainWindow), ui(new Ui::Commit),
+      _impl(new CommitPrivate(this)) {
   ui->setupUi(this);
 
-  _impl->connectSignals(this);
+  _impl->connectSignals();
 }
 
 Commit::~Commit() { delete ui; }
@@ -161,22 +183,8 @@ void Commit::onRepositorySwitched(
 
   connect(_impl->gitInterface.get(), &GitInterface::lastCommitReverted,
           activeRepositoryContext.get(), [=, this](const QString &message) {
-            auto newMessage = message;
-
-            auto suffix = QString(" ") + ui->lineEditSuffix->text();
-            if (ui->checkBoxSuffix->isChecked() &&
-                message.trimmed().endsWith(suffix)) {
-              newMessage.remove(message.length() - suffix.length(),
-                                suffix.length());
-            }
-
-            auto prefix = ui->lineEditPrefix->text() + QString(" ");
-            if (ui->checkBoxPrefix->isChecked() &&
-                message.trimmed().startsWith(prefix)) {
-              newMessage.remove(0, prefix.length());
-            }
-
-            ui->plainTextEdit->setPlainText(newMessage.trimmed());
+            ui->plainTextEdit->setPlainText(
+                _impl->removePrefixAndSuffix(message));
             ui->pushButton_2->setDisabled(true);
           });
 }
