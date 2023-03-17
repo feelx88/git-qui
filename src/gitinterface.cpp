@@ -682,6 +682,7 @@ public:
     auto process = git(arguments);
 
     status();
+    log();
 
     if (process.exitCode != EXIT_SUCCESS) {
       emit _this->error(QObject::tr("Pull has failed"),
