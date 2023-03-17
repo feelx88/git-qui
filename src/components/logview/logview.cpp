@@ -113,6 +113,14 @@ struct LogViewPrivate {
     });
 
     tagMenu = new QMenu(_this);
+
+    auto copyTagAction = new QAction(QObject::tr("Copy tag name"), _this);
+    QObject::connect(copyTagAction, &QAction::triggered, _this, [=, this] {
+      QGuiApplication::clipboard()->setText(
+          tagMenu->property("tag").value<GitRef>().name);
+    });
+    tagMenu->addAction(copyTagAction);
+
     deleteTagAction = tagMenu->addAction("");
     QObject::connect(deleteTagAction, &QAction::triggered, tagMenu, [=, this] {
       auto tag = tagMenu->property("tag").value<GitRef>().name;
