@@ -27,6 +27,8 @@ protected:
   virtual void onRepositorySwitched(
       QSharedPointer<GitInterface> newGitInterface,
       QSharedPointer<QObject> activeRepositoryContext) override;
+  void onError(const QString &message, GitInterface::ActionTag actionTag,
+               GitInterface::ErrorType type) override;
 
 private:
   Ui::LogView *ui;

@@ -752,7 +752,17 @@ public:
   }
 
   void deleteBranch(const QString &name, bool force = false) {
-    git({"branch", force ? "-D" : "-d", name});
+    auto process = git({"branch", force ? "-D" : "-d", name});
+
+    if (process.exitCode != EXIT_SUCCESS) {
+      emit _this->error(
+          QObject::tr("Deleting branch has %1 failed with error message:\n%2")
+              .arg(name, process.standardErrorOutput),
+          GitInterface::ActionTag::GIT_DELETE_BRANCH,
+          GitInterface::ErrorType::GENERIC);
+      return;
+    }
+
     status();
     log();
   }

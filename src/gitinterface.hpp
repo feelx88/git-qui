@@ -37,6 +37,7 @@ public:
     GIT_PULL,
     GIT_RESET,
     GIT_BRANCH,
+    GIT_DELETE_BRANCH,
     GIT_TAG,
     GIT_STASH,
     GIT_STASH_APPLY,
