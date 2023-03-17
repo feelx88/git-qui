@@ -802,6 +802,12 @@ public:
     status();
     log();
   }
+
+  void cherryPickCommit(const QString &commitId, const QStringList &extraArgs) {
+    git(QStringList{"cherry-pick"} << extraArgs << commitId);
+
+    log();
+  }
 };
 
 GitInterface::GitInterface(const QString &name, const QString &path,
@@ -1057,4 +1063,11 @@ QFuture<void> GitInterface::resetToCommit(const QString &commitId,
   RUN_ONCE(ActionTag::GIT_RESET,
            QtConcurrent::run(_impl.get(), &GitInterfacePrivate::resetToCommit,
                              commitId, type));
+}
+
+QFuture<void> GitInterface::cherryPickCommit(const QString &commitId) {
+  RUN_ONCE(ActionTag::GIT_CHERRY_PICK,
+           QtConcurrent::run(_impl.get(),
+                             &GitInterfacePrivate::cherryPickCommit, commitId,
+                             QStringList{}));
 }

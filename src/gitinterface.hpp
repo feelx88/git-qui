@@ -41,7 +41,8 @@ public:
     GIT_STASH,
     GIT_STASH_APPLY,
     GIT_CHECKOUT,
-    GIT_REMOTE
+    GIT_REMOTE,
+    GIT_CHERRY_PICK
   };
   Q_ENUM(ActionTag);
 
@@ -110,6 +111,7 @@ public slots:
   QFuture<void> resetToCommit(
       const QString &commitId,
       const GitInterface::ResetType &type = GitInterface::ResetType::MIXED);
+  QFuture<void> cherryPickCommit(const QString &commitId);
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);
