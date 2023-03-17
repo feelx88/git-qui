@@ -751,8 +751,8 @@ public:
     log();
   }
 
-  void deleteBranch(const QString &name) {
-    git({"branch", "-d", name});
+  void deleteBranch(const QString &name, bool force = false) {
+    git({"branch", force ? "-D" : "-d", name});
     status();
     log();
   }
@@ -1023,10 +1023,10 @@ QFuture<void> GitInterface::createBranch(const QString &name,
                              name, baseCommit));
 }
 
-QFuture<void> GitInterface::deleteBranch(const QString &name) {
-  RUN_ONCE(
-      ActionTag::GIT_BRANCH,
-      QtConcurrent::run(_impl.get(), &GitInterfacePrivate::deleteBranch, name));
+QFuture<void> GitInterface::deleteBranch(const QString &name, bool force) {
+  RUN_ONCE(ActionTag::GIT_BRANCH,
+           QtConcurrent::run(_impl.get(), &GitInterfacePrivate::deleteBranch,
+                             name, force));
 }
 
 QFuture<void> GitInterface::setUpstream(const QString &remote,

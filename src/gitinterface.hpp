@@ -102,7 +102,7 @@ public slots:
                              const QString &upstreamBranchName = "");
   QFuture<void> createBranch(const QString &name,
                              const QString &baseCommit = "");
-  QFuture<void> deleteBranch(const QString &name);
+  QFuture<void> deleteBranch(const QString &name, bool force = false);
   QFuture<void> setUpstream(const QString &remote, const QString &branch);
   QFuture<void> createTag(const QString &name, const QString &commitId);
   QFuture<void> deleteTag(const QString &name);
