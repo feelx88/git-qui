@@ -756,7 +756,8 @@ public:
 
     if (process.exitCode != EXIT_SUCCESS) {
       emit _this->error(
-          QObject::tr("Deleting branch has %1 failed with error message:\n%2")
+          QObject::tr(
+              "Deleting branch %1 has failed with the following message:\n%2")
               .arg(name, process.standardErrorOutput),
           GitInterface::ActionTag::GIT_DELETE_BRANCH,
           GitInterface::ErrorType::GENERIC);
