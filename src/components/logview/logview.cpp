@@ -120,7 +120,7 @@ struct LogViewPrivate {
     deleteAction = branchMenu->addAction("");
     QObject::connect(deleteAction, &QAction::triggered, branchMenu, [=, this] {
       auto branch = branchMenu->property("branch").value<GitRef>().name;
-      DeleteBranchDialog dialog(QString("Delete branch %1?").arg(branch));
+      DeleteBranchDialog dialog(branch);
       if (dialog.exec() == QDialog::DialogCode::Accepted) {
         gitInterface->deleteBranch(branch, dialog.forceDelete());
       }

@@ -12,7 +12,7 @@ class DeleteBranchDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit DeleteBranchDialog(const QString &message, QWidget *parent = nullptr);
+  explicit DeleteBranchDialog(const QString &branchName, QWidget *parent = nullptr);
   ~DeleteBranchDialog();
 
   bool forceDelete() const;

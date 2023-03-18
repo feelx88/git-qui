@@ -3,10 +3,12 @@
 
 #include <QPushButton>
 
-DeleteBranchDialog::DeleteBranchDialog(const QString &message, QWidget *parent)
+DeleteBranchDialog::DeleteBranchDialog(const QString &branchName,
+                                       QWidget *parent)
     : QDialog(parent), ui(new Ui::DeleteBranchDialog) {
   ui->setupUi(this);
-  ui->label->setText(message);
+  setWindowTitle(tr("Delete branch"));
+  ui->label->setText(tr("Delete branch %1?").arg(branchName));
 
   connect(ui->buttonBox->button(QDialogButtonBox::Yes), &QPushButton::clicked,
           this, &DeleteBranchDialog::accept);
