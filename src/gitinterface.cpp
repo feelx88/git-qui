@@ -815,7 +815,17 @@ public:
   }
 
   void cherryPickCommit(const QString &commitId, const QStringList &extraArgs) {
-    git(QStringList{"cherry-pick"} << extraArgs << commitId);
+    auto process = git(QStringList{"cherry-pick"} << extraArgs << commitId);
+
+    if (process.exitCode != EXIT_SUCCESS) {
+      emit _this->error(QObject::tr("Cherry-picking commit %1 has failed with "
+                                    "the following message:\n%2")
+                            .arg(commitId, process.standardErrorOutput),
+                        GitInterface::ActionTag::GIT_CHERRY_PICK,
+                        GitInterface::ErrorType::GENERIC, false,
+                        {{"commitId", commitId}});
+      return;
+    }
 
     log();
   }
