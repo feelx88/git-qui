@@ -327,7 +327,28 @@ void LogView::onRepositorySwitched(
 
 void LogView::onError(const QString &message, GitInterface::ActionTag actionTag,
                       GitInterface::ErrorType type, bool, QVariantMap context) {
-  if (actionTag == GitInterface::ActionTag::GIT_DELETE_BRANCH) {
+  switch (actionTag) {
+  case GitInterface::ActionTag::GIT_DELETE_BRANCH: {
     QMessageBox::warning(this, tr("Error while deleting a branch"), message);
+    break;
+  }
+  case GitInterface::ActionTag::GIT_CHERRY_PICK: {
+    bool ok = false;
+    auto result = QInputDialog::getInt(
+        this, "Error while cherry-picking a commit",
+        tr("%1\nTo repeat the cherry-pick with the --mainline "
+           "flag to select the parent commit to use and press ok.\nUsually, "
+           "parent #1 points "
+           "to the main branch on merge commits")
+            .arg(message),
+        1, 1, 2147483647, 1, &ok);
+    if (ok) {
+      _impl->gitInterface->cherryPickCommit(
+          context.value("commitId").toString(), result);
+    }
+    break;
+  }
+  default:
+    break;
   }
 }
