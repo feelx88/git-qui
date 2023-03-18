@@ -4,6 +4,7 @@
 #include <QFuture>
 #include <QObject>
 #include <QVariant>
+#include <optional>
 
 #include "gitbranch.hpp"
 #include "gitdiffline.hpp"
@@ -112,7 +113,8 @@ public slots:
   QFuture<void> resetToCommit(
       const QString &commitId,
       const GitInterface::ResetType &type = GitInterface::ResetType::MIXED);
-  QFuture<void> cherryPickCommit(const QString &commitId);
+  QFuture<void> cherryPickCommit(const QString &commitId,
+                                 std::optional<int> mainline = std::nullopt);
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);

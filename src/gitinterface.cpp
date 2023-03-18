@@ -814,7 +814,11 @@ public:
     log();
   }
 
-  void cherryPickCommit(const QString &commitId, const QStringList &extraArgs) {
+  void cherryPickCommit(const QString &commitId, std::optional<int> mainline) {
+    auto extraArgs =
+        mainline.has_value()
+            ? QStringList{"--mainline", QString::number(mainline.value())}
+            : QStringList{};
     auto process = git(QStringList{"cherry-pick"} << extraArgs << commitId);
 
     if (process.exitCode != EXIT_SUCCESS) {
@@ -1086,9 +1090,10 @@ QFuture<void> GitInterface::resetToCommit(const QString &commitId,
                              commitId, type));
 }
 
-QFuture<void> GitInterface::cherryPickCommit(const QString &commitId) {
+QFuture<void> GitInterface::cherryPickCommit(const QString &commitId,
+                                             std::optional<int> mainline) {
   RUN_ONCE(ActionTag::GIT_CHERRY_PICK,
            QtConcurrent::run(_impl.get(),
                              &GitInterfacePrivate::cherryPickCommit, commitId,
-                             QStringList{}));
+                             mainline));
 }
