@@ -131,7 +131,8 @@ signals:
   void actionFinished(const GitInterface::ActionTag &action);
 
   void error(const QString &message, GitInterface::ActionTag tag,
-             GitInterface::ErrorType type, bool consoleOutput = false);
+             GitInterface::ErrorType type, bool consoleOutput = false,
+             QVariantMap context = {});
 
 private:
   QScopedPointer<GitInterfacePrivate> _impl;
