@@ -179,7 +179,7 @@ void DockWidget::onRepositoryRemoved(
 }
 
 void DockWidget::onError(const QString &, GitInterface::ActionTag,
-                         GitInterface::ErrorType) {}
+                         GitInterface::ErrorType, bool consoleOutput, QVariantMap context) {}
 
 QSharedPointer<QMap<QString, DockWidget::RegistryEntry *>>
 DockWidget::registry() {

@@ -32,7 +32,8 @@ protected:
       QSharedPointer<GitInterface> newGitInterface,
       QSharedPointer<QObject> activeRepositoryContext) override;
   virtual void onError(const QString &message, GitInterface::ActionTag tag,
-                       GitInterface::ErrorType type) override;
+                       GitInterface::ErrorType type, bool,
+                       QVariantMap) override;
 
 private:
   Ui::Commit *ui;

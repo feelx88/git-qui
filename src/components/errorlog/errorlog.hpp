@@ -21,7 +21,7 @@ public:
 
   void configure(const QVariant &) override;
   void onError(const QString &message, GitInterface::ActionTag,
-               GitInterface::ErrorType type) override;
+               GitInterface::ErrorType type, bool, QVariantMap) override;
 
 private slots:
   void onPushButtonClicked();

@@ -190,7 +190,7 @@ void Commit::onRepositorySwitched(
 }
 
 void Commit::onError(const QString &message, GitInterface::ActionTag tag,
-                     GitInterface::ErrorType) {
+                     GitInterface::ErrorType, bool, QVariantMap) {
   if (tag != GitInterface::ActionTag::GIT_COMMIT) {
     return;
   }

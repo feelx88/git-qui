@@ -326,7 +326,7 @@ void LogView::onRepositorySwitched(
 }
 
 void LogView::onError(const QString &message, GitInterface::ActionTag actionTag,
-                      GitInterface::ErrorType type) {
+                      GitInterface::ErrorType type, bool, QVariantMap context) {
   if (actionTag == GitInterface::ActionTag::GIT_DELETE_BRANCH) {
     QMessageBox::warning(this, tr("Error while deleting a branch"), message);
   }

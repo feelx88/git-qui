@@ -28,7 +28,8 @@ protected:
       QSharedPointer<GitInterface> newGitInterface,
       QSharedPointer<QObject> activeRepositoryContext) override;
   void onError(const QString &message, GitInterface::ActionTag actionTag,
-               GitInterface::ErrorType type) override;
+               GitInterface::ErrorType type, bool,
+               QVariantMap context) override;
 
 private:
   Ui::LogView *ui;

@@ -95,7 +95,8 @@ protected:
                        QSharedPointer<QObject> activeRepositoryContext);
   virtual void onRepositoryRemoved(QSharedPointer<GitInterface> gitInterface);
   virtual void onError(const QString &, GitInterface::ActionTag,
-                       GitInterface::ErrorType);
+                       GitInterface::ErrorType, bool consoleOutput = false,
+                       QVariantMap context = {});
 
 private:
   static QSharedPointer<QMap<QString, RegistryEntry *>> registry();

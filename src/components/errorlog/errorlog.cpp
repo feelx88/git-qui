@@ -35,7 +35,7 @@ void ErrorLog::configure(const QVariant &) {
 }
 
 void ErrorLog::onError(const QString &message, GitInterface::ActionTag,
-                       GitInterface::ErrorType type) {
+                       GitInterface::ErrorType type, bool, QVariantMap) {
   if (type == GitInterface::ErrorType::STDERR) {
     this->ui->plainTextEdit->moveCursor(QTextCursor::End);
     this->ui->plainTextEdit->insertPlainText(message);
