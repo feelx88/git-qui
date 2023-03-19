@@ -32,6 +32,19 @@ set(OTHER_FILES
   .clang-format
 )
 
+set(TRANSLATION_FILES
+  git-qui_de.ts
+)
+
+set(TRANSLATION_OUTPUT_FILES
+  git-qui_de.qm
+)
+
+execute_process(
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMAND touch ${TRANSLATION_OUTPUT_FILES}
+)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -53,6 +66,7 @@ include_directories(src)
 
 execute_process(
   COMMAND sh -c "git describe --always --abbrev=0 --tags --exact-match 2> /dev/null || git describe --always --abbrev=0"
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE GIT_VERSION
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -62,7 +76,14 @@ add_subdirectory(Qt-Advanced-Docking-System/)
 include_directories(Qt-Advanced-Docking-System/src)
 
 add_executable(git-qui MACOSX_BUNDLE ${SOURCE_FILES} ${HEADER_FILES} ${FORMS} resources.qrc)
-add_custom_target(others SOURCES ${OTHER_FILES})
+add_custom_target(others SOURCES ${OTHER_FILES} ${TRANSLATION_FILES})
+
+add_custom_target(translations
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMAND lupdate -no-obsolete src -ts ${TRANSLATION_FILES}
+  COMMAND lrelease ${TRANSLATION_FILES}
+)
+add_dependencies(git-qui translations)
 
 target_compile_definitions(git-qui
   PUBLIC GIT_VERSION=\"${GIT_VERSION}\"
