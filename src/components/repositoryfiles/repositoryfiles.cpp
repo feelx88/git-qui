@@ -83,8 +83,8 @@ struct RepositoryFilesPrivate {
       }
     });
 
-    QAction *checkoutAction =
-        new QAction(RepositoryFiles::tr("Reset file"), _this);
+    QAction *checkoutAction = new QAction(
+        RepositoryFiles::tr("Reset file (delete if not tracked)"), _this);
     _this->connect(checkoutAction, &QAction::triggered, _this, [=, this] {
       if (_this->ui->stackedWidget->currentIndex() == 0) {
         if (_this->ui->listWidget->currentItem()) {

@@ -275,6 +275,16 @@
         <translation>Es sind keine Dateien zum Commit vorgemerkt</translation>
     </message>
     <message>
+        <location filename="src/gitinterface.cpp" line="527"/>
+        <source>untracked file</source>
+        <translation>nicht verfolgte Datei</translation>
+    </message>
+    <message>
+        <location filename="src/gitinterface.cpp" line="551"/>
+        <source>binary file</source>
+        <translation>Binärdatei</translation>
+    </message>
+    <message>
         <location filename="src/gitinterface.cpp" line="654"/>
         <source>Push has failed</source>
         <translation>Push ist fehlgeschlagen</translation>
@@ -308,6 +318,7 @@
     <name>HistoryFiles</name>
     <message>
         <location filename="src/components/historyfiles/historyfiles.ui" line="14"/>
+        <location filename="src/components/historyfiles/historyfiles.cpp" line="27"/>
         <source>History files</source>
         <translation>Dateihistorie</translation>
     </message>
@@ -366,6 +377,7 @@
         <translation>Commit in Branch %1 cherry-picken</translation>
     </message>
     <message>
+        <location filename="src/components/logview/logview.cpp" line="80"/>
         <location filename="src/components/logview/logview.cpp" line="86"/>
         <source>Create new tag</source>
         <translation>Neues Tag erstellen</translation>
@@ -782,8 +794,8 @@ Anwendungversion: %1</translation>
     </message>
     <message>
         <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="87"/>
-        <source>Reset file</source>
-        <translation>Datei zurücksetzen</translation>
+        <source>Reset file (delete if not tracked)</source>
+        <translation>Datei zurücksetzten (löschen wenn nicht verfolgt)</translation>
     </message>
     <message>
         <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="194"/>

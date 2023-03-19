@@ -77,7 +77,7 @@ struct LogViewPrivate {
     _this->ui->treeWidget->addAction(
         ToolBarActions::byId(ToolBarActions::ActionID::NEW_BRANCH));
 
-    auto newTagAction = new QAction("Create new tag");
+    auto newTagAction = new QAction(LogView::tr("Create new tag"));
     QObject::connect(newTagAction, &QAction::triggered, _this, [=, this] {
       auto commitId = _this->ui->treeWidget->currentItem()
                           ->data(5, Qt::DisplayRole)

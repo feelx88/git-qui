@@ -524,7 +524,7 @@ public:
 
       GitDiffLine header;
       header.type = GitDiffLine::diffType::HEADER;
-      header.content = "untracked file";
+      header.content = GitInterface::tr("untracked file");
 
       list.append(header);
 
@@ -548,7 +548,7 @@ public:
     if (binary) {
       GitDiffLine line;
       line.type = GitDiffLine::diffType::HEADER;
-      line.content = "binary file";
+      line.content = GitInterface::tr("binary file");
       list.append(line);
     } else {
       while (output.length() > 0) {

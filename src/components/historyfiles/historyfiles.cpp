@@ -24,7 +24,7 @@ struct HistoryFilesPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(HistoryFiles, "History files")
+DOCK_WIDGET_IMPL(HistoryFiles, HistoryFiles::tr("History files"))
 HistoryFiles::HistoryFiles(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::HistoryFiles),
       _impl(new HistoryFilesPrivate(this)) {
