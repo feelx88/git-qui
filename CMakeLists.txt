@@ -61,7 +61,7 @@ option(BUILD_EXAMPLES OFF)
 add_subdirectory(Qt-Advanced-Docking-System/)
 include_directories(Qt-Advanced-Docking-System/src)
 
-add_executable(git-qui MACOSX_BUNDLE ${SOURCE_FILES} ${HEADER_FILES} ${FORMS})
+add_executable(git-qui MACOSX_BUNDLE ${SOURCE_FILES} ${HEADER_FILES} ${FORMS} resources.qrc)
 add_custom_target(others SOURCES ${OTHER_FILES})
 
 target_compile_definitions(git-qui
