@@ -15,19 +15,28 @@
 QMap<QString, QAction *> ToolBarActions::_actionMap;
 
 void ToolBarActions::initialize(Core *core) {
-  addAction(ActionID::STASH, "archive-insert", "Stash changes");
-  addAction(ActionID::UNSTASH, "archive-remove", "Unstash changes");
-  addAction(ActionID::FETCH, "edit-download", "Fetch data from default remote");
-  addAction(ActionID::PUSH, "go-up", "Push current repository");
-  addAction(ActionID::PUSH_TAGS, "send-to", "Push tags of current repository");
-  addAction(ActionID::PULL, "go-down", "Pull current repository (with rebase)");
-  addAction(ActionID::PUSH_ALL, "go-top", "Push all repositories");
+  addAction(ActionID::STASH, "archive-insert",
+            ToolBarActions::tr("Stash changes"));
+  addAction(ActionID::UNSTASH, "archive-remove",
+            ToolBarActions::tr("Unstash changes"));
+  addAction(ActionID::FETCH, "edit-download",
+            ToolBarActions::tr("Fetch data from default remote"));
+  addAction(ActionID::PUSH, "go-up",
+            ToolBarActions::tr("Push current repository"));
+  addAction(ActionID::PUSH_TAGS, "send-to",
+            ToolBarActions::tr("Push tags of current repository"));
+  addAction(ActionID::PULL, "go-down",
+            ToolBarActions::tr("Pull current repository (with rebase)"));
+  addAction(ActionID::PUSH_ALL, "go-top",
+            ToolBarActions::tr("Push all repositories"));
   addAction(ActionID::PULL_ALL, "go-bottom",
-            "Pull all repositories (with rebase)");
+            ToolBarActions::tr("Pull all repositories (with rebase)"));
   addAction(ActionID::NEW_BRANCH, "distribute-graph-directed",
-            "Create new branch");
-  addAction(ActionID::CLEANUP, "edit-clear-history", "Clean up repository");
-  addAction(ActionID::RESET, "edit-undo", "Reset current branch to HEAD");
+            ToolBarActions::tr("Create new branch"));
+  addAction(ActionID::CLEANUP, "edit-clear-history",
+            ToolBarActions::tr("Clean up repository"));
+  addAction(ActionID::RESET, "edit-undo",
+            ToolBarActions::tr("Reset current branch to HEAD"));
 
   for (auto &[id, action] : _actionMap.toStdMap()) {
     action->setData(id);
@@ -60,9 +69,10 @@ void ToolBarActions::initialize(Core *core) {
               addUpstream =
                   QMessageBox::question(
                       QApplication::activeWindow(),
-                      QObject::tr("No upstream branch configured"),
-                      QObject::tr("Would you like to set the default upstream "
-                                  "branch to origin/%1?")
+                      ToolBarActions::tr("No upstream branch configured"),
+                      ToolBarActions::tr(
+                          "Would you like to set the default upstream "
+                          "branch to origin/%1?")
                           .arg(branch),
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
@@ -83,10 +93,11 @@ void ToolBarActions::initialize(Core *core) {
               stash =
                   QMessageBox::question(
                       QApplication::activeWindow(),
-                      QObject::tr("There are open changes"),
-                      QObject::tr("There are open changes in this repository. "
-                                  "Would you like to stash your changes before "
-                                  "pushing and unstash them afterwards?"),
+                      ToolBarActions::tr("There are open changes"),
+                      ToolBarActions::tr(
+                          "There are open changes in this repository. "
+                          "Would you like to stash your changes before "
+                          "pulling and unstash them afterwards?"),
                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
             }
 
@@ -125,9 +136,10 @@ void ToolBarActions::initialize(Core *core) {
                       .toString();
             }
 
-            QString branchName = QInputDialog::getText(
-                QApplication::activeWindow(), QObject::tr("Create new branch"),
-                QObject::tr("New branch name"));
+            QString branchName =
+                QInputDialog::getText(QApplication::activeWindow(),
+                                      ToolBarActions::tr("Create new branch"),
+                                      ToolBarActions::tr("New branch name"));
 
             if (!branchName.isEmpty()) {
               repository->createBranch(branchName, baseCommit);
@@ -243,7 +255,7 @@ void ToolBarActions::addAction(QString id, QString icon, QString text) {
       id,
       new QAction(QIcon::fromTheme(
                       icon, QIcon(QString(":/deploy/icons/%1.svg").arg(icon))),
-                  QObject::tr(text.toStdString().c_str())));
+                  text.toStdString().c_str()));
 }
 
 QWidget *ToolBarActions::focusedWidget(const QString &id) {

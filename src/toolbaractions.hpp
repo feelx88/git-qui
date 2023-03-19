@@ -3,13 +3,14 @@
 
 #include <QList>
 #include <QMap>
+#include <QObject>
 
-class QObject;
 class QAction;
 class Core;
 class QWidget;
 
-class ToolBarActions {
+class ToolBarActions : QObject {
+  Q_OBJECT
 public:
   struct ActionID {
     static constexpr const char *STASH = "stash";

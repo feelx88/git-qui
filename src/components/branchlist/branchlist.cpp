@@ -44,8 +44,9 @@ struct BranchListPrivate {
                    });
 
     _this->ui->treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction *copyAction = new QAction(_this->tr("Copy branch name"), _this);
-    QAction *deleteAction = new QAction(_this->tr("Delete branch"), _this);
+    QAction *copyAction =
+        new QAction(BranchList::tr("Copy branch name"), _this);
+    QAction *deleteAction = new QAction(BranchList::tr("Delete branch"), _this);
     _this->connect(copyAction, &QAction::triggered, _this, [=, this] {
       if (!_this->ui->treeWidget->selectedItems().empty()) {
         QApplication::clipboard()->setText(
@@ -108,7 +109,7 @@ struct BranchListPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(BranchList, tr("Branch list"))
+DOCK_WIDGET_IMPL(BranchList, BranchList::tr("Branch list"))
 
 BranchList::BranchList(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::BranchList),

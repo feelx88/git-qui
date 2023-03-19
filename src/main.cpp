@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QSharedPointer>
 #include <QThreadPool>
+#include <QTranslator>
 
 #include "core.hpp"
 #include "gitinterface.hpp"
@@ -13,6 +14,11 @@ int main(int argc, char *argv[]) {
   app.setOrganizationDomain("feelx88.de");
 
   QSettings::setDefaultFormat(QSettings::IniFormat);
+
+  QTranslator translator;
+  if (translator.load(QLocale(), "git-qui", "_", ":/")) {
+    QCoreApplication::installTranslator(&translator);
+  }
 
   qRegisterMetaType<QList<GitFile>>();
   qRegisterMetaType<QList<GitCommit>>();

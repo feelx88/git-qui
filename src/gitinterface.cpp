@@ -63,7 +63,7 @@ public:
 
   bool startAction(const GitInterface::ActionTag &actionTag) {
     if (actionFuture.isRunning()) {
-      emit _this->error(QObject::tr("Already running"), actionTag,
+      emit _this->error(GitInterface::tr("Already running"), actionTag,
                         GitInterface::ErrorType::ALREADY_RUNNING);
       return false;
     }
@@ -430,7 +430,7 @@ public:
 
   bool commit(const QString &message) {
     if (!readyForCommit) {
-      emit _this->error(QObject::tr("There are no files to commit"),
+      emit _this->error(GitInterface::tr("There are no files to commit"),
                         GitInterface::ActionTag::GIT_COMMIT,
                         GitInterface::ErrorType::GENERIC);
       return false;
@@ -651,7 +651,7 @@ public:
 
     auto process = git(args);
     if (process.exitCode != EXIT_SUCCESS) {
-      emit _this->error(QObject::tr("Push has failed"),
+      emit _this->error(GitInterface::tr("Push has failed"),
                         GitInterface::ActionTag::GIT_PUSH,
                         GitInterface::ErrorType::GENERIC);
     }
@@ -665,7 +665,7 @@ public:
 
     auto process = git(args);
     if (process.exitCode != EXIT_SUCCESS) {
-      emit _this->error(QObject::tr("Push tags has failed"),
+      emit _this->error(GitInterface::tr("Push tags has failed"),
                         GitInterface::ActionTag::GIT_PUSH,
                         GitInterface::ErrorType::GENERIC);
     }
@@ -685,7 +685,7 @@ public:
     log();
 
     if (process.exitCode != EXIT_SUCCESS) {
-      emit _this->error(QObject::tr("Pull has failed"),
+      emit _this->error(GitInterface::tr("Pull has failed"),
                         GitInterface::ActionTag::GIT_PULL,
                         GitInterface::ErrorType::GENERIC);
     }
@@ -756,7 +756,7 @@ public:
 
     if (process.exitCode != EXIT_SUCCESS) {
       emit _this->error(
-          QObject::tr(
+          GitInterface::tr(
               "Deleting branch %1 has failed with the following message:\n%2")
               .arg(name, process.standardErrorOutput),
           GitInterface::ActionTag::GIT_DELETE_BRANCH,
@@ -822,12 +822,12 @@ public:
     auto process = git(QStringList{"cherry-pick"} << extraArgs << commitId);
 
     if (process.exitCode != EXIT_SUCCESS) {
-      emit _this->error(QObject::tr("Cherry-picking commit %1 has failed with "
-                                    "the following message:\n%2")
-                            .arg(commitId, process.standardErrorOutput),
-                        GitInterface::ActionTag::GIT_CHERRY_PICK,
-                        GitInterface::ErrorType::GENERIC, false,
-                        {{"commitId", commitId}});
+      emit _this->error(
+          GitInterface::tr("Cherry-picking commit %1 has failed with "
+                           "the following message:\n%2")
+              .arg(commitId, process.standardErrorOutput),
+          GitInterface::ActionTag::GIT_CHERRY_PICK,
+          GitInterface::ErrorType::GENERIC, false, {{"commitId", commitId}});
       return;
     }
 

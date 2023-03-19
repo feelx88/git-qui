@@ -11,7 +11,7 @@
 struct ToolBarEditorPrivate {
   void createItem(QTreeWidget *widget, QAction *action) {
     if (action->data().isNull()) {
-      auto item = new TreeWidgetItem(widget, {QObject::tr("Separator")});
+      auto item = new TreeWidgetItem(widget, {ToolBarEditor::tr("Separator")});
       widget->addTopLevelItem(item);
     } else {
       auto item = new TreeWidgetItem(widget, {action->text()});
@@ -27,18 +27,19 @@ ToolBarEditor::ToolBarEditor(QToolBar *toolbar)
       _impl(new ToolBarEditorPrivate) {
   ui->setupUi(this);
 
-  connect(ui->treeWidget_2, &QTreeWidget::itemSelectionChanged, this, [=, this] {
-    auto items = ui->treeWidget_2->selectedItems();
+  connect(ui->treeWidget_2, &QTreeWidget::itemSelectionChanged, this,
+          [=, this] {
+            auto items = ui->treeWidget_2->selectedItems();
 
-    ui->toolButtonLeft->setEnabled(!items.isEmpty());
-    ui->toolButtonUp->setEnabled(
-        !items.isEmpty() &&
-        ui->treeWidget_2->indexOfTopLevelItem(items.first()) > 0);
-    ui->toolButtonDown->setEnabled(
-        !items.isEmpty() &&
-        ui->treeWidget_2->indexOfTopLevelItem(items.first()) <
-            ui->treeWidget_2->topLevelItemCount() - 1);
-  });
+            ui->toolButtonLeft->setEnabled(!items.isEmpty());
+            ui->toolButtonUp->setEnabled(
+                !items.isEmpty() &&
+                ui->treeWidget_2->indexOfTopLevelItem(items.first()) > 0);
+            ui->toolButtonDown->setEnabled(
+                !items.isEmpty() &&
+                ui->treeWidget_2->indexOfTopLevelItem(items.first()) <
+                    ui->treeWidget_2->topLevelItemCount() - 1);
+          });
 
   connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, this, [=, this] {
     ui->toolButtonRight->setEnabled(!ui->treeWidget->selectedItems().empty());

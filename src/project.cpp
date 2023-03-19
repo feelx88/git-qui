@@ -144,7 +144,7 @@ void Project::setDockWidgetConfigurationEntry(const QString &key,
 
 void Project::addRepository() {
   QString path = QFileDialog::getExistingDirectory(
-      nullptr, QObject::tr("Select repository path"), QDir::current().path());
+      nullptr, Project::tr("Select repository path"), QDir::current().path());
 
   if (!path.isNull()) {
     QDirIterator iterator(path, {".git"}, QDir::Dirs | QDir::Hidden,

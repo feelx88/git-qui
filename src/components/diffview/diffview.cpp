@@ -25,7 +25,7 @@ struct DiffViewPrivate {
   DiffViewPrivate(DiffView *diffView) : _this(diffView) {}
 
   void clear() {
-    _this->setWindowTitle(_this->tr("Diff view"));
+    _this->setWindowTitle(DiffView::tr("Diff view"));
     _this->ui->treeWidget->clear();
     stageOrUnstageSelected->setVisible(false);
     resetSelected->setVisible(false);
@@ -37,7 +37,7 @@ struct DiffViewPrivate {
   }
 
   void addActions() {
-    fullFileDiffAction = new QAction(QObject::tr("Full file diff"), _this);
+    fullFileDiffAction = new QAction(DiffView::tr("Full file diff"), _this);
     fullFileDiffAction->setCheckable(true);
     _this->addAction(fullFileDiffAction);
     _this->connect(fullFileDiffAction, &QAction::toggled, _this,
@@ -49,7 +49,7 @@ struct DiffViewPrivate {
                    });
 
     historyAction =
-        new QAction(QObject::tr("Show only historical diffs"), _this);
+        new QAction(DiffView::tr("Show only historical diffs"), _this);
     historyAction->setCheckable(true);
     _this->addAction(historyAction);
     _this->connect(historyAction, &QAction::toggled, _this,
@@ -61,7 +61,7 @@ struct DiffViewPrivate {
     _this->connect(stageOrUnstageSelected, &QAction::triggered, _this,
                    [=, this] { stageOrUnstage(); });
 
-    resetSelected = new QAction(_this->tr("Reset selected lines"), _this);
+    resetSelected = new QAction(DiffView::tr("Reset selected lines"), _this);
     _this->connect(resetSelected, &QAction::triggered, _this, [=, this] {
       QList<GitDiffLine> lines;
       auto selectedItems = _this->ui->treeWidget->selectedItems();
@@ -119,8 +119,8 @@ struct DiffViewPrivate {
     currentPath = path;
     unstaged = unstaged;
     stageOrUnstageSelected->setText(
-        unstaged ? QObject::tr("Stage selected lines")
-                 : QObject::tr("Unstage selected lines"));
+        unstaged ? DiffView::tr("Stage selected lines")
+                 : DiffView::tr("Unstage selected lines"));
     _this->ui->treeWidget->clear();
 
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
@@ -197,7 +197,7 @@ struct DiffViewPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(DiffView, tr("Diff view"))
+DOCK_WIDGET_IMPL(DiffView, DiffView::tr("Diff view"))
 
 DiffView::DiffView(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::DiffView),

@@ -108,8 +108,8 @@ struct MainWindowPrivate {
     _this->connect(_this->ui->actionAdd_tab, &QAction::triggered, _this,
                    [=, this] {
                      QString tabName = QInputDialog::getText(
-                         _this, _this->tr("Tab name"),
-                         _this->tr("Please enter the new tab's name"));
+                         _this, MainWindow::tr("Tab name"),
+                         MainWindow::tr("Please enter the new tab's name"));
                      if (!tabName.isNull()) {
                        _this->createTab(tabName);
                      }
@@ -119,22 +119,23 @@ struct MainWindowPrivate {
         _this->ui->tabWidget, &QTabWidget::tabCloseRequested, _this,
         [=, this](int index) { _this->ui->tabWidget->removeTab(index); });
 
-    _this->connect(_this->ui->actionRestore_defaults, &QAction::triggered,
-                   _this, [=, this] {
-                     auto response = QMessageBox::question(
-                         _this, _this->tr("Restore defaults"),
-                         _this->tr("Do really want to restore the default tab "
-                                   "and widget configuration?"));
-                     if (response == QMessageBox::Yes) {
-                       _this->ui->tabWidget->clear();
-                       InitialWindowConfiguration::create(_this);
-                     }
-                   });
+    _this->connect(
+        _this->ui->actionRestore_defaults, &QAction::triggered, _this,
+        [=, this] {
+          auto response = QMessageBox::question(
+              _this, MainWindow::tr("Restore defaults"),
+              MainWindow::tr("Do really want to restore the default tab "
+                             "and widget configuration?"));
+          if (response == QMessageBox::Yes) {
+            _this->ui->tabWidget->clear();
+            InitialWindowConfiguration::create(_this);
+          }
+        });
 
     QObject::connect(
         _this->ui->actionOpen_Project, &QAction::triggered, _this, [=, this] {
-          auto fileName =
-              QFileDialog::getOpenFileName(_this, QObject::tr("Open Project"));
+          auto fileName = QFileDialog::getOpenFileName(
+              _this, MainWindow::tr("Open Project"));
 
           if (!fileName.isNull()) {
             _this->core()->project()->save();
@@ -266,8 +267,8 @@ struct MainWindowPrivate {
           [=, this, path = path] {
             if (!QFile::exists(path)) {
               QMessageBox::critical(
-                  _this, QObject::tr("File not found"),
-                  QObject::tr("File %1 does not exist!").arg(path));
+                  _this, MainWindow::tr("File not found"),
+                  MainWindow::tr("File %1 does not exist!").arg(path));
               return;
             }
             _this->core()->project()->save();
@@ -277,12 +278,12 @@ struct MainWindowPrivate {
 
     if (!_this->core()->recentProjects().isEmpty()) {
       _this->ui->menuRecent_Projects->addAction(
-          QObject::tr("Clear"), _this, [=, this] {
+          MainWindow::tr("Clear"), _this, [=, this] {
             _this->core()->clearRecentProjects();
             populateRecentProjectsMenu();
           });
     } else {
-      auto action = new QAction(QObject::tr("No recent projects"));
+      auto action = new QAction(MainWindow::tr("No recent projects"));
       action->setEnabled(false);
       _this->ui->menuRecent_Projects->addAction(action);
     }
@@ -387,14 +388,14 @@ struct MainWindowPrivate {
   }
 
   void about() {
-    QMessageBox::about(_this, "About git qui",
-                       QString("qt5 ui replacement for git-gui. \n\n"
-                               "Application Version: %1")
+    QMessageBox::about(_this, MainWindow::tr("About git qui"),
+                       MainWindow::tr("qt5 ui replacement for git-gui. \n\n"
+                                      "Application Version: %1")
                            .arg(
 #if defined(GIT_VERSION)
                                GIT_VERSION
 #else
-                               "unversioned"
+                               "development"
 #endif
                                ));
   }

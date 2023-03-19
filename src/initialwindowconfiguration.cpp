@@ -26,7 +26,7 @@
 
 void InitialWindowConfiguration::create(MainWindow *mainWindow) {
   // Commit tab
-  auto commitTab = mainWindow->createTab(mainWindow->tr("Commit"));
+  auto commitTab = mainWindow->createTab(MainWindow::tr("Commit"));
   auto commitTabDockManager = commitTab->findChild<ads::CDockManager *>();
 
   mainWindow->addDockWidget<DiffView>(0, {}, ads::TopDockWidgetArea);
@@ -50,7 +50,7 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
       ->insertDockWidget(0, errorLog);
 
   // History tab
-  auto historyTab = mainWindow->createTab(mainWindow->tr("History"));
+  auto historyTab = mainWindow->createTab(MainWindow::tr("History"));
   auto historyTabDockManager = historyTab->findChild<ads::CDockManager *>();
 
   mainWindow->addDockWidget<LogView>(1, {}, ads::LeftDockWidgetArea);

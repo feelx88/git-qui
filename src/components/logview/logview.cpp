@@ -38,12 +38,12 @@ struct LogViewPrivate {
 
   void connectSignals(LogView *_this) {
     _this->ui->treeWidget->setHeaderLabels({
-        _this->tr("Graph"),
-        _this->tr("Refs"),
-        _this->tr("Message"),
-        _this->tr("Author"),
-        _this->tr("Date"),
-        _this->tr("Id"),
+        LogView::tr("Graph"),
+        LogView::tr("Refs"),
+        LogView::tr("Message"),
+        LogView::tr("Author"),
+        LogView::tr("Date"),
+        LogView::tr("Id"),
     });
 
     QObject::connect(
@@ -63,7 +63,7 @@ struct LogViewPrivate {
             gitInterface->historyStatus(commit.id);
 
             cherryPickAction->setText(
-                QObject::tr("Cherry pick commit into branch %1")
+                LogView::tr("Cherry pick commit into branch %1")
                     .arg(gitInterface->activeBranch().name));
           }
         });
@@ -83,8 +83,8 @@ struct LogViewPrivate {
                           ->data(5, Qt::DisplayRole)
                           .toString();
       auto name = QInputDialog::getText(QApplication::activeWindow(),
-                                        QObject::tr("Create new tag"),
-                                        QObject::tr("New tag name"));
+                                        LogView::tr("Create new tag"),
+                                        LogView::tr("New tag name"));
 
       if (!name.isEmpty() && !commitId.isEmpty()) {
         gitInterface->createTag(name, commitId);
@@ -92,7 +92,7 @@ struct LogViewPrivate {
     });
     _this->ui->treeWidget->addAction(newTagAction);
 
-    auto copyIdAction = new QAction(QObject::tr("Copy commit id"), _this);
+    auto copyIdAction = new QAction(LogView::tr("Copy commit id"), _this);
     QObject::connect(copyIdAction, &QAction::triggered, _this, [=, this] {
       QGuiApplication::clipboard()->setText(_this->ui->treeWidget->currentItem()
                                                 ->data(5, Qt::DisplayRole)
@@ -128,7 +128,7 @@ struct LogViewPrivate {
 
     tagMenu = new QMenu(_this);
 
-    auto copyTagAction = new QAction(QObject::tr("Copy tag name"), _this);
+    auto copyTagAction = new QAction(LogView::tr("Copy tag name"), _this);
     QObject::connect(copyTagAction, &QAction::triggered, _this, [=, this] {
       QGuiApplication::clipboard()->setText(
           tagMenu->property("tag").value<GitRef>().name);
@@ -138,8 +138,8 @@ struct LogViewPrivate {
     deleteTagAction = tagMenu->addAction("");
     QObject::connect(deleteTagAction, &QAction::triggered, tagMenu, [=, this] {
       auto tag = tagMenu->property("tag").value<GitRef>().name;
-      if (QMessageBox::question(_this, "Delete tag",
-                                QString("Delete tag %1?").arg(tag)) ==
+      if (QMessageBox::question(_this, LogView::tr("Delete tag"),
+                                LogView::tr("Delete tag %1?").arg(tag)) ==
           QMessageBox::Yes) {
         gitInterface->deleteTag(tag);
       }
@@ -147,7 +147,7 @@ struct LogViewPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(LogView, tr("Log view"))
+DOCK_WIDGET_IMPL(LogView, LogView::tr("Log view"))
 
 LogView::LogView(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::LogView),
@@ -335,7 +335,7 @@ void LogView::onError(const QString &message, GitInterface::ActionTag actionTag,
   case GitInterface::ActionTag::GIT_CHERRY_PICK: {
     bool ok = false;
     auto result = QInputDialog::getInt(
-        this, "Error while cherry-picking a commit",
+        this, tr("Error while cherry-picking a commit"),
         tr("%1\nTo repeat the cherry-pick with the --mainline "
            "flag to select the parent commit to use and press ok.\nUsually, "
            "parent #1 points "

@@ -1,7 +1,6 @@
 #include "repositorylist.hpp"
 #include "ui_repositorylist.h"
 
-#include "core.hpp"
 #include "mainwindow.hpp"
 #include "project.hpp"
 #include "treewidgetitem.hpp"
@@ -20,22 +19,22 @@ struct RepositoryListPrivate {
     QString text;
     switch (actionTag) {
     case GitInterface::ActionTag::GIT_PUSH:
-      text = QObject::tr("Pushing...");
+      text = RepositoryList::tr("Pushing...");
       break;
     case GitInterface::ActionTag::GIT_PULL:
-      text = QObject::tr("Pulling...");
+      text = RepositoryList::tr("Pulling...");
       break;
     case GitInterface::ActionTag::GIT_FETCH:
-      text = QObject::tr("Fetching...");
+      text = RepositoryList::tr("Fetching...");
       break;
     case GitInterface::ActionTag::GIT_COMMIT:
-      text = QObject::tr("Committing...");
+      text = RepositoryList::tr("Committing...");
       break;
     case GitInterface::ActionTag::GIT_STASH:
-      text = QObject::tr("Stashing...");
+      text = RepositoryList::tr("Stashing...");
       break;
     case GitInterface::ActionTag::GIT_STASH_APPLY:
-      text = QObject::tr("Restoring stash entry...");
+      text = RepositoryList::tr("Restoring stash entry...");
       break;
     default:
       return;
@@ -80,7 +79,7 @@ struct RepositoryListPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(RepositoryList, tr("Repository list"))
+DOCK_WIDGET_IMPL(RepositoryList, RepositoryList::tr("Repository list"))
 
 RepositoryList::RepositoryList(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::RepositoryList),
@@ -102,12 +101,14 @@ void RepositoryList::onProjectSwitched(Project *newProject) {
   onRepositorySwitched(newProject->activeRepository(),
                        newProject->activeRepositoryContext());
 
-  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject, [=, this] {
-    QList<QTreeWidgetItem *> selection = ui->treeWidget->selectedItems();
-    if (!selection.isEmpty()) {
-      newProject->setCurrentRepository(selection.first()->text(0));
-    }
-  });
+  connect(ui->treeWidget, &QTreeWidget::itemSelectionChanged, newProject,
+          [=, this] {
+            QList<QTreeWidgetItem *> selection =
+                ui->treeWidget->selectedItems();
+            if (!selection.isEmpty()) {
+              newProject->setCurrentRepository(selection.first()->text(0));
+            }
+          });
 }
 
 void RepositoryList::onRepositoryAdded(
@@ -127,9 +128,10 @@ void RepositoryList::onRepositoryAdded(
   item->setTextAlignment(1, Qt::AlignVCenter | Qt::AlignTrailing);
   ui->treeWidget->addTopLevelItem(item);
 
-  connect(
-      newGitInterface.get(), &GitInterface::branchChanged, item,
-      [=, this](const GitBranch &branch) { _impl->onBranchChanged(item, branch); });
+  connect(newGitInterface.get(), &GitInterface::branchChanged, item,
+          [=, this](const GitBranch &branch) {
+            _impl->onBranchChanged(item, branch);
+          });
 
   connect(newGitInterface.get(), &GitInterface::actionStarted, item,
           [=, this](const GitInterface::ActionTag &actionTag) {
@@ -143,7 +145,7 @@ void RepositoryList::onRepositoryAdded(
 
   connect(newGitInterface.get(), &GitInterface::error, item,
           [=, this](const QString &, GitInterface::ActionTag,
-              GitInterface::ErrorType type) {
+                    GitInterface::ErrorType type) {
             if (type != GitInterface::ErrorType::ALREADY_RUNNING) {
               item->setIcon(
                   0, QIcon::fromTheme("state-error",

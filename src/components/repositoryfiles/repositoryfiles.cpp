@@ -65,8 +65,10 @@ struct RepositoryFilesPrivate {
 
   void addContextMenuActions(RepositoryFiles *_this) {
     QList<QAction *> actions;
-    QAction *stageOrUnstageAction = new QAction(
-        unstaged ? _this->tr("Stage") : _this->tr("Unstage"), _this);
+    QAction *stageOrUnstageAction =
+        new QAction(unstaged ? RepositoryFiles::tr("Stage")
+                             : RepositoryFiles::tr("Unstage"),
+                    _this);
     _this->connect(stageOrUnstageAction, &QAction::triggered, _this, [=, this] {
       if (_this->ui->stackedWidget->currentIndex() == 0) {
         if (_this->ui->listWidget->currentItem()) {
@@ -81,7 +83,8 @@ struct RepositoryFilesPrivate {
       }
     });
 
-    QAction *checkoutAction = new QAction(_this->tr("Reset file"), _this);
+    QAction *checkoutAction =
+        new QAction(RepositoryFiles::tr("Reset file"), _this);
     _this->connect(checkoutAction, &QAction::triggered, _this, [=, this] {
       if (_this->ui->stackedWidget->currentIndex() == 0) {
         if (_this->ui->listWidget->currentItem()) {
@@ -188,7 +191,7 @@ struct RepositoryFilesPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(RepositoryFiles, tr("Repository files"))
+DOCK_WIDGET_IMPL(RepositoryFiles, RepositoryFiles::tr("Repository files"))
 
 RepositoryFiles::RepositoryFiles(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::RepositoryFiles),
@@ -210,11 +213,12 @@ void RepositoryFiles::configure(const QVariant &configuration) {
   auto map = configuration.toMap();
 
   if (map.empty()) {
-    map.insert("unstaged",
-               QInputDialog::getItem(
-                   this, "Select widget type",
-                   "Please choose the type of files displayed for this widget.",
-                   {tr("Unstaged"), tr("Staged")}, 0, false) == tr("Unstaged"));
+    map.insert(
+        "unstaged",
+        QInputDialog::getItem(
+            this, tr("Select widget type"),
+            tr("Please choose the type of files displayed for this widget."),
+            {tr("Unstaged"), tr("Staged")}, 0, false) == tr("Unstaged"));
   }
 
   _impl->unstaged = map.value("unstaged", true).toBool();

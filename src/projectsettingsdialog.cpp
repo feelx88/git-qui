@@ -56,13 +56,13 @@ ProjectSettingsDialog::ProjectSettingsDialog(
 
   connect(ui->projectPathChooseButton, &QToolButton::clicked, this, [this] {
     _impl->project->setFileName(
-        QFileDialog::getSaveFileName(this, "Select project file"));
+        QFileDialog::getSaveFileName(this, tr("Select project file")));
 
     ui->projectPathEdit->setText(_impl->project->fileName());
   });
 
-  ui->repositoryTable->setHorizontalHeaderLabels(QStringList() << "Name"
-                                                               << "Path");
+  ui->repositoryTable->setHorizontalHeaderLabels(QStringList()
+                                                 << tr("Name") << tr("Path"));
 
   connect(ui->repositoryTable, &QTableWidget::itemSelectionChanged, this,
           [this] {

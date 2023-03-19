@@ -13,7 +13,7 @@ struct ErrorLogPrivate {
   }
 };
 
-DOCK_WIDGET_IMPL(ErrorLog, tr("Error log"))
+DOCK_WIDGET_IMPL(ErrorLog, ErrorLog::tr("Error log"))
 
 ErrorLog::ErrorLog(MainWindow *mainWindow)
     : DockWidget(mainWindow), ui(new Ui::ErrorLog), _impl(new ErrorLogPrivate) {

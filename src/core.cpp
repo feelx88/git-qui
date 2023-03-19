@@ -35,13 +35,13 @@ struct CorePrivate {
 
     if (projectFileName.isEmpty()) {
       QMessageBox dialog(
-          QMessageBox::Question, QObject::tr("No Project selected"),
-          QObject::tr("Would you like to create a new project? Alternatively, "
-                      "you could open an existing one."),
+          QMessageBox::Question, Core::tr("No Project selected"),
+          Core::tr("Would you like to create a new project? Alternatively, "
+                   "you could open an existing one."),
           QMessageBox::Yes | QMessageBox::Open | QMessageBox::Abort);
-      dialog.setButtonText(QMessageBox::Yes, QObject::tr("Create new project"));
+      dialog.setButtonText(QMessageBox::Yes, Core::tr("Create new project"));
       dialog.setButtonText(QMessageBox::Open,
-                           QObject::tr("Open existing project"));
+                           Core::tr("Open existing project"));
 
       switch (dialog.exec()) {
       case QMessageBox::Yes: {
@@ -49,15 +49,15 @@ struct CorePrivate {
         auto settingsDialog = ProjectSettingsDialog(
             ProjectSettingsDialog::DialogMode::CREATE, project.get());
         if (settingsDialog.exec() != QDialog::Accepted) {
-          QMessageBox::critical(nullptr, QObject::tr("Error"),
-                                QObject::tr("No project opened, closing."));
+          QMessageBox::critical(nullptr, Core::tr("Error"),
+                                Core::tr("No project opened, closing."));
           return false;
         }
         break;
       }
       case QMessageBox::Open: {
         QString fileName = QFileDialog::getOpenFileName(
-            nullptr, QObject::tr("Select project to open"));
+            nullptr, Core::tr("Select project to open"));
 
         if (!fileName.isEmpty()) {
           project.reset(new Project(fileName, _this));
@@ -65,8 +65,8 @@ struct CorePrivate {
         break;
       }
       default:
-        QMessageBox::critical(nullptr, QObject::tr("Error"),
-                              QObject::tr("No project opened, closing."));
+        QMessageBox::critical(nullptr, Core::tr("Error"),
+                              Core::tr("No project opened, closing."));
         return false;
       }
     } else {
