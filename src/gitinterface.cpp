@@ -239,6 +239,7 @@ public:
       file.staged = (firstByte != ' ' && firstByte != '?');
       file.unstaged = (secondByte != ' ');
       file.path = output.right(output.length() - 3).trimmed();
+      file.flag = firstByte;
 
       switch (firstByte) {
       case 'M':
@@ -279,6 +280,22 @@ public:
       }
     }
 
+    process = git({"ls-files", "-z", "-v"});
+    for (auto &output : process.standardOutOutput.split('\0')) {
+      if (output.isEmpty() || !output.contains(' ')) {
+        continue;
+      }
+
+      if (output.at(0) == 'S' || QString(output.at(0)).isLower()) {
+        GitFile file;
+        file.path = output.mid(2);
+        file.ignored = true;
+        file.unstaged = true;
+        file.flag = output.at(0);
+        unstaged.append(file);
+      }
+    }
+
     readyForCommit = !staged.empty();
 
     QCryptographicHash unstagedHash(QCryptographicHash::Sha256);
@@ -290,6 +307,7 @@ public:
         QFile f(repositoryPath.absoluteFilePath(file.path));
         f.open(QFile::ReadOnly);
         unstagedHash.addData(f.readAll());
+        unstagedHash.addData(QByteArray(1, file.flag));
         f.close();
       }
     }

@@ -6,10 +6,13 @@
 
 struct GitFile {
   bool staged = false, unstaged = false, added = false, modified = false,
-       deleted = false;
+       deleted = false, ignored = false;
   QString path = "";
+  char flag = '\0';
 
-  bool operator<(const GitFile &other) const { return other.path < path; }
+  bool operator<(const GitFile &other) const {
+    return ignored || (other.path < path);
+  }
 };
 Q_DECLARE_METATYPE(GitFile)
 
