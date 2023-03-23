@@ -346,8 +346,15 @@ public:
     for (auto &branch : branches) {
       localBranchesHash.addData(branch.name.toLatin1());
       if (branch.active) {
+        bool unstagedFilesEmpty = true;
+        for (const auto &file : unstaged) {
+          if (!file.ignored) {
+            unstagedFilesEmpty = false;
+            break;
+          }
+        }
         activeBranch = branch;
-        activeBranch.hasChanges = !(unstaged.empty() && staged.empty());
+        activeBranch.hasChanges = !(unstagedFilesEmpty && staged.empty());
         activeBranch.hasUpstream = hasUpstream;
         activeBranch.commitsAhead = commitsAhead;
         activeBranch.commitsBehind = commitsBehind;
