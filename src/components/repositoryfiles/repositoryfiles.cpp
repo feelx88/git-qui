@@ -3,43 +3,50 @@
 
 #include <QAction>
 #include <QInputDialog>
+#include <QMenu>
 #include <treewidgetitem.hpp>
 
 #include "mainwindow.hpp"
 
 using namespace std::placeholders;
 
+constexpr int DATA_ROLE = 1000;
+
 struct RepositoryFilesPrivate {
   QSharedPointer<GitInterface> gitInterface = nullptr;
   bool unstaged;
   QString selection;
   RepositoryFiles *_this;
+  QMenu *defaultContextMenu, *ignoredContextMenu;
 
   RepositoryFilesPrivate(RepositoryFiles *_this) : _this(_this) {}
 
   void connectSignals(RepositoryFiles *_this) {
-    _this->connect(_this->ui->radioButton, &QRadioButton::clicked, _this,
-                   [_this] { _this->ui->stackedWidget->setCurrentIndex(0); });
+    defaultContextMenu = new QMenu(_this);
+    ignoredContextMenu = new QMenu(_this);
 
-    _this->connect(_this->ui->radioButton_2, &QRadioButton::clicked, _this,
-                   [_this] { _this->ui->stackedWidget->setCurrentIndex(1); });
+    QObject::connect(_this->ui->radioButton, &QRadioButton::clicked, _this,
+                     [_this] { _this->ui->stackedWidget->setCurrentIndex(0); });
 
-    _this->connect(_this->ui->stackedWidget, &QStackedWidget::currentChanged,
-                   _this, [=, this](int index) {
-                     if (index == 1) {
-                       _this->ui->radioButton_2->setChecked(true);
-                     }
-                   });
+    QObject::connect(_this->ui->radioButton_2, &QRadioButton::clicked, _this,
+                     [_this] { _this->ui->stackedWidget->setCurrentIndex(1); });
 
-    _this->connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged,
-                   _this, [=, this] {
-                     auto item = _this->ui->listWidget->currentItem();
-                     if (item && !item->text().isEmpty()) {
-                       gitInterface->selectFile(unstaged, item->text());
-                     }
-                   });
+    QObject::connect(_this->ui->stackedWidget, &QStackedWidget::currentChanged,
+                     _this, [=, this](int index) {
+                       if (index == 1) {
+                         _this->ui->radioButton_2->setChecked(true);
+                       }
+                     });
 
-    _this->connect(
+    QObject::connect(_this->ui->listWidget, &QListWidget::itemSelectionChanged,
+                     _this, [=, this] {
+                       auto item = _this->ui->listWidget->currentItem();
+                       if (item && !item->text().isEmpty()) {
+                         gitInterface->selectFile(unstaged, item->text());
+                       }
+                     });
+
+    QObject::connect(
         _this->ui->treeWidget, &QTreeWidget::itemSelectionChanged, _this,
         [=, this] {
           auto item = _this->ui->treeWidget->currentItem();
@@ -49,18 +56,53 @@ struct RepositoryFilesPrivate {
           }
         });
 
-    _this->connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked,
-                   _this, [=, this](QListWidgetItem *item) {
-                     stageOrUnstage(_this, item->text());
-                   });
+    QObject::connect(_this->ui->listWidget, &QListWidget::itemDoubleClicked,
+                     _this, [=, this](QListWidgetItem *item) {
+                       stageOrUnstage(_this, item->text());
+                     });
 
-    _this->connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked,
-                   _this, [=, this](QTreeWidgetItem *item) {
-                     QVariant data = item->data(0, Qt::UserRole);
-                     if (data.isValid()) {
-                       stageOrUnstage(_this, data.toString());
-                     }
-                   });
+    QObject::connect(_this->ui->treeWidget, &QTreeWidget::itemDoubleClicked,
+                     _this, [=, this](QTreeWidgetItem *item) {
+                       QVariant data = item->data(0, Qt::UserRole);
+                       if (data.isValid()) {
+                         stageOrUnstage(_this, data.toString());
+                       }
+                     });
+
+    auto openMenu = [=, this](const QPoint &position, bool listView) {
+      QVariant selectedFile;
+      if (listView) {
+        auto item = _this->ui->listWidget->itemAt(position);
+        if (!item) {
+          return;
+        }
+
+        selectedFile = item->data(DATA_ROLE);
+      } else {
+        auto item = _this->ui->treeWidget->itemAt(position);
+        if (!item) {
+          return;
+        }
+
+        selectedFile = item->data(0, DATA_ROLE);
+      }
+
+      if (!selectedFile.isValid()) {
+        return;
+      }
+
+      if (selectedFile.value<GitFile>().ignored) {
+        ignoredContextMenu->popup(_this->ui->listWidget->mapToGlobal(position));
+      } else {
+        defaultContextMenu->popup(_this->ui->listWidget->mapToGlobal(position));
+      }
+    };
+    QObject::connect(
+        _this->ui->listWidget, &QListWidget::customContextMenuRequested, _this,
+        [=, this](const QPoint &position) { openMenu(position, true); });
+    QObject::connect(
+        _this->ui->treeWidget, &QListWidget::customContextMenuRequested, _this,
+        [=, this](const QPoint &position) { openMenu(position, false); });
   }
 
   void addContextMenuActions(RepositoryFiles *_this) {
@@ -107,8 +149,23 @@ struct RepositoryFilesPrivate {
       actions << checkoutAction;
     }
 
-    _this->ui->listWidget->addActions(actions);
-    _this->ui->treeWidget->addActions(actions);
+    QAction *ignoreAction =
+        new QAction(RepositoryFiles::tr("Toggle temporary ignore flag"), _this);
+    _this->connect(ignoreAction, &QAction::triggered, _this, [=, this] {
+      auto selectedFile =
+          (_this->ui->stackedWidget->currentIndex() == 0
+               ? _this->ui->listWidget->currentItem()->data(DATA_ROLE)
+               : _this->ui->treeWidget->currentItem()->data(0, DATA_ROLE));
+
+      if (selectedFile.isValid()) {
+        gitInterface->toggleIgnoreFlag(selectedFile.value<GitFile>());
+      }
+    });
+
+    actions << ignoreAction;
+
+    defaultContextMenu->addActions(actions);
+    ignoredContextMenu->addAction(ignoreAction);
   }
 
   void stageOrUnstage(RepositoryFiles *_this, const QString &path) {
@@ -137,11 +194,16 @@ struct RepositoryFilesPrivate {
     for (const auto &file : files) {
       QListWidgetItem *item = new QListWidgetItem(_this->ui->listWidget);
       item->setText(file.path);
+      item->setData(DATA_ROLE, QVariant::fromValue(file));
       if (file.deleted) {
         item->setFont(strikeThroughFont);
       }
       if (file.added) {
         item->setFont(italicFont);
+      }
+      if (file.ignored) {
+        item->setIcon(QIcon::fromTheme("window-pin",
+                                       QIcon(":/deploy/icons/window-pin.svg")));
       }
 
       QList<QString> parts = file.path.split('/');
@@ -185,6 +247,12 @@ struct RepositoryFilesPrivate {
       if (file.added) {
         topLevelItem->setFont(0, italicFont);
       }
+      if (file.ignored) {
+        topLevelItem->setIcon(
+            0, QIcon::fromTheme("window-pin",
+                                QIcon(":/deploy/icons/window-pin.svg")));
+      }
+      topLevelItem->setData(0, DATA_ROLE, QVariant::fromValue(file));
     }
 
     _this->ui->treeWidget->expandAll();

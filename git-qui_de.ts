@@ -270,44 +270,44 @@
         <translation>Läuft bereits</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="433"/>
+        <location filename="src/gitinterface.cpp" line="451"/>
         <source>There are no files to commit</source>
         <translation>Es sind keine Dateien zum Commit vorgemerkt</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="527"/>
+        <location filename="src/gitinterface.cpp" line="545"/>
         <source>untracked file</source>
         <translation>nicht verfolgte Datei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="551"/>
+        <location filename="src/gitinterface.cpp" line="569"/>
         <source>binary file</source>
         <translation>Binärdatei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="654"/>
+        <location filename="src/gitinterface.cpp" line="672"/>
         <source>Push has failed</source>
         <translation>Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="668"/>
+        <location filename="src/gitinterface.cpp" line="686"/>
         <source>Push tags has failed</source>
         <translation>Tag-Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="688"/>
+        <location filename="src/gitinterface.cpp" line="706"/>
         <source>Pull has failed</source>
         <translation>Pull ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="759"/>
+        <location filename="src/gitinterface.cpp" line="777"/>
         <source>Deleting branch %1 has failed with the following message:
 %2</source>
         <translation>Das Löschen des Branches %1 ist mit folgender Nachricht fehlgeschlagen:
 %2</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="826"/>
+        <location filename="src/gitinterface.cpp" line="844"/>
         <source>Cherry-picking commit %1 has failed with the following message:
 %2</source>
         <translation>Der Cherry-Pick für den Commit %1 ist mit folgender Nachricht fehlgeschlagen:
@@ -773,62 +773,67 @@ Anwendungversion: %1</translation>
         <translation>&amp;Reporitory-Dateien</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.ui" line="23"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.ui" line="31"/>
         <source>L&amp;ist view</source>
         <translation>&amp;Listenansicht</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.ui" line="33"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.ui" line="41"/>
         <source>&amp;Tree view</source>
         <translation>&amp;Baumansicht</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="69"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="111"/>
         <source>Stage</source>
         <translation>Zum commiten bereitstellen</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="70"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="112"/>
         <source>Unstage</source>
         <translation>Nicht mehr zum committen bereitstellen</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="87"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="129"/>
         <source>Reset file (delete if not tracked)</source>
         <translation>Datei zurücksetzten (löschen wenn nicht verfolgt)</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="194"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="153"/>
+        <source>Toggle temporary ignore flag</source>
+        <translation>Flag für temporäres ignorieren umschalten</translation>
+    </message>
+    <message>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="262"/>
         <source>Repository files</source>
         <translation>Repository-Dateien</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="219"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="287"/>
         <source>Select widget type</source>
         <translation>Ansichtstyp auswählen</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="220"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="288"/>
         <source>Please choose the type of files displayed for this widget.</source>
         <translation>Bitte den Typ für dieses Ansicht auswählen.</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="221"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="289"/>
         <source>Unstaged</source>
         <translation>Nicht zum commiten bereitgestellt</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="221"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="289"/>
         <source>Staged</source>
         <translation>Zum commiten bereitgestellt</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="234"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="302"/>
         <source>Unstaged files</source>
         <translation>Nicht zum committen bereitgestellte Dateien</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="234"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="302"/>
         <source>Staged files</source>
         <translation>Zum commiten bereitgestellte Dateien</translation>
     </message>
