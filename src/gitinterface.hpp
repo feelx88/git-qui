@@ -115,6 +115,7 @@ public slots:
       const GitInterface::ResetType &type = GitInterface::ResetType::MIXED);
   QFuture<void> cherryPickCommit(const QString &commitId,
                                  std::optional<int> mainline = std::nullopt);
+  QFuture<void> toggleIgnoreFlag(const GitFile &file);
 signals:
   void fileChanged(const QFile &fileName);
   void nonStagingAreaChanged(const QList<GitFile> &);

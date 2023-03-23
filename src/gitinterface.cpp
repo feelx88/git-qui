@@ -851,6 +851,23 @@ public:
 
     log();
   }
+
+  void toggleIgnoreFlag(const GitFile &file) {
+    QStringList arguments({"update-index"});
+
+    if (file.ignored) {
+      arguments << (file.flag == 'S' ? "--no-skip-worktree"
+                                     : "--no-assume-unchanged");
+
+    } else {
+      arguments << "--skip-worktree";
+    }
+
+    arguments << file.path;
+    git(arguments);
+
+    status();
+  }
 };
 
 GitInterface::GitInterface(const QString &name, const QString &path,
@@ -1114,4 +1131,10 @@ QFuture<void> GitInterface::cherryPickCommit(const QString &commitId,
            QtConcurrent::run(_impl.get(),
                              &GitInterfacePrivate::cherryPickCommit, commitId,
                              mainline));
+}
+
+QFuture<void> GitInterface::toggleIgnoreFlag(const GitFile &file) {
+  RUN_ONCE(ActionTag::GIT_CHERRY_PICK,
+           QtConcurrent::run(_impl.get(),
+                             &GitInterfacePrivate::toggleIgnoreFlag, file));
 }
