@@ -947,19 +947,19 @@ Anwendungversion: %1</translation>
         <translation>Soll der Standard-Upstream-Branch auf origin/%1 gesetzt werden?</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="96"/>
+        <location filename="src/toolbaractions.cpp" line="103"/>
         <source>There are open changes</source>
         <translation>Es gibt offene Änderungen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="97"/>
+        <location filename="src/toolbaractions.cpp" line="104"/>
         <source>There are open changes in this repository. Would you like to stash your changes before pulling and unstash them afterwards?</source>
         <oldsource>There are open changes in this repository. Would you like to stash your changes before pushing and unstash them afterwards?</oldsource>
         <translation>Es gibt offene Änderungen im Repository. Sollen diese vor dem Pull gestasht und anschließend aus dem Stash wiederhergestellt werden?</translation>
     </message>
     <message>
         <location filename="src/toolbaractions.cpp" line="35"/>
-        <location filename="src/toolbaractions.cpp" line="141"/>
+        <location filename="src/toolbaractions.cpp" line="148"/>
         <source>Create new branch</source>
         <translation>Neuen Branch erstellen</translation>
     </message>
@@ -1014,7 +1014,7 @@ Anwendungversion: %1</translation>
         <translation>Aktuellen Branch auf HEAD zurücksetzen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="142"/>
+        <location filename="src/toolbaractions.cpp" line="149"/>
         <source>New branch name</source>
         <translation>Name des neuen Branches</translation>
     </message>

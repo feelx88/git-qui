@@ -87,9 +87,16 @@ void ToolBarActions::initialize(Core *core) {
       QObject::connect(
           _actionMap[ActionID::PULL], &QAction::triggered,
           activeRepositoryContext.get(), [=] {
-            bool stash = false;
+            bool stash = false, openChanges = false;
 
-            if (!repository->files().empty()) {
+            for (const auto &file : repository->files()) {
+              if (!file.ignored) {
+                openChanges = true;
+                break;
+              }
+            }
+
+            if (openChanges) {
               stash =
                   QMessageBox::question(
                       QApplication::activeWindow(),
