@@ -747,10 +747,14 @@ public:
     auto process = git({"status", "--porcelain=v1", path});
     QString fileStatus = process.standardOutOutput;
 
-    if (fileStatus.startsWith("??")) {
-      QFile::remove(repositoryPath.filePath(path));
-    } else {
-      git({"checkout", "--", path});
+    for (auto file : fileStatus.split('\n')) {
+      auto untracked = file.startsWith("??");
+      file = file.remove(0, 3);
+      if (untracked) {
+        QFile::remove(repositoryPath.filePath(file));
+      } else {
+        git({"checkout", "--", file});
+      }
     }
 
     status();
