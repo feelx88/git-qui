@@ -300,14 +300,14 @@
         <translation>Pull ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="784"/>
+        <location filename="src/gitinterface.cpp" line="788"/>
         <source>Deleting branch %1 has failed with the following message:
 %2</source>
         <translation>Das Löschen des Branches %1 ist mit folgender Nachricht fehlgeschlagen:
 %2</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="851"/>
+        <location filename="src/gitinterface.cpp" line="855"/>
         <source>Cherry-picking commit %1 has failed with the following message:
 %2</source>
         <translation>Der Cherry-Pick für den Commit %1 ist mit folgender Nachricht fehlgeschlagen:
@@ -803,37 +803,37 @@ Anwendungversion: %1</translation>
         <translation>Flag für temporäres ignorieren umschalten</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="262"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="264"/>
         <source>Repository files</source>
         <translation>Repository-Dateien</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="287"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="289"/>
         <source>Select widget type</source>
         <translation>Ansichtstyp auswählen</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="288"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="290"/>
         <source>Please choose the type of files displayed for this widget.</source>
         <translation>Bitte den Typ für dieses Ansicht auswählen.</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="289"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="291"/>
         <source>Unstaged</source>
         <translation>Nicht zum commiten bereitgestellt</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="289"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="291"/>
         <source>Staged</source>
         <translation>Zum commiten bereitgestellt</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="302"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="304"/>
         <source>Unstaged files</source>
         <translation>Nicht zum committen bereitgestellte Dateien</translation>
     </message>
     <message>
-        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="302"/>
+        <location filename="src/components/repositoryfiles/repositoryfiles.cpp" line="304"/>
         <source>Staged files</source>
         <translation>Zum commiten bereitgestellte Dateien</translation>
     </message>

@@ -183,6 +183,7 @@ struct RepositoryFilesPrivate {
   void refreshView(QList<GitFile> files) {
     _this->ui->listWidget->clear();
     _this->ui->treeWidget->clear();
+    _this->ui->treeWidget->hideColumn(1);
 
     std::sort(files.begin(), files.end());
 
@@ -212,10 +213,10 @@ struct RepositoryFilesPrivate {
       TreeWidgetItem *topLevelItem = nullptr;
       for (; index >= 0; --index) {
         QList<QTreeWidgetItem *> result = _this->ui->treeWidget->findItems(
-            parts.at(index), Qt::MatchCaseSensitive | Qt::MatchRecursive);
+            parts.mid(0, index).join("/"),
+            Qt::MatchCaseSensitive | Qt::MatchRecursive, 1);
         if (!result.empty()) {
           topLevelItem = static_cast<TreeWidgetItem *>(result.first());
-          index++;
           break;
         }
       }
@@ -224,6 +225,8 @@ struct RepositoryFilesPrivate {
         topLevelItem = new TreeWidgetItem(_this->ui->treeWidget, nullptr);
         topLevelItem->setText(0, parts.at(0));
         topLevelItem->setData(0, Qt::UserRole, parts.at(0));
+        topLevelItem->setData(0, DATA_ROLE, parts.at(0));
+        topLevelItem->setText(1, parts.at(0));
         index = 1;
         _this->ui->treeWidget->addTopLevelItem(topLevelItem);
       }
@@ -232,10 +235,9 @@ struct RepositoryFilesPrivate {
         TreeWidgetItem *child = new TreeWidgetItem(topLevelItem, nullptr);
         child->setText(0, parts.at(index));
 
-        child->setData(0, Qt::UserRole,
-                       index == parts.size()
-                           ? parts.at(index)
-                           : parts.mid(0, index + 1).join('/'));
+        child->setData(0, Qt::UserRole, parts.mid(0, index + 1).join('/'));
+        child->setData(0, DATA_ROLE, parts.mid(0, index + 1).join('/'));
+        child->setText(1, parts.mid(0, index + 1).join('/'));
 
         topLevelItem->addChild(child);
         topLevelItem = child;
@@ -337,8 +339,7 @@ void RepositoryFiles::onRepositorySwitched(
                 listItems.empty() ? nullptr : listItems.first());
 
             QList<QTreeWidgetItem *> treeItems = ui->treeWidget->findItems(
-                path.split('/').last(),
-                Qt::MatchCaseSensitive | Qt::MatchRecursive);
+                path, Qt::MatchCaseSensitive | Qt::MatchRecursive, 1);
             ui->treeWidget->setCurrentItem(
                 treeItems.empty() ? nullptr : treeItems.first());
           });
