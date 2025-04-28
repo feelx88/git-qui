@@ -66,8 +66,8 @@ jobs:
           name: "Publish artifacts"
           command: |
             ssh root@feelx88.de "cd /root/flatpak-repo && rm -rf build"
-            rsync -avz --no-times /tmp/git-qui/build root@feelx88.de:/root/flatpak-repo
-            rsync -avz --no-times /tmp/git-qui/git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
+            rsync -avz --no-times --no-o --no-g /tmp/git-qui/build root@feelx88.de:/root/flatpak-repo
+            rsync -avz --no-times --no-o --no-g /tmp/git-qui/git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
             ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --force-clean --install-deps-from=flathub --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
   publish-github-artifacts:
     docker:
