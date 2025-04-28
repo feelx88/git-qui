@@ -24,6 +24,9 @@ jobs:
           name: "Add flathub repo"
           command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
       - run:
+          name: "Init flatpak build"
+          command: "sudo flatpak build-init"
+      - run:
           name: "Run flatpak-builder"
           command: "sudo flatpak-builder --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
       - persist_to_workspace:
@@ -35,7 +38,7 @@ jobs:
     macos:
       xcode: 14.0.0
     working_directory: /tmp/git-qui
-    resource_class: macos.x86.medium.gen2
+    resource_class: macos.m1.medium.gen1
     steps:
       - run:
           name: "Install dependencies"
