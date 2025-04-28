@@ -82,6 +82,7 @@ public slots:
   QFuture<void> reload();
   void status();
   void historyStatus(const QString &commitId);
+  void setHistoryLimit(int limit);
   void log();
   QFuture<void> fetch();
   QFuture<bool> commit(const QString &message);

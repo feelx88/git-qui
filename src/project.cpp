@@ -18,6 +18,7 @@ struct ConfigurationKeys {
       "dockWidgetConfiguration";
   static constexpr const char *AUTOFETCH_ENABLED = "autofetchEnabled";
   static constexpr const char *AUTOFETCH_TIMER = "autofetchTimer";
+  static constexpr const char *HISTORY_LIMIT = "historyLimit";
 };
 
 struct ProjectPrivate {
@@ -28,6 +29,7 @@ struct ProjectPrivate {
   int currentRepository = 0;
   bool autoFetchEnabled = true;
   QTime autoFetchTimer = QTime(0, 0, 30);
+  int historyLimit = 0;
   QList<QRegularExpression> ignoredSubdirectories = {
       QRegularExpression("/.*vendor.*/"),
       QRegularExpression("/.*node_modules.*/")};
@@ -50,11 +52,14 @@ struct ProjectPrivate {
     autoFetchTimer =
         settings->value(ConfigurationKeys::AUTOFETCH_TIMER, QTime(0, 0, 30))
             .toTime();
+    historyLimit = settings->value(ConfigurationKeys::HISTORY_LIMIT, 0).toInt();
 
     for (const auto &entry : list) {
-      repositories.append(QSharedPointer<GitInterface>(new GitInterface(
+      auto repo = QSharedPointer<GitInterface>(new GitInterface(
           entry.value(ConfigurationKeys::REPOSITORY_LIST_NAME).toString(),
-          entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString())));
+          entry.value(ConfigurationKeys::REPOSITORY_LIST_PATH).toString()));
+      repo->setHistoryLimit(historyLimit);
+      repositories.append(repo);
     }
   }
 
@@ -70,6 +75,7 @@ struct ProjectPrivate {
       settings->setValue(ConfigurationKeys::AUTOFETCH_ENABLED,
                          autoFetchEnabled);
       settings->setValue(ConfigurationKeys::AUTOFETCH_TIMER, autoFetchTimer);
+      settings->setValue(ConfigurationKeys::HISTORY_LIMIT, historyLimit);
 
       QList<QVariantMap> list;
 
@@ -88,6 +94,7 @@ struct ProjectPrivate {
   void changeRepository() {
     currentRepositoryContext.reset(new QObject(_this));
     auto repo = repositories.at(currentRepository);
+    repo->setHistoryLimit(historyLimit);
     emit _this->repositorySwitched(repo, currentRepositoryContext);
     repo->reload();
   }
@@ -240,3 +247,7 @@ QTime Project::autoFetchTimer() const { return _impl->autoFetchTimer; }
 void Project::setAutoFetchTimer(const QTime &time) {
   _impl->autoFetchTimer = time;
 }
+
+int Project::historyLimit() const { return _impl->historyLimit; }
+
+void Project::setHistoryLimit(int limit) { _impl->historyLimit = limit; }

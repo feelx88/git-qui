@@ -702,7 +702,7 @@ Anwendungversion: %1</translation>
 <context>
     <name>Project</name>
     <message>
-        <location filename="src/project.cpp" line="153"/>
+        <location filename="src/project.cpp" line="160"/>
         <source>Select repository path</source>
         <translation>Repository-Pfad auswählen</translation>
     </message>
@@ -715,12 +715,12 @@ Anwendungversion: %1</translation>
         <translation>Projekteinstellungen</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="148"/>
+        <location filename="src/projectsettingsdialog.ui" line="170"/>
         <source>Add repository...</source>
         <translation>Repository hinzufügen...</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="158"/>
+        <location filename="src/projectsettingsdialog.ui" line="180"/>
         <source>Remove repository</source>
         <translation>Repository entfernen</translation>
     </message>
@@ -730,44 +730,68 @@ Anwendungversion: %1</translation>
         <translation>Projektname</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="79"/>
+        <location filename="src/projectsettingsdialog.ui" line="36"/>
         <source>Project file path</source>
         <translation>Dateipfad des Projekts</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="91"/>
+        <location filename="src/projectsettingsdialog.ui" line="48"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="100"/>
+        <location filename="src/projectsettingsdialog.ui" line="57"/>
+        <source>Auto-Fetch</source>
+        <translation>Auto-fetch</translation>
+    </message>
+    <message>
+        <location filename="src/projectsettingsdialog.ui" line="107"/>
+        <source>History limit</source>
+        <translation>History-Limit</translation>
+    </message>
+    <message>
+        <location filename="src/projectsettingsdialog.ui" line="114"/>
+        <source> Lines</source>
+        <translation> Zeilen</translation>
+    </message>
+    <message>
+        <location filename="src/projectsettingsdialog.ui" line="124"/>
         <source>Repositories</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="44"/>
+        <location filename="src/projectsettingsdialog.ui" line="72"/>
         <source>Enable auto-fetch</source>
         <translation>Auto-fetch aktivieren</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="57"/>
+        <location filename="src/projectsettingsdialog.ui" line="85"/>
         <source>Auto-fetch timer</source>
         <translation>Auto-fetch-Timer</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="57"/>
+        <location filename="src/projectsettingsdialog.cpp" line="59"/>
         <source>Select project file</source>
         <translation>Projektdatei auswählen</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="63"/>
+        <location filename="src/projectsettingsdialog.cpp" line="65"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="63"/>
+        <location filename="src/projectsettingsdialog.cpp" line="65"/>
         <source>Path</source>
         <translation>Pfad</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="src/gitinterface.cpp" line="408"/>
+        <source>History truncated by reaching the set limit of %1 lines.</source>
+        <oldsource>History truncated by reaching the maximum history count of %1 lines.</oldsource>
+        <translation>History wurde durch Erreichen des eingestellten Limits von %1 Zeilen gekürzt.</translation>
     </message>
 </context>
 <context>

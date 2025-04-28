@@ -45,6 +45,8 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   ui->projectPathEdit->setText(_impl->project->fileName());
   ui->autoFetchEnabled->setChecked(_impl->project->autoFetchEnabled());
   ui->autoFetchTimer->setTime(_impl->project->autoFetchTimer());
+  ui->historyLimit->setValue(_impl->project->historyLimit());
+
   _impl->fillRepositoryList(this);
 
   connect(ui->projectPathEdit, &QLineEdit::textChanged, this,
@@ -103,6 +105,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
     _impl->project->setName(ui->projectNameEdit->text());
     _impl->project->setAutoFetchEnabled(ui->autoFetchEnabled->isChecked());
     _impl->project->setAutoFetchTimer(ui->autoFetchTimer->time());
+    _impl->project->setHistoryLimit(ui->historyLimit->value());
     _impl->project->save();
   });
 }

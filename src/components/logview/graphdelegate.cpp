@@ -42,9 +42,14 @@ void GraphDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QPoint halfHeight = QPoint(0, (option.rect.height() / 2) - 1);
   auto commit = _impl->gitTree->commitList().at(index.row());
 
+  if (commit->id.isNull()) {
+    return;
+  }
+
   drawBackground(painter, option, index);
 
   RowInfo currentRow = _impl->rows.value(index.row());
+
   painter->setPen(QPen(QBrush(Qt::red), 2));
 
   for (const auto &childCommit : qAsConst(commit->childCommits)) {

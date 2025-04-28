@@ -55,6 +55,7 @@ public:
   QFuture<void> actionFuture;
   QByteArray branchesHash, unstagedFilesHash, stagedFilesHash;
   QList<QString> remotes;
+  int historyLimit = 0;
 
   GitInterfacePrivate(GitInterface *_this) : _this(_this) {
     errorLog.reset(new QFile(GitInterface::errorLogFileName()));
@@ -394,10 +395,21 @@ public:
              "%P"});
 
     QList<GitCommit> list;
+    int currentLine = 0;
 
     for (auto &line : QString(process.standardOutOutput).split('\n')) {
       if (line.isEmpty()) {
         continue;
+      }
+
+      GitCommit commit;
+
+      if (historyLimit > 0 && ++currentLine > historyLimit) {
+        commit.message = QObject::tr("History truncated by reaching the set "
+                                     "limit of %1 lines.")
+                             .arg(historyLimit);
+        list.append(commit);
+        break;
       }
 
       QList<QString> parts = line.split('\f');
@@ -406,7 +418,6 @@ public:
         remote.append('/');
       }
 
-      GitCommit commit;
       if (parts.length() > 1) {
         commit.id = parts.at(1);
         commit.message = parts.at(2);
@@ -978,6 +989,8 @@ void GitInterface::historyStatus(const QString &commitId) {
 
   emit historyFilesChanged(commitId, list);
 }
+
+void GitInterface::setHistoryLimit(int limit) { _impl->historyLimit = limit; }
 
 void GitInterface::log() {
   emit actionStarted(ActionTag::GIT_LOG);

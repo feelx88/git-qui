@@ -44,6 +44,9 @@ public:
   QTime autoFetchTimer() const;
   void setAutoFetchTimer(const QTime &time);
 
+  int historyLimit() const;
+  void setHistoryLimit(int limit);
+
 signals:
   void repositoryAdded(QSharedPointer<GitInterface> repository);
   void repositorySwitched(QSharedPointer<GitInterface> repository,
