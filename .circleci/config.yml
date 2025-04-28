@@ -7,7 +7,7 @@ version: 2.1
 jobs:
   build-flatpak:
     machine:
-      image: ubuntu-2204:2022.04.1
+      image: cimg/base:2022.04.1
     working_directory: /tmp/git-qui
     resource_class: medium
     steps:
@@ -55,7 +55,7 @@ jobs:
             - "git-qui.dmg"
   publish-flatpak:
     machine:
-      image: ubuntu-2204:2022.04.1
+      image: cimg/base:2022.04.1
     working_directory: /tmp/git-qui
     resource_class: medium
     steps:
