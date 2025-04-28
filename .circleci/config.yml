@@ -96,14 +96,14 @@ workflows:
             tags:
               only:
                 - /v.*/
-      - build-dmg:
-          filters:
-            branches:
-              only:
-                - master
-            tags:
-              only:
-                - /v.*/
+#      - build-dmg:
+#          filters:
+#            branches:
+#              only:
+#                - master
+#            tags:
+#              only:
+#                - /v.*/
       - publish-flatpak:
           requires:
             - build-flatpak
@@ -114,13 +114,13 @@ workflows:
             tags:
               only:
                 - /v.*/
-      - publish-github-artifacts:
-          requires:
-            - build-dmg
-          filters:
-            branches:
-              ignore:
-                - /.*/
-            tags:
-              only:
-                - /v.*/
+#      - publish-github-artifacts:
+#          requires:
+#            - build-dmg
+#          filters:
+#            branches:
+#              ignore:
+#                - /.*/
+#            tags:
+#              only:
+#               - /v.*/
