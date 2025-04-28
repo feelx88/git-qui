@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "sudo apt update && sudo apt install -y git flatpak-builder"
+          command: "sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak-builder"
       - checkout:
           path: git-qui
       - run:
