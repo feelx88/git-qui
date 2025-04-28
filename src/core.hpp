@@ -10,8 +10,6 @@ class GitInterface;
 class Core : public QObject {
   Q_OBJECT
 public:
-  inline static int AUTO_FETCH_INTERVAL_SECONDS = 60;
-
   friend struct CorePrivate;
   explicit Core(QObject *parent = nullptr);
   virtual ~Core();

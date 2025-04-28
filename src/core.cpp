@@ -187,6 +187,4 @@ Project *Core::project() const { return _impl->project.get(); }
 
 QVariantMap Core::recentProjects() const { return _impl->recentProjects; }
 
-fa::QtAwesome *Core::iconFont() const { return _impl->iconFont; }
-
 void Core::clearRecentProjects() { _impl->recentProjects.clear(); }
