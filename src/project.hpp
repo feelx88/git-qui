@@ -41,6 +41,8 @@ public:
 
   bool autoFetchEnabled() const;
   void setAutoFetchEnabled(bool enabled);
+  QTime autoFetchTimer() const;
+  void setAutoFetchTimer(const QTime &time);
 
 signals:
   void repositoryAdded(QSharedPointer<GitInterface> repository);

@@ -17,6 +17,7 @@ struct ConfigurationKeys {
   static constexpr const char *DOCK_WIDGET_CONFIGURATION =
       "dockWidgetConfiguration";
   static constexpr const char *AUTOFETCH_ENABLED = "autofetchEnabled";
+  static constexpr const char *AUTOFETCH_TIMER = "autofetchTimer";
 };
 
 struct ProjectPrivate {
@@ -26,6 +27,7 @@ struct ProjectPrivate {
   QList<QSharedPointer<GitInterface>> repositories;
   int currentRepository = 0;
   bool autoFetchEnabled = true;
+  QTime autoFetchTimer = QTime(0, 0, 30);
   QList<QRegularExpression> ignoredSubdirectories = {
       QRegularExpression("/.*vendor.*/"),
       QRegularExpression("/.*node_modules.*/")};
@@ -45,6 +47,9 @@ struct ProjectPrivate {
         0);
     autoFetchEnabled =
         settings->value(ConfigurationKeys::AUTOFETCH_ENABLED, true).toBool();
+    autoFetchTimer =
+        settings->value(ConfigurationKeys::AUTOFETCH_TIMER, QTime(0, 0, 30))
+            .toTime();
 
     for (const auto &entry : list) {
       repositories.append(QSharedPointer<GitInterface>(new GitInterface(
@@ -64,6 +69,7 @@ struct ProjectPrivate {
                          currentRepository);
       settings->setValue(ConfigurationKeys::AUTOFETCH_ENABLED,
                          autoFetchEnabled);
+      settings->setValue(ConfigurationKeys::AUTOFETCH_TIMER, autoFetchTimer);
 
       QList<QVariantMap> list;
 
@@ -227,4 +233,10 @@ bool Project::autoFetchEnabled() const { return _impl->autoFetchEnabled; }
 void Project::setAutoFetchEnabled(bool enabled) {
   _impl->autoFetchEnabled = enabled;
   emit autoFetchChanged(enabled);
+}
+
+QTime Project::autoFetchTimer() const { return _impl->autoFetchTimer; }
+
+void Project::setAutoFetchTimer(const QTime &time) {
+  _impl->autoFetchTimer = time;
 }

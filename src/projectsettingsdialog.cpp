@@ -36,17 +36,15 @@ ProjectSettingsDialog::ProjectSettingsDialog(
   _impl->project = project;
 
   if (dialogMode == DialogMode::CREATE) {
-    ui->buttonBox->button(QDialogButtonBox::Close)->hide();
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
   } else {
-    ui->buttonBox->button(QDialogButtonBox::Ok)->hide();
-    ui->buttonBox->button(QDialogButtonBox::Cancel)->hide();
     ui->addRepositoryButton->setEnabled(true);
   }
 
   ui->projectNameEdit->setText(_impl->project->name());
   ui->projectPathEdit->setText(_impl->project->fileName());
   ui->autoFetchEnabled->setChecked(_impl->project->autoFetchEnabled());
+  ui->autoFetchTimer->setTime(_impl->project->autoFetchTimer());
   _impl->fillRepositoryList(this);
 
   connect(ui->projectPathEdit, &QLineEdit::textChanged, this,
@@ -104,6 +102,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
     _impl->project->setFileName(ui->projectPathEdit->text());
     _impl->project->setName(ui->projectNameEdit->text());
     _impl->project->setAutoFetchEnabled(ui->autoFetchEnabled->isChecked());
+    _impl->project->setAutoFetchTimer(ui->autoFetchTimer->time());
     _impl->project->save();
   });
 }

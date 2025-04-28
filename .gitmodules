@@ -2,3 +2,6 @@
 	path = Qt-Advanced-Docking-System
 	url = https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System.git
 	ignore = dirty
+[submodule "QtAwesome"]
+	path = QtAwesome
+	url = https://github.com/gamecreature/QtAwesome.git

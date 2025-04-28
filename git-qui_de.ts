@@ -154,39 +154,39 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="src/core.cpp" line="38"/>
+        <location filename="src/core.cpp" line="42"/>
         <source>No Project selected</source>
         <translation>Kein Projekt ausgewählt</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="39"/>
+        <location filename="src/core.cpp" line="43"/>
         <source>Would you like to create a new project? Alternatively, you could open an existing one.</source>
         <translation>Neues Projekt anlegen? Alternativ kann auch ein bestehendes Projekt geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="42"/>
+        <location filename="src/core.cpp" line="46"/>
         <source>Create new project</source>
         <translation>Neues Projekt erstellen</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="44"/>
+        <location filename="src/core.cpp" line="48"/>
         <source>Open existing project</source>
         <translation>Existierendes Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="52"/>
-        <location filename="src/core.cpp" line="68"/>
+        <location filename="src/core.cpp" line="56"/>
+        <location filename="src/core.cpp" line="72"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="53"/>
-        <location filename="src/core.cpp" line="69"/>
+        <location filename="src/core.cpp" line="57"/>
+        <location filename="src/core.cpp" line="73"/>
         <source>No project opened, closing.</source>
         <translation>Kein Porjekt geöffnet, schließe Programm.</translation>
     </message>
     <message>
-        <location filename="src/core.cpp" line="60"/>
+        <location filename="src/core.cpp" line="64"/>
         <source>Select project to open</source>
         <translation>Zu öffnendes Projekt auswählen</translation>
     </message>
@@ -265,49 +265,49 @@
 <context>
     <name>GitInterface</name>
     <message>
-        <location filename="src/gitinterface.cpp" line="66"/>
+        <location filename="src/gitinterface.cpp" line="67"/>
         <source>Already running</source>
         <translation>Läuft bereits</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="458"/>
+        <location filename="src/gitinterface.cpp" line="469"/>
         <source>There are no files to commit</source>
         <translation>Es sind keine Dateien zum Commit vorgemerkt</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="552"/>
+        <location filename="src/gitinterface.cpp" line="563"/>
         <source>untracked file</source>
         <translation>nicht verfolgte Datei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="576"/>
+        <location filename="src/gitinterface.cpp" line="587"/>
         <source>binary file</source>
         <translation>Binärdatei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="679"/>
+        <location filename="src/gitinterface.cpp" line="690"/>
         <source>Push has failed</source>
         <translation>Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="693"/>
+        <location filename="src/gitinterface.cpp" line="704"/>
         <source>Push tags has failed</source>
         <translation>Tag-Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="713"/>
+        <location filename="src/gitinterface.cpp" line="724"/>
         <source>Pull has failed</source>
         <translation>Pull ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="788"/>
+        <location filename="src/gitinterface.cpp" line="799"/>
         <source>Deleting branch %1 has failed with the following message:
 %2</source>
         <translation>Das Löschen des Branches %1 ist mit folgender Nachricht fehlgeschlagen:
 %2</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="855"/>
+        <location filename="src/gitinterface.cpp" line="866"/>
         <source>Cherry-picking commit %1 has failed with the following message:
 %2</source>
         <translation>Der Cherry-Pick für den Commit %1 ist mit folgender Nachricht fehlgeschlagen:
@@ -702,7 +702,7 @@ Anwendungversion: %1</translation>
 <context>
     <name>Project</name>
     <message>
-        <location filename="src/project.cpp" line="147"/>
+        <location filename="src/project.cpp" line="153"/>
         <source>Select repository path</source>
         <translation>Repository-Pfad auswählen</translation>
     </message>
@@ -715,52 +715,57 @@ Anwendungversion: %1</translation>
         <translation>Projekteinstellungen</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="46"/>
+        <location filename="src/projectsettingsdialog.ui" line="148"/>
         <source>Add repository...</source>
         <translation>Repository hinzufügen...</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="56"/>
+        <location filename="src/projectsettingsdialog.ui" line="158"/>
         <source>Remove repository</source>
         <translation>Repository entfernen</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="77"/>
+        <location filename="src/projectsettingsdialog.ui" line="26"/>
         <source>Project name</source>
         <translation>Projektname</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="87"/>
+        <location filename="src/projectsettingsdialog.ui" line="79"/>
         <source>Project file path</source>
         <translation>Dateipfad des Projekts</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="99"/>
+        <location filename="src/projectsettingsdialog.ui" line="91"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="108"/>
+        <location filename="src/projectsettingsdialog.ui" line="100"/>
         <source>Repositories</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.ui" line="136"/>
+        <location filename="src/projectsettingsdialog.ui" line="44"/>
         <source>Enable auto-fetch</source>
         <translation>Auto-fetch aktivieren</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="59"/>
+        <location filename="src/projectsettingsdialog.ui" line="57"/>
+        <source>Auto-fetch timer</source>
+        <translation>Auto-fetch-Timer</translation>
+    </message>
+    <message>
+        <location filename="src/projectsettingsdialog.cpp" line="57"/>
         <source>Select project file</source>
         <translation>Projektdatei auswählen</translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="65"/>
+        <location filename="src/projectsettingsdialog.cpp" line="63"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/projectsettingsdialog.cpp" line="65"/>
+        <location filename="src/projectsettingsdialog.cpp" line="63"/>
         <source>Path</source>
         <translation>Pfad</translation>
     </message>
@@ -856,37 +861,37 @@ Anwendungversion: %1</translation>
         <translation>Alle repositories pushen</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="22"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="25"/>
         <source>Pushing...</source>
         <translation>Pushen...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="25"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="28"/>
         <source>Pulling...</source>
         <translation>Pullen...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="28"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="31"/>
         <source>Fetching...</source>
         <translation>Fetchen...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="31"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="34"/>
         <source>Committing...</source>
         <translation>Commiten...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="34"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="37"/>
         <source>Stashing...</source>
         <translation>Stashen...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="37"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="40"/>
         <source>Restoring stash entry...</source>
         <translation>Stash-Eintrag wiederherstellen...</translation>
     </message>
     <message>
-        <location filename="src/components/repositorylist/repositorylist.cpp" line="82"/>
+        <location filename="src/components/repositorylist/repositorylist.cpp" line="85"/>
         <source>Repository list</source>
         <translation>Repository-Liste</translation>
     </message>
@@ -937,84 +942,84 @@ Anwendungversion: %1</translation>
 <context>
     <name>ToolBarActions</name>
     <message>
-        <location filename="src/toolbaractions.cpp" line="72"/>
+        <location filename="src/toolbaractions.cpp" line="77"/>
         <source>No upstream branch configured</source>
         <translation>Kein Upstream-Branch konfiguriert</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="73"/>
+        <location filename="src/toolbaractions.cpp" line="78"/>
         <source>Would you like to set the default upstream branch to origin/%1?</source>
         <translation>Soll der Standard-Upstream-Branch auf origin/%1 gesetzt werden?</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="103"/>
+        <location filename="src/toolbaractions.cpp" line="108"/>
         <source>There are open changes</source>
         <translation>Es gibt offene Änderungen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="104"/>
+        <location filename="src/toolbaractions.cpp" line="109"/>
         <source>There are open changes in this repository. Would you like to stash your changes before pulling and unstash them afterwards?</source>
         <oldsource>There are open changes in this repository. Would you like to stash your changes before pushing and unstash them afterwards?</oldsource>
         <translation>Es gibt offene Änderungen im Repository. Sollen diese vor dem Pull gestasht und anschließend aus dem Stash wiederhergestellt werden?</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="35"/>
-        <location filename="src/toolbaractions.cpp" line="148"/>
+        <location filename="src/toolbaractions.cpp" line="40"/>
+        <location filename="src/toolbaractions.cpp" line="153"/>
         <source>Create new branch</source>
         <translation>Neuen Branch erstellen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="19"/>
+        <location filename="src/toolbaractions.cpp" line="23"/>
         <source>Stash changes</source>
         <translation>Änderungen stashen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="21"/>
+        <location filename="src/toolbaractions.cpp" line="26"/>
         <source>Unstash changes</source>
         <translation>Anderungen aus Stash wiederherstellen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="23"/>
+        <location filename="src/toolbaractions.cpp" line="28"/>
         <source>Fetch data from default remote</source>
         <translation>aten von Standard-Remote fetchen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="25"/>
+        <location filename="src/toolbaractions.cpp" line="30"/>
         <source>Push current repository</source>
         <translation>Aktuelles Repository Pushen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="27"/>
+        <location filename="src/toolbaractions.cpp" line="32"/>
         <source>Push tags of current repository</source>
         <translation>Tags des aktuellen Repositories pushen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="29"/>
+        <location filename="src/toolbaractions.cpp" line="34"/>
         <source>Pull current repository (with rebase)</source>
         <translation>Aktuelles Repository Pullen (mit Rebase)</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="31"/>
+        <location filename="src/toolbaractions.cpp" line="36"/>
         <source>Push all repositories</source>
         <translation>Alle repositories pushen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="33"/>
+        <location filename="src/toolbaractions.cpp" line="38"/>
         <source>Pull all repositories (with rebase)</source>
         <translation>Alle repositories pullen (mit Rebase)</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="37"/>
+        <location filename="src/toolbaractions.cpp" line="42"/>
         <source>Clean up repository</source>
         <translation>Repository bereinigen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="39"/>
+        <location filename="src/toolbaractions.cpp" line="44"/>
         <source>Reset current branch to HEAD</source>
         <translation>Aktuellen Branch auf HEAD zurücksetzen</translation>
     </message>
     <message>
-        <location filename="src/toolbaractions.cpp" line="149"/>
+        <location filename="src/toolbaractions.cpp" line="154"/>
         <source>New branch name</source>
         <translation>Name des neuen Branches</translation>
     </message>

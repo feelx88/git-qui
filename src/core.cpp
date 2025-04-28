@@ -112,6 +112,9 @@ struct CorePrivate {
     for (auto &repository : project->repositoryList()) {
       repository->fetchNonBlocking();
     }
+
+    autoFetchTimer->setInterval(
+        project->autoFetchTimer().msecsSinceStartOfDay());
   }
 };
 
@@ -159,13 +162,6 @@ bool Core::init() {
 
   project()->reloadAllRepositories();
 
-  _impl->autoFetchTimer = new QTimer(this);
-  connect(_impl->autoFetchTimer, &QTimer::timeout, this,
-          [this] { _impl->onAutoFetchTimerTimeout(); });
-  _impl->autoFetchTimer->setInterval(
-      std::chrono::seconds(AUTO_FETCH_INTERVAL_SECONDS));
-  _impl->autoFetchTimer->start();
-
   return true;
 }
 
@@ -178,10 +174,19 @@ void Core::changeProject(Project *newProject) {
   emit projectChanged(_impl->project.get());
 
   project()->reloadAllRepositories();
+
+  _impl->autoFetchTimer = new QTimer(this);
+  connect(_impl->autoFetchTimer, &QTimer::timeout, this,
+          [this] { _impl->onAutoFetchTimerTimeout(); });
+  _impl->autoFetchTimer->setInterval(
+      _impl->project->autoFetchTimer().msecsSinceStartOfDay());
+  _impl->autoFetchTimer->start();
 }
 
 Project *Core::project() const { return _impl->project.get(); }
 
 QVariantMap Core::recentProjects() const { return _impl->recentProjects; }
+
+fa::QtAwesome *Core::iconFont() const { return _impl->iconFont; }
 
 void Core::clearRecentProjects() { _impl->recentProjects.clear(); }
