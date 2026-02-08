@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak-builder"
+          command: "sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak-builder appstream appsream-compose"
       - checkout:
           path: git-qui
       - run:
@@ -25,7 +25,7 @@ jobs:
           command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
       - run:
           name: "Run flatpak-builder"
-          command: "sudo flatpak-builder --no-appstream-extract --disable-rofiles-fuse --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
+          command: "sudo flatpak-builder --disable-rofiles-fuse --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
       - persist_to_workspace:
           root: .
           paths:
@@ -68,7 +68,7 @@ jobs:
             ssh root@feelx88.de "cd /root/flatpak-repo && rm -rf build"
             rsync -avz --no-times --no-o --no-g /tmp/git-qui/build root@feelx88.de:/root/flatpak-repo
             rsync -avz --no-times --no-o --no-g /tmp/git-qui/git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
-            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --no-appstream-extract --force-clean --install-deps-from=flathub --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
+            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --force-clean --install-deps-from=flathub --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
   publish-github-artifacts:
     docker:
       - image: cibuilds/github:0.10
