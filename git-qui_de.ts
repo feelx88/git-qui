@@ -275,44 +275,44 @@
         <translation>Läuft bereits</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="471"/>
+        <location filename="src/gitinterface.cpp" line="494"/>
         <source>There are no files to commit</source>
         <translation>Es sind keine Dateien zum Commit vorgemerkt</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="564"/>
+        <location filename="src/gitinterface.cpp" line="587"/>
         <source>untracked file</source>
         <translation>nicht verfolgte Datei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="588"/>
+        <location filename="src/gitinterface.cpp" line="611"/>
         <source>binary file</source>
         <translation>Binärdatei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="691"/>
+        <location filename="src/gitinterface.cpp" line="714"/>
         <source>Push has failed</source>
         <translation>Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="705"/>
+        <location filename="src/gitinterface.cpp" line="728"/>
         <source>Push tags has failed</source>
         <translation>Tag-Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="725"/>
+        <location filename="src/gitinterface.cpp" line="748"/>
         <source>Pull has failed</source>
         <translation>Pull ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="800"/>
+        <location filename="src/gitinterface.cpp" line="823"/>
         <source>Deleting branch %1 has failed with the following message:
 %2</source>
         <translation>Das Löschen des Branches %1 ist mit folgender Nachricht fehlgeschlagen:
 %2</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="867"/>
+        <location filename="src/gitinterface.cpp" line="890"/>
         <source>Cherry-picking commit %1 has failed with the following message:
 %2</source>
         <translation>Der Cherry-Pick für den Commit %1 ist mit folgender Nachricht fehlgeschlagen:
@@ -793,7 +793,7 @@ Anwendungversion: %1</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="src/gitinterface.cpp" line="410"/>
+        <location filename="src/gitinterface.cpp" line="433"/>
         <source>History truncated by reaching the set limit of %1 lines.</source>
         <oldsource>History truncated by reaching the maximum history count of %1 lines.</oldsource>
         <translation>History wurde durch Erreichen des eingestellten Limits von %1 Zeilen gekürzt.</translation>
