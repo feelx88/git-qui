@@ -54,9 +54,10 @@ set(CMAKE_AUTOUIC ON)
 
 set(QT_DEPRECATED_WARNINGS ON)
 
-find_package(Qt5 5.15 REQUIRED COMPONENTS
+find_package(Qt6 REQUIRED COMPONENTS
   Core
   Svg
+  SvgWidgets
   Xml
   Gui
   Widgets
@@ -90,12 +91,13 @@ target_compile_definitions(git-qui
 )
 
 target_link_libraries(git-qui
-  Qt::Core
-  Qt::Svg
-  Qt::Xml
-  Qt::Gui
-  Qt::Widgets
-  ads::qtadvanceddocking
+  Qt6::Core
+  Qt6::Svg
+  Qt6::SvgWidgets
+  Qt6::Xml
+  Qt6::Gui
+  Qt6::Widgets
+  ads::qtadvanceddocking-qt6
 )
 
 if(FLATPAK_BUILD)

@@ -45,7 +45,7 @@ struct ProjectPrivate {
     currentRepository = std::max(
         std::min(
             settings->value(ConfigurationKeys::CURRENT_REPOSITORY, 0).toInt(),
-            list.size() - 1),
+            static_cast<int>(list.size()) - 1),
         0);
     autoFetchEnabled =
         settings->value(ConfigurationKeys::AUTOFETCH_ENABLED, true).toBool();
@@ -68,7 +68,9 @@ struct ProjectPrivate {
       settings->setValue(ConfigurationKeys::NAME, name);
 
       currentRepository =
-          currentRepository > repositories.size() ? 0 : currentRepository;
+          currentRepository > static_cast<int>(repositories.size())
+              ? 0
+              : currentRepository;
 
       settings->setValue(ConfigurationKeys::CURRENT_REPOSITORY,
                          currentRepository);
@@ -121,7 +123,9 @@ QList<QSharedPointer<GitInterface>> Project::repositoryList() const {
 
 QSharedPointer<GitInterface> Project::activeRepository() const {
   return _impl->repositories.at(std::max(
-      std::min(_impl->repositories.size() - 1, _impl->currentRepository), 0));
+      std::min(static_cast<int>(_impl->repositories.size()) - 1,
+               _impl->currentRepository),
+      0));
 }
 
 QSharedPointer<QObject> Project::activeRepositoryContext() const {

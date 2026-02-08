@@ -1,24 +1,26 @@
+<!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/">
-        <file>deploy/icons/archive-insert.svg</file>
-        <file>deploy/icons/archive-remove.svg</file>
-        <file>deploy/icons/collapse-all.svg</file>
-        <file>deploy/icons/expand-all.svg</file>
-        <file>deploy/icons/go-bottom.svg</file>
-        <file>deploy/icons/go-down.svg</file>
-        <file>deploy/icons/go-next.svg</file>
-        <file>deploy/icons/go-previous.svg</file>
-        <file>deploy/icons/go-top.svg</file>
-        <file>deploy/icons/go-up.svg</file>
-        <file>deploy/icons/distribute-graph-directed.svg</file>
-        <file>deploy/icons/state-error.svg</file>
-        <file>deploy/icons/state-ok.svg</file>
-        <file>deploy/icons/state-sync.svg</file>
-        <file>deploy/icons/edit-clear-history.svg</file>
-        <file>deploy/icons/edit-download.svg</file>
-        <file alias="git-qui.svg">de.feelx88.git-qui.svg</file>
-        <file>deploy/icons/edit-undo.svg</file>
-        <file>git-qui_de.qm</file>
-        <file>deploy/icons/window-pin.svg</file>
-    </qresource>
+  <qresource prefix="/">
+    <file>deploy/icons/archive-insert.svg</file>
+    <file>deploy/icons/archive-remove.svg</file>
+    <file>deploy/icons/collapse-all.svg</file>
+    <file>deploy/icons/expand-all.svg</file>
+    <file>deploy/icons/go-bottom.svg</file>
+    <file>deploy/icons/go-down.svg</file>
+    <file>deploy/icons/go-next.svg</file>
+    <file>deploy/icons/go-previous.svg</file>
+    <file>deploy/icons/go-top.svg</file>
+    <file>deploy/icons/go-up.svg</file>
+    <file>deploy/icons/distribute-graph-directed.svg</file>
+    <file>deploy/icons/state-error.svg</file>
+    <file>deploy/icons/state-ok.svg</file>
+    <file>deploy/icons/state-sync.svg</file>
+    <file>deploy/icons/edit-clear-history.svg</file>
+    <file>deploy/icons/edit-download.svg</file>
+    <file alias="git-qui.svg">de.feelx88.git-qui.svg</file>
+    <file>deploy/icons/edit-undo.svg</file>
+    <file>git-qui_de.qm</file>
+    <file>deploy/icons/window-pin.svg</file>
+    <file>deploy/icons/send-to.svg</file>
+  </qresource>
 </RCC>

@@ -3,14 +3,14 @@
 ![CircleCI](https://img.shields.io/circleci/build/github/feelx88/git-qui)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/feelx88/git-qui?include_prereleases)
 
-# git qui
-qt5 ui replacement for git-gui.
+# git-qui
+Qt6-based UI replacement for `git gui` and `gitk`.
 
 ## Installation
 
 ### Linux
 
-The Linux version is available via flatpak - curently inside a self-hosted repository.
+The Linux version is available via flatpak - currently inside a self-hosted repository.
 
 You can install it by opening this flatpakref file:
 
@@ -26,8 +26,15 @@ An *untested* Mac OS version is automatically built for each release and can be 
 
 ### Building from source
 
-This is actually really simple: clone the repository, open the `.pro` file in QtCreator and build.
-You can also build everything via the command line: `qmake && make`
+This is actually really simple: clone the repository, run `cmake` and then `make`.
+You can also build everything via the command line:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
 
 # Acknowledgments
 

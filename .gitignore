@@ -77,6 +77,8 @@ Thumbs.db
 vendor/
 
 # Custom
+.vscode/
+build/
 dist/
 de.feelx88.git-qui.metainfo.xml
 CMakeLists.txt.user

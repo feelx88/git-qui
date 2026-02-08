@@ -263,7 +263,6 @@ void LogView::onRepositorySwitched(
           auto layout = new QHBoxLayout(container);
           int remoteIndex = 0;
           layout->setAlignment(Qt::AlignLeft);
-          layout->setMargin(2);
           for (const auto &ref : qAsConst(commit.refs)) {
             remoteIndex += ref.isRemote ? 1 : 0;
             int insertPosition = -1;

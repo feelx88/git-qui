@@ -1,6 +1,7 @@
 #include "errorlog.hpp"
 #include "ui_errorlog.h"
 
+#include <QFile>
 #include <QStandardPaths>
 
 struct ErrorLogPrivate {

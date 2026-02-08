@@ -3,14 +3,14 @@
   <id>de.feelx88.git-qui</id>
 
   <name>git-qui</name>
-  <summary>qt5 ui replacement for git-gui</summary>
+  <summary>Qt6 ui replacement for git gui</summary>
 
   <metadata_license>MIT</metadata_license>
   <project_license>GPL-3.0-only</project_license>
 
   <description>
     <p>
-      qt5 ui replacement for git-gui.
+      Qt6 ui replacement for git gui.
     </p>
   </description>
 

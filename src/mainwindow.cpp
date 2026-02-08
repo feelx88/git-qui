@@ -12,7 +12,6 @@
 #include <QProcess>
 #include <QSettings>
 #include <QStatusBar>
-#include <QSvgWidget>
 #include <QTimer>
 #include <QToolBar>
 
@@ -63,7 +62,7 @@ struct MainWindowPrivate {
     QObject::connect(
         core, &Core::projectChanged, _this,
         [=, this](Project *project) { connectProjectSignals(project); });
-    connectProjectSignals(core->project());
+      connectProjectSignals(core->project());
 
     QObject::connect(_this->ui->actionEnable_auto_fetch, &QAction::toggled,
                      _this, [=, this](bool toggled) {
@@ -193,7 +192,7 @@ struct MainWindowPrivate {
               {"--host",
                QString("--directory=%1")
                    .arg(_this->core()->project()->activeRepository()->path()),
-               "gitk", "--all"});
+                                 "gitk", "--all"});
 #else
           process->setProgram("gitk");
           process->setArguments({"--all"});
@@ -213,7 +212,7 @@ struct MainWindowPrivate {
               {"--host",
                QString("--directory=%1")
                    .arg(_this->core()->project()->activeRepository()->path()),
-               "git", "gui"});
+                                 "git", "gui"});
 #else
           process->setProgram("git");
           process->setArguments({"gui"});
@@ -389,7 +388,7 @@ struct MainWindowPrivate {
 
   void about() {
     QMessageBox::about(_this, MainWindow::tr("About git qui"),
-                       MainWindow::tr("qt5 ui replacement for git-gui. \n\n"
+                       MainWindow::tr("Qt6-based UI replacement for git-gui. \n\n"
                                       "Application Version: %1")
                            .arg(
 #if defined(GIT_VERSION)

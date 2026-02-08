@@ -46,7 +46,7 @@ void InitialWindowConfiguration::create(MainWindow *mainWindow) {
                                       repositoryList->dockAreaWidget());
 
   auto errorLog = mainWindow->addDockWidget<ErrorLog>(0);
-  commitTabDockManager->sideTabBar(ads::SideBarBottom)
+  commitTabDockManager->autoHideSideBar(ads::SideBarBottom)
       ->insertDockWidget(0, errorLog);
 
   // History tab

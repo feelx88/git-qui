@@ -3,5 +3,5 @@ Type=Application
 Name=git qui
 Exec=
 Icon=de.feelx88.git-qui
-Comment=qt5 replacement for git gui
+Comment=Qt6 replacement for git gui
 Categories=Development;

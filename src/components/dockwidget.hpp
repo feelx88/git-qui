@@ -36,6 +36,7 @@ class Project;
 struct DockWidgetPrivate;
 
 class DockWidget : public ads::CDockWidget {
+  Q_OBJECT
 public:
   friend struct DockWidgetPrivate;
 
