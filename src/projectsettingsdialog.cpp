@@ -92,7 +92,7 @@ ProjectSettingsDialog::ProjectSettingsDialog(
     _impl->project->addRepository();
     _impl->fillRepositoryList(this);
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(true);
   });
 
   connect(ui->removeRepositoryButton, &QToolButton::clicked, this, [this] {

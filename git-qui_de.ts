@@ -413,37 +413,37 @@
         <translation>Tag %1 löschen?</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="296"/>
+        <location filename="src/components/logview/logview.cpp" line="295"/>
         <source>Check out branch %1</source>
         <translation>Branch %1 auschecken</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="298"/>
+        <location filename="src/components/logview/logview.cpp" line="297"/>
         <source>Delete branch %1...</source>
         <translation>Branch %1 löschen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="305"/>
+        <location filename="src/components/logview/logview.cpp" line="304"/>
         <source>Delete tag %1...</source>
         <translation>Tag %1 löschen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="321"/>
+        <location filename="src/components/logview/logview.cpp" line="320"/>
         <source>Reset branch %1 to this commit...</source>
         <translation>Branch %1 auf diesen Commit zurücksetzen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="332"/>
+        <location filename="src/components/logview/logview.cpp" line="331"/>
         <source>Error while deleting a branch</source>
         <translation>Fehler beim Löschen eines Branches</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="338"/>
+        <location filename="src/components/logview/logview.cpp" line="337"/>
         <source>Error while cherry-picking a commit</source>
         <translation>Beim cherry-picken eines Commits ist ein Fehler aufgetreten</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="339"/>
+        <location filename="src/components/logview/logview.cpp" line="338"/>
         <source>%1
 To repeat the cherry-pick with the --mainline flag to select the parent commit to use and press ok.
 Usually, parent #1 points to the main branch on merge commits</source>
