@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak-builder appstream appsream-compose"
+          command: "sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak-builder appstream appstream-compose"
       - checkout:
           path: git-qui
       - run:
