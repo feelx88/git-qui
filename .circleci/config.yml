@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: "Install dependencies"
-          command: "sudo add-apt-repository ppa:flatpak/stable && sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak flatpak-builder appstream appstream-compose"
+          command: "sudo add-apt-repository -y ppa:flatpak/stable && sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak flatpak-builder appstream appstream-compose"
       - checkout:
           path: git-qui
       - run:
