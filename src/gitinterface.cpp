@@ -224,13 +224,36 @@ public:
       }
 
       if (output.startsWith("##")) {
-        QRegularExpression branchRegex(
-            "## (.*)\\.\\.\\..*(?:ahead ([0-9]+))?.*(?:behind ([0-9]+))?.*");
-        auto match = branchRegex.match(output);
-        hasUpstream = match.hasMatch();
-        branchName = hasUpstream ? match.captured(1) : output.split(' ').at(1);
-        commitsAhead = match.captured(2).toInt();
-        commitsBehind = match.captured(3).toInt();
+        QString line = output.mid(3); // Skip "## "
+        int bracketIndex = line.indexOf(" [");
+        QString branchPart =
+            (bracketIndex != -1) ? line.left(bracketIndex) : line;
+        QString extra = (bracketIndex != -1)
+                            ? line.mid(bracketIndex + 2,
+                                       line.length() - bracketIndex - 3)
+                            : "";
+
+        int dotsIndex = branchPart.indexOf("...");
+        if (dotsIndex != -1) {
+          branchName = branchPart.left(dotsIndex);
+          hasUpstream = true;
+        } else {
+          branchName = branchPart;
+          hasUpstream = false;
+        }
+
+        if (!extra.isEmpty()) {
+          QRegularExpression aheadRegex("ahead ([0-9]+)");
+          QRegularExpression behindRegex("behind ([0-9]+)");
+          auto aheadMatch = aheadRegex.match(extra);
+          auto behindMatch = behindRegex.match(extra);
+          if (aheadMatch.hasMatch()) {
+            commitsAhead = aheadMatch.captured(1).toInt();
+          }
+          if (behindMatch.hasMatch()) {
+            commitsBehind = behindMatch.captured(1).toInt();
+          }
+        }
         continue;
       }
 
