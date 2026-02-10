@@ -58,6 +58,9 @@ workflows:
     jobs:
       - build-flatpak:
           filters:
+            branches:
+              ignore:
+                - /.*/
             tags:
               only:
                 - /v.*/
