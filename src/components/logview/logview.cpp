@@ -230,9 +230,11 @@ void LogView::onRepositorySwitched(
           }
 
           auto currentIdValues = currentRow.currentColumns.values();
-          currentRow.columnCount = *std::max_element(currentIdValues.begin(),
-                                                     currentIdValues.end()) +
-                                   1;
+          if (!currentIdValues.empty()) {
+            currentRow.columnCount = *std::max_element(currentIdValues.begin(),
+                                                       currentIdValues.end()) +
+                                     1;
+          }
 
           rows.prepend(currentRow);
         }
