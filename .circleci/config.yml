@@ -8,29 +8,13 @@ jobs:
   build-flatpak:
     machine:
       image: ubuntu-2404:2025.09.1
-    working_directory: /tmp/git-qui
     resource_class: medium
     steps:
+      - add_ssh_keys
       - run:
-          name: "Install dependencies"
-          command: "sudo add-apt-repository -y ppa:flatpak/stable && sudo apt update && sudo NEEDRESTART_MODE=a apt install -y git flatpak flatpak-builder appstream appstream-compose"
-      - checkout:
-          path: git-qui
-      - run:
-          name: "Checkout submodules"
-          working_directory: git-qui
-          command: git submodule sync --recursive && git submodule update --recursive --init
-      - run:
-          name: "Add flathub repo"
-          command: "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
-      - run:
-          name: "Run flatpak-builder"
-          command: "sudo flatpak-builder --disable-rofiles-fuse --ccache build git-qui/de.feelx88.git-qui.yml --force-clean --install-deps-from=flathub"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - "git-qui/de.feelx88.git-qui.yml"
-            - "build"
+          name: "Build flatpak and publish artifacts"
+          command: |
+            ssh root@feelx88.de "cd /root/flatpak-repo/flatpak-builder-docker && docker-compose run --rm flatpak-builder /build.sh ${CIRCLE_TAG}"
   build-dmg:
     macos:
       xcode: 14.0.0
@@ -53,22 +37,6 @@ jobs:
           root: .
           paths:
             - "git-qui.dmg"
-  publish-flatpak:
-    machine:
-      image: ubuntu-2204:2022.10.2
-    working_directory: /tmp/git-qui
-    resource_class: medium
-    steps:
-      - add_ssh_keys
-      - attach_workspace:
-          at: /tmp/git-qui
-      - run:
-          name: "Publish artifacts"
-          command: |
-            ssh root@feelx88.de "cd /root/flatpak-repo && rm -rf build"
-            rsync -avz --no-times --no-o --no-g /tmp/git-qui/build root@feelx88.de:/root/flatpak-repo
-            rsync -avz --no-times --no-o --no-g /tmp/git-qui/git-qui/de.feelx88.git-qui.yml root@feelx88.de:/root/flatpak-repo
-            ssh root@feelx88.de "cd /root/flatpak-repo && flatpak-builder --force-clean --install-deps-from=flathub --export-only --repo=repo --gpg-sign=C4F384337F40E773D24E493FAB1FF343CA6F966D build de.feelx88.git-qui.yml"
   publish-github-artifacts:
     docker:
       - image: cibuilds/github:0.10
@@ -90,9 +58,6 @@ workflows:
     jobs:
       - build-flatpak:
           filters:
-            branches:
-              only:
-                - master
             tags:
               only:
                 - /v.*/
@@ -104,16 +69,6 @@ workflows:
 #            tags:
 #              only:
 #                - /v.*/
-      - publish-flatpak:
-          requires:
-            - build-flatpak
-          filters:
-            branches:
-              ignore:
-                - /.*/
-            tags:
-              only:
-                - /v.*/
 #      - publish-github-artifacts:
 #          requires:
 #            - build-dmg
