@@ -17,6 +17,7 @@ public:
   QList<GitRef> refs;
   QList<QString> parentIds;
   bool isHead = false;
+  bool isLimitHint = false;
   QList<QWeakPointer<GitCommit>> parentCommits, childCommits;
 };
 Q_DECLARE_METATYPE(GitCommit)

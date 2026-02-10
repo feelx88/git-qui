@@ -239,9 +239,15 @@ void LogView::onRepositorySwitched(
           rows.prepend(currentRow);
         }
 
+        auto font = this->font();
+
         for (const auto &commit : tree->commitList()) {
           TreeWidgetItem *item = new TreeWidgetItem(ui->treeWidget);
           item->setText(2, commit->message);
+          font.setItalic(commit->isLimitHint);
+          font.setBold(commit->isLimitHint);
+          item->setFont(2, font);
+
           item->setToolTip(2, commit->message);
           item->setText(3, commit->author);
           item->setText(4, commit->date.toString());

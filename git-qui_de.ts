@@ -275,44 +275,44 @@
         <translation>Läuft bereits</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="494"/>
+        <location filename="src/gitinterface.cpp" line="486"/>
         <source>There are no files to commit</source>
         <translation>Es sind keine Dateien zum Commit vorgemerkt</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="587"/>
+        <location filename="src/gitinterface.cpp" line="579"/>
         <source>untracked file</source>
         <translation>nicht verfolgte Datei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="611"/>
+        <location filename="src/gitinterface.cpp" line="603"/>
         <source>binary file</source>
         <translation>Binärdatei</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="714"/>
+        <location filename="src/gitinterface.cpp" line="706"/>
         <source>Push has failed</source>
         <translation>Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="728"/>
+        <location filename="src/gitinterface.cpp" line="720"/>
         <source>Push tags has failed</source>
         <translation>Tag-Push ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="748"/>
+        <location filename="src/gitinterface.cpp" line="740"/>
         <source>Pull has failed</source>
         <translation>Pull ist fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="823"/>
+        <location filename="src/gitinterface.cpp" line="815"/>
         <source>Deleting branch %1 has failed with the following message:
 %2</source>
         <translation>Das Löschen des Branches %1 ist mit folgender Nachricht fehlgeschlagen:
 %2</translation>
     </message>
     <message>
-        <location filename="src/gitinterface.cpp" line="890"/>
+        <location filename="src/gitinterface.cpp" line="882"/>
         <source>Cherry-picking commit %1 has failed with the following message:
 %2</source>
         <translation>Der Cherry-Pick für den Commit %1 ist mit folgender Nachricht fehlgeschlagen:
@@ -413,37 +413,37 @@
         <translation>Tag %1 löschen?</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="295"/>
+        <location filename="src/components/logview/logview.cpp" line="303"/>
         <source>Check out branch %1</source>
         <translation>Branch %1 auschecken</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="297"/>
+        <location filename="src/components/logview/logview.cpp" line="305"/>
         <source>Delete branch %1...</source>
         <translation>Branch %1 löschen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="304"/>
+        <location filename="src/components/logview/logview.cpp" line="312"/>
         <source>Delete tag %1...</source>
         <translation>Tag %1 löschen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="320"/>
+        <location filename="src/components/logview/logview.cpp" line="328"/>
         <source>Reset branch %1 to this commit...</source>
         <translation>Branch %1 auf diesen Commit zurücksetzen...</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="331"/>
+        <location filename="src/components/logview/logview.cpp" line="339"/>
         <source>Error while deleting a branch</source>
         <translation>Fehler beim Löschen eines Branches</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="337"/>
+        <location filename="src/components/logview/logview.cpp" line="345"/>
         <source>Error while cherry-picking a commit</source>
         <translation>Beim cherry-picken eines Commits ist ein Fehler aufgetreten</translation>
     </message>
     <message>
-        <location filename="src/components/logview/logview.cpp" line="338"/>
+        <location filename="src/components/logview/logview.cpp" line="346"/>
         <source>%1
 To repeat the cherry-pick with the --mainline flag to select the parent commit to use and press ok.
 Usually, parent #1 points to the main branch on merge commits</source>
@@ -793,7 +793,7 @@ Anwendungversion: %1</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="src/gitinterface.cpp" line="433"/>
+        <location filename="src/gitinterface.cpp" line="424"/>
         <source>History truncated by reaching the set limit of %1 lines.</source>
         <oldsource>History truncated by reaching the maximum history count of %1 lines.</oldsource>
         <translation>History wurde durch Erreichen des eingestellten Limits von %1 Zeilen gekürzt.</translation>

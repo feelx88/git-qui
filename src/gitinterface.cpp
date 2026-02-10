@@ -424,6 +424,7 @@ public:
         commit.message = QObject::tr("History truncated by reaching the set "
                                      "limit of %1 lines.")
                              .arg(historyLimit);
+        commit.isLimitHint = true;
         list.append(commit);
         break;
       }
