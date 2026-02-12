@@ -807,14 +807,14 @@ public:
     log();
   }
 
-  void deleteBranch(const QString &name, bool force = false) {
-    auto process = git({"branch", force ? "-D" : "-d", name});
+  void deleteBranches(const QStringList &names, bool force = false) {
+    auto process = git(QStringList{"branch", force ? "-D" : "-d"} << names);
 
     if (process.exitCode != EXIT_SUCCESS) {
       emit _this->error(
           GitInterface::tr(
               "Deleting branch %1 has failed with the following message:\n%2")
-              .arg(name, process.standardErrorOutput),
+              .arg(names.join(", "), process.standardErrorOutput),
           GitInterface::ActionTag::GIT_DELETE_BRANCH,
           GitInterface::ErrorType::GENERIC);
       return;
@@ -1124,9 +1124,14 @@ QFuture<void> GitInterface::createBranch(const QString &name,
 }
 
 QFuture<void> GitInterface::deleteBranch(const QString &name, bool force) {
+  return deleteBranches({name}, force);
+}
+
+QFuture<void> GitInterface::deleteBranches(const QStringList &names,
+                                           bool force) {
   RUN_ONCE(ActionTag::GIT_BRANCH,
-           QtConcurrent::run(&GitInterfacePrivate::deleteBranch, _impl.get(),
-                             name, force));
+           QtConcurrent::run(&GitInterfacePrivate::deleteBranches, _impl.get(),
+                             names, force));
 }
 
 QFuture<void> GitInterface::setUpstream(const QString &remote,

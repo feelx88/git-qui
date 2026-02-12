@@ -62,17 +62,17 @@
         <translation>Ausgewählte Branches löschen</translation>
     </message>
     <message>
-        <location filename="src/cleanupdialog.cpp" line="48"/>
+        <location filename="src/cleanupdialog.cpp" line="49"/>
         <source>%1 branch(es)</source>
         <translation>%1Branch(es)</translation>
     </message>
     <message>
-        <location filename="src/cleanupdialog.cpp" line="61"/>
+        <location filename="src/cleanupdialog.cpp" line="62"/>
         <source>Count</source>
         <translation>Anzahl</translation>
     </message>
     <message>
-        <location filename="src/cleanupdialog.cpp" line="61"/>
+        <location filename="src/cleanupdialog.cpp" line="62"/>
         <source></source>
         <translation></translation>
     </message>

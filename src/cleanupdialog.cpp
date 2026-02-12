@@ -2,6 +2,7 @@
 #include "ui_cleanupdialog.h"
 
 #include <QFutureWatcher>
+#include <QMap>
 
 #include "core.hpp"
 #include "gitinterface.hpp"
@@ -82,15 +83,20 @@ CleanUpDialog::CleanUpDialog(Core *core, QWidget *parent)
   });
 
   connect(ui->pushButton_3, &QPushButton::clicked, this, [=, this] {
+    QMap<QSharedPointer<GitInterface>, QStringList> branchesToDelete;
     for (auto &item : _impl->items) {
       if (item->checkState(0) == Qt::Checked &&
           item->data(0, Qt::UserRole).isNull()) {
         auto repository = core->project()->repositoryByName(
             item->parent()->data(0, Qt::UserRole).toString());
         if (repository) {
-          repository->deleteBranch(item->text(0));
+          branchesToDelete[repository] << item->text(0);
         }
       }
+    }
+
+    for (auto [repository, branches] : branchesToDelete.asKeyValueRange()) {
+      repository->deleteBranches(branches);
     }
     close();
   });
